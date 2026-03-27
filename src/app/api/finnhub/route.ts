@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
 
     // Rate limited — return null gracefully, don't crash
     if (res.status === 429) {
-      console.warn('[Finnhub] Rate limit hit for', cacheKey)
       return NextResponse.json({ rateLimited: true, data: null }, { status: 200 })
     }
 
