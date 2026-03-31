@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-interface CacheEntry { data: unknown; expires: number; stale: unknown }
-const cache = new Map<string, CacheEntry>()
+// In-memory cache per instance — fallback only, real caching via CDN headers
+const cache = new Map<string, { data: unknown; stale: unknown; expires: number }>()
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -9,14 +9,17 @@ export async function GET(request: NextRequest) {
   const symbol   = searchParams.get('symbol')
   const q        = searchParams.get('q')
 
-  if (!endpoint) return NextResponse.json({ error: 'endpoint required' }, { status: 400 })
+  if (!endpoint) {
+    return NextResponse.json({ error: 'endpoint required' }, { status: 400 })
+  }
 
   const cacheKey = `finnhub:${endpoint}:${symbol || q || ''}`
   const cached   = cache.get(cacheKey)
 
-  // Return fresh cache
   if (cached && cached.expires > Date.now()) {
-    return NextResponse.json(cached.data)
+    return NextResponse.json(cached.data, {
+      headers: { 'Cache-Control': 'public, s-maxage=5, stale-while-revalidate=30' }
+    })
   }
 
   const params = new URLSearchParams()
@@ -24,46 +27,47 @@ export async function GET(request: NextRequest) {
   if (symbol) params.set('symbol', symbol)
   if (q)      params.set('q', q)
 
-  // Forward any extra params
+  if (endpoint === 'search' && q) {
+    params.delete('symbol')
+    params.set('q', q)
+  }
+
   searchParams.forEach((value, key) => {
     if (!['endpoint', 'symbol', 'q'].includes(key)) params.set(key, value)
   })
 
-// Finnhub search uses different base path
-const path = endpoint === 'search' ? 'search' : endpoint
-// For search, Finnhub needs 'q' not 'symbol'
-if (endpoint === 'search' && q) {
-  params.delete('symbol')
-  params.set('q', q)
-}
-const url = `https://finnhub.io/api/v1/${path}?${params}`
+  const url = `https://finnhub.io/api/v1/${endpoint}?${params}`
 
   try {
     const res = await fetch(url, { next: { revalidate: 0 } })
 
     if (res.status === 429) {
-      // Rate limited — return stale data if available, never blank
+      // Rate limited — always return stale data, never blank
       if (cached?.stale) {
-        return NextResponse.json(cached.stale)
+        return NextResponse.json(cached.stale, {
+          headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=60' }
+        })
       }
-      return NextResponse.json({ rateLimited: true, data: null })
+      return NextResponse.json({ rateLimited: true }, { status: 200 })
     }
 
     const data = await res.json()
 
-    // TTL per endpoint
     const ttl = endpoint === 'quote'  ? 6_000
-      : endpoint === 'search'         ? 30_000
+      : endpoint === 'search'         ? 60_000
       : endpoint === 'news'           ? 90_000
       : 60_000
 
-    // Store both fresh and stale copy
-    cache.set(cacheKey, { data, expires: Date.now() + ttl, stale: data })
+    cache.set(cacheKey, { data, stale: data, expires: Date.now() + ttl })
 
-    return NextResponse.json(data)
+    // s-maxage tells Vercel CDN to cache at the edge
+    const sMaxAge = endpoint === 'quote' ? 5 : endpoint === 'news' ? 60 : 30
+
+    return NextResponse.json(data, {
+      headers: { 'Cache-Control': `public, s-maxage=${sMaxAge}, stale-while-revalidate=120` }
+    })
   } catch {
-    // Network error — return stale if available
     if (cached?.stale) return NextResponse.json(cached.stale)
-    return NextResponse.json({ error: 'fetch failed', data: null })
+    return NextResponse.json({ error: 'fetch failed' }, { status: 200 })
   }
 }
