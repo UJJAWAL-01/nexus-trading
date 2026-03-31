@@ -43,6 +43,21 @@ function calcSupertrend(candles: CandleData[], period = 10, multiplier = 2) {
   return result
 }
 
+
+function calcEMA(candles: CandleData[], period: number): { time: number; value: number }[] {
+  if (candles.length < period) return []
+  const k   = 2 / (period + 1)
+  const out: { time: number; value: number }[] = []
+  let ema = candles.slice(0, period).reduce((s, c) => s + c.close, 0) / period
+  candles.forEach((c, i) => {
+    if (i < period - 1) return
+    if (i === period - 1) { out.push({ time: c.time, value: ema }); return }
+    ema = c.close * k + ema * (1 - k)
+    out.push({ time: c.time, value: ema })
+  })
+  return out
+}
+
 function calcFibLevels(candles: CandleData[]) {
   if (candles.length < 2) return []
   const recent = candles.slice(-60)
@@ -66,6 +81,9 @@ export default function ChartPanel() {
   const stBullRef   = useRef<any>(null)
   const stBearRef   = useRef<any>(null)
   const fibLinesRef = useRef<any[]>([])
+  const ema9Ref     = useRef<any>(null)
+  const ema21Ref    = useRef<any>(null)
+  const volumeRef   = useRef<any>(null)
 
   const [selectedSymbol, setSelectedSymbol] = useState('SPY')
   const [selectedTf, setSelectedTf]         = useState('1D')
@@ -73,6 +91,7 @@ export default function ChartPanel() {
   const [loading,    setLoading]             = useState(true)
   const [showFib,    setShowFib]             = useState(true)
   const [showST,     setShowST]             = useState(true)
+  const [showEMA,    setShowEMA]    = useState(true)
 
   const tfToRange:    Record<string, string> = { '1D':'1d','5D':'5d','1M':'1mo','3M':'3mo','6M':'6mo','1Y':'1y' }
   const tfToInterval: Record<string, string> = { '1D':'5m','5D':'15m','1M':'1d','3M':'1d','6M':'1wk','1Y':'1wk' }
@@ -110,38 +129,62 @@ export default function ChartPanel() {
   }, [])
 
   const applyIndicators = useCallback((candles: CandleData[]) => {
-    if (!chartRef.current) return
+  if (!chartRef.current) return
 
-    // Clear old fib lines
-    fibLinesRef.current.forEach(l => { try { chartRef.current.removePriceLine(l) } catch {} })
-    fibLinesRef.current = []
+  // Clear fib lines
+  fibLinesRef.current.forEach(l => { try { candleRef.current.removePriceLine(l) } catch {} })
+  fibLinesRef.current = []
 
-    // Fibonacci levels
-    if (showFib && candleRef.current) {
-      const fibs = calcFibLevels(candles)
-      const fibColors: Record<string, string> = {
-        'Fib 0%': '#ffffff44', 'Fib 23.6%': '#00e5c088', 'Fib 38.2%': '#1e90ff88',
-        'Fib 50%': '#f0a50088', 'Fib 61.8%': '#ff456088', 'Fib 100%': '#ffffff44',
-      }
-      fibs.forEach(f => {
-        const line = candleRef.current.createPriceLine({
-          price: f.price, color: fibColors[f.label] || '#ffffff44',
-          lineWidth: 1, lineStyle: 2,
-          axisLabelVisible: true, title: f.label,
-        })
-        fibLinesRef.current.push(line)
+  // Fibonacci
+  if (showFib && candleRef.current) {
+    const fibs = calcFibLevels(candles)
+    const fibColors: Record<string, string> = {
+      'Fib 0%': '#ffffff33', 'Fib 23.6%': '#00e5c088', 'Fib 38.2%': '#1e90ff88',
+      'Fib 50%': '#f0a50088', 'Fib 61.8%': '#ff456088', 'Fib 100%': '#ffffff33',
+    }
+    fibs.forEach(f => {
+      const line = candleRef.current.createPriceLine({
+        price: f.price, color: fibColors[f.label] || '#ffffff44',
+        lineWidth: 1, lineStyle: 2,
+        axisLabelVisible: true, title: f.label,
       })
-    }
+      fibLinesRef.current.push(line)
+    })
+  }
 
-    // Supertrend
-    if (showST && stBullRef.current && stBearRef.current) {
-      const st = calcSupertrend(candles)
-      const bullData = st.filter(s => s.bull).map(s => ({ time: s.time, value: s.value }))
-      const bearData = st.filter(s => !s.bull).map(s => ({ time: s.time, value: s.value }))
-      stBullRef.current.setData(bullData)
-      stBearRef.current.setData(bearData)
+  // Supertrend
+  if (stBullRef.current && stBearRef.current) {
+    if (showST) {
+      const st   = calcSupertrend(candles)
+      stBullRef.current.setData(st.filter(s =>  s.bull).map(s => ({ time: s.time, value: s.value })))
+      stBearRef.current.setData(st.filter(s => !s.bull).map(s => ({ time: s.time, value: s.value })))
+    } else {
+      stBullRef.current.setData([])
+      stBearRef.current.setData([])
     }
-  }, [showFib, showST])
+  }
+
+  // EMAs
+  if (ema9Ref.current && ema21Ref.current) {
+    if (showEMA) {
+      ema9Ref.current.setData(calcEMA(candles, 9))
+      ema21Ref.current.setData(calcEMA(candles, 21))
+    } else {
+      ema9Ref.current.setData([])
+      ema21Ref.current.setData([])
+    }
+  }
+
+  // Volume
+  if (volumeRef.current) {
+    const volData = candles.map(c => ({
+      time:  c.time,
+      value: 0, // Yahoo free doesn't give volume in this endpoint — placeholder
+      color: c.close >= c.open ? 'rgba(0,201,122,0.4)' : 'rgba(255,69,96,0.4)',
+    }))
+    // Only set if we have actual volume — skip silently
+  }
+}, [showFib, showST, showEMA])
 
   // Init chart once
   useEffect(() => {
@@ -203,6 +246,22 @@ export default function ChartPanel() {
         applyIndicators(data)
       }
       fetchQuote('SPY')
+      // Volume series — separate price scale at bottom
+const volume = chart.addHistogramSeries({
+  color: '#26a69a',
+  priceFormat: { type: 'volume' },
+  priceScaleId: 'volume',
+  scaleMargins: { top: 0.85, bottom: 0 },
+})
+chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.85, bottom: 0 } })
+
+// EMA lines
+const ema9  = chart.addLineSeries({ color: '#f0a500', lineWidth: 1, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false })
+const ema21 = chart.addLineSeries({ color: '#1e90ff', lineWidth: 1, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false })
+
+volumeRef.current = volume
+ema9Ref.current   = ema9
+ema21Ref.current  = ema21
     }
 
     init()
@@ -265,6 +324,7 @@ export default function ChartPanel() {
           {[
             { key: 'fib', label: 'FIB', active: showFib, toggle: () => setShowFib(v => !v) },
             { key: 'st',  label: 'ST(10,2)', active: showST,  toggle: () => setShowST(v => !v) },
+            { key: 'ema', label: 'EMA 9/21', active: showEMA, toggle: () => setShowEMA(v => !v) },
           ].map(ind => (
             <button key={ind.key} onClick={ind.toggle} style={{
               padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',

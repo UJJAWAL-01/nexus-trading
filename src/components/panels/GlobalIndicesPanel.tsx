@@ -25,18 +25,24 @@ export default function GlobalIndicesPanel() {
   )
 
   const fetch_ = async () => {
-    const updates = await Promise.all(
-      INDICES.map(async ({ symbol }) => {
-        try {
-          const res = await fetch(`/api/finnhub?endpoint=quote&symbol=${symbol}`)
-          const d = await res.json()
-          if (d.rateLimited || !d.c) return { symbol, price: null, change: null }
-          return { symbol, price: d.c, change: d.dp }
-        } catch {
-          return { symbol, price: null, change: null }
-        }
-      })
-    )
+    // In GlobalIndicesPanel fetch_ function, replace the map:
+const updates = await Promise.all(
+  INDICES.map(async ({ symbol }) => {
+    try {
+      const res = await fetch(`/api/finnhub?endpoint=quote&symbol=${symbol}`)
+      const d = await res.json()
+      if (d.rateLimited || !d.c) {
+        // Keep stale value
+        const prev = data.find(x => x.symbol === symbol)
+        return { symbol, price: prev?.price ?? null, change: prev?.change ?? null }
+      }
+      return { symbol, price: d.c, change: d.dp }
+    } catch {
+      const prev = data.find(x => x.symbol === symbol)
+      return { symbol, price: prev?.price ?? null, change: prev?.change ?? null }
+    }
+  })
+)
     setData(updates)
   }
 

@@ -53,7 +53,9 @@ export default function NewsFeedPanel() {
       // Fetch from multiple sources in parallel
       const [finnhubRes, newsApiRes] = await Promise.allSettled([
         fetch('/api/finnhub?endpoint=news&category=general'),
-        fetch('/api/news?q=' + encodeURIComponent(symbols.slice(0, 3).join(' OR '))),
+        fetch('/api/news?q=' + encodeURIComponent(
+          symbols.slice(0, 4).join(' OR ') + ' OR stock market OR earnings OR Fed'
+        ))
       ])
 
       const items: NewsItem[] = []
@@ -136,7 +138,7 @@ export default function NewsFeedPanel() {
 
   useEffect(() => {
     fetchNews()
-    const t = setInterval(fetchNews, 120_000) // refresh every 2 min
+    const t = setInterval(fetchNews, 60_000) // refresh every 2 min
     return () => clearInterval(t)
   }, [symbols])
 

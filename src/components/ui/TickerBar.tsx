@@ -18,17 +18,26 @@ export default function TickerBar() {
   const flashRef = useRef<Record<string, 'up' | 'down' | null>>({})
   const [flashes, setFlashes] = useState<Record<string, 'up' | 'down' | null>>({})
 
-  const fetchPrices = async () => {
-    const updates: TickerItem[] = []
-    for (const symbol of DEFAULT_SYMBOLS) {
+// Replace the fetchPrices function inside TickerBar:
+const fetchPrices = async () => {
+  const updates: TickerItem[] = []
+  for (const symbol of DEFAULT_SYMBOLS) {
+    try {
       const res = await fetch(`/api/finnhub?endpoint=quote&symbol=${symbol}`)
-const data = await res.json()
-if (data.rateLimited || !data.c) {
-  updates.push({ symbol, price: null, change: null, prevPrice: null })
-  continue
-}
-updates.push({ symbol, price: data.c, change: data.dp, prevPrice: data.pc })
+      const data = await res.json()
+      if (data.rateLimited || !data.c) {
+        // Keep previous value — never go blank
+        const prev = tickers.find(t => t.symbol === symbol)
+        updates.push({ symbol, price: prev?.price ?? null, change: prev?.change ?? null, prevPrice: prev?.prevPrice ?? null })
+        continue
+      }
+      updates.push({ symbol, price: data.c, change: data.dp, prevPrice: data.pc })
+    } catch {
+      const prev = tickers.find(t => t.symbol === symbol)
+      updates.push({ symbol, price: prev?.price ?? null, change: prev?.change ?? null, prevPrice: prev?.prevPrice ?? null })
     }
+  }
+  // rest of flash logic stays the same...
 
     setTickers(prev => {
       const newFlashes: Record<string, 'up' | 'down' | null> = {}
