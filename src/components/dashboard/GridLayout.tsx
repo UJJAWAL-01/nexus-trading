@@ -9,6 +9,8 @@ import GridLayoutBase, {
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
+const MOBILE_BREAKPOINT = 768
+
 import AlternativeSignalsPanel from '@/components/panels/AlternativeSignalsPanel'
 import ChartPanel               from '@/components/panels/ChartPanel'
 import EconomicCalendarPanel    from '@/components/panels/EconomicCalendarPanel'
@@ -121,6 +123,7 @@ export default function GridLayout() {
   const [editing, setEditing] = useState(false)
   const [layout,  setLayout]  = useState<DashboardLayout>(() => loadLayout())
   const [saved,   setSaved]   = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   const originalLayoutRef      = useRef<DashboardLayout>(cloneLayout(DEFAULT_LAYOUT))
   const saveIndicatorTimerRef  = useRef<number | null>(null)
@@ -131,6 +134,16 @@ export default function GridLayout() {
       window.cancelAnimationFrame(frameId)
       if (saveIndicatorTimerRef.current !== null) window.clearTimeout(saveIndicatorTimerRef.current)
     }
+  }, [])
+
+  // Handle responsive breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const showSaveIndicator = () => {
@@ -179,137 +192,170 @@ export default function GridLayout() {
   }
 
   return (
-    <div style={{ padding: '0 8px 40px' }}>
+    <div style={{ padding: isMobile ? '8px 4px 40px' : '0 8px 40px' }}>
 
-      {/* Toolbar */}
-      <div style={{
-        display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
-        gap: '8px', padding: '6px 0',
-        position: 'sticky', top: '46px', zIndex: 50,
-        background: 'var(--bg-base)',
-        borderBottom: editing ? '1px solid rgba(240,165,0,0.2)' : '1px solid transparent',
-        transition: 'border-color 0.2s',
-      }}>
-        {editing && (
-          <span style={{
-            fontSize: '11px', color: 'var(--amber)',
-            fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em',
-            marginRight: 'auto', marginLeft: '4px',
-          }}>
-            drag panel headers to move · corner to resize
-          </span>
-        )}
+      {/* Toolbar - Hidden on mobile */}
+      {!isMobile && (
+        <div style={{
+          display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
+          gap: '8px', padding: '6px 0',
+          position: 'sticky', top: '46px', zIndex: 50,
+          background: 'var(--bg-base)',
+          borderBottom: editing ? '1px solid rgba(240,165,0,0.2)' : '1px solid transparent',
+          transition: 'border-color 0.2s',
+        }}>
+          {editing && (
+            <span style={{
+              fontSize: '11px', color: 'var(--amber)',
+              fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em',
+              marginRight: 'auto', marginLeft: '4px',
+            }}>
+              drag panel headers to move · corner to resize
+            </span>
+          )}
 
-        {saved && !editing && (
-          <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
-            layout saved
-          </span>
-        )}
+          {saved && !editing && (
+            <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
+              layout saved
+            </span>
+          )}
 
-        {!editing ? (
-          <>
-            <button
-              onClick={handleStartEdit}
-              style={{ ...btnBase, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.color = 'var(--amber)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
-            >
-              Edit layout
-            </button>
-            <button
-              onClick={handleReset}
-              style={{ ...btnBase, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.color = 'var(--text)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
-            >
-              Reset
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={handleCancel}
-              style={{ ...btnBase, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              style={{
-                ...btnBase,
-                border: '1px solid var(--amber)', background: 'rgba(240,165,0,0.15)',
-                color: 'var(--amber)', fontWeight: 700, boxShadow: '0 0 12px rgba(240,165,0,0.15)',
-              }}
-            >
-              Save layout
-            </button>
-          </>
-        )}
-      </div>
+          {!editing ? (
+            <>
+              <button
+                onClick={handleStartEdit}
+                style={{ ...btnBase, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.color = 'var(--amber)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+              >
+                Edit layout
+              </button>
+              <button
+                onClick={handleReset}
+                style={{ ...btnBase, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.color = 'var(--text)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+              >
+                Reset
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleCancel}
+                style={{ ...btnBase, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                style={{
+                  ...btnBase,
+                  border: '1px solid var(--amber)', background: 'rgba(240,165,0,0.15)',
+                  color: 'var(--amber)', fontWeight: 700, boxShadow: '0 0 12px rgba(240,165,0,0.15)',
+                }}
+              >
+                Save layout
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
-      {/* Grid */}
-      <div style={{ marginTop: '8px' }}>
-        <ReactGridLayout
-          layout={layout}
-          cols={12}
-          rowHeight={30}
-          margin={[8, 8]}
-          containerPadding={[0, 0]}
-          isDraggable={editing}
-          isResizable={editing}
-          draggableHandle=".nexus-drag-handle"
-          onLayoutChange={handleLayoutChange}
-          useCSSTransforms
-          compactType="vertical"
-        >
+      {/* Mobile view - Stack layout */}
+      {isMobile ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
           {layout.map(({ i }) => {
             const meta = PANEL_META[i]
             return (
-              <div key={i} style={{
-                display: 'flex', flexDirection: 'column', overflow: 'hidden',
-                outline:      editing ? '1px solid rgba(240,165,0,0.2)' : 'none',
-                borderRadius: '6px',
-                transition:   'outline 0.2s',
-              }}>
-                {editing && (
-                  <div
-                    className="nexus-drag-handle"
-                    style={{
-                      height: '28px', flexShrink: 0,
-                      background: 'rgba(240,165,0,0.07)',
-                      borderBottom: '1px solid rgba(240,165,0,0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '0 12px', cursor: 'grab',
-                      borderRadius: '6px 6px 0 0', userSelect: 'none',
-                    }}
-                    onMouseDown={e => { e.currentTarget.style.cursor = 'grabbing' }}
-                    onMouseUp={e   => { e.currentTarget.style.cursor = 'grab' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
-                        DRAG
-                      </span>
-                      <span style={{ fontSize: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: meta.color || 'var(--amber)', letterSpacing: '0.1em' }}>
-                        {meta.label}
-                      </span>
-                    </div>
-                    <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
-                      drag to move · corner to resize
-                    </span>
-                  </div>
-                )}
-
+              <div
+                key={i}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                  borderRadius: '6px',
+                  minHeight: '300px',
+                }}
+              >
                 <div style={{
-                  flex: 1, overflow: 'hidden', minHeight: 0,
-                  borderRadius: editing ? '0 0 6px 6px' : '6px',
+                  flex: 1,
+                  overflow: 'hidden',
+                  minHeight: 0,
+                  borderRadius: '6px',
                 }}>
                   {meta.component}
                 </div>
               </div>
             )
           })}
-        </ReactGridLayout>
-      </div>
+        </div>
+      ) : (
+        /* Desktop view - Grid layout */
+        <div style={{ marginTop: '8px' }}>
+          <ReactGridLayout
+            layout={layout}
+            cols={12}
+            rowHeight={30}
+            margin={[8, 8]}
+            containerPadding={[0, 0]}
+            isDraggable={editing}
+            isResizable={editing}
+            draggableHandle=".nexus-drag-handle"
+            onLayoutChange={handleLayoutChange}
+            useCSSTransforms
+            compactType="vertical"
+          >
+            {layout.map(({ i }) => {
+              const meta = PANEL_META[i]
+              return (
+                <div key={i} style={{
+                  display: 'flex', flexDirection: 'column', overflow: 'hidden',
+                  outline:      editing ? '1px solid rgba(240,165,0,0.2)' : 'none',
+                  borderRadius: '6px',
+                  transition:   'outline 0.2s',
+                }}>
+                  {editing && (
+                    <div
+                      className="nexus-drag-handle"
+                      style={{
+                        height: '28px', flexShrink: 0,
+                        background: 'rgba(240,165,0,0.07)',
+                        borderBottom: '1px solid rgba(240,165,0,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '0 12px', cursor: 'grab',
+                        borderRadius: '6px 6px 0 0', userSelect: 'none',
+                      }}
+                      onMouseDown={e => { e.currentTarget.style.cursor = 'grabbing' }}
+                      onMouseUp={e   => { e.currentTarget.style.cursor = 'grab' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
+                          DRAG
+                        </span>
+                        <span style={{ fontSize: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: meta.color || 'var(--amber)', letterSpacing: '0.1em' }}>
+                          {meta.label}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                        drag to move · corner to resize
+                      </span>
+                    </div>
+                  )}
+
+                  <div style={{
+                    flex: 1, overflow: 'hidden', minHeight: 0,
+                    borderRadius: editing ? '0 0 6px 6px' : '6px',
+                  }}>
+                    {meta.component}
+                  </div>
+                </div>
+              )
+            })}
+          </ReactGridLayout>
+        </div>
+      )}
 
       <style>{`
         .react-grid-item { transition: none !important; }

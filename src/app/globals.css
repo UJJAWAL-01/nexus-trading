@@ -23,9 +23,9 @@
   --negative:   #ff4560;
 
   /* Text */
-  --text:       #c8d8e8;
-  --text-2:     #7a9ab0;
-  --text-muted: #4a6070;
+  --text:       #d2dce7;
+  --text-2:     #87a3b5;
+  --text-muted: #7c858b;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

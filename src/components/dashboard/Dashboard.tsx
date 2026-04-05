@@ -5,9 +5,19 @@ import TickerBar  from '@/components/ui/TickerBar'
 import GridLayout from '@/components/dashboard/GridLayout'
 import Footer     from '@/components/ui/Footer'
 
+const MOBILE_BREAKPOINT = 768
+
 function MarketStatusBar() {
   const [times,  setTimes]  = useState<{ et: string; gmt: string; hkt: string } | null>(null)
   const [status, setStatus] = useState({ label: 'LOADING', color: 'var(--text-muted)', sub: '', pulse: false })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     const update = () => {
@@ -45,6 +55,47 @@ function MarketStatusBar() {
   }, [])
 
   if (!times) return null
+
+  if (isMobile) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+        {/* Status */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '7px', height: '7px', borderRadius: '50%',
+            background: status.color,
+            boxShadow: status.pulse ? `0 0 10px ${status.color}` : 'none',
+            animation: status.pulse ? 'pulseDot 2s ease-in-out infinite' : 'none',
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: '10px', color: status.color, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', fontWeight: 700 }}>
+            {status.label}
+          </span>
+          <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+            {status.sub}
+          </span>
+        </div>
+
+        {/* Clocks */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', overflowX: 'auto', paddingBottom: '4px' }}>
+          {[
+            { label: 'NY', value: times.et,  highlight: true  },
+            { label: 'LON', value: times.gmt, highlight: false },
+            { label: 'HK', value: times.hkt, highlight: false },
+          ].map(({ label, value, highlight }) => (
+            <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+              <div style={{ fontSize: '8px', color: 'var(--text-muted)', letterSpacing: '0.1em', fontFamily: 'JetBrains Mono, monospace' }}>
+                {label}
+              </div>
+              <div style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.04em', color: highlight ? '#fff' : 'var(--text-2)', marginTop: '1px' }}>
+                {value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -89,6 +140,15 @@ function MarketStatusBar() {
 }
 
 export default function Dashboard() {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>
 
@@ -97,26 +157,32 @@ export default function Dashboard() {
         position: 'sticky', top: 0, zIndex: 100,
         borderBottom: '1px solid var(--border)',
         background: 'var(--bg-panel)',
-        height: '46px',
-        display: 'flex', alignItems: 'center',
+        height: isMobile ? 'auto' : '46px',
+        display: 'flex',
+        alignItems: isMobile ? 'flex-start' : 'center',
         justifyContent: 'space-between',
-        padding: '0 18px',
+        padding: isMobile ? '12px' : '0 18px',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? '12px' : '0',
       }}>
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '20px', color: '#fff', letterSpacing: '-0.02em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '0', flex: isMobile ? '0 0 auto' : 'none' }}>
+          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: isMobile ? '18px' : '20px', color: '#fff', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
             NEX<span style={{ color: 'var(--amber)' }}>US</span>
           </div>
           <div style={{
             borderLeft: '1px solid var(--border)', paddingLeft: '12px',
-            fontSize: '9px', color: 'var(--text-muted)',
+            fontSize: isMobile ? '8px' : '9px', color: 'var(--text-muted)',
             fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em',
+            display: isMobile ? 'none' : 'block',
           }}>
             TRADING INTELLIGENCE
           </div>
         </div>
 
-        <MarketStatusBar />
+        <div style={{ width: '100%', ...(isMobile ? {} : { flex: 1 }) }}>
+          <MarketStatusBar />
+        </div>
       </div>
 
       {/* ── Ticker ── */}

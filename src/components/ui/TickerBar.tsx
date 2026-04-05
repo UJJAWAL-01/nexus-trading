@@ -5,6 +5,7 @@ import { useWatchlist } from '@/store/watchlist'
 
 // Always-present index symbols added to watchlist symbols
 const INDEX_SYMBOLS = ['SPY', 'QQQ', 'GLD', 'BTC-USD', 'VIX']
+const MOBILE_BREAKPOINT = 768
 
 interface TickerItem {
   symbol: string
@@ -15,6 +16,15 @@ interface TickerItem {
 
 export default function TickerBar() {
   const { symbols: watchlistSymbols } = useWatchlist()
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detect mobile
+  useEffect(() => {
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Derive combined, deduplicated symbol list
   const allSymbols = [...new Set([...watchlistSymbols, ...INDEX_SYMBOLS])]
@@ -95,6 +105,90 @@ export default function TickerBar() {
 
   // Scroll speed scales with count — min 25s, +3s per symbol
   const duration = Math.max(25, tickers.length * 3.5)
+
+  // On mobile, show fewer tickers in a horizontally scrollable container
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          background:   'var(--bg-panel)',
+          borderBottom: '1px solid var(--border)',
+          height:       '40px',
+          overflow:     'auto',
+          position:     'relative',
+          msOverflowStyle: 'none',
+          scrollBehavior: 'smooth',
+        }}
+      >
+        <style>{`
+          .ticker-track-mobile::-webkit-scrollbar { display: none; }
+          .ticker-track-mobile { -ms-overflow-style: none; }
+        `}</style>
+        
+        <div className="ticker-track-mobile" style={{
+          display: 'flex',
+          alignItems: 'center',
+          height: '100%',
+          gap: '0',
+          width: 'max-content',
+          minWidth: '100%',
+        }}>
+          {tickers.map((ticker) => (
+            <div
+              key={ticker.symbol}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                flexShrink: 0,
+                padding: '2px 12px',
+                borderRight: '1px solid var(--border)',
+                background:
+                  ticker.flash === 'up'
+                    ? 'rgba(0,201,122,0.2)'
+                    : ticker.flash === 'down'
+                    ? 'rgba(255,69,96,0.2)'
+                    : 'transparent',
+                transition: 'background 0.1s',
+                minWidth: '100px',
+              }}
+            >
+              <span style={{
+                fontSize: '10px',
+                fontFamily: 'Syne, sans-serif',
+                fontWeight: 700,
+                color: '#fff',
+                letterSpacing: '0.04em',
+                whiteSpace: 'nowrap',
+              }}>
+                {ticker.symbol}
+              </span>
+
+              <span style={{
+                fontSize: '11px',
+                fontFamily: 'JetBrains Mono, monospace',
+                color: ticker.price != null ? '#fff' : 'var(--text-muted)',
+                whiteSpace: 'nowrap',
+              }}>
+                {ticker.price != null ? ticker.price.toFixed(2) : '···'}
+              </span>
+
+              {ticker.change !== null && (
+                <span style={{
+                  fontSize: '9px',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  color: ticker.change >= 0 ? 'var(--positive)' : 'var(--negative)',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)}%
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div

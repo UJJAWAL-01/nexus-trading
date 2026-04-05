@@ -4,6 +4,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'NEXUS — Trading Intelligence',
   description: 'Real-time trading intelligence dashboard',
+  viewport: 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes',
 }
 
 export default function RootLayout({
