@@ -90,7 +90,7 @@ export default function NewsFeedPanel() {
 
   const fetchNews = async () => {
     try {
-      const watchlistQuery = symbols.slice(0, 5).join(' OR ') + ' OR stock market OR earnings OR Fed'
+      const watchlistQuery = symbols.join(' OR ') + ' OR stock market OR earnings OR Fed'
 
       const [finnhubRes, newsApiRes] = await Promise.allSettled([
         fetch('/api/finnhub?endpoint=news&category=general'),
