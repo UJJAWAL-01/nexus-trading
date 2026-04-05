@@ -76,16 +76,11 @@ function ichimokuCloud(candles: Candle[]) {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const TFS = ['1D','5D','1M','3M','6M','1Y'] as const
+const TFS = ['1D'] as const
 type TF = typeof TFS[number]
 
 const TF_CFG: Record<TF,{range:string;interval:string;label:string}> = {
-  '1D':{ range:'1d',  interval:'5m',  label:'5min'   },
-  '5D':{ range:'5d',  interval:'15m', label:'15min'  },
-  '1M':{ range:'1mo', interval:'1d',  label:'Daily'  },
-  '3M':{ range:'3mo', interval:'1d',  label:'Daily'  },
-  '6M':{ range:'6mo', interval:'1wk', label:'Weekly' },
-  '1Y':{ range:'1y',  interval:'1wk', label:'Weekly' },
+  '1D':{ range:'1d',  interval:'15m',  label:'15min'   },
 }
 
 const PANES = {
@@ -117,7 +112,6 @@ export default function ChartPanel() {
 
   // ── 2. State ───────────────────────────────────────────────────────────────
   const [sym,       setSym]       = useState(() => symbols[0] ?? 'SPY')
-  const [tf,        setTf]        = useState<TF>('1D')
   const [quote,     setQuote]     = useState<Record<string,number>|null>(null)
   const [loading,   setLoading]   = useState(true)
   const [ready,     setReady]     = useState(false)
@@ -126,6 +120,9 @@ export default function ChartPanel() {
   const [showDonch, setShowDonch] = useState(true)
   const [showIchi,  setShowIchi]  = useState(true)
   const [hoveredInd, setHoveredInd] = useState<string | null>(null)
+  const [volHeight, setVolHeight] = useState(1.0)
+  const [volWidth,  setVolWidth]  = useState(1.0)
+  const [hoveredVol, setHoveredVol] = useState<{value: number; time: string} | null>(null)
 
   // ── 3. DOM refs ────────────────────────────────────────────────────────────
   const containerRef  = useRef<HTMLDivElement>(null)
@@ -155,9 +152,9 @@ export default function ChartPanel() {
 
   // ── 6. Fetch helpers ───────────────────────────────────────────────────────
 
-  const getCandles = useCallback(async (s:string, t:TF): Promise<Candle[]> => {
+  const getCandles = useCallback(async (s:string): Promise<Candle[]> => {
     try {
-      const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(s)}&range=${TF_CFG[t].range}&interval=${TF_CFG[t].interval}`)
+      const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(s)}&range=1d&interval=15m`)
       const j = await r.json()
       const res = j?.results?.[0]?.data?.chart?.result?.[0]
       if (!res) return []
@@ -292,13 +289,14 @@ export default function ChartPanel() {
         chart.priceScale('vol').applyOptions({ scaleMargins:PANES.volume })
 
         const shared = { lastValueVisible:false, priceLineVisible:false, crosshairMarkerVisible:false }
-        const donchUp   = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'rgba(30,144,255,0.6)', lineWidth:1, lineStyle:2 })
-        const donchDn   = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'rgba(255,69,96,0.6)', lineWidth:1, lineStyle:2 })
-        const donchMid  = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'rgba(160,160,160,0.3)', lineWidth:1, lineStyle:3 })
+        // Enhanced indicators with better visibility
+        const donchUp   = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#1e90ff', lineWidth:2 })
+        const donchDn   = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#ff6b6b', lineWidth:2 })
+        const donchMid  = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'rgba(160,160,160,0.5)', lineWidth:1, lineStyle:3 })
 
-        const ichiTenkan = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#00c97a', lineWidth:1 })
-        const ichiKijun  = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#ff4560', lineWidth:1 })
-        const ichiChikou = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'rgba(167,139,250,0.7)', lineWidth:1, lineStyle:2 })
+        const ichiTenkan = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#00e5c0', lineWidth:2.5 })
+        const ichiKijun  = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#ff4560', lineWidth:2.5 })
+        const ichiChikou = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#a78bfa', lineWidth:2, lineStyle:1 })
 
         chartR.current=chart; candleR.current=candles; volumeR.current=volume
         donchUpR.current=donchUp; donchDnR.current=donchDn; donchMidR.current=donchMid
@@ -353,7 +351,7 @@ export default function ChartPanel() {
     if (!ready) return
     let cancelled=false
     setLoading(true)
-    Promise.all([getCandles(sym,tf), getQuote(sym)]).then(([candles]) => {
+    Promise.all([getCandles(sym), getQuote(sym)]).then(([candles]) => {
       if (cancelled||!candleR.current) return
       if (candles.length>0) {
         candleR.current.setData(candles)
@@ -364,7 +362,7 @@ export default function ChartPanel() {
       setLoading(false)
     }).catch(()=>setLoading(false))
     return ()=>{ cancelled=true }
-  }, [sym, tf, ready]) // eslint-disable-line
+  }, [sym, ready]) // eslint-disable-line
 
   // ── 10. Indicator toggle re-apply ─────────────────────────────────────────
 
@@ -427,20 +425,6 @@ export default function ChartPanel() {
             ))}
           </div>
         </div>
-
-        {/* Timeframe buttons */}
-        <div style={{ display:'flex', gap:'3px', alignItems:'center', flexShrink:0 }}>
-          {TFS.map(t => (
-            <button key={t} onClick={()=>setTf(t)} style={{
-              padding:'2px 7px', borderRadius:'3px', cursor:'pointer',
-              fontFamily:'JetBrains Mono, monospace', fontSize:'10px', flexShrink:0,
-              border:`1px solid ${tf===t?'var(--teal)':'var(--border)'}`,
-              background: tf===t?'rgba(0,229,192,0.1)':'transparent',
-              color:      tf===t?'var(--teal)':'var(--text-2)',
-              transition:'all 0.12s',
-            }}>{t}</button>
-          ))}
-        </div>
       </div>
 
       {/* ── Row 2: Indicator toggles ───────────────────────────────────── */}
@@ -485,6 +469,14 @@ export default function ChartPanel() {
           {hoveredInd === 'donch' && <span style={{ color:'#f0a500' }}>20-period High/Low channels - breakout/reversal</span>}
           {hoveredInd === 'ichi' && <span style={{ color:'#00e5c0' }}>Tenkan(TK), Kijun(KJ), Chikou(CK) - Trend direction</span>}
         </div>
+
+        <div style={{ marginLeft:'auto', display:'flex', gap:'3px', alignItems:'center', paddingLeft: '12px', borderLeft:'1px solid var(--border)' }}>
+          <span style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono, monospace' }}>VOL</span>
+          <button onClick={() => setVolHeight(v => Math.max(0.5, v - 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>−H</button>
+          <button onClick={() => setVolHeight(v => Math.min(2, v + 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>+H</button>
+          <button onClick={() => setVolWidth(v => Math.max(0.5, v - 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>−W</button>
+          <button onClick={() => setVolWidth(v => Math.min(2, v + 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>+W</button>
+        </div>
       </div>
 
       {/* ── Quote strip ───────────────────────────────────────────────── */}
@@ -501,7 +493,7 @@ export default function ChartPanel() {
             {isUp?'+':''}{quote.d?.toFixed(2)}&nbsp;({isUp?'+':''}{quote.dp?.toFixed(2)}%)
           </span>
           <span style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono, monospace', marginLeft:'auto' }}>
-            {sym} · {TF_CFG[tf].label} · scroll=zoom · drag price axis=stretch
+            {sym} · 15min · scroll=zoom · drag price axis=stretch
           </span>
         </div>
       )}
