@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import TickerBar  from '@/components/ui/TickerBar'
 import GridLayout from '@/components/dashboard/GridLayout'
+import Footer     from '@/components/ui/Footer'
 
 function MarketStatusBar() {
   const [times,  setTimes]  = useState<{ et: string; gmt: string; hkt: string } | null>(null)
@@ -123,6 +124,9 @@ export default function Dashboard() {
 
       {/* ── Panels ── */}
       <GridLayout />
+
+      {/* ── Footer ── */}
+      <Footer />
     </div>
   )
 }

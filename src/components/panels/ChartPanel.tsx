@@ -94,13 +94,64 @@ function fibLevels(candles: Candle[]) {
   ]
 }
 
+function pivotLevels(candles: Candle[]) {
+  if (candles.length < 1) return { pivot:0, r1:0, r2:0, s1:0, s2:0 }
+  const last = candles[candles.length - 1]
+  const H = last.high, L = last.low, C = last.close
+  const P = (H + L + C) / 3
+  const R1 = 2 * P - L
+  const R2 = P + (H - L)
+  const S1 = 2 * P - H
+  const S2 = P - (H - L)
+  return { pivot: P, r1: R1, r2: R2, s1: S1, s2: S2 }
+}
+
+function donchianChannels(candles: Candle[], period = 20) {
+  const out: Array<{ time: number; high: number; low: number; mid: number }> = []
+  for (let i = period - 1; i < candles.length; i++) {
+    const slice = candles.slice(i - period + 1, i + 1)
+    const high = Math.max(...slice.map(c => c.high))
+    const low = Math.min(...slice.map(c => c.low))
+    const mid = (high + low) / 2
+    out.push({ time: candles[i].time, high, low, mid })
+  }
+  return out
+}
+
+function ichimokuCloud(candles: Candle[]) {
+  const tenkan: Array<{ time: number; value: number }> = []
+  const kijun: Array<{ time: number; value: number }> = []
+  const chikou: Array<{ time: number; value: number }> = []
+
+  for (let i = 25; i < candles.length; i++) {
+    const tenkan9 = candles.slice(Math.max(0, i - 9), i + 1)
+    const tenkanHigh = Math.max(...tenkan9.map(c => c.high))
+    const tenkanLow = Math.min(...tenkan9.map(c => c.low))
+    const tenkanVal = (tenkanHigh + tenkanLow) / 2
+    tenkan.push({ time: candles[i].time, value: tenkanVal })
+
+    const kijun26 = candles.slice(Math.max(0, i - 26), i + 1)
+    const kijunHigh = Math.max(...kijun26.map(c => c.high))
+    const kijunLow = Math.min(...kijun26.map(c => c.low))
+    const kijunVal = (kijunHigh + kijunLow) / 2
+    kijun.push({ time: candles[i].time, value: kijunVal })
+
+    const chikouVal = candles[Math.max(0, i - 26)].close
+    chikou.push({ time: candles[i].time, value: chikouVal })
+  }
+  return { tenkan, kijun, chikou }
+}
+
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const TFS = ['1D'] as const
+const TFS = ['1D', '5D', '1M', '1Y'] as const
 type TF = typeof TFS[number]
 
 const TF_CFG: Record<TF,{range:string;interval:string;label:string}> = {
   '1D':{ range:'1d',  interval:'15m',  label:'15min'   },
+  '5D':{ range:'5d',  interval:'1h',   label:'1h'      },
+  '1M':{ range:'1mo', interval:'1d',   label:'daily'   },
+  '1Y':{ range:'1y',  interval:'1wk',  label:'weekly'  },
 }
 
 const PANES = {
@@ -132,6 +183,7 @@ export default function ChartPanel() {
 
   // ── 2. State ───────────────────────────────────────────────────────────────
   const [sym,       setSym]       = useState(() => symbols[0] ?? 'SPY')
+  const [tf,        setTf]        = useState<TF>('1D')
   const [quote,     setQuote]     = useState<Record<string,number>|null>(null)
   const [loading,   setLoading]   = useState(true)
   const [ready,     setReady]     = useState(false)
@@ -171,9 +223,10 @@ export default function ChartPanel() {
 
   // ── 6. Fetch helpers ───────────────────────────────────────────────────────
 
-  const getCandles = useCallback(async (s:string): Promise<Candle[]> => {
+  const getCandles = useCallback(async (s:string, timeframe: TF = '1D'): Promise<Candle[]> => {
     try {
-      const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(s)}&range=1d&interval=15m`)
+      const cfg = TF_CFG[timeframe]
+      const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(s)}&range=${cfg.range}&interval=${cfg.interval}`)
       const j = await r.json()
       const res = j?.results?.[0]?.data?.chart?.result?.[0]
       if (!res) return []
@@ -313,8 +366,8 @@ export default function ChartPanel() {
         const donchDn   = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#ff6b6b', lineWidth:2 })
         const donchMid  = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'rgba(160,160,160,0.5)', lineWidth:1, lineStyle:3 })
 
-        const ichiTenkan = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#00e5c0', lineWidth:2.5 })
-        const ichiKijun  = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#ff4560', lineWidth:2.5 })
+        const ichiTenkan = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#00e5c0', lineWidth:3 })
+        const ichiKijun  = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#ff4560', lineWidth:3 })
         const ichiChikou = chart.addLineSeries({ ...shared, priceScaleId:'right', color:'#a78bfa', lineWidth:2, lineStyle:1 })
 
         chartR.current=chart; candleR.current=candles; volumeR.current=volume
@@ -343,18 +396,6 @@ export default function ChartPanel() {
               `<span style="color:#4a6070">L&nbsp;</span><b style="color:#ff4560">${cd.low?.toFixed(2)}</b>&emsp;` +
               `<span style="color:#4a6070">C&nbsp;</span><b style="color:${up?'#00c97a':'#ff4560'}">${cd.close?.toFixed(2)}</b>`
           }
-          const rd = param.seriesData.get(rsiLine) as any
-          if (rd!=null && rsiLblRef.current) {
-            const v = typeof rd==='object'?rd.value:rd
-            const col = v>70?'#ff4560':v<30?'#00c97a':'#a78bfa'
-            rsiLblRef.current.innerHTML=`<span style="color:#4a6070">RSI(14)&nbsp;</span><b style="color:${col}">${(+v).toFixed(1)}</b>`
-          }
-          const md = param.seriesData.get(macdLine) as any
-          if (md!=null && macdLblRef.current) {
-            const v = typeof md==='object'?md.value:md
-            const col = v>=0?'#00c97a':'#ff4560'
-            macdLblRef.current.innerHTML=`<span style="color:#4a6070">MACD&nbsp;</span><b style="color:${col}">${(+v).toFixed(4)}</b>`
-          }
         })
 
         if (!dead) setReady(true)
@@ -377,7 +418,7 @@ export default function ChartPanel() {
     if (!ready) return
     let cancelled=false
     setLoading(true)
-    Promise.all([getCandles(sym), getQuote(sym)]).then(([candles]) => {
+    Promise.all([getCandles(sym, tf), getQuote(sym)]).then(([candles]) => {
       if (cancelled||!candleR.current) return
       if (candles.length>0) {
         candleR.current.setData(candles)
@@ -388,7 +429,7 @@ export default function ChartPanel() {
       setLoading(false)
     }).catch(()=>setLoading(false))
     return ()=>{ cancelled=true }
-  }, [sym, ready]) // eslint-disable-line
+  }, [sym, tf, ready]) // eslint-disable-line
 
   // ── 10. Indicator toggle re-apply ─────────────────────────────────────────
 
@@ -451,8 +492,6 @@ export default function ChartPanel() {
             ))}
           </div>
         </div>
-
-        {/* Timeframe buttons - REMOVED: 1D ONLY */}
       </div>
 
       {/* ── Row 2: Indicator toggles ───────────────────────────────────── */}
@@ -505,6 +544,30 @@ export default function ChartPanel() {
           <button onClick={() => setVolWidth(v => Math.max(0.5, v - 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>−W</button>
           <button onClick={() => setVolWidth(v => Math.min(2, v + 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>+W</button>
         </div>
+      </div>
+
+      {/* ── Row 2b: Timeframe selector ────────────────────────────────────── */}
+      <div style={{
+        padding:'3px 10px', borderBottom:'1px solid var(--border)',
+        display:'flex', alignItems:'center', gap:'4px', flexWrap:'wrap',
+        background:'rgba(0,0,0,0.12)',
+      }}>
+        <span style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em' }}>TIMEFRAME</span>
+        {TFS.map(t => (
+          <button
+            key={t}
+            onClick={()=>setTf(t)}
+            style={{
+              padding:'2px 7px', borderRadius:'3px', cursor:'pointer',
+              fontFamily:'JetBrains Mono, monospace', fontSize:'10px', flexShrink:0,
+              border:`1px solid ${tf===t?'var(--teal)':'var(--border)'}`,
+              background: tf===t?'rgba(0,229,192,0.1)':'transparent',
+              color:      tf===t?'var(--teal)':'var(--text-2)',
+              transition:'all 0.12s',
+            }}
+          >{t}</button>
+        ))}
+      </div>
 
       {/* ── Quote strip ───────────────────────────────────────────────── */}
       {quote && (
@@ -520,7 +583,7 @@ export default function ChartPanel() {
             {isUp?'+':''}{quote.d?.toFixed(2)}&nbsp;({isUp?'+':''}{quote.dp?.toFixed(2)}%)
           </span>
           <span style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono, monospace', marginLeft:'auto' }}>
-            {sym} · 1D/15min · scroll=zoom · drag price axis=stretch
+            {sym} · {TF_CFG[tf].label} · scroll=zoom · drag price axis=stretch
           </span>
         </div>
       )}
