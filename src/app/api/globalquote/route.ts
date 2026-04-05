@@ -21,10 +21,22 @@ export interface GlobalQuote {
   fiftyTwoWeekLow:  number | null
 }
 
+// Map international symbols to correct Yahoo Finance symbols if needed
+const SYMBOL_MAP: Record<string, string> = {
+  '^NSEI': '^NSEI',      // Nifty 50 - works as-is
+  '^BSESN': '^BSESN',    // Sensex - works as-is
+  'USDINR=X': 'USDINR=X', // USD/INR - works as-is
+  '^N225': '^N225',      // Nikkei 225 - works as-is
+  '^HSI': '^HSI',        // Hang Seng - works as-is
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const symbol = searchParams.get('symbol')?.trim().toUpperCase()
+  let symbol = searchParams.get('symbol')?.trim().toUpperCase()
   if (!symbol) return NextResponse.json({ error: 'symbol required' }, { status: 400 })
+
+  // Apply symbol mapping if needed
+  const yfinanceSymbol = SYMBOL_MAP[symbol] || symbol
 
   const cacheKey = `gq:${symbol}`
   const cached = cache.get(cacheKey)
@@ -34,13 +46,12 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  // ── Yahoo Finance v8 chart endpoint — works for all global symbols ─────────
-  // Indian NSE: RELIANCE.NS  BSE: RELIANCE.BO
-  // US: AAPL  UK: VODAFONE.L  Germany: BASI.F etc.
   try {
     const url =
       `https://query1.finance.yahoo.com/v8/finance/chart/` +
-      `${encodeURIComponent(symbol)}?interval=1d&range=2d&includePrePost=true`
+      `${encodeURIComponent(yfinanceSymbol)}?interval=1d&range=5d&includePrePost=true`
+
+    console.log(`[globalquote] Fetching: ${symbol} → ${yfinanceSymbol}`)
 
     const res = await fetch(url, {
       headers: {
@@ -54,10 +65,12 @@ export async function GET(request: NextRequest) {
     })
 
     if (res.status === 404) {
+      console.warn(`[globalquote] 404 for ${symbol}`)
       return NextResponse.json({ symbol, price: null, error: 'Symbol not found' })
     }
 
     if (!res.ok) {
+      console.error(`[globalquote] HTTP ${res.status} for ${symbol}`)
       if (cached?.stale) return NextResponse.json(cached.stale)
       return NextResponse.json({ symbol, price: null, error: `HTTP ${res.status}` })
     }
@@ -66,37 +79,53 @@ export async function GET(request: NextRequest) {
     const result = json?.chart?.result?.[0]
 
     if (!result || !result.meta) {
+      console.warn(`[globalquote] No data in response for ${symbol}`, { hasResult: !!result, hasMeta: result?.meta ? true : false })
       if (cached?.stale) return NextResponse.json(cached.stale)
       return NextResponse.json({ symbol, price: null, error: 'No data' })
     }
 
     const m = result.meta
+    const timestamps = result.timestamp || []
+    const quotes = result.indicators?.quote?.[0] || {}
 
-    // For intraday data, prefer regularMarketPrice; for after-hours prefer postMarketPrice
-    const price = m.regularMarketPrice ?? m.previousClose ?? null
-    const prevClose = m.chartPreviousClose ?? m.previousClose ?? null
+    // Use latest close price from data
+    let price = m.regularMarketPrice ?? null
+    let prevClose = m.chartPreviousClose ?? m.previousClose ?? null
+
+    // If regularMarketPrice not available, use latest closing price from data
+    if (price === null && timestamps.length > 0 && quotes.close) {
+      const latestIdx = timestamps.length - 1
+      price = quotes.close[latestIdx] ?? null
+    }
+
+    // If still no price, use previous close as fallback
+    if (price === null) {
+      price = prevClose
+    }
+
     const change = price != null && prevClose != null ? +(price - prevClose).toFixed(4) : null
     const changePct =
       change != null && prevClose ? +((change / prevClose) * 100).toFixed(4) : null
 
     const payload: GlobalQuote = {
-      symbol:           m.symbol ?? symbol,
-      price,
-      change,
-      changePercent:    changePct,
+      symbol,
+      price:            price ?? 0,
+      change:           change ?? 0,
+      changePercent:    changePct ?? 0,
       currency:         m.currency ?? 'USD',
-      exchange:         m.exchangeName ?? m.fullExchangeName ?? '',
+      exchange:         m.exchangeName ?? m.fullExchangeName ?? 'Unknown',
       marketState:      m.marketState ?? 'CLOSED',
       high:             m.regularMarketDayHigh ?? null,
       low:              m.regularMarketDayLow  ?? null,
       volume:           m.regularMarketVolume  ?? null,
-      prevClose,
-      longName:         m.longName ?? m.shortName ?? '',
+      prevClose:        prevClose ?? null,
+      longName:         m.longName ?? m.shortName ?? symbol,
       open:             m.regularMarketOpen ?? null,
       fiftyTwoWeekHigh: m.fiftyTwoWeekHigh ?? null,
       fiftyTwoWeekLow:  m.fiftyTwoWeekLow  ?? null,
     }
 
+    console.log(`[globalquote] Success: ${symbol} = ${price} (${changePct}%)`)
     cache.set(cacheKey, { data: payload, stale: payload, expires: Date.now() + 8_000 })
 
     return NextResponse.json(payload, {
@@ -105,6 +134,6 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error('[globalquote] error for', symbol, err)
     if (cached?.stale) return NextResponse.json(cached.stale)
-    return NextResponse.json({ symbol, price: null, error: 'Fetch error' })
+    return NextResponse.json({ symbol, price: null, error: 'Fetch error', details: String(err) })
   }
 }

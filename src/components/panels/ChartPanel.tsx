@@ -9,6 +9,78 @@ import { useWatchlist } from '@/store/watchlist'
 
 interface Candle { time: number; open: number; high: number; low: number; close: number; volume: number }
 
+function emaArr(vals: number[], p: number): number[] {
+  if (vals.length < p) return []
+  const k = 2 / (p + 1)
+  const out = [vals.slice(0, p).reduce((a, b) => a + b, 0) / p]
+  for (let i = p; i < vals.length; i++) out.push(vals[i] * k + out[out.length - 1] * (1 - k))
+  return out
+}
+
+function bollingerBands(candles: Candle[], p = 20, m = 2) {
+  const c = candles.map(x => x.close)
+  return candles.slice(p - 1).map((_, idx) => {
+    const i = idx + p - 1, sl = c.slice(i - p + 1, i + 1)
+    const mean = sl.reduce((a, b) => a + b, 0) / p
+    const std  = Math.sqrt(sl.reduce((s, v) => s + (v - mean) ** 2, 0) / p)
+    return { time: candles[i].time, upper: mean + m * std, mid: mean, lower: mean - m * std }
+  })
+}
+
+function rsiSeries(candles: Candle[], p = 14): { time: number; value: number }[] {
+  if (candles.length < p + 1) return []
+  const c = candles.map(x => x.close)
+  const out: { time: number; value: number }[] = []
+  let ag = 0, al = 0
+  for (let i = 1; i <= p; i++) { const d = c[i] - c[i-1]; ag += Math.max(0,d); al += Math.max(0,-d) }
+  ag /= p; al /= p
+  out.push({ time: candles[p].time, value: +(al === 0 ? 100 : 100 - 100/(1+ag/al)).toFixed(2) })
+  for (let i = p+1; i < candles.length; i++) {
+    const d = c[i] - c[i-1]
+    ag = (ag*(p-1)+Math.max(0,d))/p
+    al = (al*(p-1)+Math.max(0,-d))/p
+    out.push({ time: candles[i].time, value: +(al === 0 ? 100 : 100 - 100/(1+ag/al)).toFixed(2) })
+  }
+  return out
+}
+
+function macdSeries(candles: Candle[], fast=12, slow=26, sig=9) {
+  const c = candles.map(x => x.close)
+  if (c.length < slow + sig) return { macd:[], signal:[], hist:[] }
+  const e12 = emaArr(c, fast), e26 = emaArr(c, slow)
+  const off = slow - fast, ml = e26.map((v,i) => e12[i+off]-v)
+  const sl = emaArr(ml, sig), soff = ml.length - sl.length, base = slow-1
+  const macd:any[]=[], signal:any[]=[], hist:any[]=[]
+  sl.forEach((sv, i) => {
+    const mi = i+soff, ci = base+mi
+    if (ci >= candles.length) return
+    const mv=ml[mi], hv=mv-sv, t=candles[ci].time
+    macd.push({ time:t, value:+mv.toFixed(6) })
+    signal.push({ time:t, value:+sv.toFixed(6) })
+    hist.push({ time:t, value:+hv.toFixed(6), color: hv>=0?'rgba(0,201,122,0.65)':'rgba(255,69,96,0.65)' })
+  })
+  return { macd, signal, hist }
+}
+
+function supertrendSeries(candles: Candle[], p=10, m=2) {
+  const out:{ time:number; value:number; bull:boolean }[]=[]
+  if (candles.length < p) return out
+  const atr:number[]=[]
+  for (let i=1; i<candles.length; i++) {
+    const tr = Math.max(candles[i].high-candles[i].low, Math.abs(candles[i].high-candles[i-1].close), Math.abs(candles[i].low-candles[i-1].close))
+    atr.push(i<p ? tr : (atr[atr.length-1]*(p-1)+tr)/p)
+  }
+  let st=0, dir=1
+  for (let i=p; i<candles.length; i++) {
+    const {high,low,close}=candles[i], a=atr[i-1], hl2=(high+low)/2
+    const up=hl2+m*a, dn=hl2-m*a, prev=st||dn
+    if (prev===dn) { st=close<dn?up:Math.max(dn,prev); dir=close<dn?-1:1 }
+    else           { st=close>up?dn:Math.min(up,prev); dir=close>up? 1:-1 }
+    out.push({ time:candles[i].time, value:st, bull:dir===1 })
+  }
+  return out
+}
+
 function fibLevels(candles: Candle[]) {
   const s=candles.slice(-60)
   const H=Math.max(...s.map(c=>c.high)), L=Math.min(...s.map(c=>c.low)), d=H-L
@@ -20,58 +92,6 @@ function fibLevels(candles: Candle[]) {
     { price:H-0.618*d,     label:'Fib 61.8%', color:'#ff456070' },
     { price:L,             label:'Fib 100%',  color:'#ffffff28' },
   ]
-}
-
-// ── Pivot Point calculation ──────────────────────────────────────────────────────
-function pivotLevels(candles: Candle[]) {
-  const lastCandle = candles[candles.length - 1]
-  const h = lastCandle.high, l = lastCandle.low, c = lastCandle.close
-  const p = (h + l + c) / 3
-  const r1 = 2 * p - l, r2 = p + (h - l)
-  const s1 = 2 * p - h, s2 = p - (h - l)
-  return {
-    pivot: p,
-    r1: r1, r2: r2,
-    s1: s1, s2: s2,
-  }
-}
-
-// ── Donchian Channels ────────────────────────────────────────────────────────────
-function donchianChannels(candles: Candle[], period = 20) {
-  const out: { time: number; high: number; low: number; mid: number }[] = []
-  if (candles.length < period) return out
-  for (let i = period - 1; i < candles.length; i++) {
-    const slice = candles.slice(i - period + 1, i + 1)
-    const high = Math.max(...slice.map(c => c.high))
-    const low = Math.min(...slice.map(c => c.low))
-    out.push({ time: candles[i].time, high, low, mid: (high + low) / 2 })
-  }
-  return out
-}
-
-// ── Ichimoku Cloud ──────────────────────────────────────────────────────────────
-function ichimokuCloud(candles: Candle[]) {
-  if (candles.length < 52) return { tenkan: [], kijun: [], chikou: [] }
-
-  const tenkan: any[] = [], kijun: any[] = [], chikou: any[] = []
-
-  for (let i = 8; i < candles.length; i++) {
-    const h9 = Math.max(...candles.slice(i - 8, i + 1).map(c => c.high))
-    const l9 = Math.min(...candles.slice(i - 8, i + 1).map(c => c.low))
-    tenkan.push({ time: candles[i].time, value: (h9 + l9) / 2 })
-  }
-
-  for (let i = 25; i < candles.length; i++) {
-    const h26 = Math.max(...candles.slice(i - 25, i + 1).map(c => c.high))
-    const l26 = Math.min(...candles.slice(i - 25, i + 1).map(c => c.low))
-    kijun.push({ time: candles[i].time, value: (h26 + l26) / 2 })
-  }
-
-  for (let i = 25; i < candles.length; i++) {
-    if (i >= 26) chikou.push({ time: candles[i - 26].time, value: candles[i].close })
-  }
-
-  return { tenkan, kijun, chikou }
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -122,7 +142,6 @@ export default function ChartPanel() {
   const [hoveredInd, setHoveredInd] = useState<string | null>(null)
   const [volHeight, setVolHeight] = useState(1.0)
   const [volWidth,  setVolWidth]  = useState(1.0)
-  const [hoveredVol, setHoveredVol] = useState<{value: number; time: string} | null>(null)
 
   // ── 3. DOM refs ────────────────────────────────────────────────────────────
   const containerRef  = useRef<HTMLDivElement>(null)
@@ -324,10 +343,17 @@ export default function ChartPanel() {
               `<span style="color:#4a6070">L&nbsp;</span><b style="color:#ff4560">${cd.low?.toFixed(2)}</b>&emsp;` +
               `<span style="color:#4a6070">C&nbsp;</span><b style="color:${up?'#00c97a':'#ff4560'}">${cd.close?.toFixed(2)}</b>`
           }
-          const rd = param.seriesData.get(ichiTenkan) as any
+          const rd = param.seriesData.get(rsiLine) as any
           if (rd!=null && rsiLblRef.current) {
             const v = typeof rd==='object'?rd.value:rd
-            rsiLblRef.current.innerHTML=`<span style="color:#4a6070">Ichimoku TK&nbsp;</span><b style="color:#00c97a">${(+v).toFixed(2)}</b>`
+            const col = v>70?'#ff4560':v<30?'#00c97a':'#a78bfa'
+            rsiLblRef.current.innerHTML=`<span style="color:#4a6070">RSI(14)&nbsp;</span><b style="color:${col}">${(+v).toFixed(1)}</b>`
+          }
+          const md = param.seriesData.get(macdLine) as any
+          if (md!=null && macdLblRef.current) {
+            const v = typeof md==='object'?md.value:md
+            const col = v>=0?'#00c97a':'#ff4560'
+            macdLblRef.current.innerHTML=`<span style="color:#4a6070">MACD&nbsp;</span><b style="color:${col}">${(+v).toFixed(4)}</b>`
           }
         })
 
@@ -345,7 +371,7 @@ export default function ChartPanel() {
     }
   }, [])
 
-  // ── 9. Load data when symbol/tf changes ───────────────────────────────────
+  // ── 9. Load data when symbol changes ───────────────────────────────────
 
   useEffect(() => {
     if (!ready) return
@@ -425,6 +451,8 @@ export default function ChartPanel() {
             ))}
           </div>
         </div>
+
+        {/* Timeframe buttons - REMOVED: 1D ONLY */}
       </div>
 
       {/* ── Row 2: Indicator toggles ───────────────────────────────────── */}
@@ -477,7 +505,6 @@ export default function ChartPanel() {
           <button onClick={() => setVolWidth(v => Math.max(0.5, v - 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>−W</button>
           <button onClick={() => setVolWidth(v => Math.min(2, v + 0.2))} style={{ ...mkBtn(false, 'teal'), fontSize: '8px', padding: '1px 5px' }}>+W</button>
         </div>
-      </div>
 
       {/* ── Quote strip ───────────────────────────────────────────────── */}
       {quote && (
@@ -493,7 +520,7 @@ export default function ChartPanel() {
             {isUp?'+':''}{quote.d?.toFixed(2)}&nbsp;({isUp?'+':''}{quote.dp?.toFixed(2)}%)
           </span>
           <span style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono, monospace', marginLeft:'auto' }}>
-            {sym} · 15min · scroll=zoom · drag price axis=stretch
+            {sym} · 1D/15min · scroll=zoom · drag price axis=stretch
           </span>
         </div>
       )}
