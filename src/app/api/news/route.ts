@@ -20,12 +20,23 @@ export async function GET(request: NextRequest) {
     const res  = await fetch(url)
     const data = await res.json()
 
-    // Fallback: if no recent results, try without time filter
+    // Fallback 1: if no recent results, try without time filter
     if (!data.articles?.length) {
       const fallback = await fetch(
         `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&sortBy=publishedAt&pageSize=30&apiKey=${process.env.NEWS_API_KEY}`
       )
       const fallbackData = await fallback.json()
+      
+      // Fallback 2: if still empty, use generic financal search
+      if (!fallbackData.articles?.length) {
+        const genericFallback = await fetch(
+          `https://newsapi.org/v2/everything?q=stock market finance business&language=en&sortBy=publishedAt&pageSize=30&apiKey=${process.env.NEWS_API_KEY}`
+        )
+        const genericData = await genericFallback.json()
+        cache.set(cacheKey, { data: genericData, expires: Date.now() + 60_000 })
+        return NextResponse.json(genericData)
+      }
+      
       cache.set(cacheKey, { data: fallbackData, expires: Date.now() + 60_000 })
       return NextResponse.json(fallbackData)
     }
@@ -35,6 +46,12 @@ export async function GET(request: NextRequest) {
   } catch {
     const stale = cache.get(cacheKey)
     if (stale) return NextResponse.json(stale.data)
-    return NextResponse.json({ articles: [] })
+    
+    // Final fallback: return generic market news structure
+    return NextResponse.json({ 
+      articles: [],
+      status: 'error',
+      message: 'Unable to fetch news, check API key'
+    })
   }
 }

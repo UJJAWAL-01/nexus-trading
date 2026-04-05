@@ -90,7 +90,11 @@ export default function NewsFeedPanel() {
 
   const fetchNews = async () => {
     try {
-      const watchlistQuery = symbols.join(' OR ') + ' OR stock market OR earnings OR Fed'
+      // Ensure we always have a query - use default if watchlist is empty
+      const defaultQuery = 'stock market earnings Fed inflation market news'
+      const watchlistQuery = symbols.length > 0 
+        ? symbols.join(' OR ') + ' OR stock market OR earnings OR Fed'
+        : defaultQuery
 
       const [finnhubRes, newsApiRes] = await Promise.allSettled([
         fetch('/api/finnhub?endpoint=news&category=general'),
@@ -219,6 +223,9 @@ export default function NewsFeedPanel() {
     : news.slice(0, 25)
 
   const relevantCount = news.filter(n => n.relevanceScore > 0).length
+  
+  // Show "all" filter if no relevant news found
+  const showAll = relevantCount === 0 && filter === 'relevant' && news.length > 0
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -256,11 +263,11 @@ export default function NewsFeedPanel() {
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
             LOADING FEEDS...
           </div>
-        ) : displayed.length === 0 ? (
+        ) : (showAll ? news.slice(0, 25) : displayed).length === 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>
-            No relevant news — try adding more tickers to your watchlist
+            Fetching news...
           </div>
-        ) : displayed.map(item => {
+        ) : (showAll ? news.slice(0, 25) : displayed).map(item => {
           const ss = sentimentStyle(item.sentiment)
           return (
             <div
