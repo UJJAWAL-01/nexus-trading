@@ -3,264 +3,232 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useWatchlist } from '@/store/watchlist'
 
-// Always-present index symbols added to watchlist symbols
-const INDEX_SYMBOLS = ['SPY', 'QQQ', 'GLD', 'BTC-USD', 'VIX']
-const MOBILE_BREAKPOINT = 768
+// ── Symbol routing ────────────────────────────────────────────────────────────
+// Finnhub uses different symbols for some assets. We route problematic ones
+// through our Yahoo Finance /api/yquote route instead.
+
+const INDEX_SUPPLEMENTS = ['GLD', 'VIX', 'BTC-USD', 'ETH-USD']
+
+// Symbols that Finnhub doesn't support well — route to Yahoo
+function needsYahooRoute(symbol: string): boolean {
+  return (
+    symbol.endsWith('.NS') ||
+    symbol.endsWith('.BO') ||
+    symbol.startsWith('^') ||
+    symbol.includes('-USD') ||         // Crypto e.g. BTC-USD, ETH-USD
+    symbol.includes('=X') ||           // Forex e.g. USDINR=X
+    symbol === 'VIX'                   // VIX via Finnhub is unreliable
+  )
+}
+
+// For Finnhub crypto you need e.g. BINANCE:BTCUSDT
+function toFinnhubCrypto(symbol: string): string | null {
+  const map: Record<string, string> = {
+    'BTC-USD': 'BINANCE:BTCUSDT',
+    'ETH-USD': 'BINANCE:ETHUSDT',
+    'SOL-USD': 'BINANCE:SOLUSDT',
+  }
+  return map[symbol] ?? null
+}
 
 interface TickerItem {
-  symbol: string
-  price:  number | null
-  change: number | null
-  flash:  'up' | 'down' | null
+  symbol:    string
+  display:   string    // cleaned display label
+  price:     number | null
+  change:    number | null
+  flash:     'up' | 'down' | null
 }
+
+const staleStore = new Map<string, { price: number | null; change: number | null }>()
 
 export default function TickerBar() {
   const { symbols: watchlistSymbols } = useWatchlist()
-  const [isMobile, setIsMobile] = useState(false)
 
-  // Detect mobile
-  useEffect(() => {
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  // Derive combined, deduplicated symbol list
-  const allSymbols = [...new Set([...watchlistSymbols, ...INDEX_SYMBOLS])]
-
-  // Persistent stale store — survives re-renders & API failures
-  const staleRef = useRef<Map<string, { price: number | null; change: number | null }>>(new Map())
+  // Combined symbol list: watchlist + key indices
+  const allSymbols = [...new Set([...watchlistSymbols, ...INDEX_SUPPLEMENTS])]
 
   const [tickers, setTickers] = useState<TickerItem[]>(
-    allSymbols.map(s => ({ symbol: s, price: null, change: null, flash: null }))
+    allSymbols.map(s => ({
+      symbol:  s,
+      display: s.replace('.NS', '').replace('.BO', '').replace('-USD', '').replace('=X', '').replace('^', ''),
+      price:   staleStore.get(s)?.price  ?? null,
+      change:  staleStore.get(s)?.change ?? null,
+      flash:   null,
+    }))
   )
 
-  // When watchlist changes, merge in new symbols keeping stale data for existing ones
+  // Sync ticker list when watchlist changes
   useEffect(() => {
-    const combined = [...new Set([...watchlistSymbols, ...INDEX_SYMBOLS])]
+    const combined = [...new Set([...watchlistSymbols, ...INDEX_SUPPLEMENTS])]
     setTickers(prev => {
       const prevMap = new Map(prev.map(t => [t.symbol, t]))
-      return combined.map(symbol => {
-        if (prevMap.has(symbol)) return prevMap.get(symbol)!
-        const stale = staleRef.current.get(symbol)
-        return {
-          symbol,
-          price:  stale?.price  ?? null,
-          change: stale?.change ?? null,
-          flash:  null,
-        }
+      return combined.map(symbol => prevMap.get(symbol) ?? {
+        symbol,
+        display: symbol.replace('.NS','').replace('.BO','').replace('-USD','').replace('=X','').replace('^',''),
+        price:   staleStore.get(symbol)?.price  ?? null,
+        change:  staleStore.get(symbol)?.change ?? null,
+        flash:   null,
       })
     })
   }, [watchlistSymbols.join(',')])
 
-  const fetchPrices = useCallback(async () => {
-    const symbols = [...new Set([...watchlistSymbols, ...INDEX_SYMBOLS])]
+  const fetchPrice = useCallback(async (symbol: string): Promise<{ price: number | null; change: number | null }> => {
+    // Try Yahoo route first for problematic symbols
+    if (needsYahooRoute(symbol)) {
+      try {
+        const res  = await fetch(`/api/yquote?symbol=${encodeURIComponent(symbol)}`)
+        const data = await res.json()
+        if (data.price !== null && data.price > 0) {
+          return { price: data.price as number, change: data.change as number ?? null }
+        }
+      } catch {}
+      const st = staleStore.get(symbol)
+      return { price: st?.price ?? null, change: st?.change ?? null }
+    }
 
-    const results = await Promise.all(
-      symbols.map(async (symbol): Promise<{ symbol: string; price: number | null; change: number | null }> => {
-        try {
-          const res  = await fetch(`/api/finnhub?endpoint=quote&symbol=${symbol}`)
-          const data = await res.json()
+    // Try Finnhub for standard US stocks (with crypto fallback)
+    const finnhubSym = toFinnhubCrypto(symbol) ?? symbol
+    try {
+      const res  = await fetch(`/api/finnhub?endpoint=quote&symbol=${finnhubSym}`)
+      const data = await res.json()
+      if (!data.rateLimited && data.c && data.c > 0) {
+        return { price: data.c as number, change: data.dp as number ?? null }
+      }
+    } catch {}
 
-          if (!data.rateLimited && data.c && data.c > 0) {
-            const item = { price: data.c as number, change: data.dp as number }
-            staleRef.current.set(symbol, item)
-            return { symbol, ...item }
-          }
-        } catch {}
+    // Fallback to Yahoo
+    try {
+      const res  = await fetch(`/api/yquote?symbol=${encodeURIComponent(symbol)}`)
+      const data = await res.json()
+      if (data.price !== null && data.price > 0) {
+        return { price: data.price as number, change: data.change as number ?? null }
+      }
+    } catch {}
 
-        // Always return stale — never blank
-        const stale = staleRef.current.get(symbol)
-        return { symbol, price: stale?.price ?? null, change: stale?.change ?? null }
-      })
-    )
+    const st = staleStore.get(symbol)
+    return { price: st?.price ?? null, change: st?.change ?? null }
+  }, [])
+
+  const fetchAll = useCallback(async () => {
+    const symbols = [...new Set([...watchlistSymbols, ...INDEX_SUPPLEMENTS])]
+
+    // Batch in groups of 5 to avoid hammering APIs
+    const results: TickerItem[] = []
+    const batchSize = 5
+
+    for (let i = 0; i < symbols.length; i += batchSize) {
+      const batch = symbols.slice(i, i + batchSize)
+      const fetched = await Promise.all(
+        batch.map(async symbol => {
+          const { price, change } = await fetchPrice(symbol)
+          if (price !== null) staleStore.set(symbol, { price, change })
+          return { symbol, price, change }
+        })
+      )
+      results.push(
+        ...fetched.map(({ symbol, price, change }) => ({
+          symbol,
+          display: symbol.replace('.NS','').replace('.BO','').replace('-USD','').replace('=X','').replace('^',''),
+          price,
+          change,
+          flash: null as null,
+        }))
+      )
+      if (i + batchSize < symbols.length) {
+        await new Promise(r => setTimeout(r, 200))
+      }
+    }
 
     setTickers(prev => {
-      const prevMap  = new Map(prev.map(t => [t.symbol, t]))
-      const newItems = results.map(r => {
-        const old   = prevMap.get(r.symbol)
-        const flash =
-          old?.price && r.price && r.price !== old.price
-            ? ((r.price > old.price ? 'up' : 'down') as 'up' | 'down')
-            : null
-        return { symbol: r.symbol, price: r.price, change: r.change, flash }
+      const prevMap = new Map(prev.map(t => [t.symbol, t]))
+      const flashMap: Record<string, 'up' | 'down'> = {}
+
+      const next = results.map(r => {
+        const old = prevMap.get(r.symbol)
+        if (old?.price && r.price && r.price !== old.price) {
+          flashMap[r.symbol] = r.price > old.price ? 'up' : 'down'
+        }
+        return { ...r, flash: flashMap[r.symbol] ?? null }
       })
 
-      if (newItems.some(t => t.flash)) {
-        setTimeout(() => setTickers(cur => cur.map(t => ({ ...t, flash: null }))), 600)
+      if (Object.keys(flashMap).length > 0) {
+        setTimeout(() => setTickers(cur => cur.map(t => ({ ...t, flash: null }))), 700)
       }
 
-      return newItems
+      return next
     })
-  }, [watchlistSymbols.join(',')])
+  }, [watchlistSymbols.join(','), fetchPrice])
 
   useEffect(() => {
-    fetchPrices()
-    const id = setInterval(fetchPrices, 10_000)
+    fetchAll()
+    const id = setInterval(fetchAll, 12_000)
     return () => clearInterval(id)
-  }, [fetchPrices])
+  }, [fetchAll])
 
-  if (tickers.length === 0) return null
-
-  // Scroll speed scales with count — min 25s, +3s per symbol
-  const duration = Math.max(25, tickers.length * 3.5)
-
-  // On mobile, show fewer tickers in a horizontally scrollable container
-  if (isMobile) {
-    return (
-      <div
-        style={{
-          background:   'var(--bg-panel)',
-          borderBottom: '1px solid var(--border)',
-          height:       '40px',
-          overflow:     'auto',
-          position:     'relative',
-          msOverflowStyle: 'none',
-          scrollBehavior: 'smooth',
-        }}
-      >
-        <style>{`
-          .ticker-track-mobile::-webkit-scrollbar { display: none; }
-          .ticker-track-mobile { -ms-overflow-style: none; }
-        `}</style>
-        
-        <div className="ticker-track-mobile" style={{
-          display: 'flex',
-          alignItems: 'center',
-          height: '100%',
-          gap: '0',
-          width: 'max-content',
-          minWidth: '100%',
-        }}>
-          {tickers.map((ticker) => (
-            <div
-              key={ticker.symbol}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                flexShrink: 0,
-                padding: '2px 12px',
-                borderRight: '1px solid var(--border)',
-                background:
-                  ticker.flash === 'up'
-                    ? 'rgba(0,201,122,0.2)'
-                    : ticker.flash === 'down'
-                    ? 'rgba(255,69,96,0.2)'
-                    : 'transparent',
-                transition: 'background 0.1s',
-                minWidth: '100px',
-              }}
-            >
-              <span style={{
-                fontSize: '10px',
-                fontFamily: 'Syne, sans-serif',
-                fontWeight: 700,
-                color: '#fff',
-                letterSpacing: '0.04em',
-                whiteSpace: 'nowrap',
-              }}>
-                {ticker.symbol}
-              </span>
-
-              <span style={{
-                fontSize: '11px',
-                fontFamily: 'JetBrains Mono, monospace',
-                color: ticker.price != null ? '#fff' : 'var(--text-muted)',
-                whiteSpace: 'nowrap',
-              }}>
-                {ticker.price != null ? ticker.price.toFixed(2) : '···'}
-              </span>
-
-              {ticker.change !== null && (
-                <span style={{
-                  fontSize: '9px',
-                  fontFamily: 'JetBrains Mono, monospace',
-                  color: ticker.change >= 0 ? 'var(--positive)' : 'var(--negative)',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)}%
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
+  const duration = Math.max(20, tickers.length * 4)
 
   return (
-    <div
-      style={{
-        background:   'var(--bg-panel)',
-        borderBottom: '1px solid var(--border)',
-        height:       '32px',
-        overflow:     'hidden',
-        position:     'relative',
-      }}
-    >
+    <div style={{
+      background:   'var(--bg-panel)',
+      borderBottom: '1px solid var(--border)',
+      height:       '32px',
+      overflow:     'hidden',
+      position:     'relative',
+    }}>
       <style>{`
         @keyframes tickerScroll {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        .ticker-track {
+        .ticker-track-m2 {
           display:   flex;
           align-items: center;
           height:    100%;
           animation: tickerScroll ${duration}s linear infinite;
           width:     max-content;
+          will-change: transform;
         }
-        .ticker-track:hover { animation-play-state: paused; }
+        .ticker-track-m2:hover { animation-play-state: paused; }
       `}</style>
 
-      <div className="ticker-track">
-        {[...tickers, ...tickers].map((ticker, idx) => (
+      <div className="ticker-track-m2">
+        {[...tickers, ...tickers].map((t, idx) => (
           <div
-            key={`${ticker.symbol}-${idx}`}
+            key={`${t.symbol}-${idx}`}
             style={{
-              display:     'flex',
-              alignItems:  'center',
-              gap:         '7px',
-              flexShrink:  0,
-              padding:     '2px 14px',
+              display:    'flex',
+              alignItems: 'center',
+              gap:        '6px',
+              flexShrink: 0,
+              padding:    '2px 14px',
               borderRight: '1px solid var(--border)',
               background:
-                ticker.flash === 'up'
-                  ? 'rgba(0,201,122,0.2)'
-                  : ticker.flash === 'down'
-                  ? 'rgba(255,69,96,0.2)'
-                  : 'transparent',
+                t.flash === 'up'   ? 'rgba(0,201,122,0.2)' :
+                t.flash === 'down' ? 'rgba(255,69,96,0.2)'  : 'transparent',
               transition: 'background 0.1s',
             }}
           >
-            <span style={{
-              fontSize:       '11px',
-              fontFamily:     'Syne, sans-serif',
-              fontWeight:     700,
-              color:          '#fff',
-              letterSpacing:  '0.04em',
-            }}>
-              {ticker.symbol}
+            <span style={{ fontSize: '11px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff', letterSpacing: '0.04em' }}>
+              {t.display}
             </span>
-
             <span style={{
               fontSize:   '12px',
               fontFamily: 'JetBrains Mono, monospace',
-              color:      ticker.price != null ? '#fff' : 'var(--text-muted)',
+              color:      t.price != null ? '#fff' : 'var(--text-muted)',
             }}>
-              {ticker.price != null ? ticker.price.toFixed(2) : '···'}
+              {t.price != null
+                ? t.price >= 1000
+                  ? t.price.toLocaleString('en-US', { maximumFractionDigits: 2 })
+                  : t.price.toFixed(2)
+                : '···'}
             </span>
-
-            {ticker.change !== null && (
+            {t.change !== null && (
               <span style={{
                 fontSize:   '10px',
                 fontFamily: 'JetBrains Mono, monospace',
-                color:      ticker.change >= 0 ? 'var(--positive)' : 'var(--negative)',
+                color:      t.change >= 0 ? 'var(--positive)' : 'var(--negative)',
               }}>
-                {ticker.change >= 0 ? '+' : ''}
-                {ticker.change.toFixed(2)}%
+                {t.change >= 0 ? '+' : ''}{t.change.toFixed(2)}%
               </span>
             )}
           </div>

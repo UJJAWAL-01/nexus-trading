@@ -25,7 +25,7 @@
   /* Text */
   --text:       #d2dce7;
   --text-2:     #87a3b5;
-  --text-muted: #7c858b;
+  --text-muted: #aab4bb;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
