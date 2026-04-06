@@ -32,6 +32,47 @@ interface ChannelConfig {
 }
 
 const CHANNELS: ChannelConfig[] = [
+  // ── INDIA CHANNELS ─────────────────────────────────────────────────────────
+  {
+    channelId:        'UCnLLsTQr10U8UuSBuHmQFpQ',
+    channelName:      'CNBC TV18',
+    region:           'IN',
+    accent:           '#ff4560',
+    // CNBC TV18 permanent 24/7 live stream
+    permanentVideoId: '1_Ih0JYmkjI',
+    searchQuery:      'CNBC TV18 live stream',
+    watchUrl:         'https://www.youtube.com/watch?v=1_Ih0JYmkjI',
+  },
+  {
+    channelId:        'UCuATnLMRXAj7q98LXiIzj_Q',
+    channelName:      'NDTV Profit',
+    region:           'IN',
+    accent:           '#d91c5c',
+    // NDTV Profit live - verified 24/7 stream
+    permanentVideoId: 'EN-N1xhtBqU',
+    searchQuery:      'NDTV Profit live markets business',
+    watchUrl:         'https://www.youtube.com/watch?v=EN-N1xhtBqU',
+  },
+  {
+    channelId:        'UC4kBhCMkqUr5R6Kzqhg1BvA',
+    channelName:      'UN Live',
+    region:           'IN',
+    accent:           '#f97316',
+    // UN Live 24/7 live stream permanent ID
+    permanentVideoId: 'vYRfQo6JMxc',
+    searchQuery:      'United Nations live streams',
+    watchUrl:         'https://www.youtube.com/watch?v=vYRfQo6JMxc',
+  },
+  {
+    channelId:        'UCddiUEpeqJcYeBxX1IVBKvQ',
+    channelName:      'Al Jazeera English',
+    region:           'IN',
+    accent:           '#8b5cf6',
+    // Al Jazeera English 24/7 - very active permanent live
+    permanentVideoId: 'gCNeDWCI0vo',
+    searchQuery:      'Al Jazeera English live news',
+    watchUrl:         'https://www.youtube.com/watch?v=gCNeDWCI0vo',
+  },
   // ── US CHANNELS ───────────────────────────────────────────────────────────
   {
     channelId:        'UCrM7B7SL_g1edFOnmj-SDKg',
@@ -74,47 +115,7 @@ const CHANNELS: ChannelConfig[] = [
     watchUrl:         'https://www.youtube.com/watch?v=8tSBTHtAv6c',
   },
 
-  // ── INDIA CHANNELS ─────────────────────────────────────────────────────────
-  {
-    channelId:        'UCnLLsTQr10U8UuSBuHmQFpQ',
-    channelName:      'CNBC TV18',
-    region:           'IN',
-    accent:           '#ff4560',
-    // CNBC TV18 permanent 24/7 live stream
-    permanentVideoId: '1_Ih0JYmkjI',
-    searchQuery:      'CNBC TV18 live stream',
-    watchUrl:         'https://www.youtube.com/watch?v=1_Ih0JYmkjI',
-  },
-  {
-    channelId:        'UCuATnLMRXAj7q98LXiIzj_Q',
-    channelName:      'NDTV Profit',
-    region:           'IN',
-    accent:           '#d91c5c',
-    // NDTV Profit live - verified 24/7 stream
-    permanentVideoId: 'EN-N1xhtBqU',
-    searchQuery:      'NDTV Profit live markets business',
-    watchUrl:         'https://www.youtube.com/watch?v=EN-N1xhtBqU',
-  },
-  {
-    channelId:        'UC4kBhCMkqUr5R6Kzqhg1BvA',
-    channelName:      'ET Now',
-    region:           'IN',
-    accent:           '#f97316',
-    // ET Now 24/7 live stream permanent ID
-    permanentVideoId: 'vYRfQo6JMxc',
-    searchQuery:      'ET Now live India business markets',
-    watchUrl:         'https://www.youtube.com/watch?v=vYRfQo6JMxc',
-  },
-  {
-    channelId:        'UCddiUEpeqJcYeBxX1IVBKvQ',
-    channelName:      'Zee Business',
-    region:           'IN',
-    accent:           '#8b5cf6',
-    // Zee Business LIVE 24/7 - very active permanent live
-    permanentVideoId: 'gCNeDWCI0vo',
-    searchQuery:      'Zee Business live Hindi markets',
-    watchUrl:         'https://www.youtube.com/watch?v=gCNeDWCI0vo',
-  },
+  
 ]
 
 /*
