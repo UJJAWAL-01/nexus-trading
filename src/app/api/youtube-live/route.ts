@@ -44,16 +44,16 @@ interface ChannelConfig {
 
 const CHANNELS: ChannelConfig[] = [
   // ── US ─────────────────────────────────────────────────────────────────────
-  {
-    channelId:   'UCrM7B7SL_g1edFOnmj-SDKg',
-    channelName: 'Bloomberg Television',
-    shortName:   'Bloomberg',
-    region:      'US',
-    accent:      '#f0a500',
-    videoId:     'dp8PhLsUcFE',
-    watchUrl:    'https://www.youtube.com/watch?v=dp8PhLsUcFE',
-    description: 'Markets, finance, business 24/7',
-  },
+  // {
+  //   channelId:   'UCrM7B7SL_g1edFOnmj-SDKg',
+  //   channelName: 'Bloomberg Television',
+  //   shortName:   'Bloomberg',
+  //   region:      'US',
+  //   accent:      '#f0a500',
+  //   videoId:     'dp8PhLsUcFE',
+  //   watchUrl:    'https://www.youtube.com/watch?v=dp8PhLsUcFE',
+  //   description: 'Markets, finance, business 24/7',
+  // },
   {
     channelId:   'UCvJJ_dzjViJCoLf5uKUTwoA',
     channelName: 'CNBC Television',
@@ -108,23 +108,23 @@ const CHANNELS: ChannelConfig[] = [
   },
   {
     channelId:   'UC4kBhCMkqUr5R6Kzqhg1BvA',
-    channelName: 'ET Now',
-    shortName:   'ET Now',
+    channelName: 'United Nations Live',
+    shortName:   'UN Live',
     region:      'IN',
     accent:      '#f97316',
     videoId:     'vYRfQo6JMxc',
     watchUrl:    'https://www.youtube.com/watch?v=vYRfQo6JMxc',
-    description: 'Economic Times business live',
+    description: 'United Nations live coverage',
   },
   {
     channelId:   'UCddiUEpeqJcYeBxX1IVBKvQ',
-    channelName: 'Zee Business',
-    shortName:   'Zee Biz',
+    channelName: 'AL Jazeera English',
+    shortName:   'AL Jazeera',
     region:      'IN',
     accent:      '#8b5cf6',
     videoId:     'gCNeDWCI0vo',
     watchUrl:    'https://www.youtube.com/watch?v=gCNeDWCI0vo',
-    description: 'Hindi markets coverage 24/7',
+    description: 'Market coverage 24/7',
   },
 ]
 
