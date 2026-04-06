@@ -3,17 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  /* Background system */
   --bg-base:    #090c10;
   --bg-panel:   #0d1117;
   --bg-deep:    #111820;
-
-  /* Borders */
   --border:     #1e2d3d;
   --border-br:  #243344;
-
-  /* Accent palette */
   --amber:      #f0a500;
   --amber-br:   #ffcc55;
   --teal:       #00e5c0;
@@ -21,76 +17,187 @@
   --info:       #1e90ff;
   --positive:   #00c97a;
   --negative:   #ff4560;
-
-  /* Text */
-  --text:       #d2dce7;
-  --text-2:     #87a3b5;
-  --text-muted: #aab4bb;
+  --text:       #c8d8e8;
+  --text-2:     #7a9ab0;
+  --text-muted: #4a6070;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  /* Prevent tap zoom on mobile */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
 
 html, body {
-  background: var(--bg-base);
-  color: var(--text);
+  background:  var(--bg-base);
+  color:       var(--text);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-size:   13px;
   line-height: 1.7;
-  overflow-x: hidden;
+  overflow-x:  hidden;
+  /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Custom scrollbar — thin, dark, Bloomberg-style */
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--border-br); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-/* Price flash animation classes */
-.price-up   { animation: priceUp 0.6s ease-out; }
-.price-down { animation: priceDown 0.6s ease-out; }
+/* ── Panel component ───────────────────────────────────────────────────────── */
+.panel {
+  background:   var(--bg-panel);
+  border:       1px solid var(--border);
+  border-radius: 6px;
+  overflow:     hidden;
+  /* Ensure panels fill their container */
+  width:        100%;
+  height:       100%;
+}
+
+.panel-header {
+  padding:      10px 14px;
+  border-bottom: 1px solid var(--border);
+  display:      flex;
+  align-items:  center;
+  gap:          8px;
+  font-family:  'Syne', sans-serif;
+  font-size:    11px;
+  font-weight:  700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color:        var(--text-2);
+  flex-shrink:  0;
+  /* Prevent overflow on narrow panels */
+  min-width:    0;
+  overflow:     hidden;
+}
+
+.panel-header .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background:   var(--teal);
+  animation:    pulseDot 2s ease-in-out infinite;
+  flex-shrink:  0;
+}
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes pulseDot {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.4; }
+}
 
 @keyframes priceUp {
   0%   { background-color: rgba(0, 201, 122, 0.25); }
   100% { background-color: transparent; }
 }
+
 @keyframes priceDown {
   0%   { background-color: rgba(255, 69, 96, 0.25); }
   100% { background-color: transparent; }
 }
 
-/* Utility classes for panels */
-.panel {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.panel-header {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Syne', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-2);
-}
-.panel-header .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--teal);
-  animation: pulseDot 2s ease-in-out infinite;
-}
-@keyframes pulseDot {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.4; }
-}
-
-/* Add at the bottom of globals.css */
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.price-up   { animation: priceUp 0.6s ease-out; }
+.price-down { animation: priceDown 0.6s ease-out; }
+
+/* ── Mobile-specific overrides ─────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  html { font-size: 12px; }
+
+  .panel-header {
+    padding:   8px 12px;
+    font-size: 10px;
+    gap:       6px;
+  }
+
+  /* Make all buttons easier to tap (44px min touch target) */
+  button {
+    min-height: 36px;
+    min-width:  36px;
+  }
+
+  /* Larger text in panels on mobile */
+  .panel { border-radius: 8px; }
+
+  /* Input fields full width on mobile */
+  input, select { font-size: 16px !important; } /* prevents iOS zoom on focus */
+}
+
+/* ── Tablet adjustments ────────────────────────────────────────────────────── */
+@media (min-width: 640px) and (max-width: 1023px) {
+  html { font-size: 12px; }
+
+  .panel-header { padding: 9px 12px; }
+}
+
+/* ── React Grid Layout overrides ───────────────────────────────────────────── */
+.react-grid-item { transition: none !important; }
+
+.react-grid-item.cssTransforms {
+  transition-property:        transform !important;
+  transition-duration:        100ms !important;
+  transition-timing-function: ease-out !important;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background:   rgba(240, 165, 0, 0.07) !important;
+  border:       1px dashed rgba(240, 165, 0, 0.4) !important;
+  border-radius: 6px !important;
+  opacity:      1 !important;
+  z-index:      2 !important;
+}
+
+.react-resizable-handle {
+  background:   none !important;
+  border-right: 2px solid rgba(240, 165, 0, 0.7) !important;
+  border-bottom: 2px solid rgba(240, 165, 0, 0.7) !important;
+  border-radius: 0 0 4px 0 !important;
+  width:  14px !important;
+  height: 14px !important;
+}
+
+.nexus-drag-handle { user-select: none; }
+
+/* ── Iframe responsive ─────────────────────────────────────────────────────── */
+iframe {
+  max-width: 100%;
+}
+
+/* ── Canvas responsive ─────────────────────────────────────────────────────── */
+canvas {
+  max-width: 100%;
+  display:   block;
+}
+
+/* ── Select & input dark theme ─────────────────────────────────────────────── */
+select {
+  background: var(--bg-deep);
+  color:      #fff;
+  border:     1px solid var(--border);
+  border-radius: 3px;
+}
+
+select option {
+  background: var(--bg-panel);
+  color:      #fff;
+}
+
+/* ── Focus styles ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline:        2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* ── Link styles ───────────────────────────────────────────────────────────── */
+a { color: inherit; }

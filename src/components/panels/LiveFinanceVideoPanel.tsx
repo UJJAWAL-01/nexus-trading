@@ -4,34 +4,27 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 
 type Region = 'ALL' | 'US' | 'IN'
 
-interface StreamInfo {
+interface StreamResult {
   channelId:   string
   channelName: string
+  shortName:   string
   region:      string
   accent:      string
   videoId:     string
   embedUrl:    string
   watchUrl:    string
-  isLive:      boolean
+  description: string
   isVerified:  boolean
-  viewers:     number | null
+  isLive:      boolean
   title:       string
+  status:      'live' | 'fallback' | 'unverified'
 }
 
 interface APIResponse {
-  channels:  StreamInfo[]
+  channels:  StreamResult[]
   hasApiKey: boolean
   fetchedAt: string
-  note:      string
-}
-
-/*
-  Fallback tier system for broken embeds:
-  When a video shows "This video is unavailable", the iframe fires an error.
-  We detect this and automatically try the channel live_stream embed.
-*/
-function buildChannelLiveUrl(channelId: string): string {
-  return `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1&rel=0`
+  liveCount: number
 }
 
 const REGION_FILTERS: { key: Region; label: string }[] = [
@@ -41,18 +34,16 @@ const REGION_FILTERS: { key: Region; label: string }[] = [
 ]
 
 export default function LiveFinanceVideoPanel() {
-  const [streams,    setStreams]    = useState<StreamInfo[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [region,     setRegion]     = useState<Region>('ALL')
-  const [active,     setActive]     = useState<StreamInfo | null>(null)
-  const [hasApiKey,  setHasApiKey]  = useState(false)
-  const [embedError, setEmbedError] = useState(false)
-  const [fallbackMode, setFallbackMode] = useState(false)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [streams,      setStreams]      = useState<StreamResult[]>([])
+  const [loading,      setLoading]      = useState(true)
+  const [region,       setRegion]       = useState<Region>('ALL')
+  const [active,       setActive]       = useState<StreamResult | null>(null)
+  const [liveCount,    setLiveCount]    = useState(0)
+  const [embedFailed,  setEmbedFailed]  = useState(false)
+  const [useFallback,  setUseFallback]  = useState(false)
+  const [lastRefresh,  setLastRefresh]  = useState<string>('')
+  const retryCountRef = useRef(0)
 
-  /*
-    Fetch channel list from our API
-  */
   const fetchStreams = useCallback(async (r: Region) => {
     setLoading(true)
     try {
@@ -60,16 +51,16 @@ export default function LiveFinanceVideoPanel() {
       const data = await res.json() as APIResponse
       const channels = data.channels ?? []
       setStreams(channels)
-      setHasApiKey(data.hasApiKey ?? false)
+      setLiveCount(data.liveCount ?? 0)
+      setLastRefresh(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }))
 
-      // Auto-select first channel, preserve selection on refresh
       setActive(prev => {
         if (prev) {
-          // Re-find the same channel with updated data
           const same = channels.find(c => c.channelId === prev.channelId)
           return same ?? channels[0] ?? null
         }
-        return channels[0] ?? null
+        // Auto-select first verified/live channel
+        return channels.find(c => c.isVerified) ?? channels[0] ?? null
       })
     } catch {
       setStreams([])
@@ -86,33 +77,30 @@ export default function LiveFinanceVideoPanel() {
 
   // Reset error state when active channel changes
   useEffect(() => {
-    setEmbedError(false)
-    setFallbackMode(false)
+    setEmbedFailed(false)
+    setUseFallback(false)
+    retryCountRef.current = 0
   }, [active?.channelId])
 
   const displayed = region === 'ALL' ? streams : streams.filter(s => s.region === region)
 
-  /*
-    Determine which embed URL to use based on error state
-    Tier 1: permanentVideoId direct embed
-    Tier 2: channel live_stream embed
-    Tier 3: Open YouTube link
-  */
-  const embedUrl = (() => {
+  // Determine which embed URL to actually use
+  const embedSrc = (() => {
     if (!active) return ''
-    if (fallbackMode) {
-      return buildChannelLiveUrl(active.channelId)
+    if (embedFailed) return ''  // Both tiers failed
+    if (useFallback) {
+      // Tier 2: channel live_stream embed
+      return `https://www.youtube.com/embed/live_stream?channel=${active.channelId}&autoplay=1&mute=1&rel=0`
     }
-    return active.embedUrl
+    return active.embedUrl  // Tier 1: direct video ID
   })()
 
-  const handleEmbedError = () => {
-    if (!fallbackMode) {
-      // Try channel fallback
-      setFallbackMode(true)
+  const handleTryFallback = () => {
+    if (retryCountRef.current === 0) {
+      setUseFallback(true)
+      retryCountRef.current = 1
     } else {
-      // Both failed — show error state
-      setEmbedError(true)
+      setEmbedFailed(true)
     }
   }
 
@@ -120,31 +108,33 @@ export default function LiveFinanceVideoPanel() {
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="panel-header" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="panel-header" style={{ justifyContent: 'space-between', gap: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
           <div style={{
-            width: '8px', height: '8px', borderRadius: '50%', background: '#ff4560',
+            width: '8px', height: '8px', borderRadius: '50%',
+            background: '#ff4560', flexShrink: 0,
             animation: 'pulseDot 1.5s ease-in-out infinite',
-            boxShadow: '0 0 8px #ff4560',
           }} />
-          LIVE FINANCE TV
+          <span style={{ whiteSpace: 'nowrap' }}>LIVE FINANCE TV</span>
           <span style={{
             fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
             background: 'rgba(255,69,96,0.12)', color: '#ff4560',
             border: '1px solid rgba(255,69,96,0.25)',
             fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+            flexShrink: 0,
           }}>
-            ● LIVE
+            {loading ? '···' : `${liveCount} LIVE`}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '3px' }}>
+        <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
           {REGION_FILTERS.map(f => (
             <button key={f.key} onClick={() => setRegion(f.key)} style={{
-              padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
+              padding: '2px 7px', borderRadius: '3px', cursor: 'pointer',
               fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
               border: `1px solid ${region === f.key ? '#ff4560' : 'var(--border)'}`,
               background: region === f.key ? 'rgba(255,69,96,0.1)' : 'transparent',
               color: region === f.key ? '#ff4560' : 'var(--text-muted)',
+              whiteSpace: 'nowrap',
             }}>
               {f.label}
             </button>
@@ -152,17 +142,20 @@ export default function LiveFinanceVideoPanel() {
         </div>
       </div>
 
-      {/* ── Channel selector tabs ───────────────────────────────────────────── */}
+      {/* ── Channel selector ─────────────────────────────────────────────────── */}
       <div style={{
-        display: 'flex', overflowX: 'auto', gap: '4px',
-        padding: '8px 10px', borderBottom: '1px solid var(--border)',
+        display:    'flex',
+        overflowX:  'auto',
+        gap:        '4px',
+        padding:    '6px 8px',
+        borderBottom: '1px solid var(--border)',
         flexShrink: 0,
-        // Hide scrollbar but keep functionality
         scrollbarWidth: 'none',
+        WebkitOverflowScrolling: 'touch',
       }}>
         {loading
-          ? <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
-              SCANNING FEEDS...
+          ? <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', padding: '4px' }}>
+              Scanning channels...
             </div>
           : displayed.map(stream => {
             const isActive = active?.channelId === stream.channelId
@@ -171,83 +164,66 @@ export default function LiveFinanceVideoPanel() {
                 key={stream.channelId}
                 onClick={() => setActive(stream)}
                 style={{
-                  padding:      '5px 12px',
-                  borderRadius: '4px',
-                  cursor:       'pointer',
-                  fontFamily:   'JetBrains Mono, monospace',
-                  fontSize:     '10px',
-                  whiteSpace:   'nowrap',
-                  flexShrink:   0,
-                  border:       `1px solid ${isActive ? stream.accent : 'var(--border)'}`,
-                  background:   isActive ? `${stream.accent}20` : 'var(--bg-deep)',
-                  color:        isActive ? stream.accent : 'var(--text-muted)',
-                  display:      'flex',
-                  alignItems:   'center',
-                  gap:          '6px',
-                  transition:   'all 0.15s',
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    e.currentTarget.style.borderColor = stream.accent + '80'
-                    e.currentTarget.style.color = stream.accent + 'cc'
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    e.currentTarget.style.borderColor = 'var(--border)'
-                    e.currentTarget.style.color = 'var(--text-muted)'
-                  }
+                  padding:    '5px 10px',
+                  borderRadius:'4px',
+                  cursor:     'pointer',
+                  flexShrink: 0,
+                  border:     `1px solid ${isActive ? stream.accent : 'var(--border)'}`,
+                  background: isActive ? `${stream.accent}1a` : 'var(--bg-deep)',
+                  color:      isActive ? stream.accent : 'var(--text-muted)',
+                  display:    'flex',
+                  alignItems: 'center',
+                  gap:        '5px',
+                  transition: 'all 0.15s',
+                  minWidth:   0,
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
-                {/* Live indicator dot */}
+                {/* Status dot */}
                 <div style={{
-                  width: '5px', height: '5px', borderRadius: '50%',
+                  width: '5px', height: '5px', borderRadius: '50%', flexShrink: 0,
                   background: stream.isVerified ? '#00c97a' : stream.isLive ? stream.accent : '#4a6070',
                   animation: stream.isLive ? 'pulseDot 2s ease-in-out infinite' : 'none',
                 }} />
-                {stream.region === 'IN' ? '🇮🇳' : '🇺🇸'} {stream.channelName}
+                <span style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>
+                  {stream.region === 'IN' ? '🇮🇳' : '🇺🇸'} {stream.shortName}
+                </span>
               </button>
             )
           })
         }
       </div>
 
-      {/* ── Main player area ───────────────────────────────────────────────── */}
-      <div style={{ flex: 1, minHeight: 0, position: 'relative', background: '#000' }}>
+      {/* ── Video player ─────────────────────────────────────────────────────── */}
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', background: '#000', overflow: 'hidden' }}>
 
         {/* Embed iframe */}
-        {active && !embedError && embedUrl && (
+        {active && !embedFailed && embedSrc && (
           <iframe
-            ref={iframeRef}
-            key={`${active.channelId}-${fallbackMode ? 'fallback' : 'primary'}`}
-            src={embedUrl}
+            key={`${active.channelId}-${useFallback ? 'fb' : 'primary'}`}
+            src={embedSrc}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
             style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-            /*
-              YouTube iframes don't fire standard error events for "video unavailable".
-              We use an onLoad timeout — if iframe loads but shows error, user clicks
-              the fallback button.
-            */
           />
         )}
 
         {/* Error state — both tiers failed */}
-        {(embedError || !active) && !loading && (
+        {(embedFailed || (!active && !loading)) && (
           <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center', gap: '16px',
-            background: '#000',
+            position:       'absolute', inset: 0,
+            display:        'flex', flexDirection: 'column',
+            alignItems:     'center', justifyContent: 'center', gap: '16px',
+            background:     '#000', padding: '20px',
           }}>
-            <div style={{ fontSize: '32px' }}>📺</div>
+            <div style={{ fontSize: '40px' }}>📺</div>
             <div style={{
               fontSize: '12px', color: 'var(--text-muted)',
-              fontFamily: 'JetBrains Mono, monospace', textAlign: 'center',
-              lineHeight: 1.6, maxWidth: '280px',
+              fontFamily: 'JetBrains Mono, monospace',
+              textAlign: 'center', lineHeight: 1.6, maxWidth: '260px',
             }}>
               {active
-                ? 'Embed restricted. Click below to watch on YouTube — all channels stream 24/7.'
+                ? `${active.channelName} embed is restricted in your region. Watch directly on YouTube — all channels are live 24/7.`
                 : 'Select a channel above to start watching.'}
             </div>
             {active && (
@@ -256,103 +232,95 @@ export default function LiveFinanceVideoPanel() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  padding:       '8px 20px',
-                  background:    'rgba(255,0,0,0.9)',
-                  color:         '#fff',
-                  borderRadius:  '4px',
-                  fontSize:      '12px',
-                  fontFamily:    'JetBrains Mono, monospace',
-                  fontWeight:    700,
-                  textDecoration:'none',
-                  letterSpacing: '0.06em',
-                  display:       'flex',
-                  alignItems:    'center',
-                  gap:           '8px',
+                  padding: '10px 24px', background: 'rgba(255,0,0,0.9)', color: '#fff',
+                  borderRadius: '4px', fontSize: '12px',
+                  fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+                  textDecoration: 'none', letterSpacing: '0.06em',
+                  display: 'flex', alignItems: 'center', gap: '8px',
                 }}
               >
-                ▶ WATCH {active.channelName} ON YOUTUBE
+                ▶ WATCH {active.shortName} ON YOUTUBE
               </a>
             )}
           </div>
         )}
 
-        {/* Loading overlay */}
+        {/* Loading state */}
         {loading && (
           <div style={{
             position: 'absolute', inset: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center', gap: '12px',
             background: '#000',
           }}>
-            <div style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>
+            <div style={{
+              width: '28px', height: '28px',
+              border: '2px solid #222', borderTop: '2px solid #ff4560',
+              borderRadius: '50%', animation: 'spin 0.8s linear infinite',
+            }} />
+            <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
               SCANNING LIVE FEEDS...
             </div>
           </div>
         )}
 
-        {/* Channel name overlay */}
-        {active && !embedError && (
-          <div style={{
-            position: 'absolute', bottom: '12px', left: '12px',
-            background: 'rgba(0,0,0,0.75)',
-            padding: '5px 12px', borderRadius: '4px',
-            fontSize: '11px', color: '#fff',
-            fontFamily: 'Syne, sans-serif', fontWeight: 700,
-            display: 'flex', alignItems: 'center', gap: '6px',
-            pointerEvents: 'none',
-          }}>
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ff4560', animation: 'pulseDot 1.5s ease-in-out infinite' }} />
-            {active.channelName} · LIVE
-          </div>
-        )}
+        {/* Channel overlay + controls */}
+        {active && !embedFailed && (
+          <>
+            <div style={{
+              position: 'absolute', bottom: '10px', left: '10px',
+              background: 'rgba(0,0,0,0.75)', padding: '4px 10px',
+              borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '6px',
+              pointerEvents: 'none',
+            }}>
+              <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ff4560', animation: 'pulseDot 1.5s ease-in-out infinite' }} />
+              <span style={{ fontSize: '11px', color: '#fff', fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
+                {active.channelName}
+              </span>
+              {active.isVerified && (
+                <span style={{ fontSize: '9px', color: '#00c97a', fontFamily: 'JetBrains Mono, monospace' }}>✓ LIVE</span>
+              )}
+            </div>
 
-        {/* Embed error / fallback controls */}
-        {active && !embedError && (
-          <div style={{
-            position: 'absolute', bottom: '12px', right: '12px',
-            display: 'flex', gap: '6px',
-          }}>
-            {/* Try fallback if not already in fallback */}
-            {!fallbackMode && (
+            <div style={{ position: 'absolute', bottom: '10px', right: '10px', display: 'flex', gap: '5px' }}>
               <button
-                onClick={() => setFallbackMode(true)}
+                onClick={handleTryFallback}
                 style={{
-                  background: 'rgba(0,0,0,0.7)', color: 'var(--text-muted)',
-                  padding: '4px 10px', borderRadius: '3px',
-                  fontSize: '9px', fontFamily: 'JetBrains Mono, monospace',
-                  border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer',
+                  background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.15)',
+                  color: 'var(--text-muted)', padding: '4px 9px', borderRadius: '3px',
+                  fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer',
+                }}
+                title="Reload stream"
+              >
+                ↺
+              </button>
+              <a
+                href={active.watchUrl} target="_blank" rel="noopener noreferrer"
+                style={{
+                  background: 'rgba(255,0,0,0.85)', color: '#fff',
+                  padding: '4px 9px', borderRadius: '3px',
+                  fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+                  textDecoration: 'none',
                 }}
               >
-                ↺ RELOAD
-              </button>
-            )}
-            <a
-              href={active.watchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                background: 'rgba(255,0,0,0.85)', color: '#fff',
-                padding: '4px 10px', borderRadius: '3px',
-                fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
-                textDecoration: 'none', letterSpacing: '0.06em',
-              }}
-            >
-              ▶ YOUTUBE
-            </a>
-          </div>
+                ▶ YT
+              </a>
+            </div>
+          </>
         )}
       </div>
 
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <div style={{
-        padding: '5px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
+        padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
         fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <span>All channels broadcast 24/7 · Click channel to switch instantly</span>
-        <span style={{ color: hasApiKey ? 'var(--positive)' : 'var(--text-muted)' }}>
-          {hasApiKey ? '● API LIVE DETECT' : '● PERMANENT IDs'}
-        </span>
+        <span>8 channels · 24/7 live · tap to switch</span>
+        <span style={{ color: 'var(--text-muted)' }}>{lastRefresh ? `updated ${lastRefresh}` : ''}</span>
       </div>
+
+      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
