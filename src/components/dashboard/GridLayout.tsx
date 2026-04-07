@@ -80,26 +80,29 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   { i: 'chart',        x: 4,  y: 14, w: 8, h: 16, minW: 4, minH: 10 },
 
   // Row 3 — Sentiment + Calendar + Earnings
-  { i: 'sentiment',    x: 0,  y: 30, w: 3, h: 12, minW: 2, minH: 8  },
-  { i: 'calendar',     x: 3,  y: 30, w: 3, h: 12, minW: 2, minH: 8  },
-  { i: 'earnings',     x: 6,  y: 30, w: 3, h: 12, minW: 2, minH: 8  },
-  { i: 'heatmap',      x: 9,  y: 30, w: 3, h: 12, minW: 2, minH: 8  },
+  { i: 'sentiment',    x: 0,  y: 30, w: 2, h: 10, minW: 2, minH: 7  },
+  { i: 'calendar',     x: 2,  y: 30, w: 3, h: 10, minW: 2, minH: 7  },
+  { i: 'earnings',     x: 5,  y: 30, w: 3, h: 10, minW: 2, minH: 8  },
+  { i: 'heatmap',      x: 8,  y: 30, w: 4, h: 10, minW: 2, minH: 8  },
 
   // Row 4 — India Markets + Macro Rates + Alt Signals + Correlation
   { i: 'indiamarkets', x: 0,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'macrorates',   x: 3,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'commodities',   x: 3,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'altsignals',   x: 6,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'correlation',  x: 9,  y: 42, w: 3, h: 14, minW: 2, minH: 10 },
+
+
+  // Row 5 — Commodities
+  { i: 'commodities',  x: 0,  y: 56, w: 3, h: 14, minW: 2, minH: 8  },
 ]
 
 // ── MOBILE panel order (best-first) ───────────────────────────────────────────
 const MOBILE_ORDER: PanelId[] = [
   'watchlist', 'chart', 'news',
   'livevideo', 'indices', 'mktclock',
-  'sentiment', 'calendar', 'earnings',
-  'heatmap', 'indiamarkets', 'macrorates',
-  'altsignals', 'commodities', 'correlation',
+  'sentiment', 'commodities','calendar',
+  'heatmap', 'indiamarkets', 'earnings', 
+  'altsignals', 'correlation','macrorates',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
