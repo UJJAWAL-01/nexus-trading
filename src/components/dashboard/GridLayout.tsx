@@ -20,6 +20,7 @@ import NewsFeedPanel            from '@/components/panels/NewsFeedPanel'
 import SectorHeatmapPanel       from '@/components/panels/SectorHeatmapPanel'
 import SentimentPanel           from '@/components/panels/SentimentPanel'
 import WatchlistPanel           from '@/components/panels/WatchlistPanel'
+import CommoditiesPanel from '../panels/CommoditiesPanel'
 
 const ReactGridLayout = WidthProvider(GridLayoutBase)
 
@@ -30,7 +31,7 @@ const PANEL_IDS = [
   'indices', 'mktclock', 'chart',
   'sentiment', 'calendar', 'earnings',
   'heatmap', 'indiamarkets', 'macrorates',
-  'altsignals', 'correlation',
+  'altsignals', 'commodities', 'correlation',
 ] as const
 
 type PanelId = (typeof PANEL_IDS)[number]
@@ -59,6 +60,7 @@ const PANEL_META: Record<PanelId, PanelMeta> = {
   indiamarkets: { component: <IndiaMarketsPanel />,        label: 'INDIA MKTS',    color: '#f97316',        mobileH: 500, description: 'NIFTY · SENSEX · FII/DII' },
   macrorates:   { component: <MacroRatesPanel />,          label: 'MACRO RATES',   color: 'var(--teal)',    mobileH: 520, description: 'FED · RBI live rates + World Bank' },
   altsignals:   { component: <AlternativeSignalsPanel />,  label: 'ALT SIGNALS',   color: '#a78bfa',        mobileH: 380, description: 'Lunar · Seasonality · DoW' },
+  commodities: { component: <CommoditiesPanel/>,           label: 'COMMODITIES', color: '#f97316', mobileH: 380, description: 'Gold · Oil · Crypto signals' },
   correlation:  { component: <CorrelationPanel />,         label: 'CORRELATION',   color: '#1e90ff',        mobileH: 500, description: 'AI stock correlation map' },
 }
 
@@ -86,6 +88,7 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // Row 4 — India Markets + Macro Rates + Alt Signals + Correlation
   { i: 'indiamarkets', x: 0,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'macrorates',   x: 3,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
+  { i: 'commodities',   x: 3,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'altsignals',   x: 6,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'correlation',  x: 9,  y: 42, w: 3, h: 14, minW: 2, minH: 10 },
 ]
@@ -96,7 +99,7 @@ const MOBILE_ORDER: PanelId[] = [
   'livevideo', 'indices', 'mktclock',
   'sentiment', 'calendar', 'earnings',
   'heatmap', 'indiamarkets', 'macrorates',
-  'altsignals', 'correlation',
+  'altsignals', 'commodities', 'correlation',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -169,8 +172,8 @@ const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
   { label: 'Live',      ids: ['livevideo', 'news', 'watchlist']               },
   { label: 'Charts',    ids: ['chart', 'indices', 'mktclock']                 },
   { label: 'Analytics', ids: ['sentiment', 'calendar', 'earnings', 'heatmap'] },
-  { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals']     },
-  { label: 'Research',  ids: ['correlation']                                  },
+  { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals', 'commodities']     },
+  { label: 'Research',  ids: ['correlation']},
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────
@@ -270,7 +273,7 @@ function TabletLayout({ hidden }: { hidden: Set<PanelId> }) {
     }}>
       {visible.map(id => {
         const meta = PANEL_META[id]
-        const isWide = ['chart', 'livevideo', 'news', 'indiamarkets', 'macrorates', 'correlation'].includes(id)
+        const isWide = ['chart', 'livevideo', 'news', 'indiamarkets', 'macrorates', 'correlation', 'commodities'].includes(id)
         return (
           <div
             key={id}

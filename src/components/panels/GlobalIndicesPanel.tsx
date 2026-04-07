@@ -17,8 +17,8 @@ const ALL_INDICES: IndexDef[] = [
   { symbol: 'DIA',       label: 'DOW 30',     flag: '🇺🇸', source: 'finnhub' },
   // ── Commodities / Crypto ──────────────────────────────
   { symbol: 'GLD',       label: 'Gold',       flag: '🥇',  source: 'finnhub' },
-  { symbol: 'BTC-USD',   label: 'BTC/USD',    flag: '₿',   source: 'finnhub' },
-  { symbol: 'VIX',       label: 'VIX',        flag: '📊',  source: 'finnhub' },
+  { symbol: 'BTC-USD',   label: 'BTC/USD',    flag: '₿',    source: 'finnhub' },
+  { symbol: '^VIX',      label: 'VIX',        flag: '📊',  source: 'yahoo' },
   // ── India ─────────────────────────────────────────────
   { symbol: '^NSEI',     label: 'NIFTY 50',   flag: '🇮🇳', source: 'yahoo' },
   { symbol: '^BSESN',    label: 'SENSEX',     flag: '🇮🇳', source: 'yahoo' },
