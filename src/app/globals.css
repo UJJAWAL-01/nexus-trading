@@ -35,7 +35,7 @@ html, body {
   background:  var(--bg-base);
   color:       var(--text);
   font-family: 'JetBrains Mono', monospace;
-  font-size:   13px;
+  font-size:   16px;
   line-height: 1.7;
   overflow-x:  hidden;
   /* Smooth scrolling on iOS */
@@ -66,7 +66,7 @@ html, body {
   align-items:  center;
   gap:          8px;
   font-family:  'Syne', sans-serif;
-  font-size:    11px;
+  font-size:    14px;
   font-weight:  700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -113,11 +113,11 @@ html, body {
 
 /* ── Mobile-specific overrides ─────────────────────────────────────────────── */
 @media (max-width: 639px) {
-  html { font-size: 12px; }
+  html { font-size: 14px; }
 
   .panel-header {
     padding:   8px 12px;
-    font-size: 10px;
+    font-size: 14px;
     gap:       6px;
   }
 
@@ -136,7 +136,7 @@ html, body {
 
 /* ── Tablet adjustments ────────────────────────────────────────────────────── */
 @media (min-width: 640px) and (max-width: 1023px) {
-  html { font-size: 12px; }
+  html { font-size: 14px; }
 
   .panel-header { padding: 9px 12px; }
 }

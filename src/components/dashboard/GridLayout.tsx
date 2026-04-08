@@ -20,7 +20,8 @@ import NewsFeedPanel            from '@/components/panels/NewsFeedPanel'
 import SectorHeatmapPanel       from '@/components/panels/SectorHeatmapPanel'
 import SentimentPanel           from '@/components/panels/SentimentPanel'
 import WatchlistPanel           from '@/components/panels/WatchlistPanel'
-import CommoditiesPanel from '../panels/CommoditiesPanel'
+import CommoditiesPanel         from '@/components/panels/CommoditiesPanel'
+import InsiderDealsPanel        from '@/components/panels/InsiderDealsPanel'
 
 const ReactGridLayout = WidthProvider(GridLayoutBase)
 
@@ -31,7 +32,7 @@ const PANEL_IDS = [
   'indices', 'mktclock', 'chart',
   'sentiment', 'calendar', 'earnings',
   'heatmap', 'indiamarkets', 'macrorates',
-  'altsignals', 'commodities', 'correlation',
+  'altsignals','insiderdeals', 'commodities', 'correlation',
 ] as const
 
 type PanelId = (typeof PANEL_IDS)[number]
@@ -60,7 +61,8 @@ const PANEL_META: Record<PanelId, PanelMeta> = {
   indiamarkets: { component: <IndiaMarketsPanel />,        label: 'INDIA MKTS',    color: '#f97316',        mobileH: 500, description: 'NIFTY · SENSEX · FII/DII' },
   macrorates:   { component: <MacroRatesPanel />,          label: 'MACRO RATES',   color: 'var(--teal)',    mobileH: 520, description: 'FED · RBI live rates + World Bank' },
   altsignals:   { component: <AlternativeSignalsPanel />,  label: 'ALT SIGNALS',   color: '#a78bfa',        mobileH: 380, description: 'Lunar · Seasonality · DoW' },
-  commodities: { component: <CommoditiesPanel/>,           label: 'COMMODITIES', color: '#f97316', mobileH: 380, description: 'Gold · Oil · Crypto signals' },
+  commodities: { component: <CommoditiesPanel/>,           label: 'COMMODITIES',   color: '#f97316',        mobileH: 380, description: 'Gold · Oil · Crypto signals' },
+  insiderdeals: { component: <InsiderDealsPanel />,        label: 'INSIDER DEALS', color: '#f97316',         mobileH: 380, description: 'US & India insider transactions' },
   correlation:  { component: <CorrelationPanel />,         label: 'CORRELATION',   color: '#1e90ff',        mobileH: 500, description: 'AI stock correlation map' },
 }
 
@@ -89,11 +91,14 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   { i: 'indiamarkets', x: 0,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'macrorates',   x: 3,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'altsignals',   x: 6,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'correlation',  x: 9,  y: 42, w: 3, h: 14, minW: 2, minH: 10 },
+  { i: 'commodities',  x: 0,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
+  
 
 
   // Row 5 — Commodities
-  { i: 'commodities',  x: 0,  y: 56, w: 3, h: 14, minW: 2, minH: 8  },
+  { i: 'insiderdeals', x: 0, y: 56, w: 6, h: 14 ,minW: 4, minH: 8},
+  { i: 'correlation',  x: 6,  y: 42, w: 6, h: 14, minW: 4, minH: 10 },
+
 ]
 
 // ── MOBILE panel order (best-first) ───────────────────────────────────────────
@@ -102,7 +107,7 @@ const MOBILE_ORDER: PanelId[] = [
   'livevideo', 'indices', 'mktclock',
   'sentiment', 'commodities','calendar',
   'heatmap', 'indiamarkets', 'earnings', 
-  'altsignals', 'correlation','macrorates',
+  'altsignals', 'correlation','macrorates','insiderdeals',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -175,7 +180,7 @@ const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
   { label: 'Live',      ids: ['livevideo', 'news', 'watchlist']               },
   { label: 'Charts',    ids: ['chart', 'indices', 'mktclock']                 },
   { label: 'Analytics', ids: ['sentiment', 'calendar', 'earnings', 'heatmap'] },
-  { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals', 'commodities']     },
+  { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals', 'commodities', 'insiderdeals']     },
   { label: 'Research',  ids: ['correlation']},
 ]
 
