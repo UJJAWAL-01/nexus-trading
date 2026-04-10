@@ -79,7 +79,7 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // Row 2 — Indices + World Clock + Chart (hero)
   { i: 'indices',      x: 0,  y: 14, w: 2, h: 16, minW: 2, minH: 8  },
   { i: 'mktclock',     x: 2,  y: 14, w: 3, h: 16, minW: 2, minH: 8  },
-  { i: 'chart',        x: 5,  y: 14, w: 8, h: 16, minW: 4, minH: 10 },
+  { i: 'chart',        x: 5,  y: 14, w: 7, h: 16, minW: 4, minH: 10 },
 
   // Row 3 — Sentiment + Calendar + Earnings
   { i: 'sentiment',    x: 0,  y: 30, w: 2, h: 10, minW: 2, minH: 7  },
