@@ -22,6 +22,7 @@ import SentimentPanel           from '@/components/panels/SentimentPanel'
 import WatchlistPanel           from '@/components/panels/WatchlistPanel'
 import CommoditiesPanel         from '@/components/panels/CommoditiesPanel'
 import InsiderDealsPanel        from '@/components/panels/InsiderDealsPanel'
+// import IpoScreenerPanel from '@/components/panels/IpoScreenerPanel'
 
 const ReactGridLayout = WidthProvider(GridLayoutBase)
 
@@ -64,6 +65,7 @@ const PANEL_META: Record<PanelId, PanelMeta> = {
   commodities: { component: <CommoditiesPanel/>,           label: 'COMMODITIES',   color: '#f97316',        mobileH: 380, description: 'Gold · Oil · Crypto signals' },
   insiderdeals: { component: <InsiderDealsPanel />,        label: 'INSIDER DEALS', color: '#f97316',         mobileH: 380, description: 'US & India insider transactions' },
   correlation:  { component: <CorrelationPanel />,         label: 'CORRELATION',   color: '#1e90ff',        mobileH: 500, description: 'AI stock correlation map' },
+  // ipo:          { component: <IpoScreenerPanel />,         label: 'IPO',           color: '#1e90ff',    mobileH: 380, description: 'Upcoming and recent IPOs' },
 }
 
 // ── DESKTOP default layout — version 6 ────────────────────────────────────────
@@ -79,23 +81,24 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // Row 2 — Indices + World Clock + Chart (hero)
   { i: 'indices',      x: 0,  y: 14, w: 2, h: 16, minW: 2, minH: 8  },
   { i: 'mktclock',     x: 2,  y: 14, w: 3, h: 16, minW: 2, minH: 8  },
-  { i: 'chart',        x: 5,  y: 14, w: 7, h: 16, minW: 4, minH: 10 },
+  { i: 'chart',        x: 5,  y: 14, w: 7, h: 16, minW: 4, minH: 14 },
 
-  // Row 3 — Sentiment + Calendar + Earnings
-  { i: 'sentiment',    x: 0,  y: 42, w: 2, h: 10, minW: 2, minH: 7  },
-  { i: 'calendar',     x: 2,  y: 42, w: 3, h: 10, minW: 2, minH: 7  },
-  { i: 'earnings',     x: 5,  y: 42, w: 3, h: 10, minW: 2, minH: 8  },
-  { i: 'heatmap',      x: 8,  y: 42, w: 4, h: 10, minW: 2, minH: 8  },
+  // Row 4 — Sentiment + Calendar + Earnings
+  { i: 'sentiment',    x: 0,  y: 56, w: 2, h: 10, minW: 2, minH: 7  },
+  { i: 'calendar',     x: 2,  y: 56, w: 3, h: 10, minW: 2, minH: 7  },
+  { i: 'earnings',     x: 5,  y: 56, w: 3, h: 10, minW: 2, minH: 8  },
+  { i: 'altsignals',   x: 8,  y: 56, w: 4, h: 10, minW: 2, minH: 8  },
 
-  // Row 4 — India Markets + Macro Rates + Alt Signals + Correlation
-  { i: 'indiamarkets', x: 0,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'macrorates',   x: 3,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'altsignals',   x: 6,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'commodities',  x: 9,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
+  // Row 3 — India Markets + Macro Rates + Alt Signals + Correlation
+  { i: 'indiamarkets', x: 0,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
+  { i: 'macrorates',   x: 3,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
+  { i: 'heatmap',      x: 6,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
+  { i: 'commodities',  x: 9,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
 
-  // Row 5 — Commodities
-  { i: 'insiderdeals', x: 0, y: 56, w: 6, h: 14 ,minW: 4, minH: 8},
-  { i: 'correlation',  x: 6,  y: 56, w: 6, h: 14, minW: 4, minH: 10 },
+  // Row 4 alternative — move Correlation up, swap Commodities with Insider Deals
+  { i: 'insiderdeals', x: 0, y: 42, w: 6, h: 14 ,minW: 4, minH: 12},
+  { i: 'correlation',  x: 6,  y: 42, w: 6, h: 14, minW: 4, minH: 10 },
+  // { i: 'ipo',  x: 12,  y: 56, w: 6, h: 14, minW: 4, minH: 10 },
 
 ]
 
@@ -104,8 +107,8 @@ const MOBILE_ORDER: PanelId[] = [
   'watchlist', 'chart', 'news',
   'livevideo', 'indices', 'mktclock',
   'sentiment', 'commodities','calendar',
-  'heatmap', 'indiamarkets', 'earnings', 
-  'altsignals', 'correlation','macrorates','insiderdeals',
+  'heatmap', 'indiamarkets', 'insiderdeals',
+  'altsignals', 'correlation','macrorates','earnings', 
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────

@@ -219,7 +219,7 @@ export default function SectorHeatmapPanel() {
       <div className="panel-header" style={{ justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" />
-          SECTOR HEATMAP
+          US SECTOR HEATMAP
           <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>hover to see movers</span>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
