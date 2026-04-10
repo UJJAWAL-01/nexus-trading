@@ -78,8 +78,8 @@ const DEFAULT_LAYOUT: DashboardLayout = [
 
   // Row 2 — Indices + World Clock + Chart (hero)
   { i: 'indices',      x: 0,  y: 14, w: 2, h: 16, minW: 2, minH: 8  },
-  { i: 'mktclock',     x: 2,  y: 14, w: 2, h: 16, minW: 2, minH: 8  },
-  { i: 'chart',        x: 4,  y: 14, w: 8, h: 16, minW: 4, minH: 10 },
+  { i: 'mktclock',     x: 2,  y: 14, w: 3, h: 16, minW: 2, minH: 8  },
+  { i: 'chart',        x: 5,  y: 14, w: 8, h: 16, minW: 4, minH: 10 },
 
   // Row 3 — Sentiment + Calendar + Earnings
   { i: 'sentiment',    x: 0,  y: 30, w: 2, h: 10, minW: 2, minH: 7  },
@@ -91,13 +91,13 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   { i: 'indiamarkets', x: 0,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'macrorates',   x: 3,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'altsignals',   x: 6,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'commodities',  x: 0,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
+  { i: 'commodities',  x: 9,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
   
 
 
   // Row 5 — Commodities
   { i: 'insiderdeals', x: 0, y: 56, w: 6, h: 14 ,minW: 4, minH: 8},
-  { i: 'correlation',  x: 6,  y: 42, w: 6, h: 14, minW: 4, minH: 10 },
+  { i: 'correlation',  x: 6,  y: 56, w: 6, h: 14, minW: 4, minH: 10 },
 
 ]
 

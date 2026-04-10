@@ -29,6 +29,14 @@ const ALL_INDICES: IndexDef[] = [
   { symbol: '^HSI',      label: 'Hang Seng',  flag: '🇭🇰', source: 'yahoo' },
 ]
 
+function toFinnhubCrypto(symbol: string): string | null {
+  const map: Record<string, string> = {
+    'BTC-USD': 'BINANCE:BTCUSDT',
+    'ETH-USD': 'BINANCE:ETHUSDT',
+    'SOL-USD': 'BINANCE:SOLUSDT',
+  }
+  return map[symbol] ?? null
+}
 interface IndexData {
   symbol: string
   price:  number | null

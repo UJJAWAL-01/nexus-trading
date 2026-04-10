@@ -17,9 +17,9 @@
   --info:       #1e90ff;
   --positive:   #00c97a;
   --negative:   #ff4560;
-  --text:       #c8d8e8;
-  --text-2:     #7a9ab0;
-  --text-muted: #4a6070;
+  --text:       #edf3f9;
+  --text-2:     #b2cbdb;
+  --text-muted: #728c9f;
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
@@ -30,7 +30,7 @@ html {
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
 }
-
+.text-2 { font-size: 9px; }
 html, body {
   background:  var(--bg-base);
   color:       var(--text);
@@ -117,7 +117,7 @@ html, body {
 
   .panel-header {
     padding:   8px 12px;
-    font-size: 14px;
+    font-size: 16px;
     gap:       6px;
   }
 
