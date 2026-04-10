@@ -92,8 +92,6 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   { i: 'macrorates',   x: 3,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'altsignals',   x: 6,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
   { i: 'commodities',  x: 9,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
-  
-
 
   // Row 5 — Commodities
   { i: 'insiderdeals', x: 0, y: 56, w: 6, h: 14 ,minW: 4, minH: 8},
