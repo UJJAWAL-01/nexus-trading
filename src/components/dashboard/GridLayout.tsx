@@ -82,16 +82,16 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   { i: 'chart',        x: 5,  y: 14, w: 7, h: 16, minW: 4, minH: 10 },
 
   // Row 3 — Sentiment + Calendar + Earnings
-  { i: 'sentiment',    x: 0,  y: 30, w: 2, h: 10, minW: 2, minH: 7  },
-  { i: 'calendar',     x: 2,  y: 30, w: 3, h: 10, minW: 2, minH: 7  },
-  { i: 'earnings',     x: 5,  y: 30, w: 3, h: 10, minW: 2, minH: 8  },
-  { i: 'heatmap',      x: 8,  y: 30, w: 4, h: 10, minW: 2, minH: 8  },
+  { i: 'sentiment',    x: 0,  y: 42, w: 2, h: 10, minW: 2, minH: 7  },
+  { i: 'calendar',     x: 2,  y: 42, w: 3, h: 10, minW: 2, minH: 7  },
+  { i: 'earnings',     x: 5,  y: 42, w: 3, h: 10, minW: 2, minH: 8  },
+  { i: 'heatmap',      x: 8,  y: 42, w: 4, h: 10, minW: 2, minH: 8  },
 
   // Row 4 — India Markets + Macro Rates + Alt Signals + Correlation
-  { i: 'indiamarkets', x: 0,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'macrorates',   x: 3,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'altsignals',   x: 6,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
-  { i: 'commodities',  x: 9,  y: 42, w: 3, h: 14, minW: 2, minH: 8  },
+  { i: 'indiamarkets', x: 0,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
+  { i: 'macrorates',   x: 3,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
+  { i: 'altsignals',   x: 6,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
+  { i: 'commodities',  x: 9,  y: 30, w: 3, h: 14, minW: 2, minH: 8  },
   
 
 
