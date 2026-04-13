@@ -32,7 +32,7 @@ const NSE_SECTOR_STOCKS: Record<string, { sym: string; name: string }[]> = {
   '^CNXMETAL':   [{ sym:'TATASTEEL.NS',name:'Tata Steel' },{ sym:'HINDALCO.NS',name:'Hindalco' },{ sym:'JSWSTEEL.NS',name:'JSW Steel' },{ sym:'VEDL.NS',name:'Vedanta' },{ sym:'COALINDIA.NS',name:'Coal India' },{ sym:'NMDC.NS',name:'NMDC' },{ sym:'SAIL.NS',name:'SAIL' },{ sym:'APLAPOLLO.NS',name:'APL Apollo' }],
   '^CNXENERGY':  [{ sym:'RELIANCE.NS',name:'Reliance' },{ sym:'ONGC.NS',name:'ONGC' },{ sym:'NTPC.NS',name:'NTPC' },{ sym:'POWERGRID.NS',name:'Power Grid' },{ sym:'BPCL.NS',name:'BPCL' },{ sym:'IOC.NS',name:'IOC' },{ sym:'GAIL.NS',name:'GAIL' },{ sym:'ADANIGREEN.NS',name:'Adani Green' }],
   '^CNXREALTY':  [{ sym:'DLF.NS',name:'DLF' },{ sym:'GODREJPROP.NS',name:'Godrej Prop' },{ sym:'OBEROIRLTY.NS',name:'Oberoi' },{ sym:'PRESTIGE.NS',name:'Prestige' },{ sym:'PHOENIXLTD.NS',name:'Phoenix' },{ sym:'BRIGADE.NS',name:'Brigade' },{ sym:'SOBHA.NS',name:'Sobha' },{ sym:'MAHLIFE.NS',name:'Mahindra Life' }],
-  '^CNXFINANCE': [{ sym:'HDFCBANK.NS',name:'HDFC Bank' },{ sym:'ICICIBANK.NS',name:'ICICI Bank' },{ sym:'KOTAKBANK.NS',name:'Kotak Bank' },{ sym:'AXISBANK.NS',name:'Axis Bank' },{ sym:'SBIN.NS',name:'SBI' },{ sym:'BAJFINANCE.NS',name:'Bajaj Finance' },{ sym:'BAJAJFINSV.NS',name:'Bajaj FinSv' },{ sym:'INDUSINDBK.NS',name:'IndusInd' }],
+  '^CNXFIN': [{ sym:'HDFCBANK.NS',name:'HDFC Bank' },{ sym:'ICICIBANK.NS',name:'ICICI Bank' },{ sym:'KOTAKBANK.NS',name:'Kotak Bank' },{ sym:'AXISBANK.NS',name:'Axis Bank' },{ sym:'SBIN.NS',name:'SBI' },{ sym:'BAJFINANCE.NS',name:'Bajaj Finance' },{ sym:'BAJAJFINSV.NS',name:'Bajaj FinSv' },{ sym:'INDUSINDBK.NS',name:'IndusInd' }],
 }
 
 interface QuoteState { price: number | null; change: number | null }

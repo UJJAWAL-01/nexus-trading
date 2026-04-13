@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import TickerBar   from '@/components/ui/TickerBar'
 import GridLayout  from '@/components/dashboard/GridLayout'
+import Footer from '@/components/ui/Footer'
 // import BullBearMascot from '@/components/ui/BullBearMascot'
 
 // ── Market status bar ─────────────────────────────────────────────────────────
@@ -168,6 +169,7 @@ export default function Dashboard() {
         <GridLayout />
       </main>
 
+      <Footer />  
       {/* ── Responsive CSS ──────────────────────────────────────────────────── */}
       <style>{`
         /* Mobile — under 640px */
