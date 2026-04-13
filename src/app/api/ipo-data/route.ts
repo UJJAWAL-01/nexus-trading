@@ -1,144 +1,109 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-interface IPOData {
-  ticker: string
-  company: string
-  industry: string
-  ipoDate: string
-  priceRange: string
-  shares: string
-  rating: 'bullish' | 'neutral' | 'bearish'
-  status: 'upcoming' | 'recent'
-  prospectusUrl?: string
-  underwriter?: string
-  marketCap?: string
+const cache = new Map<string, { data: unknown; expires: number }>()
+
+// ✅ Matches the existing IpoScreenerPanel interface exactly
+export interface IPOData {
+  ticker:        string
+  company:       string
+  industry:      string
+  ipoDate:       string   // ← was 'date' — now matches component
+  priceRange:    string
+  shares:        string
+  rating:        'bullish' | 'neutral' | 'bearish'
+  status:        'upcoming' | 'recent'
+  underwriter?:  string
+  marketCap?:    string
 }
 
-// Mock IPO data - replace with real API data later
-const mockIPOs: IPOData[] = [
-  {
-    ticker: 'NVIO',
-    company: 'Nvidia Ventures Inc.',
-    industry: 'Technology',
-    ipoDate: '2024-04-15',
-    priceRange: '$18 - $22',
-    shares: '15M',
-    rating: 'bullish',
-    status: 'upcoming',
-    underwriter: 'Goldman Sachs',
-    marketCap: '$330M - $402M',
-  },
-  {
-    ticker: 'SKYB',
-    company: 'SkyBridge Analytics',
-    industry: 'Software',
-    ipoDate: '2024-04-08',
-    priceRange: '$24 - $28',
-    shares: '8.5M',
-    rating: 'bullish',
-    status: 'recent',
-    underwriter: 'Morgan Stanley',
-    marketCap: '$204M - $238M',
-  },
-  {
-    ticker: 'QUANT',
-    company: 'Quantum Insight Labs',
-    industry: 'Technology',
-    ipoDate: '2024-03-28',
-    priceRange: '$32 - $36',
-    shares: '12M',
-    rating: 'neutral',
-    status: 'recent',
-    underwriter: 'JP Morgan',
-    marketCap: '$384M - $432M',
-  },
-  {
-    ticker: 'HEALX',
-    company: 'HealthX Medical Systems',
-    industry: 'Healthcare',
-    ipoDate: '2024-04-22',
-    priceRange: '$20 - $25',
-    shares: '10M',
-    rating: 'bullish',
-    status: 'upcoming',
-    underwriter: 'Citigroup',
-    marketCap: '$200M - $250M',
-  },
-  {
-    ticker: 'ECOEF',
-    company: 'EcoDynamics',
-    industry: 'Energy',
-    ipoDate: '2024-05-05',
-    priceRange: '$28 - $32',
-    shares: '9M',
-    rating: 'neutral',
-    status: 'upcoming',
-    underwriter: 'Bank of America',
-    marketCap: '$252M - $288M',
-  },
-  {
-    ticker: 'FINTECH',
-    company: 'PayFlow Solutions',
-    industry: 'Fintech',
-    ipoDate: '2024-04-01',
-    priceRange: '$35 - $42',
-    shares: '7M',
-    rating: 'bullish',
-    status: 'recent',
-    underwriter: 'Goldman Sachs',
-    marketCap: '$245M - $294M',
-  },
-  {
-    ticker: 'BIOTECH',
-    company: 'GenePrecision Biotech',
-    industry: 'Biotechnology',
-    ipoDate: '2024-04-30',
-    priceRange: '$16 - $20',
-    shares: '6.5M',
-    rating: 'bearish',
-    status: 'upcoming',
-    underwriter: 'Canaccord Genuity',
-    marketCap: '$104M - $130M',
-  },
-  {
-    ticker: 'CLOUD9',
-    company: 'CloudScale Infrastructure',
-    industry: 'Cloud Services',
-    ipoDate: '2024-03-20',
-    priceRange: '$38 - $45',
-    shares: '11M',
-    rating: 'bullish',
-    status: 'recent',
-    underwriter: 'Morgan Stanley',
-    marketCap: '$418M - $495M',
-  },
-]
+function parseFinDate(raw: string | null | undefined): string {
+  if (!raw) return ''
+  // Finnhub returns "YYYY-MM-DD" — this is always valid ISO
+  // Guard: if empty or not parseable, return empty string
+  try {
+    const d = new Date(raw + 'T12:00:00Z')   // noon UTC avoids timezone day-shift
+    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
+  } catch { return '' }
+}
+
+function deriveRating(e: any): 'bullish' | 'neutral' | 'bearish' {
+  const name = ((e.name ?? '') + (e.description ?? '')).toLowerCase()
+  if (/technology|software|saas|ai|cloud|semiconductor/.test(name)) return 'bullish'
+  if (/biotech|pharma|clinical|drug|loss|deficit/.test(name))       return 'bearish'
+  return 'neutral'
+}
+
+async function finnhubIPOs(from: string, to: string): Promise<IPOData[]> {
+  const key = process.env.FINNHUB_API_KEY
+  if (!key) return []
+
+  try {
+    const url = `https://finnhub.io/api/v1/calendar/ipo?from=${from}&to=${to}&token=${key}`
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    if (!res.ok) return []
+    const j = await res.json()
+
+    return (j.ipoCalendar ?? [])
+      .map((e: any): IPOData | null => {
+        const ipoDate = parseFinDate(e.date)
+        if (!ipoDate) return null   // skip entries with no valid date
+
+        const statusDate = new Date(ipoDate + 'T12:00:00Z')
+        const isUpcoming = statusDate >= new Date()
+
+        // price from Finnhub is a single string like "18.00-20.00" or "18.00"
+        let priceRange = '—'
+        if (e.price) priceRange = `$${e.price}`
+        if (e.priceRangeLow && e.priceRangeHigh) priceRange = `$${e.priceRangeLow}–$${e.priceRangeHigh}`
+
+        const shares = e.numberOfShares
+          ? `${(Number(e.numberOfShares) / 1e6).toFixed(1)}M`
+          : '—'
+
+        return {
+          ticker:     e.symbol    ?? '—',
+          company:    e.name      ?? e.symbol ?? '—',
+          industry:   e.exchange  ?? 'US Exchange',
+          ipoDate,
+          priceRange,
+          shares,
+          rating:     deriveRating(e),
+          status:     isUpcoming ? 'upcoming' : 'recent',
+          underwriter: e.underwriter ?? undefined,
+          marketCap:   undefined,
+        }
+      })
+      .filter((x: IPOData | null): x is IPOData => x !== null)
+      .sort((a: IPOData, b: IPOData) => new Date(b.ipoDate).getTime() - new Date(a.ipoDate).getTime())
+  } catch {
+    return []
+  }
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const status = searchParams.get('status') as 'upcoming' | 'recent' | null
-  const industry = searchParams.get('industry') as string | null
-  const rating = searchParams.get('rating') as 'bullish' | 'neutral' | 'bearish' | null
+  const status      = searchParams.get('status')   as 'upcoming' | 'recent' | null
+  const ratingParam = searchParams.get('rating')   as 'bullish' | 'neutral' | 'bearish' | null
+  const ck          = `ipo:${status}:${ratingParam}`
+  const cached      = cache.get(ck)
+  if (cached && cached.expires > Date.now()) return NextResponse.json(cached.data)
 
-  let filtered = [...mockIPOs]
+  const today = new Date()
+  const from  = new Date(today.getTime() - 30 * 86400_000).toISOString().slice(0, 10)
+  const to    = new Date(today.getTime() + 60 * 86400_000).toISOString().slice(0, 10)
 
-  if (status) {
-    filtered = filtered.filter(ipo => ipo.status === status)
+  let ipos = await finnhubIPOs(from, to)
+
+  if (status)      ipos = ipos.filter(i => i.status === status)
+  if (ratingParam) ipos = ipos.filter(i => i.rating === ratingParam)
+
+  const payload = {
+    ipos,
+    total:       ipos.length,
+    fetchedAt:   new Date().toISOString(),
+    source:      'Finnhub IPO Calendar',
   }
 
-  if (industry) {
-    filtered = filtered.filter(ipo => ipo.industry.toLowerCase().includes(industry.toLowerCase()))
-  }
-
-  if (rating) {
-    filtered = filtered.filter(ipo => ipo.rating === rating)
-  }
-
-  // Sort by date (most recent first)
-  filtered.sort((a, b) => new Date(b.ipoDate).getTime() - new Date(a.ipoDate).getTime())
-
-  return NextResponse.json(
-    { ipos: filtered, total: filtered.length, lastUpdated: new Date().toISOString() },
-    { headers: { 'Cache-Control': 'public, s-maxage=300' } }
-  )
+  cache.set(ck, { data: payload, expires: Date.now() + 3600_000 })
+  return NextResponse.json(payload, { headers: { 'Cache-Control': 'public, s-maxage=3600' } })
 }

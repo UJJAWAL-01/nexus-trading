@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import TickerBar   from '@/components/ui/TickerBar'
 import GridLayout  from '@/components/dashboard/GridLayout'
+// import BullBearMascot from '@/components/ui/BullBearMascot'
 
 // ── Market status bar ─────────────────────────────────────────────────────────
 
@@ -158,6 +159,9 @@ export default function Dashboard() {
 
       {/* ── Ticker Bar ─────────────────────────────────────────────────────── */}
       <TickerBar />
+
+      {/* ── BullBear Mascot ─────────────────────────────────────────────────────── */}
+      {/* <BullBearMascot /> */}
 
       {/* ── Main grid ──────────────────────────────────────────────────────── */}
       <main>
