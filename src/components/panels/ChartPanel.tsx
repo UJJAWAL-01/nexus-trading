@@ -294,7 +294,7 @@ function mkBtn(active: boolean, col: 'amber' | 'purple' | 'teal' = 'amber'): Rea
 // ── ChartPanel ─────────────────────────────────────────────────────────────────
 export default function ChartPanel() {
   const { symbols: wl } = useWatchlist()
-  const symbols = wl.length > 0 ? wl : ['SPY','QQQ','AAPL','NVDA','TSLA','MSFT']
+  const symbols = wl.length > 0 ? wl : ['SPY','QQQ','AAPL','NVDA','TSLA','MSFT','SNDK','AMD','INTC','META']
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [sym,         setSym]         = useState(() => symbols[0] ?? 'SPY')
@@ -308,7 +308,7 @@ export default function ChartPanel() {
   const [showFib,     setShowFib]     = useState(true)
   const [showPivot,   setShowPivot]   = useState(true)
   const [showDonch,   setShowDonch]   = useState(true)
-  const [showIchi,    setShowIchi]    = useState(true)
+  const [showIchi,    setShowIchi]    = useState(false)
   const [pfData,      setPfData]      = useState<PnFColumn[]>([])
 
   // Effective symbol = searched override OR watchlist tab
