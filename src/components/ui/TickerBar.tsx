@@ -200,7 +200,7 @@ export default function TickerBar() {
               alignItems: 'center',
               gap:        '6px',
               flexShrink: 0,
-              padding:    '2px 14px',
+              padding:    '2px 10px',
               borderRight: '1px solid var(--border)',
               background:
                 t.flash === 'up'   ? 'rgba(0,201,122,0.2)' :

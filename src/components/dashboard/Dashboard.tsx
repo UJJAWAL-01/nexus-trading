@@ -133,7 +133,7 @@ export default function Dashboard() {
         <TickerBar />
       </div>
       
-      <div style={{ height: topHeight }} /> {/* Spacer to prevent content jump */}
+      <div style={{ height: '6px' }} /> {/* Spacer to prevent content jump */}
 
       {/* ── Scrollable Content ─────────────────────────────────────────── */}
       <main
