@@ -17,11 +17,50 @@ const SECTORS = [
   { symbol: 'XLU',  name: 'Utilities',      short: 'UTIL',  components: ['NEE','DUK','AEP','EXC','SO','PCG','XEL','WEC'] },
 ]
 
-interface SectorData { symbol: string; change: number | null }
-interface MoverData { symbol: string; change: number | null; fetched: boolean }
+// ── Full company name lookup ───────────────────────────────────────────────────
+const COMPANY_NAMES: Record<string, string> = {
+  // Tech
+  AAPL: 'Apple', NVDA: 'Nvidia', MSFT: 'Microsoft', AVGO: 'Broadcom', AMD: 'AMD',
+  ORCL: 'Oracle', CRM: 'Salesforce', ACN: 'Accenture',
+  // Comm
+  META: 'Meta', GOOGL: 'Alphabet', NFLX: 'Netflix', DIS: 'Disney', CMCSA: 'Comcast',
+  T: 'AT&T', VZ: 'Verizon', EA: 'EA Sports',
+  // Disc
+  AMZN: 'Amazon', TSLA: 'Tesla', HD: 'Home Depot', MCD: "McDonald's", NKE: 'Nike',
+  SBUX: 'Starbucks', TJX: 'TJX Cos', LOW: "Lowe's",
+  // Fin
+  JPM: 'JPMorgan', V: 'Visa', MA: 'Mastercard', BAC: 'Bank of America',
+  WFC: 'Wells Fargo', GS: 'Goldman Sachs', MS: 'Morgan Stanley', AXP: 'Amex',
+  // Health
+  LLY: 'Eli Lilly', UNH: 'UnitedHealth', JNJ: 'J&J', ABBV: 'AbbVie',
+  MRK: 'Merck', PFE: 'Pfizer', TMO: 'Thermo Fisher', ABT: 'Abbott',
+  // Industrials
+  GE: 'GE Aero', CAT: 'Caterpillar', HON: 'Honeywell', UNP: 'Union Pacific',
+  RTX: 'RTX Corp', BA: 'Boeing', MMM: '3M', DE: 'John Deere',
+  // Energy
+  XOM: 'ExxonMobil', CVX: 'Chevron', COP: 'ConocoPhillips', SLB: 'SLB',
+  EOG: 'EOG Resources', MPC: 'Marathon', VLO: 'Valero', PSX: 'Phillips 66',
+  // Staples
+  PG: 'Procter & G', KO: 'Coca-Cola', PEP: 'PepsiCo', COST: 'Costco',
+  WMT: 'Walmart', PM: 'Philip Morris', MO: 'Altria', CL: 'Colgate',
+  // Materials
+  LIN: 'Linde', APD: 'Air Products', SHW: 'Sherwin-Williams', ECL: 'Ecolab',
+  NEM: 'Newmont', FCX: 'Freeport', NUE: 'Nucor', VMC: 'Vulcan',
+  // REIT
+  AMT: 'Amer. Tower', PLD: 'Prologis', EQIX: 'Equinix', CCI: 'Crown Castle',
+  PSA: 'Public Storage', WELL: 'Welltower', DLR: 'Digital Realty', SPG: 'Simon Prop',
+  // Utilities
+  NEE: 'NextEra', DUK: 'Duke Energy', AEP: 'AEP', EXC: 'Exelon',
+  SO: 'Southern Co', PCG: 'PG&E', XEL: 'Xcel Energy', WEC: 'WEC Energy',
+}
 
-// stale cache so movers don't blank on re-hover
+interface SectorData { symbol: string; change: number | null }
+interface MoverData { symbol: string; name: string; change: number | null; fetched: boolean }
+
+// Stale cache — never blanks after first load
 const moversCache = new Map<string, MoverData[]>()
+// Global stale per-symbol prices to prevent showing ···
+const symbolPriceCache = new Map<string, { change: number | null; ts: number }>()
 
 function getColors(change: number | null) {
   if (change === null) return { bg: 'rgba(74,96,112,0.15)', text: 'var(--text-muted)', border: 'rgba(74,96,112,0.2)' }
@@ -76,38 +115,66 @@ export default function SectorHeatmapPanel() {
   }, [])
 
   // ── Fetch movers for active sector ─────────────────────────────────────────
+  // KEY FIX: use stale data immediately, fetch fresh in background
   const fetchMovers = useCallback(async (sectorSymbol: string) => {
-    // Return cached immediately if available
-    if (moversCache.has(sectorSymbol)) {
-      setMovers(moversCache.get(sectorSymbol)!)
-      return
-    }
-
     const sector = SECTORS.find(s => s.symbol === sectorSymbol)
     if (!sector) return
 
-    setLoadingMovers(true)
-    const placeholders = sector.components.slice(0, 6).map(sym => ({
-      symbol: sym, change: null, fetched: false,
-    }))
-    setMovers(placeholders)
+    const TOP6 = sector.components.slice(0, 6)
 
+    // Show stale cache immediately if available
+    if (moversCache.has(sectorSymbol)) {
+      setMovers(moversCache.get(sectorSymbol)!)
+      setLoadingMovers(false)
+    } else {
+      // Show placeholders with whatever we have in symbolPriceCache
+      const placeholders: MoverData[] = TOP6.map(sym => ({
+        symbol: sym,
+        name: COMPANY_NAMES[sym] ?? sym,
+        change: symbolPriceCache.get(sym)?.change ?? null,
+        fetched: symbolPriceCache.has(sym),
+      }))
+      setMovers(placeholders)
+      setLoadingMovers(true)
+    }
+
+    // Always fetch fresh data in background
     const results = await Promise.all(
-      sector.components.slice(0, 6).map(async sym => {
+      TOP6.map(async sym => {
+        // Check in-memory cache first (5 min TTL)
+        const cached = symbolPriceCache.get(sym)
+        if (cached && Date.now() - cached.ts < 5 * 60_000) {
+          return { symbol: sym, name: COMPANY_NAMES[sym] ?? sym, change: cached.change, fetched: true }
+        }
+
         try {
+          // Try Finnhub first (US stocks — faster)
           const res = await fetch(`/api/finnhub?endpoint=quote&symbol=${sym}`)
           const d   = await res.json()
-          return { symbol: sym, change: d.rateLimited || !d.dp ? null : (d.dp as number), fetched: true }
-        } catch {
-          return { symbol: sym, change: null, fetched: true }
-        }
+          if (!d.rateLimited && d.dp != null) {
+            symbolPriceCache.set(sym, { change: d.dp, ts: Date.now() })
+            return { symbol: sym, name: COMPANY_NAMES[sym] ?? sym, change: d.dp as number, fetched: true }
+          }
+        } catch {}
+
+        try {
+          // Fallback: yquote
+          const res  = await fetch(`/api/yquote?symbol=${encodeURIComponent(sym)}`)
+          const data = await res.json()
+          if (data.change != null) {
+            symbolPriceCache.set(sym, { change: data.change, ts: Date.now() })
+            return { symbol: sym, name: COMPANY_NAMES[sym] ?? sym, change: data.change as number, fetched: true }
+          }
+        } catch {}
+
+        // Use stale if available
+        const stale = symbolPriceCache.get(sym)
+        return { symbol: sym, name: COMPANY_NAMES[sym] ?? sym, change: stale?.change ?? null, fetched: true }
       })
     )
 
-    // Sort: biggest movers first (by absolute change)
-    const sorted = results.sort((a, b) =>
-      Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0)
-    )
+    // Sort: biggest absolute movers first
+    const sorted = results.sort((a, b) => Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0))
     moversCache.set(sectorSymbol, sorted)
     setMovers(sorted)
     setLoadingMovers(false)
@@ -119,14 +186,12 @@ export default function SectorHeatmapPanel() {
     hoverTimerRef.current = setTimeout(() => {
       setActive(symbol)
       fetchMovers(symbol)
-    }, 120) // small delay to avoid flicker
+    }, 120)
   }, [fetchMovers])
 
   const handleMouseLeave = useCallback(() => {
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
-    hoverTimerRef.current = setTimeout(() => {
-      setActive(null)
-    }, 200) // delay so user can move into popup
+    hoverTimerRef.current = setTimeout(() => setActive(null), 200)
   }, [])
 
   const handlePopupEnter = useCallback(() => {
@@ -138,24 +203,17 @@ export default function SectorHeatmapPanel() {
     hoverTimerRef.current = setTimeout(() => setActive(null), 150)
   }, [])
 
-  // ── Mobile tap handler ──────────────────────────────────────────────────────
+  // ── Mobile tap ──────────────────────────────────────────────────────────────
   const handleTap = useCallback((symbol: string) => {
-    if (activeSector === symbol) {
-      setActive(null)
-    } else {
-      setActive(symbol)
-      fetchMovers(symbol)
-    }
+    if (activeSector === symbol) { setActive(null) }
+    else { setActive(symbol); fetchMovers(symbol) }
   }, [activeSector, fetchMovers])
 
-  // ── Click outside to dismiss on mobile ─────────────────────────────────────
+  // Click outside to dismiss on mobile
   useEffect(() => {
     const handler = (e: MouseEvent | TouchEvent) => {
       if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
-        // Only dismiss via outside click on mobile (touch device)
-        if (window.matchMedia('(hover: none)').matches) {
-          setActive(null)
-        }
+        if (window.matchMedia('(hover: none)').matches) setActive(null)
       }
     }
     document.addEventListener('mousedown', handler)
@@ -167,9 +225,7 @@ export default function SectorHeatmapPanel() {
   }, [])
 
   useEffect(() => {
-    return () => {
-      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
-    }
+    return () => { if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current) }
   }, [])
 
   // ── Stats ──────────────────────────────────────────────────────────────────
@@ -229,9 +285,9 @@ export default function SectorHeatmapPanel() {
           return (
             <div
               key={sector.symbol}
-              onMouseEnter={() => handleMouseEnter(sector.symbol)}  // ← desktop hover
-              onMouseLeave={handleMouseLeave}                        // ← desktop leave
-              onClick={() => handleTap(sector.symbol)}               // ← mobile tap
+              onMouseEnter={() => handleMouseEnter(sector.symbol)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => handleTap(sector.symbol)}
               style={{
                 background:   isActive ? col.bg : col.bg,
                 border:       `1px solid ${isActive ? 'rgba(240,165,0,0.6)' : col.border}`,
@@ -298,84 +354,67 @@ export default function SectorHeatmapPanel() {
       {activeSector && activeSectorDef && (
         <div
           ref={popupRef}
-          onMouseEnter={handlePopupEnter}   // ← keep popup open while mouse inside
-          onMouseLeave={handlePopupLeave}   // ← close when leaving popup
+          onMouseEnter={handlePopupEnter}
+          onMouseLeave={handlePopupLeave}
           style={{
-            position:    'absolute',
-            bottom:      '8px',
-            left:        '8px',
-            right:       '8px',
-            zIndex:      50,
-            background:  'var(--bg-panel)',
-            border:      '1px solid rgba(240,165,0,0.35)',
+            position:   'absolute',
+            bottom:     '8px',
+            left:       '8px',
+            right:      '8px',
+            zIndex:     50,
+            background: 'var(--bg-panel)',
+            border:     '1px solid rgba(240,165,0,0.35)',
             borderRadius:'8px',
-            padding:     '10px 12px',
-            boxShadow:   '0 8px 32px rgba(0,0,0,0.8)',
+            padding:    '10px 12px',
+            boxShadow:  '0 8px 32px rgba(0,0,0,0.8)',
             backdropFilter: 'blur(4px)',
           }}
         >
           {/* Popup header */}
           <div style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            marginBottom: '8px',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                fontFamily: 'Syne, sans-serif', fontWeight: 800,
-                fontSize: '12px', color: '#fff', letterSpacing: '0.08em',
-              }}>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '12px', color: '#fff', letterSpacing: '0.08em' }}>
                 {activeSectorDef.name.toUpperCase()}
               </div>
-              <div style={{
-                fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
-                fontFamily: 'JetBrains Mono, monospace',
-                background: getColors(data.find(d => d.symbol === activeSector)?.change ?? null).bg,
-                color:      getColors(data.find(d => d.symbol === activeSector)?.change ?? null).text,
-                border:     `1px solid ${getColors(data.find(d => d.symbol === activeSector)?.change ?? null).border}`,
-              }}>
-                {(() => {
-                  const c = data.find(d => d.symbol === activeSector)?.change ?? null
-                  return c !== null ? `${c >= 0 ? '+' : ''}${c.toFixed(2)}%` : '---'
-                })()}
-              </div>
+              {(() => {
+                const c = data.find(d => d.symbol === activeSector)?.change ?? null
+                const col = getColors(c)
+                return (
+                  <div style={{
+                    fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    background: col.bg, color: col.text, border: `1px solid ${col.border}`,
+                  }}>
+                    {c !== null ? `${c >= 0 ? '+' : ''}${c.toFixed(2)}%` : '---'}
+                  </div>
+                )
+              })()}
             </div>
             <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
-              TOP MOVERS
+              {loadingMovers ? 'LOADING…' : 'TOP MOVERS'}
             </div>
           </div>
 
-          {/* Movers grid */}
-          {loadingMovers ? (
-            <div style={{
-              display: 'flex', gap: '5px', flexWrap: 'wrap',
-            }}>
-              {activeSectorDef.components.slice(0, 6).map(sym => (
-                <div key={sym} style={{
+          {/* Movers grid — always shows something (stale or live) */}
+          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+            {movers.map(m => {
+              const isPos = (m.change ?? 0) >= 0
+              const col   = getColors(m.change)
+              const isPending = m.change === null && loadingMovers
+              return (
+                <div key={m.symbol} style={{
                   flex: '1 1 30%', minWidth: '80px',
                   padding: '6px 8px', borderRadius: '4px',
-                  background: 'var(--bg-deep)', border: '1px solid var(--border)',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  background:  isPending ? 'var(--bg-deep)' : col.bg,
+                  border:      `1px solid ${isPending ? 'var(--border)' : col.border}`,
+                  display:     'flex', flexDirection: 'column',
+                  transition:  'all 0.15s',
                 }}>
-                  <span style={{ fontSize: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff' }}>{sym}</span>
-                  <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>···</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-              {movers.map(m => {
-                const isPos = (m.change ?? 0) >= 0
-                const col   = getColors(m.change)
-                return (
-                  <div key={m.symbol} style={{
-                    flex: '1 1 30%', minWidth: '80px',
-                    padding: '6px 8px', borderRadius: '4px',
-                    background: col.bg,
-                    border: `1px solid ${col.border}`,
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    transition: 'all 0.15s',
-                  }}>
-                    <span style={{ fontSize: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff' }}>
+                  {/* Symbol row */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontSize: '11px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff' }}>
                       {m.symbol}
                     </span>
                     <span style={{
@@ -384,20 +423,27 @@ export default function SectorHeatmapPanel() {
                     }}>
                       {m.change !== null
                         ? `${isPos ? '+' : ''}${m.change.toFixed(2)}%`
-                        : '···'}
+                        : isPending ? '···' : '—'}
                     </span>
                   </div>
-                )
-              })}
-            </div>
-          )}
+                  {/* Company name */}
+                  <div style={{
+                    fontSize: '8px', color: 'var(--text-muted)',
+                    fontFamily: 'JetBrains Mono, monospace', marginTop: '2px',
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  }}>
+                    {m.name}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
 
-          {/* Dismiss hint — mobile only */}
+          {/* Dismiss hint */}
           <div style={{
             marginTop: '6px', fontSize: '8px', color: 'var(--text-muted)',
             fontFamily: 'JetBrains Mono, monospace', textAlign: 'center',
           }}>
-            {/* Show tap-to-dismiss only on touch devices */}
             <span className="nexus-mobile-only">tap sector again to dismiss</span>
             <span className="nexus-desktop-only">move away to dismiss</span>
           </div>

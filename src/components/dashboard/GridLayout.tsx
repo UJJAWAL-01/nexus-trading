@@ -24,6 +24,7 @@ import CommoditiesPanel         from '@/components/panels/CommoditiesPanel'
 import InsiderDealsPanel        from '@/components/panels/InsiderDealsPanel'
 import IpoScreenerPanel from '@/components/panels/IpoScreenerPanel'
 import OptionsPanel from '@/components/panels/OptionsPanel'
+import FixedIncomePanel from '@/components/panels/FixedIncomePanel'
 const ReactGridLayout = WidthProvider(GridLayoutBase)
 
 // ── Panel registry ─────────────────────────────────────────────────────────────
@@ -34,7 +35,7 @@ const PANEL_IDS = [
   'sentiment', 'calendar', 'earnings',
   'heatmap', 'indiamarkets', 'macrorates',
   'altsignals','insiderdeals', 'commodities', 'correlation',
-  'options', 'ipo',
+  'options', 'ipo', 'fixedincome'
 ] as const
 
 type PanelId = (typeof PANEL_IDS)[number]
@@ -68,11 +69,12 @@ const PANEL_META: Record<PanelId, PanelMeta> = {
   correlation:  { component: <CorrelationPanel />,         label: 'CORRELATION',   color: '#1e90ff',        mobileH: 500, description: 'AI stock correlation map' },
   ipo:          { component: <IpoScreenerPanel />,         label: 'IPO',           color: '#1e90ff',    mobileH: 380, description: 'Upcoming and recent IPOs' },
   options:      { component: <OptionsPanel />,             label: 'OPTIONS',       color: '#a78bfa',    mobileH: 560, description: 'BSM pricing · IV · Greeks · Monte Carlo · OI' },
+  fixedincome:  { component: <FixedIncomePanel />,        label: 'FIXED INCOME',  color: '#38bdf8',    mobileH: 560, description: 'India yield curve · credit spreads' },
 }
 
 // ── DESKTOP default layout — version 7 ────────────────────────────────────────
 // Order: Live TV + News + Watchlist → Indices + Clock + Chart → Analytics → India/Macro
-const LS_KEY = 'nexus-layout-v7'
+const LS_KEY = 'nexus-layout-v8'
 
 const DEFAULT_LAYOUT: DashboardLayout = [
   // Row 1 — Live TV (large) + News + Watchlist
@@ -93,15 +95,16 @@ const DEFAULT_LAYOUT: DashboardLayout = [
 
   // Row 3 — India Markets + Macro Rates + Alt Signals + Correlation
   { i: 'indiamarkets', x: 0,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
-  { i: 'macrorates',   x: 3,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
-  { i: 'heatmap',      x: 6,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
-  { i: 'commodities',  x: 9,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
+  { i: 'heatmap',      x: 3,  y: 30, w: 4, h: 14, minW: 2, minH: 10  },
+  { i: 'commodities',  x: 7,  y: 30, w: 5, h: 14, minW: 2, minH: 10  },
 
   // Row 4 alternative — move Correlation up, swap Commodities with Insider Deals
   { i: 'insiderdeals', x: 0, y: 42, w: 6, h: 14 ,minW: 4, minH: 12},
   { i: 'correlation',  x: 6,  y: 42, w: 6, h: 14, minW: 4, minH: 10 },
   { i: 'ipo',  x: 12,  y: 72, w: 6, h: 16, minW: 4, minH: 10 },
   { i: 'options', x: 0, y: 72, w: 6, h: 16, minW: 6, minH: 14 },
+  { i: 'fixedincome', x: 0, y: 88, w: 9, h: 14, minW: 6, minH: 14 },
+  { i: 'macrorates',   x: 9,  y: 88, w: 3, h: 14, minW: 2, minH: 10  },
 ]
 
 // ── MOBILE panel order (best-first) ───────────────────────────────────────────
@@ -109,8 +112,10 @@ const MOBILE_ORDER: PanelId[] = [
   'watchlist', 'chart', 'news',
   'livevideo', 'indices', 'mktclock',
   'sentiment', 'commodities','calendar',
-  'heatmap', 'indiamarkets', 'insiderdeals','ipo','options', 
+  'heatmap', 'indiamarkets', 'insiderdeals','ipo','options','fixedincome', 
   'altsignals', 'correlation','macrorates','earnings',
+  
+
   
 ]
 
@@ -185,7 +190,7 @@ const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
   { label: 'Charts',    ids: ['chart', 'indices', 'mktclock']                 },
   { label: 'Analytics', ids: ['sentiment', 'calendar', 'earnings', 'heatmap'] },
   { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals', 'commodities', 'insiderdeals', 'ipo']     },
-  { label: 'Research',  ids: ['correlation', 'options']},
+  { label: 'Research',  ids: ['correlation', 'options', 'fixedincome']},
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────
@@ -539,8 +544,8 @@ export default function GridLayout() {
           padding:        '6px 12px',
           borderBottom:   '1px solid var(--border)',
           background:     'var(--bg-base)',
-          position:       'sticky',
-          top:            '46px',
+          position:       'relative',
+          top:            '6px',
           zIndex:         50,
         }}>
           <div style={{ position: 'relative' }}>
@@ -572,13 +577,13 @@ export default function GridLayout() {
   }
 
   return (
-    <div style={{ padding: '0 8px 40px' }}>
+    <div style={{ padding: '0 6px 40px' }}>
 
       {/* Desktop toolbar */}
       <div style={{
         display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
         gap: '6px', padding: '6px 0',
-        position: 'sticky', top: '46px', zIndex: 50,
+        position: 'relative', top: '4px',bottom: '6px', zIndex: 50,
         background: 'var(--bg-base)',
         borderBottom: editing ? '1px solid rgba(240,165,0,0.2)' : '1px solid transparent',
         transition: 'border-color 0.2s',
