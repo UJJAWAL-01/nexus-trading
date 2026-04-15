@@ -205,7 +205,7 @@ export default function TickerBar() {
               background:
                 t.flash === 'up'   ? 'rgba(0,201,122,0.2)' :
                 t.flash === 'down' ? 'rgba(255,69,96,0.2)'  : 'transparent',
-              transition: 'background 0.1s',
+              transition: 'background 0.2s',
             }}
           >
             <span style={{ fontSize: '11px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff', letterSpacing: '0.04em' }}>
