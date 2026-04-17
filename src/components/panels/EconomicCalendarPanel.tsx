@@ -1,10 +1,11 @@
 'use client'
 // src/components/panels/EconomicCalendarPanel.tsx
-// ALWAYS shows data — hardcoded FOMC/RBI/ECB events are embedded in the component
-// Optionally supplements with live Finnhub data via /api/economic-calendar
-// Never shows "Failed to load" — fallback data is always available
+// ALWAYS shows data — hardcoded FOMC/RBI/ECB events are embedded as SWR fallback
+// Live data from /api/economic-calender enhances when available
 
-import { useEffect, useState } from 'react'
+import { useState, useMemo } from 'react'
+import useSWR from 'swr'
+import { TTL } from '@/lib/data-hooks'
 
 interface CalEvent {
   id:       string
@@ -119,40 +120,31 @@ function isToday(iso: string): boolean {
 }
 
 export default function EconomicCalendarPanel() {
-  const [events,  setEvents]  = useState<CalEvent[]>(() => getEmbedded()) // ← starts with data immediately
-  const [loading, setLoading] = useState(false)
-  const [region,  setRegion]  = useState<RegionFilter>('ALL')
-  const [impact,  setImpact]  = useState<ImpactFilter>('ALL')
-  const [source,  setSource]  = useState('Scheduled Events')
+  const [region, setRegion] = useState<RegionFilter>('ALL')
+  const [impact, setImpact] = useState<ImpactFilter>('ALL')
 
-  // Try to enhance with live data from API; never replace base events if it fails
-  useEffect(() => {
-    const base = getEmbedded()
-    setEvents(base) // always reset to base first
+  // Fetch all events once; filter client-side so filter changes need no extra requests
+  const { data, isLoading: loading } = useSWR<{ events: CalEvent[]; source: string }>(
+    '/api/economic-calender',
+    {
+      refreshInterval:   TTL.SLOW,
+      dedupingInterval:  TTL.SLOW / 3,
+      keepPreviousData:  true,
+      fallbackData:      { events: getEmbedded(), source: 'Scheduled Events' },
+    }
+  )
 
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (region !== 'ALL') params.set('region', region)
-    if (impact !== 'ALL') params.set('impact', impact)
+  const allEvents = data?.events ?? getEmbedded()
+  const source    = data?.source  ?? 'Scheduled Events'
 
-    fetch(`/api/economic-calendar?${params}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.events?.length) {
-          setEvents(data.events)
-          setSource(data.source ?? 'Finnhub + Scheduled')
-        }
-        // If API fails → base events already set above
-      })
-      .catch(() => { /* silently keep base events */ })
-      .finally(() => setLoading(false))
-  }, [region, impact])
-
-  const displayed = events.filter(e => {
-    if (region !== 'ALL' && e.region !== region) return false
-    if (impact !== 'ALL' && e.impact !== impact) return false
-    return true
-  })
+  const displayed = useMemo(() =>
+    allEvents.filter(e => {
+      if (region !== 'ALL' && e.region !== region) return false
+      if (impact !== 'ALL' && e.impact !== impact) return false
+      return true
+    }),
+    [allEvents, region, impact]
+  )
 
   const todayCount = displayed.filter(e => isToday(e.date)).length
   const highCount  = displayed.filter(e => e.impact === 'high').length

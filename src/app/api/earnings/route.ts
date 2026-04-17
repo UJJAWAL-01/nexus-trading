@@ -3,7 +3,8 @@
 // India: Yahoo Finance quoteSummary + earningsHistory for past results
 import { NextRequest, NextResponse } from 'next/server'
 
-const cache = new Map<string, { data: unknown; expires: number; stale: unknown }>()
+// 1h cache — earnings calendars update at most a few times per day
+export const revalidate = 3600
 
 // NIFTY 50 + BANK NIFTY + large-cap India stocks
 const INDIA_WATCHLIST = [
@@ -65,7 +66,7 @@ async function fetchUSEarnings(): Promise<EarningItem[]> {
 
   const res  = await fetch(
     `https://finnhub.io/api/v1/calendar/earnings?from=${from}&to=${to}&token=${process.env.FINNHUB_API_KEY}`,
-    { next: { revalidate: 0 } }
+    { next: { revalidate: 3600 } }
   )
   if (!res.ok) throw new Error(`Finnhub ${res.status}`)
   const data = await res.json()
@@ -264,25 +265,18 @@ async function fetchIndiaEarnings(): Promise<EarningItem[]> {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const market = (searchParams.get('market') ?? 'US').toUpperCase()
-  const key    = `earnings:${market}`
-  const cached = cache.get(key)
-
-  if (cached && cached.expires > Date.now()) {
-    return NextResponse.json(cached.data)
-  }
 
   try {
     const data = market === 'IN'
       ? await fetchIndiaEarnings()
       : await fetchUSEarnings()
 
-    const ttl = market === 'IN' ? 2 * 3_600_000 : 3_600_000
-    cache.set(key, { data, expires: Date.now() + ttl, stale: data })
-    return NextResponse.json(data)
-  } catch (err) {
-    console.error('[earnings] error:', err)
-    const stale = cache.get(key)?.stale
-    if (stale) return NextResponse.json(stale)
-    return NextResponse.json([])
+    return NextResponse.json(data, {
+      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200' },
+    })
+  } catch {
+    return NextResponse.json([], {
+      headers: { 'Cache-Control': 'public, s-maxage=60' },
+    })
   }
 }

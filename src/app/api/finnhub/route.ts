@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// In-memory cache per instance — fallback only, real caching via CDN headers
+// Segment-level revalidate so Vercel Data Cache shares responses across users.
+// Quote endpoints need fast TTL; search/news can be longer. The s-maxage
+// Cache-Control headers below drive per-endpoint granularity at the CDN.
+export const revalidate = 30
+
 const cache = new Map<string, { data: unknown; stale: unknown; expires: number }>()
 
 export async function GET(request: NextRequest) {

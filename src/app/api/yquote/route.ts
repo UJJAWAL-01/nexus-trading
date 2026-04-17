@@ -3,6 +3,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
+// 30s shared edge cache — all users reading the same symbol share one Yahoo hit
+export const revalidate = 30
+
 const liveCache  = new Map<string, { data: QuoteData; expires: number }>()
 const staleCache = new Map<string, QuoteData>()
 

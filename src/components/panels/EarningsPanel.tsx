@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
+import { TTL } from '@/lib/data-hooks'
 import type { EarningItem } from '@/app/api/earnings/route'
 
 type Market = 'US' | 'IN'
@@ -55,37 +57,14 @@ function epsSuprise(actual: number | null, estimate: number | null): number | nu
   return ((actual - estimate) / Math.abs(estimate)) * 100
 }
 
-const staleRef: Partial<Record<Market, EarningItem[]>> = {}
-
 export default function EarningsPanel() {
-  const [market,   setMarket]   = useState<Market>('US')
-  const [earnings, setEarnings] = useState<EarningItem[]>([])
-  const [loading,  setLoading]  = useState(true)
-  const [filter,   setFilter]   = useState<TimeFilter>('upcoming')
-  const abortRef = useRef<AbortController | null>(null)
+  const [market, setMarket] = useState<Market>('US')
+  const [filter, setFilter] = useState<TimeFilter>('upcoming')
 
-  const fetchEarnings = async (m: Market) => {
-    setLoading(true)
-    abortRef.current?.abort()
-    const ctrl = new AbortController()
-    abortRef.current = ctrl
-
-    try {
-      const res  = await fetch(`/api/earnings?market=${m}`, { signal: ctrl.signal })
-      const data = (await res.json()) as EarningItem[]
-      staleRef[m] = data
-      setEarnings(data)
-    } catch (e: any) {
-      if (e?.name === 'AbortError') return
-      if (staleRef[m]?.length) setEarnings(staleRef[m]!)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchEarnings(market)
-  }, [market])
+  const { data: earnings = [], isLoading: loading } = useSWR<EarningItem[]>(
+    `/api/earnings?market=${market}`,
+    { refreshInterval: TTL.HOURLY, dedupingInterval: TTL.SLOW, keepPreviousData: true },
+  )
 
   const today = todayStr()
 

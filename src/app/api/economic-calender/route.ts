@@ -1,9 +1,10 @@
-// src/app/api/economic-calendar/route.ts
+// src/app/api/economic-calender/route.ts
 // ALWAYS returns data — hardcoded FOMC/RBI/ECB events are embedded
 // Finnhub supplements with live economic data when key is present
 import { NextRequest, NextResponse } from 'next/server'
 
-const cache = new Map<string, { data: unknown; exp: number }>()
+// 30-min shared edge cache — calendar events change at most daily
+export const revalidate = 1800
 
 export interface CalEvent {
   id:       string
@@ -204,14 +205,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const region = searchParams.get('region') ?? 'ALL'
   const impact = searchParams.get('impact') ?? 'ALL'
-  const ck     = `ec:${region}:${impact}`
-
-  const cached = cache.get(ck)
-  if (cached && cached.exp > Date.now()) {
-    return NextResponse.json(cached.data, {
-      headers: { 'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600' }
-    })
-  }
 
   const from = new Date(Date.now() - 3 * 86400_000).toISOString().slice(0,10)
   const to   = new Date(Date.now() + 21 * 86400_000).toISOString().slice(0,10)
@@ -242,7 +235,6 @@ export async function GET(request: NextRequest) {
     source: finnhub.length > 0 ? 'Finnhub + Scheduled Events' : 'Scheduled Events',
   }
 
-  cache.set(ck, { data: payload, exp: Date.now() + 30 * 60_000 })
   return NextResponse.json(payload, {
     headers: { 'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600' }
   })

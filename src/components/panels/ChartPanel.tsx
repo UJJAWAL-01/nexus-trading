@@ -401,7 +401,7 @@ export default function ChartPanel() {
     }
     if (e.key === 'ArrowDown') { e.preventDefault(); setSearchFocIdx(i => Math.min(i + 1, searchResults.length - 1)) }
     if (e.key === 'ArrowUp')   { e.preventDefault(); setSearchFocIdx(i => Math.max(i - 1, -1)) }
-    if (e.key === 'Enter')     { e.preventDefault(); if (searchFocIdx >= 0) selectResult(searchResults[searchFocIdx]) }
+    if (e.key === 'Enter')     { e.preventDefault(); if (searchFocIdx >= 0) selectResult(searchResults[searchFocIdx]); else if (searchResults.length > 0) selectResult(searchResults[0]) }
     if (e.key === 'Escape')    { setSearchOpen(false); setSearchFocIdx(-1) }
   }, [searchOpen, searchResults, searchFocIdx, searchInput, clearSearch, selectResult])
 
@@ -775,7 +775,7 @@ export default function ChartPanel() {
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Row 1: Watchlist tabs + search ──────────────────────────────────── */}
-      <div className="panel-header" style={{ justifyContent: 'space-between', gap: '6px', padding: '5px 10px', minHeight: '34px', flexWrap: 'nowrap' }}>
+      <div className="panel-header" style={{ justifyContent: 'space-between', gap: '6px', padding: '5px 10px', minHeight: '34px', flexWrap: 'nowrap', overflow: 'visible' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0, flex: 1 }}>
           <div className="dot" style={{ flexShrink: 0 }} />
@@ -807,7 +807,7 @@ export default function ChartPanel() {
             <span style={{ padding: '0 5px 0 7px', color: 'var(--text-muted)', fontSize: '10px', pointerEvents: 'none', userSelect: 'none' }}>⌕</span>
             <input
               value={searchInput}
-              onChange={e => handleSearchInput(e.target.value)}
+              onChange={e => handleSearchInput(e.target.value.toUpperCase())}
               onKeyDown={handleSearchKey}
               onFocus={() => searchResults.length > 0 && setSearchOpen(true)}
               placeholder="Symbol search…"
