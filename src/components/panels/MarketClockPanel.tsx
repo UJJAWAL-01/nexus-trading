@@ -147,7 +147,7 @@ export default function MarketClockPanel() {
                     }}>
                       {m.city}
                     </div>
-                    <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em' }}>
                       {m.exchange}
                     </div>
                   </div>
@@ -163,7 +163,7 @@ export default function MarketClockPanel() {
                   }}>
                     {st.timeStr}
                   </div>
-                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                     {st.dateStr}
                   </div>
                 </div>
@@ -173,7 +173,7 @@ export default function MarketClockPanel() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px' }}>
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: '5px',
-                  padding: '2px 8px', borderRadius: '2px',
+                  padding: '4px 10px', borderRadius: '2px',
                   background: sty.bg, border: `1px solid ${sty.border}`,
                 }}>
                   <div style={{
@@ -182,14 +182,14 @@ export default function MarketClockPanel() {
                     animation: st.status === 'open' ? 'pulseDot 2s ease-in-out infinite' : 'none',
                   }} />
                   <span style={{
-                    fontSize: '9px', fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '11px', fontFamily: 'JetBrains Mono, monospace',
                     color:    sty.text, fontWeight: 700, letterSpacing: '0.08em',
                   }}>
                     {sty.label}
                   </span>
                 </div>
 
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                   {st.countdown}
                 </span>
 
@@ -222,7 +222,7 @@ export default function MarketClockPanel() {
         ].map(({ label, color }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: color }} />
-            <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
               {label}
             </span>
           </div>

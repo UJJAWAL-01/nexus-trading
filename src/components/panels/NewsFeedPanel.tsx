@@ -118,7 +118,7 @@ function NewsItem({
       <div style={{ display:'flex', alignItems:'center', gap:'5px', marginBottom:'5px', flexWrap:'wrap' }}>
         {/* Sentiment badge */}
         <span style={{
-          fontSize:'9px', padding:'1px 6px', borderRadius:'2px',
+          fontSize:'11px', padding:'1px 6px', borderRadius:'2px',
           background: ss.bg, color: ss.color, border:`1px solid ${ss.border}`,
           fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.08em', textTransform:'uppercase',
           fontWeight: 700,
@@ -129,7 +129,7 @@ function NewsItem({
         {/* India badge */}
         {item.isIndian && (
           <span style={{
-            fontSize:'9px', padding:'1px 5px', borderRadius:'2px',
+            fontSize:'11px', padding:'1px 5px', borderRadius:'2px',
             background:'rgba(249,115,22,0.1)', color:'#f97316',
             border:'1px solid rgba(249,115,22,0.25)',
             fontFamily:'JetBrains Mono,monospace',
@@ -139,7 +139,7 @@ function NewsItem({
         {/* Related symbol badges */}
         {item.relatedSymbols.slice(0, 3).map(sym => (
           <span key={sym} style={{
-            fontSize:'9px', padding:'1px 6px', borderRadius:'2px',
+            fontSize:'11px', padding:'1px 6px', borderRadius:'2px',
             background:'rgba(240,165,0,0.12)', color:'var(--amber)',
             border:'1px solid rgba(240,165,0,0.25)',
             fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.06em', fontWeight:700,
@@ -158,7 +158,7 @@ function NewsItem({
 
       {/* Row 2 — headline */}
       <div style={{
-        fontSize:'12px', color:'#fff', lineHeight:1.45,
+        fontSize:'13px', color:'#fff', lineHeight:1.45,
         fontFamily:'Syne,sans-serif', fontWeight:600, marginBottom:'4px',
       }}>
         {item.headline}
@@ -167,7 +167,7 @@ function NewsItem({
       {/* Row 3 — summary snippet */}
       {item.summary && (
         <div style={{
-          fontSize:'10px', color:'var(--text-muted)', lineHeight:1.5,
+          fontSize:'11px', color:'var(--text-muted)', lineHeight:1.5,
           fontFamily:'JetBrains Mono,monospace',
         }}>
           {item.summary.slice(0, 140)}{item.summary.length > 140 ? '…' : ''}
@@ -302,14 +302,14 @@ export default function NewsFeedPanel() {
           <div className="dot" style={{ background:'var(--amber)' }} />
           INTELLIGENCE FEED
           {!isLoading && relevantCount > 0 && activeTab === 'relevant' && (
-            <span style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
+            <span style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
               {relevantCount} relevant
             </span>
           )}
         </div>
         {/* Sentiment mini-bar */}
         {!isLoading && currentItems.length > 0 && (
-          <div style={{ display:'flex', gap:'8px', fontSize:'9px', fontFamily:'JetBrains Mono,monospace' }}>
+          <div style={{ display:'flex', gap:'8px', fontSize:'11px', fontFamily:'JetBrains Mono,monospace' }}>
             {sentimentCounts.bullish ? <span style={{ color:'var(--positive)' }}>▲ {sentimentCounts.bullish}</span> : null}
             {sentimentCounts.bearish ? <span style={{ color:'var(--negative)' }}>▼ {sentimentCounts.bearish}</span> : null}
           </div>
@@ -331,7 +331,7 @@ export default function NewsFeedPanel() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               style={{
-                padding:'6px 10px', border:'none', cursor:'pointer',
+                padding:'7px 12px', border:'none', cursor:'pointer',
                 flexShrink:0, display:'flex', alignItems:'center', gap:'5px',
                 borderBottom:`2px solid ${isActive ? tab.color : 'transparent'}`,
                 background: isActive ? `${tab.color}10` : 'transparent',
@@ -340,7 +340,7 @@ export default function NewsFeedPanel() {
             >
               <span style={{ fontSize:'11px' }}>{tab.icon}</span>
               <span style={{
-                fontSize:'10px', fontFamily:'JetBrains Mono,monospace', fontWeight: isActive ? 700 : 400,
+                fontSize:'11px', fontFamily:'JetBrains Mono,monospace', fontWeight: isActive ? 700 : 400,
                 letterSpacing:'0.06em', color: isActive ? tab.color : 'var(--text-muted)',
                 whiteSpace:'nowrap',
               }}>
@@ -348,7 +348,7 @@ export default function NewsFeedPanel() {
               </span>
               {count > 0 && (
                 <span style={{
-                  fontSize:'8px', padding:'1px 4px', borderRadius:'2px',
+                  fontSize:'10px', padding:'1px 4px', borderRadius:'2px',
                   background: isActive ? tab.color + '20' : 'rgba(74,96,112,0.2)',
                   color: isActive ? tab.color : 'var(--text-muted)',
                   fontFamily:'JetBrains Mono,monospace',
@@ -364,7 +364,7 @@ export default function NewsFeedPanel() {
       {/* ── Tab description ────────────────────────────────────────────────── */}
       <div style={{
         padding:'3px 14px', borderBottom:'1px solid var(--border)', flexShrink:0,
-        fontSize:'8px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
+        fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
         background:'rgba(0,0,0,0.08)',
         display:'flex', justifyContent:'space-between', alignItems:'center',
       }}>
@@ -403,7 +403,7 @@ export default function NewsFeedPanel() {
               onClick={() => { loadedTabs.current.delete(activeTab); fetchTab(activeTab, true) }}
               style={{
                 padding:'4px 12px', borderRadius:'3px', cursor:'pointer',
-                fontFamily:'JetBrains Mono,monospace', fontSize:'9px',
+                fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
                 border:`1px solid ${tabDef.color}`, background: tabDef.color + '15', color: tabDef.color,
               }}
             >
@@ -461,7 +461,7 @@ export default function NewsFeedPanel() {
               onClick={() => { loadedTabs.current.delete(activeTab); fetchTab(activeTab, true) }}
               style={{
                 padding:'4px 14px', borderRadius:'3px', cursor:'pointer',
-                fontFamily:'JetBrains Mono,monospace', fontSize:'9px',
+                fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
                 border:'1px solid var(--border)', background:'transparent', color:'var(--text-muted)',
               }}
             >

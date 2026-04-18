@@ -91,7 +91,7 @@ export default function MacroRatesPanel() {
           borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <div>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: '6px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: '6px' }}>
               {mode === 'FED' ? 'FED FUNDS TARGET RANGE' : 'RBI POLICY REPO RATE'}
             </div>
             {loading ? (
@@ -101,19 +101,19 @@ export default function MacroRatesPanel() {
                 {rateStr}
               </div>
             )}
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '5px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '5px' }}>
               As of {data?.policyRate?.date ?? '···'} · {data?.policyRate?.source ?? 'FRED'}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{
-              padding: '4px 12px', borderRadius: '3px', fontSize: '10px',
+              padding: '4px 12px', borderRadius: '3px', fontSize: '11px',
               fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
               background: `${primary}18`, color: primary, border: `1px solid ${primary}35`, marginBottom: '6px',
             }}>
               {data?.stance ?? '···'}
             </div>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
               Next: {data?.nextMeeting?.label ?? '···'}
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function MacroRatesPanel() {
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'JetBrains Mono, monospace' }}>Effective Fed Funds</div>
-                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>Monthly avg · FRED FEDFUNDS</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>Monthly avg · FRED FEDFUNDS</div>
                 </div>
                 <div style={{ fontSize: '14px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: 'var(--teal)' }}>
                   {data.policyRate.effective.toFixed(2)}%
@@ -142,7 +142,7 @@ export default function MacroRatesPanel() {
                   <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'JetBrains Mono, monospace' }}>
                     {cpiLabel}
                   </div>
-                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                     {data.cpi.date} · {cpiSource}
                   </div>
                 </div>
@@ -151,7 +151,7 @@ export default function MacroRatesPanel() {
                     {data.cpi.value.toFixed(2)}%
                   </div>
                   {/* CPI regime label */}
-                  <div style={{ fontSize: '8px', fontFamily: 'JetBrains Mono, monospace', color: cpiColor }}>
+                  <div style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', color: cpiColor }}>
                     {cpiValue === null ? '' : cpiValue > 6 ? 'CRISIS' : cpiValue > 4 ? 'HIGH' : cpiValue > 2.5 ? 'ELEVATED' : cpiValue > 2 ? 'TARGET' : 'BELOW TARGET'}
                   </div>
                 </div>
@@ -163,7 +163,7 @@ export default function MacroRatesPanel() {
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'JetBrains Mono, monospace' }}>Unemployment Rate</div>
-                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                     {data.unrate.date} · FRED UNRATE
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export default function MacroRatesPanel() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'JetBrains Mono, monospace' }}>Real Policy Rate</div>
-                      <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                         Policy rate − CPI (approx)
                       </div>
                     </div>
@@ -191,7 +191,7 @@ export default function MacroRatesPanel() {
                       <div style={{ fontSize: '14px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: realColor }}>
                         {realRate >= 0 ? '+' : ''}{realRate.toFixed(2)}%
                       </div>
-                      <div style={{ fontSize: '8px', fontFamily: 'JetBrains Mono, monospace', color: realColor }}>
+                      <div style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', color: realColor }}>
                         {realRate > 1.5 ? 'RESTRICTIVE' : realRate > 0 ? 'MILDLY POSITIVE' : 'NEGATIVE REAL'}
                       </div>
                     </div>
@@ -204,7 +204,7 @@ export default function MacroRatesPanel() {
 
         {/* ── Meeting schedule ─────────────────────────────────────────── */}
         <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: '8px' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: '8px' }}>
             {mode === 'FED' ? 'FOMC 2026 SCHEDULE' : 'RBI MPC 2026 SCHEDULE'}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -212,7 +212,7 @@ export default function MacroRatesPanel() {
               const isCurrent = !m.done && data?.nextMeeting?.date === m.date
               return (
                 <span key={m.date} style={{
-                  fontSize: '9px', padding: '3px 8px', borderRadius: '2px',
+                  fontSize: '11px', padding: '3px 8px', borderRadius: '2px',
                   fontFamily: 'JetBrains Mono, monospace',
                   background: isCurrent ? `rgba(${mode === 'FED' ? '0,229,192' : '249,115,22'}, 0.15)` : 'var(--bg-deep)',
                   color: isCurrent ? primary : m.done ? 'var(--text-muted)' : 'var(--text-2)',
@@ -229,7 +229,7 @@ export default function MacroRatesPanel() {
 
         {/* Footer note */}
         {!loading && data && (
-          <div style={{ padding: '6px 14px', borderTop: '1px solid var(--border)', fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.5 }}>
+          <div style={{ padding: '6px 14px', borderTop: '1px solid var(--border)', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.5 }}>
             Data: FRED (Federal Reserve Bank of St. Louis) · CPI is 12-month YoY change · Rates updated daily for Fed, quarterly for RBI via IMF IFS
           </div>
         )}

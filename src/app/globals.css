@@ -7,30 +7,37 @@
 :root {
   --bg-base:    #090c10;
   --bg-panel:   #0d1117;
-  --bg-deep:    #111820;
-  --border:     #1e2d3d;
-  --border-br:  #243344;
+  --bg-deep:    #0a0f14;
+  --bg-row:     #111820;
+
+  /* Borders — more visible than before */
+  --border:     #1f2e3e;
+  --border-br:  #2d4460;
+
+  /* Brand */
   --amber:      #f0a500;
   --amber-br:   #ffcc55;
   --teal:       #00e5c0;
   --danger:     #ff4560;
-  --info:       #1e90ff;
+  --info:       #4da6ff;
   --positive:   #00c97a;
   --negative:   #ff4560;
-  --text:       #edf3f9;
-  --text-2:     #b2cbdb;
-  --text-muted: #728c9f;
+
+  /* Text hierarchy — clear 3-level system */
+  --text:       #f0f6fb;   /* primary — headlines, values, active labels */
+  --text-2:     #cdd9e8;   /* secondary — row labels, panel subtitles      */
+  --text-muted: #8fa8bb;   /* tertiary — helper text, timestamps, sources  */
+  --text-dim:   #4e6070;   /* quaternary — truly background info           */
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html {
-  /* Prevent tap zoom on mobile */
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
 }
-.text-2 { font-size: 9px; }
+
 html, body {
   background:  var(--bg-base);
   color:       var(--text);
@@ -38,7 +45,6 @@ html, body {
   font-size:   16px;
   line-height: 1.7;
   overflow-x:  hidden;
-  /* Smooth scrolling on iOS */
   -webkit-overflow-scrolling: touch;
 }
 
@@ -50,39 +56,141 @@ html, body {
 
 /* ── Panel component ───────────────────────────────────────────────────────── */
 .panel {
-  background:   var(--bg-panel);
-  border:       1px solid var(--border);
+  background:    var(--bg-panel);
+  border:        1px solid var(--border);
   border-radius: 6px;
-  overflow:     hidden;
-  /* Ensure panels fill their container */
-  width:        100%;
-  height:       100%;
+  overflow:      hidden;
+  width:         100%;
+  height:        100%;
 }
 
+/* ── Panel header — bright, clearly identifies the panel ──────────────────── */
 .panel-header {
-  padding:      10px 14px;
-  border-bottom: 1px solid var(--border);
-  display:      flex;
-  align-items:  center;
-  gap:          8px;
-  font-family:  'Syne', sans-serif;
-  font-size:    14px;
-  font-weight:  700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color:        var(--text-2);
-  flex-shrink:  0;
-  /* Prevent overflow on narrow panels */
-  min-width:    0;
-  overflow:     hidden;
+  padding:         10px 14px;
+  border-bottom:   1px solid var(--border);
+  display:         flex;
+  align-items:     center;
+  gap:             10px;
+  font-family:     'Syne', sans-serif;
+  font-size:       13px;
+  font-weight:     700;
+  text-transform:  uppercase;
+  letter-spacing:  0.1em;
+  color:           var(--text);        /* bright white — panel titles are primary */
+  flex-shrink:     0;
+  min-width:       0;
+  overflow:        hidden;
+  background:      rgba(255,255,255,0.015);
 }
 
 .panel-header .dot {
-  width: 6px; height: 6px;
+  width:      7px;
+  height:     7px;
   border-radius: 50%;
-  background:   var(--teal);
-  animation:    pulseDot 2s ease-in-out infinite;
-  flex-shrink:  0;
+  background: var(--teal);
+  animation:  pulseDot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* Subtitle inside panel-header (e.g. "BSM · NEWTON-RAPHSON IV") */
+.panel-header-sub {
+  font-family:    'JetBrains Mono', monospace;
+  font-size:      10px;
+  font-weight:    400;
+  letter-spacing: 0.08em;
+  color:          var(--text-muted);
+  text-transform: none;
+}
+
+/* ── Filter / tab bar — sits below panel-header ───────────────────────────── */
+.panel-filter-bar {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       7px 12px;
+  border-bottom: 1px solid var(--border);
+  background:    rgba(0,0,0,0.12);
+  flex-wrap:     wrap;
+  flex-shrink:   0;
+}
+
+/* ── Shared button — used for filters, market switches, tab toggles ──────── */
+.nx-btn {
+  padding:         4px 12px;
+  border-radius:   3px;
+  cursor:          pointer;
+  font-family:     'JetBrains Mono', monospace;
+  font-size:       11px;
+  font-weight:     600;
+  letter-spacing:  0.07em;
+  border:          1px solid var(--border-br);
+  background:      transparent;
+  color:           var(--text-muted);
+  transition:      border-color 0.15s, color 0.15s, background 0.15s;
+  white-space:     nowrap;
+  line-height:     1.4;
+}
+.nx-btn:hover {
+  border-color: var(--text-muted);
+  color:        var(--text-2);
+  background:   rgba(255,255,255,0.04);
+}
+.nx-btn.nx-active {
+  background:   rgba(240,165,0,0.14);
+  border-color: rgba(240,165,0,0.6);
+  color:        var(--amber);
+}
+.nx-btn.nx-active-teal {
+  background:   rgba(0,229,192,0.12);
+  border-color: rgba(0,229,192,0.55);
+  color:        var(--teal);
+}
+
+/* ── Section label — replaces all the 8px/9px section dividers ───────────── */
+.nx-section {
+  padding:        4px 14px;
+  font-size:      10px;
+  font-family:    'JetBrains Mono', monospace;
+  font-weight:    500;
+  letter-spacing: 0.12em;
+  color:          var(--text-muted);
+  border-bottom:  1px solid var(--border);
+  background:     rgba(255,255,255,0.018);
+  text-transform: uppercase;
+}
+
+/* ── Inline badge ─────────────────────────────────────────────────────────── */
+.nx-badge {
+  display:       inline-flex;
+  align-items:   center;
+  font-size:     10px;
+  padding:       2px 7px;
+  border-radius: 3px;
+  font-family:   'JetBrains Mono', monospace;
+  font-weight:   600;
+  letter-spacing: 0.04em;
+  border:        1px solid;
+  line-height:   1.3;
+}
+
+/* ── Stat pill — used in OptionsPanel stats bar, MacroRates display ──────── */
+.nx-stat {
+  display:     flex;
+  flex-direction: column;
+  gap:         1px;
+}
+.nx-stat-label {
+  font-size:      9px;
+  font-family:    'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  color:          var(--text-muted);
+  text-transform: uppercase;
+}
+.nx-stat-value {
+  font-size:   13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color:       var(--text);
 }
 
 /* ── Animations ────────────────────────────────────────────────────────────── */
@@ -92,12 +200,12 @@ html, body {
 }
 
 @keyframes priceUp {
-  0%   { background-color: rgba(0, 201, 122, 0.25); }
+  0%   { background-color: rgba(0, 201, 122, 0.22); }
   100% { background-color: transparent; }
 }
 
 @keyframes priceDown {
-  0%   { background-color: rgba(255, 69, 96, 0.25); }
+  0%   { background-color: rgba(255, 69, 96, 0.22); }
   100% { background-color: transparent; }
 }
 
@@ -111,27 +219,33 @@ html, body {
 .price-up   { animation: priceUp 0.6s ease-out; }
 .price-down { animation: priceDown 0.6s ease-out; }
 
+/* ── Row hover ─────────────────────────────────────────────────────────────── */
+.nx-row {
+  border-bottom: 1px solid var(--border);
+  transition:    background 0.12s;
+}
+.nx-row:hover {
+  background: rgba(255,255,255,0.025) !important;
+}
+
 /* ── Mobile-specific overrides ─────────────────────────────────────────────── */
 @media (max-width: 639px) {
   html { font-size: 14px; }
 
   .panel-header {
     padding:   8px 12px;
-    font-size: 16px;
+    font-size: 14px;
     gap:       6px;
   }
 
-  /* Make all buttons easier to tap (44px min touch target) */
   button {
     min-height: 36px;
     min-width:  36px;
   }
 
-  /* Larger text in panels on mobile */
   .panel { border-radius: 8px; }
 
-  /* Input fields full width on mobile */
-  input, select { font-size: 16px !important; } /* prevents iOS zoom on focus */
+  input, select { font-size: 16px !important; }
 }
 
 /* ── Tablet adjustments ────────────────────────────────────────────────────── */
@@ -151,16 +265,16 @@ html, body {
 }
 
 .react-grid-item.react-grid-placeholder {
-  background:   rgba(240, 165, 0, 0.07) !important;
-  border:       1px dashed rgba(240, 165, 0, 0.4) !important;
+  background:    rgba(240, 165, 0, 0.07) !important;
+  border:        1px dashed rgba(240, 165, 0, 0.4) !important;
   border-radius: 6px !important;
-  opacity:      1 !important;
-  z-index:      2 !important;
+  opacity:       1 !important;
+  z-index:       2 !important;
 }
 
 .react-resizable-handle {
-  background:   none !important;
-  border-right: 2px solid rgba(240, 165, 0, 0.7) !important;
+  background:    none !important;
+  border-right:  2px solid rgba(240, 165, 0, 0.7) !important;
   border-bottom: 2px solid rgba(240, 165, 0, 0.7) !important;
   border-radius: 0 0 4px 0 !important;
   width:  14px !important;
@@ -170,27 +284,32 @@ html, body {
 .nexus-drag-handle { user-select: none; }
 
 /* ── Iframe responsive ─────────────────────────────────────────────────────── */
-iframe {
-  max-width: 100%;
-}
+iframe { max-width: 100%; }
 
 /* ── Canvas responsive ─────────────────────────────────────────────────────── */
-canvas {
-  max-width: 100%;
-  display:   block;
-}
+canvas { max-width: 100%; display: block; }
 
 /* ── Select & input dark theme ─────────────────────────────────────────────── */
 select {
-  background: var(--bg-deep);
-  color:      #fff;
-  border:     1px solid var(--border);
+  background:    var(--bg-deep);
+  color:         var(--text);
+  border:        1px solid var(--border-br);
   border-radius: 3px;
+  font-size:     12px;
 }
 
 select option {
   background: var(--bg-panel);
-  color:      #fff;
+  color:      var(--text);
+}
+
+input {
+  color:         var(--text);
+  caret-color:   var(--amber);
+}
+
+input::placeholder {
+  color: var(--text-muted);
 }
 
 /* ── Focus styles ──────────────────────────────────────────────────────────── */

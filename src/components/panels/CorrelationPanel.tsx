@@ -101,7 +101,7 @@ export default function CorrelationPanel() {
           </span>
           {(data?.regimeShifts??0)>0 && (
             <span style={{
-              fontSize:'7px',padding:'2px 6px',borderRadius:'2px',
+              fontSize:'10px',padding:'2px 6px',borderRadius:'2px',
               background:'rgba(239,68,68,0.15)',color:'#ef4444',
               border:'1px solid rgba(239,68,68,0.3)',fontFamily:'JetBrains Mono,monospace',fontWeight:700
             }}>⚡ {data!.regimeShifts} REGIME SHIFT{data!.regimeShifts>1?'S':''}</span>
@@ -110,7 +110,7 @@ export default function CorrelationPanel() {
         <div style={{display:'flex',gap:'3px'}}>
           {(['heatmap','chain','table'] as View[]).map(v=>(
             <button key={v} onClick={()=>setView(v)} style={{
-              padding:'2px 8px',borderRadius:'3px',cursor:'pointer',fontSize:'9px',
+              padding:'2px 8px',borderRadius:'3px',cursor:'pointer',fontSize:'11px',
               fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.06em',textTransform:'uppercase',
               border:`1px solid ${view===v?'#a78bfa':'var(--border)'}`,
               background:view===v?'rgba(167,139,250,0.12)':'transparent',
@@ -143,7 +143,7 @@ export default function CorrelationPanel() {
             }}>
               {Object.entries(QUICK).map(([cat,syms])=>(
                 <div key={cat} style={{marginBottom:'8px'}}>
-                  <div style={{fontSize:'7px',color:'var(--text-muted)',letterSpacing:'0.12em',marginBottom:'4px',fontFamily:'JetBrains Mono,monospace'}}>{cat}</div>
+                  <div style={{fontSize:'10px',color:'var(--text-muted)',letterSpacing:'0.12em',marginBottom:'4px',fontFamily:'JetBrains Mono,monospace'}}>{cat}</div>
                   <div style={{display:'flex',gap:'4px',flexWrap:'wrap'}}>
                     {syms.map(s=>(
                       <button key={s} onMouseDown={()=>{setInput(s);setSym(s);load(s);setPicks(false)}} style={{
@@ -173,10 +173,10 @@ export default function CorrelationPanel() {
           <div style={{minWidth:0}}>
             <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'2px',flexWrap:'wrap'}}>
               <span style={{fontSize:'15px',fontWeight:900,color:'#fff',fontFamily:'Syne,sans-serif'}}>{data.target.replace('.NS','').replace('.BO','')}</span>
-              <span style={{fontSize:'9px',color:'#a78bfa',padding:'1px 7px',border:'1px solid rgba(167,139,250,0.3)',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace'}}>{data.sector}</span>
-              <span style={{fontSize:'7px',color:'var(--text-muted)',padding:'1px 5px',border:'1px solid var(--border)',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace'}}>via {data.aiProvider?.toUpperCase()}</span>
+              <span style={{fontSize:'11px',color:'#a78bfa',padding:'1px 7px',border:'1px solid rgba(167,139,250,0.3)',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace'}}>{data.sector}</span>
+              <span style={{fontSize:'10px',color:'var(--text-muted)',padding:'1px 5px',border:'1px solid var(--border)',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace'}}>via {data.aiProvider?.toUpperCase()}</span>
             </div>
-            <div style={{fontSize:'9px',color:'var(--text-muted)',lineHeight:1.5,fontFamily:'JetBrains Mono,monospace',maxWidth:'480px'}}>
+            <div style={{fontSize:'11px',color:'var(--text-muted)',lineHeight:1.5,fontFamily:'JetBrains Mono,monospace',maxWidth:'480px'}}>
               {data.description||data.industry}
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function CorrelationPanel() {
             ].map(s=>(
               <div key={s.l} style={{textAlign:'center'}}>
                 <div style={{fontSize:'20px',fontWeight:900,fontFamily:'Syne,sans-serif',color:s.hot?'#ef4444':'#fff',lineHeight:1}}>{s.v}</div>
-                <div style={{fontSize:'7px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.07em'}}>{s.l}</div>
+                <div style={{fontSize:'10px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.07em'}}>{s.l}</div>
               </div>
             ))}
           </div>
@@ -201,7 +201,7 @@ export default function CorrelationPanel() {
           <div style={{fontSize:'11px',color:'var(--text-muted)',letterSpacing:'0.12em',fontFamily:'JetBrains Mono,monospace'}}>MAPPING SUPPLY CHAIN UNIVERSE…</div>
           <div style={{display:'flex',gap:'5px',flexWrap:'wrap',justifyContent:'center'}}>
             {['AI MAPPING PEERS','FETCHING 180D PRICES','DCC-GARCH COMPUTE','REGIME DETECTION'].map(s=>(
-              <div key={s} style={{fontSize:'8px',color:'#a78bfa',padding:'3px 10px',border:'1px solid rgba(167,139,250,0.2)',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace'}}>{s}</div>
+              <div key={s} style={{fontSize:'10px',color:'#a78bfa',padding:'3px 10px',border:'1px solid rgba(167,139,250,0.2)',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace'}}>{s}</div>
             ))}
           </div>
         </div>
@@ -213,11 +213,11 @@ export default function CorrelationPanel() {
 
           {/* Legend */}
           <div style={{padding:'5px 12px',borderBottom:'1px solid var(--border)',display:'flex',gap:'14px',alignItems:'center',flexShrink:0,flexWrap:'wrap'}}>
-            <span style={{fontSize:'7px',color:'var(--text-muted)',letterSpacing:'0.1em',fontFamily:'JetBrains Mono,monospace'}}>PEARSON →</span>
+            <span style={{fontSize:'10px',color:'var(--text-muted)',letterSpacing:'0.1em',fontFamily:'JetBrains Mono,monospace'}}>PEARSON →</span>
             {[['≥.75 STRONG +','#00c97a'],['≥.50 MOD +','#86efac'],['≥.30 WEAK +','#d1fae5'],['~0 NEUTRAL','#4a6070'],['≥.30 WEAK −','#fee2e2'],['≥.50 MOD −','#fca5a5'],['≥.75 STRONG −','#ef4444']].map(([l,c])=>(
               <div key={l} style={{display:'flex',alignItems:'center',gap:'3px'}}>
                 <div style={{width:'9px',height:'9px',borderRadius:'2px',background:c,opacity:0.9}}/>
-                <span style={{fontSize:'7px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>{l}</span>
+                <span style={{fontSize:'10px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>{l}</span>
               </div>
             ))}
           </div>
@@ -246,7 +246,7 @@ export default function CorrelationPanel() {
                   {/* Regime badge */}
                   {c.regimeShift&&<div style={{
                     position:'absolute',top:'4px',right:'4px',
-                    fontSize:'7px',padding:'1px 4px',borderRadius:'2px',
+                    fontSize:'10px',padding:'1px 4px',borderRadius:'2px',
                     background:'rgba(239,68,68,0.15)',color:'#ef4444',
                     border:'1px solid rgba(239,68,68,0.3)',fontFamily:'JetBrains Mono,monospace',
                   }}>⚡SHIFT</div>}
@@ -255,7 +255,7 @@ export default function CorrelationPanel() {
                     <div style={{fontSize:'11px',fontWeight:700,color:'#fff',fontFamily:'Syne,sans-serif'}}>
                       {c.symbol.replace('.NS','').replace('.BO','')}
                     </div>
-                    <div style={{fontSize:'8px',color:'var(--text-muted)',marginBottom:'5px',lineHeight:1.3,fontFamily:'JetBrains Mono,monospace'}}>
+                    <div style={{fontSize:'10px',color:'var(--text-muted)',marginBottom:'5px',lineHeight:1.3,fontFamily:'JetBrains Mono,monospace'}}>
                       {c.name.length>20?c.name.slice(0,20)+'…':c.name}
                     </div>
 
@@ -263,7 +263,7 @@ export default function CorrelationPanel() {
                     <div style={{fontSize:'28px',fontWeight:900,lineHeight:1,color:cColor(c.pearson),fontFamily:'Syne,sans-serif',marginBottom:'2px'}}>
                       {c.pearson>0?'+':''}{c.pearson.toFixed(2)}
                     </div>
-                    <div style={{fontSize:'7px',color:cColor(c.pearson),letterSpacing:'0.1em',marginBottom:'6px',fontFamily:'JetBrains Mono,monospace'}}>
+                    <div style={{fontSize:'10px',color:cColor(c.pearson),letterSpacing:'0.1em',marginBottom:'6px',fontFamily:'JetBrains Mono,monospace'}}>
                       {cLabel(c.pearson)}
                     </div>
 
@@ -271,19 +271,19 @@ export default function CorrelationPanel() {
                     <div style={{display:'flex',gap:'3px',marginBottom:'6px'}}>
                       {[{d:'30D',v:c.rolling30},{d:'60D',v:c.rolling60},{d:'90D',v:c.rolling90}].map(({d,v})=>(
                         <div key={d} style={{textAlign:'center',flex:1,padding:'2px',background:'rgba(255,255,255,0.04)',borderRadius:'2px'}}>
-                          <div style={{fontSize:'9px',fontWeight:700,color:cColor(v),fontFamily:'Syne,sans-serif'}}>{v>0?'+':''}{v.toFixed(2)}</div>
-                          <div style={{fontSize:'6px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>{d}</div>
+                          <div style={{fontSize:'11px',fontWeight:700,color:cColor(v),fontFamily:'Syne,sans-serif'}}>{v>0?'+':''}{v.toFixed(2)}</div>
+                          <div style={{fontSize:'10px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>{d}</div>
                         </div>
                       ))}
                     </div>
 
                     {/* Direction badge */}
                     <div style={{display:'flex',gap:'3px',flexWrap:'wrap'}}>
-                      <span style={{fontSize:'7px',padding:'1px 5px',borderRadius:'2px',background:dm.bg,color:dm.color,border:`1px solid ${dm.color}30`,fontFamily:'JetBrains Mono,monospace'}}>
+                      <span style={{fontSize:'10px',padding:'1px 5px',borderRadius:'2px',background:dm.bg,color:dm.color,border:`1px solid ${dm.color}30`,fontFamily:'JetBrains Mono,monospace'}}>
                         {dm.icon} {c.direction.toUpperCase()}
                       </span>
                       {c.dccTrend!=='stable'&&(
-                        <span style={{fontSize:'7px',padding:'1px 5px',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace',
+                        <span style={{fontSize:'10px',padding:'1px 5px',borderRadius:'2px',fontFamily:'JetBrains Mono,monospace',
                           background:c.dccTrend==='increasing'?'rgba(0,201,122,0.1)':'rgba(239,68,68,0.1)',
                           color:c.dccTrend==='increasing'?'#00c97a':'#ef4444',
                           border:`1px solid ${c.dccTrend==='increasing'?'rgba(0,201,122,0.25)':'rgba(239,68,68,0.25)'}`,
@@ -307,11 +307,11 @@ export default function CorrelationPanel() {
                   <div style={{fontSize:'13px',fontWeight:700,color:'#fff',fontFamily:'Syne,sans-serif',marginBottom:'3px'}}>
                     {hovItem.name} <span style={{color:'#a78bfa',fontSize:'11px'}}>({hovItem.symbol})</span>
                   </div>
-                  <div style={{fontSize:'9px',color:'var(--text-muted)',lineHeight:1.6,fontFamily:'JetBrains Mono,monospace'}}>
+                  <div style={{fontSize:'11px',color:'var(--text-muted)',lineHeight:1.6,fontFamily:'JetBrains Mono,monospace'}}>
                     {hovItem.logic}
                   </div>
                   {hovItem.leadDirection!=='concurrent'&&hovItem.leadLagDays>0&&(
-                    <div style={{marginTop:'5px',fontSize:'8px',color:'#f0a500',fontFamily:'JetBrains Mono,monospace'}}>
+                    <div style={{marginTop:'5px',fontSize:'10px',color:'#f0a500',fontFamily:'JetBrains Mono,monospace'}}>
                       📈 {hovItem.symbol.replace('.NS','')} {hovItem.leadDirection==='leads'?'LEADS':'FOLLOWS'} {data.target} by ~{hovItem.leadLagDays} day{hovItem.leadLagDays>1?'s':''}
                     </div>
                   )}
@@ -320,7 +320,7 @@ export default function CorrelationPanel() {
                   <div style={{fontSize:'32px',fontWeight:900,color:cColor(hovItem.pearson),fontFamily:'Syne,sans-serif',lineHeight:1}}>
                     {hovItem.pearson>0?'+':''}{hovItem.pearson.toFixed(2)}
                   </div>
-                  <div style={{fontSize:'7px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>{cLabel(hovItem.pearson)}</div>
+                  <div style={{fontSize:'10px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>{cLabel(hovItem.pearson)}</div>
                 </div>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:'5px'}}>
@@ -333,12 +333,12 @@ export default function CorrelationPanel() {
                 ].map(({l,v})=>(
                   <div key={l} style={{textAlign:'center',padding:'5px',borderRadius:'3px',background:'var(--bg-secondary)',border:'1px solid var(--border)'}}>
                     <div style={{fontSize:'13px',fontWeight:700,color:cColor(v),fontFamily:'Syne,sans-serif'}}>{v>0?'+':''}{v.toFixed(2)}</div>
-                    <div style={{fontSize:'6px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.08em',marginTop:'1px'}}>{l}</div>
+                    <div style={{fontSize:'10px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.08em',marginTop:'1px'}}>{l}</div>
                   </div>
                 ))}
               </div>
               {hovItem.regimeShift&&(
-                <div style={{marginTop:'8px',padding:'6px 10px',borderRadius:'3px',background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.25)',fontSize:'9px',color:'#ef4444',fontFamily:'JetBrains Mono,monospace'}}>
+                <div style={{marginTop:'8px',padding:'6px 10px',borderRadius:'3px',background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.25)',fontSize:'11px',color:'#ef4444',fontFamily:'JetBrains Mono,monospace'}}>
                   ⚡ {hovItem.regimeNote}
                 </div>
               )}
@@ -354,7 +354,7 @@ export default function CorrelationPanel() {
           <div style={{textAlign:'center',padding:'8px 0 4px'}}>
             <div style={{display:'inline-block',padding:'8px 28px',borderRadius:'6px',border:'2px solid #a78bfa',background:'rgba(167,139,250,0.1)'}}>
               <div style={{fontSize:'18px',fontWeight:900,color:'#fff',fontFamily:'Syne,sans-serif'}}>{data.target.replace('.NS','').replace('.BO','')}</div>
-              <div style={{fontSize:'9px',color:'#a78bfa',fontFamily:'JetBrains Mono,monospace'}}>{data.targetName} · {data.sector}</div>
+              <div style={{fontSize:'11px',color:'#a78bfa',fontFamily:'JetBrains Mono,monospace'}}>{data.targetName} · {data.sector}</div>
             </div>
           </div>
 
@@ -364,7 +364,7 @@ export default function CorrelationPanel() {
               <div key={dir} style={{border:`1px solid ${dm.color}22`,borderRadius:'6px',overflow:'hidden'}}>
                 <div style={{padding:'6px 12px',background:dm.bg,display:'flex',alignItems:'center',gap:'8px'}}>
                   <span style={{fontSize:'13px'}}>{dm.icon}</span>
-                  <span style={{fontSize:'9px',color:dm.color,fontWeight:700,letterSpacing:'0.1em',fontFamily:'JetBrains Mono,monospace'}}>{dm.label.toUpperCase()} ({items.length})</span>
+                  <span style={{fontSize:'11px',color:dm.color,fontWeight:700,letterSpacing:'0.1em',fontFamily:'JetBrains Mono,monospace'}}>{dm.label.toUpperCase()} ({items.length})</span>
                 </div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:'6px',padding:'8px 10px'}}>
                   {items.map(c=>(
@@ -382,7 +382,7 @@ export default function CorrelationPanel() {
                           <div style={{fontSize:'11px',fontWeight:700,color:'#fff',fontFamily:'Syne,sans-serif'}}>
                             {c.symbol.replace('.NS','').replace('.BO','')}
                           </div>
-                          <div style={{fontSize:'8px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>
+                          <div style={{fontSize:'10px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace'}}>
                             {c.name.length>16?c.name.slice(0,16)+'…':c.name}
                           </div>
                         </div>
@@ -390,10 +390,10 @@ export default function CorrelationPanel() {
                           <div style={{fontSize:'18px',fontWeight:900,color:cColor(c.pearson),fontFamily:'Syne,sans-serif',lineHeight:1}}>
                             {c.pearson>0?'+':''}{c.pearson.toFixed(2)}
                           </div>
-                          {c.regimeShift&&<div style={{fontSize:'7px',color:'#ef4444',fontFamily:'JetBrains Mono,monospace'}}>⚡shift</div>}
+                          {c.regimeShift&&<div style={{fontSize:'10px',color:'#ef4444',fontFamily:'JetBrains Mono,monospace'}}>⚡shift</div>}
                         </div>
                       </div>
-                      <div style={{fontSize:'8px',color:'var(--text-muted)',lineHeight:1.4,fontFamily:'JetBrains Mono,monospace'}}>
+                      <div style={{fontSize:'10px',color:'var(--text-muted)',lineHeight:1.4,fontFamily:'JetBrains Mono,monospace'}}>
                         {c.logic}
                       </div>
                     </div>
@@ -411,7 +411,7 @@ export default function CorrelationPanel() {
           <div style={{
             display:'grid',gridTemplateColumns:'80px 1fr 52px 52px 52px 52px 75px',
             padding:'4px 12px',borderBottom:'1px solid var(--border)',
-            fontSize:'7px',color:'var(--text-muted)',letterSpacing:'0.1em',fontFamily:'JetBrains Mono,monospace',
+            fontSize:'10px',color:'var(--text-muted)',letterSpacing:'0.1em',fontFamily:'JetBrains Mono,monospace',
             position:'sticky',top:0,background:'var(--bg-primary)',
           }}>
             {['SYMBOL','RELATIONSHIP','PEARSON','SPEARMAN','BETA','PARTIAL','DIRECTION'].map(h=>(
@@ -432,18 +432,18 @@ export default function CorrelationPanel() {
               >
                 <div>
                   <div style={{fontSize:'10px',fontWeight:700,color:'#fff',fontFamily:'Syne,sans-serif'}}>{c.symbol.replace('.NS','')}</div>
-                  {c.regimeShift&&<div style={{fontSize:'7px',color:'#ef4444',fontFamily:'JetBrains Mono,monospace'}}>⚡ shift</div>}
+                  {c.regimeShift&&<div style={{fontSize:'10px',color:'#ef4444',fontFamily:'JetBrains Mono,monospace'}}>⚡ shift</div>}
                 </div>
                 <div style={{paddingRight:'8px'}}>
-                  <div style={{fontSize:'9px',color:'#fff',fontFamily:'JetBrains Mono,monospace'}}>{c.relationship}</div>
-                  <div style={{fontSize:'8px',color:'var(--text-muted)',marginTop:'1px',fontFamily:'JetBrains Mono,monospace'}}>{c.logic.slice(0,55)}{c.logic.length>55?'…':''}</div>
+                  <div style={{fontSize:'11px',color:'#fff',fontFamily:'JetBrains Mono,monospace'}}>{c.relationship}</div>
+                  <div style={{fontSize:'10px',color:'var(--text-muted)',marginTop:'1px',fontFamily:'JetBrains Mono,monospace'}}>{c.logic.slice(0,55)}{c.logic.length>55?'…':''}</div>
                 </div>
                 {[c.pearson,c.spearman,c.beta,c.partialCorr].map((v,j)=>(
-                  <div key={j} style={{textAlign:'center',fontSize:'12px',fontWeight:700,color:cColor(v),fontFamily:'Syne,sans-serif'}}>
+                  <div key={j} style={{textAlign:'center',fontSize:'13px',fontWeight:700,color:cColor(v),fontFamily:'Syne,sans-serif'}}>
                     {v>0?'+':''}{v.toFixed(2)}
                   </div>
                 ))}
-                <span style={{fontSize:'7px',padding:'2px 6px',borderRadius:'2px',background:dm.bg,color:dm.color,border:`1px solid ${dm.color}30`,fontFamily:'JetBrains Mono,monospace'}}>
+                <span style={{fontSize:'10px',padding:'2px 6px',borderRadius:'2px',background:dm.bg,color:dm.color,border:`1px solid ${dm.color}30`,fontFamily:'JetBrains Mono,monospace'}}>
                   {dm.icon} {c.direction}
                 </span>
               </div>
@@ -456,7 +456,7 @@ export default function CorrelationPanel() {
       {data&&!loading&&(
         <div style={{
           padding:'4px 12px',borderTop:'1px solid var(--border)',flexShrink:0,
-          fontSize:'7px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace',
+          fontSize:'10px',color:'var(--text-muted)',fontFamily:'JetBrains Mono,monospace',
           display:'flex',justifyContent:'space-between',
         }}>
           <span>{data.poweredBy}</span>

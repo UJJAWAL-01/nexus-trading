@@ -282,7 +282,7 @@ export default function CommoditiesPanel() {
           <div className="dot" style={{ background: '#f0a500', flexShrink: 0 }} />
           <span style={{ whiteSpace: 'nowrap' }}>COMMODITIES</span>
           <span style={{
-            fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
+            fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
             background: 'rgba(240,165,0,0.12)', color: '#f0a500',
             border: '1px solid rgba(240,165,0,0.25)', fontFamily: 'JetBrains Mono, monospace',
             flexShrink: 0,
@@ -293,8 +293,8 @@ export default function CommoditiesPanel() {
         <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
           {(['prices', 'news'] as ActiveView[]).map(v => (
             <button key={v} onClick={() => setView(v)} style={{
-              padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', letterSpacing: '0.06em',
+              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', letterSpacing: '0.06em',
               border: `1px solid ${view === v ? '#f0a500' : 'var(--border)'}`,
               background: view === v ? 'rgba(240,165,0,0.1)' : 'transparent',
               color: view === v ? '#f0a500' : 'var(--text-muted)',
@@ -317,7 +317,7 @@ export default function CommoditiesPanel() {
             <button key={c} onClick={() => setCat(c)} style={{
               padding: '2px 9px', borderRadius: '3px', cursor: 'pointer',
               flexShrink: 0,
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
               border: `1px solid ${cat === c ? (CATEGORY_COLOR[c] ?? 'var(--teal)') : 'var(--border)'}`,
               background: cat === c ? ((CATEGORY_COLOR[c] ?? 'var(--teal)') + '18') : 'transparent',
               color: cat === c ? (CATEGORY_COLOR[c] ?? 'var(--teal)') : 'var(--text-muted)',
@@ -326,7 +326,7 @@ export default function CommoditiesPanel() {
             </button>
           ))}
           {lastUpdate && (
-            <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center', marginLeft: 'auto', flexShrink: 0 }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center', marginLeft: 'auto', flexShrink: 0 }}>
               {lastUpdate}
             </span>
           )}
@@ -369,11 +369,11 @@ export default function CommoditiesPanel() {
 
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '12px', color: '#fff' }}>
+                      <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '13px', color: '#fff' }}>
                         {def.name.split('(')[0].trim()}
                       </span>
                       <span style={{
-                        fontSize: '8px', padding: '1px 5px', borderRadius: '2px',
+                        fontSize: '10px', padding: '2px 7px', borderRadius: '2px',
                         background: catColor + '18', color: catColor,
                         border: `1px solid ${catColor}30`,
                         fontFamily: 'JetBrains Mono, monospace',
@@ -381,7 +381,7 @@ export default function CommoditiesPanel() {
                         {def.category}
                       </span>
                     </div>
-                    <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '1px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '1px' }}>
                       {def.unit} · {def.symbol}
                     </div>
                   </div>
@@ -449,7 +449,7 @@ export default function CommoditiesPanel() {
                   {/* Row 1: badges */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px', flexWrap: 'wrap' }}>
                     <span style={{
-                      fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
+                      fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
                       background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`,
                       fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', fontWeight: 700,
                     }}>
@@ -457,7 +457,7 @@ export default function CommoditiesPanel() {
                     </span>
                     {item.commodity && (
                       <span style={{
-                        fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
+                        fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
                         background: 'rgba(240,165,0,0.12)', color: '#f0a500',
                         border: '1px solid rgba(240,165,0,0.25)',
                         fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
@@ -465,16 +465,16 @@ export default function CommoditiesPanel() {
                         🏷 {item.commodity}
                       </span>
                     )}
-                    <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                       {item.source}
                     </span>
-                    <span style={{ marginLeft: 'auto', fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                       {timeAgo(item.datetime)}
                     </span>
                   </div>
 
                   {/* Row 2: headline */}
-                  <div style={{ fontSize: '12px', color: '#fff', lineHeight: 1.4, fontFamily: 'Syne, sans-serif', fontWeight: 600, marginBottom: '6px' }}>
+                  <div style={{ fontSize: '13px', color: '#fff', lineHeight: 1.4, fontFamily: 'Syne, sans-serif', fontWeight: 600, marginBottom: '6px' }}>
                     {item.headline}
                   </div>
 
@@ -487,10 +487,10 @@ export default function CommoditiesPanel() {
                           background: 'rgba(30,144,255,0.06)', border: '1px solid rgba(30,144,255,0.15)',
                           borderLeft: '2px solid rgba(30,144,255,0.5)',
                         }}>
-                          <div style={{ fontSize: '7px', color: '#1e90ff', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '2px' }}>
+                          <div style={{ fontSize: '10px', color: '#1e90ff', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '2px' }}>
                             🇺🇸 US IMPACT
                           </div>
-                          <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.4 }}>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.4 }}>
                             {item.usImpact}
                           </div>
                         </div>
@@ -501,10 +501,10 @@ export default function CommoditiesPanel() {
                           background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.15)',
                           borderLeft: '2px solid rgba(249,115,22,0.5)',
                         }}>
-                          <div style={{ fontSize: '7px', color: '#f97316', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '2px' }}>
+                          <div style={{ fontSize: '10px', color: '#f97316', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '2px' }}>
                             🇮🇳 INDIA IMPACT
                           </div>
-                          <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.4 }}>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.4 }}>
                             {item.indImpact}
                           </div>
                         </div>
@@ -521,7 +521,7 @@ export default function CommoditiesPanel() {
       {/* Footer */}
       <div style={{
         padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
-        fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
+        fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
         display: 'flex', justifyContent: 'space-between',
       }}>
         <span>{COMMODITIES.length} instruments · Energy · Metals · Agriculture · Crypto</span>

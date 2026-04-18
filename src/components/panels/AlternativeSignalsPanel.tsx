@@ -301,7 +301,7 @@ export default function AlternativeSignalsPanel() {
           {tabs.map(([icon, label, tab]) => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
               padding: '2px 7px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
               letterSpacing: '0.05em', border: 'none',
               background: activeTab === tab ? 'rgba(167,139,250,0.2)' : 'transparent',
               color: activeTab === tab ? '#a78bfa' : 'var(--text-muted)',
@@ -342,9 +342,9 @@ export default function AlternativeSignalsPanel() {
             </div>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>🌑 NEW</span>
-                <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>🌕 FULL</span>
-                <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>🌑 NEW</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>🌑 NEW</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>🌕 FULL</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>🌑 NEW</span>
               </div>
               <div style={{ height: '7px', background: 'var(--bg-deep)', borderRadius: '4px', overflow: 'hidden', position: 'relative' }}>
                 <div style={{
@@ -370,11 +370,11 @@ export default function AlternativeSignalsPanel() {
               <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                 NEXT {moon.nextEmoji} {moon.nextPhase.toUpperCase()}
               </span>
-              <span style={{ fontSize: '12px', color: '#a78bfa', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>
+              <span style={{ fontSize: '13px', color: '#a78bfa', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>
                 {moon.daysToNext}d away
               </span>
             </div>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
               ⚠ Lunar signals are historical folklore only — not financial advice.
             </div>
           </div>
@@ -405,7 +405,7 @@ export default function AlternativeSignalsPanel() {
               {season.detail}
             </div>
             <div>
-              <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: '7px', letterSpacing: '0.1em' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: '7px', letterSpacing: '0.1em' }}>
                 BEST 6 MONTHS CYCLE (NOV – APR)
               </div>
               <div style={{ display: 'flex', gap: '3px' }}>
@@ -416,7 +416,7 @@ export default function AlternativeSignalsPanel() {
                   return (
                     <div key={i} style={{
                       flex: 1, padding: '5px 0', textAlign: 'center', borderRadius: '3px',
-                      fontSize: '8px', fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: '10px', fontFamily: 'JetBrains Mono, monospace',
                       background: isCurrent ? (isBest ? 'rgba(0,201,122,0.45)' : 'rgba(255,69,96,0.45)') : (isBest ? 'rgba(0,201,122,0.1)' : 'rgba(255,69,96,0.06)'),
                       color:      isCurrent ? '#fff' : (isBest ? 'var(--positive)' : 'var(--text-muted)'),
                       border:     isCurrent ? `1px solid ${isBest ? 'var(--positive)' : 'var(--negative)'}` : 'none',
@@ -428,7 +428,7 @@ export default function AlternativeSignalsPanel() {
                 })}
               </div>
             </div>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
               ⚠ Historical patterns only — not financial advice.
             </div>
           </div>
@@ -446,7 +446,7 @@ export default function AlternativeSignalsPanel() {
                 padding: '4px 14px', borderRadius: '4px',
                 background: dayEffect.color + '22', border: `1px solid ${dayEffect.color}44`,
               }}>
-                <span style={{ fontSize: '12px', color: dayEffect.color, fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
+                <span style={{ fontSize: '13px', color: dayEffect.color, fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
                   {dayEffect.signal}
                 </span>
               </div>
@@ -459,7 +459,7 @@ export default function AlternativeSignalsPanel() {
               {dayEffect.note}
             </div>
             <div>
-              <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: '8px', letterSpacing: '0.1em' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: '8px', letterSpacing: '0.1em' }}>
                 HISTORICAL BULLISH STRENGTH
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '5px' }}>
@@ -474,7 +474,7 @@ export default function AlternativeSignalsPanel() {
                       background: isCurrent ? 'rgba(240,165,0,0.12)' : 'var(--bg-deep)',
                       border: `1px solid ${isCurrent ? 'rgba(240,165,0,0.3)' : 'var(--border)'}`,
                     }}>
-                      <div style={{ fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', color: isCurrent ? 'var(--amber)' : 'var(--text-muted)', fontWeight: isCurrent ? 700 : 400, marginBottom: '5px' }}>
+                      <div style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: isCurrent ? 'var(--amber)' : 'var(--text-muted)', fontWeight: isCurrent ? 700 : 400, marginBottom: '5px' }}>
                         {d}
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '2px' }}>
@@ -487,7 +487,7 @@ export default function AlternativeSignalsPanel() {
                 })}
               </div>
             </div>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
               ⚠ Statistical patterns only — not financial advice.
             </div>
           </div>
@@ -507,12 +507,12 @@ export default function AlternativeSignalsPanel() {
                 background: opex.signalColor + '22', border: `1px solid ${opex.signalColor}44`,
               }}>
                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: opex.signalColor, boxShadow: `0 0 6px ${opex.signalColor}` }} />
-                <span style={{ fontSize: '12px', color: opex.signalColor, fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
+                <span style={{ fontSize: '13px', color: opex.signalColor, fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
                   {opex.signal}
                 </span>
               </div>
               {opex.bias && (
-                <div style={{ marginTop: '6px', fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+                <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
                   {opex.bias}
                 </div>
               )}
@@ -531,24 +531,24 @@ export default function AlternativeSignalsPanel() {
             {/* Next OpEx countdown */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
               <div style={{ padding: '8px 10px', background: 'var(--bg-deep)', borderRadius: '4px', border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '4px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '4px' }}>
                   MONTHLY OPEX
                 </div>
                 <div style={{ fontSize: '15px', fontWeight: 900, color: opex.isOpExDay ? '#ff4560' : opex.isOpExWeek ? '#f0a500' : '#fff', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
                   {opex.isOpExDay ? 'TODAY' : `${opex.daysToOpEx}d`}
                 </div>
-                <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px' }}>
                   {opex.opExDateStr}
                 </div>
               </div>
               <div style={{ padding: '8px 10px', background: 'var(--bg-deep)', borderRadius: '4px', border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '4px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '4px' }}>
                   WEEKLY OPEX
                 </div>
                 <div style={{ fontSize: '15px', fontWeight: 900, color: opex.isWeeklyOpEx ? '#ff4560' : '#fff', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
                   {opex.isWeeklyOpEx ? 'TODAY' : `${opex.daysToWeekly}d`}
                 </div>
-                <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px' }}>
                   Every Friday
                 </div>
               </div>
@@ -556,7 +556,7 @@ export default function AlternativeSignalsPanel() {
 
             {/* OpEx cycle phases */}
             <div>
-              <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px' }}>
                 MONTHLY OPEX CYCLE PATTERN
               </div>
               {[
@@ -571,17 +571,17 @@ export default function AlternativeSignalsPanel() {
                 }}>
                   <div>
                     <div style={{ fontSize: '10px', color: '#fff', fontFamily: 'JetBrains Mono, monospace' }}>{label}</div>
-                    <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{desc}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{desc}</div>
                   </div>
                   <span style={{
-                    fontSize: '8px', padding: '2px 6px', borderRadius: '2px',
+                    fontSize: '10px', padding: '3px 8px', borderRadius: '2px',
                     background: color + '18', color, border: `1px solid ${color}33`,
                     fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
                   }}>{bias}</span>
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
               ⚠ Statistical patterns only — not financial advice.
             </div>
           </div>
@@ -601,7 +601,7 @@ export default function AlternativeSignalsPanel() {
                 background: tom.signalColor + '22', border: `1px solid ${tom.signalColor}44`,
               }}>
                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: tom.signalColor, boxShadow: `0 0 6px ${tom.signalColor}`, animation: tom.inTOMWindow ? 'pulseDot 1.5s ease-in-out infinite' : 'none' }} />
-                <span style={{ fontSize: '12px', color: tom.signalColor, fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
+                <span style={{ fontSize: '13px', color: tom.signalColor, fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
                   {tom.signal}
                 </span>
               </div>
@@ -619,7 +619,7 @@ export default function AlternativeSignalsPanel() {
 
             {/* Current position in month */}
             <div>
-              <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px' }}>
                 POSITION IN MONTHLY CYCLE
               </div>
               <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
@@ -635,7 +635,7 @@ export default function AlternativeSignalsPanel() {
                       position:   'relative',
                     }}>
                       {isToday && (
-                        <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', fontSize: '7px', color: isTOM ? '#00c97a' : '#f0a500', fontFamily: 'JetBrains Mono, monospace' }}>
+                        <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', fontSize: '10px', color: isTOM ? '#00c97a' : '#f0a500', fontFamily: 'JetBrains Mono, monospace' }}>
                           ▼
                         </div>
                       )}
@@ -644,15 +644,15 @@ export default function AlternativeSignalsPanel() {
                 })}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-                <span style={{ fontSize: '8px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace' }}>TOM start</span>
-                <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>Mid-month (neutral)</span>
-                <span style={{ fontSize: '8px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace' }}>TOM end</span>
+                <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace' }}>TOM start</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>Mid-month (neutral)</span>
+                <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace' }}>TOM end</span>
               </div>
             </div>
 
             {/* Historical return stats */}
             <div>
-              <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px' }}>
                 HISTORICAL AVERAGE DAILY S&P RETURN
               </div>
               {tom.stats.map(s => (
@@ -662,15 +662,15 @@ export default function AlternativeSignalsPanel() {
                 }}>
                   <div>
                     <div style={{ fontSize: '10px', color: '#fff', fontFamily: 'JetBrains Mono, monospace' }}>{s.label}</div>
-                    <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{s.days}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{s.days}</div>
                   </div>
                   <span style={{
-                    fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+                    fontSize: '13px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
                     color: s.return.startsWith('+') ? 'var(--positive)' : 'var(--text-muted)',
                   }}>{s.return}</span>
                 </div>
               ))}
-              <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '5px', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '5px', lineHeight: 1.6 }}>
                 Source: Lakonishok & Smidt (1988), updated through 2023
               </div>
             </div>
@@ -683,12 +683,12 @@ export default function AlternativeSignalsPanel() {
               <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                 🔄 NEXT TOM WINDOW
               </span>
-              <span style={{ fontSize: '12px', color: '#00c97a', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>
+              <span style={{ fontSize: '13px', color: '#00c97a', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>
                 {tom.inTOMWindow ? 'NOW ACTIVE' : tom.nextTOMDate}
               </span>
             </div>
 
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
               ⚠ Historical patterns only — not financial advice.
             </div>
           </div>

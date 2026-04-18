@@ -197,7 +197,7 @@ export default function SentimentPanel() {
       <div className="panel-header">
         <div className="dot" />
         MARKET SENTIMENT
-        <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '6px' }}>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '6px' }}>
           Fear &amp; Greed Index
         </span>
       </div>
@@ -225,7 +225,7 @@ export default function SentimentPanel() {
                 <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '26px', color: data.color, lineHeight: 1, transition: 'color 0.6s' }}>
                   {data.score}
                 </span>
-                <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>/100</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>/100</span>
               </div>
             </div>
 
@@ -261,7 +261,7 @@ export default function SentimentPanel() {
 
         {/* Methodology note */}
         {!data.loading && (
-          <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center', lineHeight: 1.5 }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center', lineHeight: 1.5 }}>
             VIX 25% · VIX momentum 20% · RSI(14) 30% · vs 50d MA 25%
           </div>
         )}

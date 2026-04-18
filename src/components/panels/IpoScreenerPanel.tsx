@@ -53,7 +53,7 @@ export default function IpoScreenerPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" style={{ background: '#ff6b6b' }} />
           IPO SCREENER
-          <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
             {ipos.length} listings
           </span>
         </div>
@@ -65,11 +65,11 @@ export default function IpoScreenerPanel() {
         display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center',
         background: 'rgba(0,0,0,0.12)',
       }}>
-        <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>STATUS</span>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>STATUS</span>
         {(['all', 'upcoming', 'recent'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
-            padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
+            padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
             border: `1px solid ${filter === f ? 'var(--amber)' : 'var(--border)'}`,
             background: filter === f ? 'rgba(240,165,0,0.12)' : 'transparent',
             color: filter === f ? 'var(--amber)' : 'var(--text-muted)',
@@ -78,11 +78,11 @@ export default function IpoScreenerPanel() {
         ))}
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>
-          <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>RATING</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>RATING</span>
           {(['all', 'bullish', 'neutral', 'bearish'] as const).map(r => (
             <button key={r} onClick={() => setRatingFilter(r)} style={{
-              padding: '2px 6px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '8px',
+              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
               border: `1px solid ${ratingFilter === r ? ratingColor(r) : 'var(--border)'}`,
               background: ratingFilter === r ? ratingBg(r) : 'transparent',
               color: ratingFilter === r ? ratingColor(r) : 'var(--text-muted)',
@@ -131,7 +131,7 @@ export default function IpoScreenerPanel() {
                   <td style={{ padding: '8px', color: 'var(--text-2)', fontWeight: 500 }}>{ipo.priceRange}</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>
                     <span style={{
-                      padding: '1px 6px', borderRadius: '2px', fontSize: '9px',
+                      padding: '2px 8px', borderRadius: '2px', fontSize: '11px',
                       background: ratingBg(ipo.rating), color: ratingColor(ipo.rating),
                       border: `1px solid ${ratingColor(ipo.rating)}20`,
                       textTransform: 'uppercase',

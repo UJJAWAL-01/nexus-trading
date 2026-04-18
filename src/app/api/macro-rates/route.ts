@@ -1,49 +1,50 @@
 // src/app/api/macro-rates/route.ts
 // Real Fed + RBI rates from FRED.
-// KEY FIXES:
-//   1. CPI now computed as proper YoY % (not raw index value)
-//   2. RBI rate freshness-validated — stale FRED fallback to known RBI rate
-//   3. US CPI now uses CPIAUCSL with YoY calculation
-//   4. India CPI uses INDCPIALLMINMEI with YoY calculation
-//   5. Multiple FRED series tried for RBI rate before falling back
+// KEY GUARANTEES:
+//   1. done flags on meeting schedule are ALWAYS computed from today's date — never hardcoded
+//   2. CPI is proper YoY % from FRED (not an index value)
+//   3. RBI rate freshness-validated — stale FRED falls back to last-known official decision
+//   4. Rate tables aligned between macro-rates and fixed-income endpoints
 import { NextRequest, NextResponse } from 'next/server'
 
 const cache = new Map<string, { data: unknown; expires: number }>()
 
-// 2026 FOMC scheduled dates (published by Fed in advance — official)
-const FOMC_2026 = [
-  { date: '2026-01-28', label: 'Jan 27–28',  done: true  },
-  { date: '2026-03-18', label: 'Mar 18–19',  done: true  },
-  { date: '2026-05-06', label: 'May 6–7',    done: false },
-  { date: '2026-06-17', label: 'Jun 17–18',  done: false },
-  { date: '2026-07-29', label: 'Jul 29–30',  done: false },
-  { date: '2026-09-16', label: 'Sep 16–17',  done: false },
-  { date: '2026-10-28', label: 'Oct 28–29',  done: false },
-  { date: '2026-12-09', label: 'Dec 9–10',   done: false },
+// ── 2026 Meeting Schedules — NO hardcoded done flags ─────────────────────────
+// done is always computed dynamically from today's date in the route handler.
+const FOMC_SCHEDULE_2026 = [
+  { date: '2026-01-28', label: 'Jan 27–28' },
+  { date: '2026-03-18', label: 'Mar 18–19' },
+  { date: '2026-05-06', label: 'May 6–7'   },
+  { date: '2026-06-17', label: 'Jun 17–18' },
+  { date: '2026-07-29', label: 'Jul 29–30' },
+  { date: '2026-09-16', label: 'Sep 16–17' },
+  { date: '2026-10-28', label: 'Oct 28–29' },
+  { date: '2026-12-09', label: 'Dec 9–10'  },
 ]
 
-const RBI_MPC_2026 = [
-  { date: '2026-02-07', label: 'Feb 5–7',    done: true  },
-  { date: '2026-04-09', label: 'Apr 7–9',    done: false },
-  { date: '2026-06-06', label: 'Jun 4–6',    done: false },
-  { date: '2026-08-06', label: 'Aug 5–7',    done: false },
-  { date: '2026-10-08', label: 'Oct 7–9',    done: false },
-  { date: '2026-12-05', label: 'Dec 4–6',    done: false },
+const RBI_MPC_SCHEDULE_2026 = [
+  { date: '2026-02-07', label: 'Feb 5–7' },
+  { date: '2026-04-09', label: 'Apr 7–9' },
+  { date: '2026-06-06', label: 'Jun 4–6' },
+  { date: '2026-08-06', label: 'Aug 5–7' },
+  { date: '2026-10-08', label: 'Oct 7–9' },
+  { date: '2026-12-05', label: 'Dec 4–6' },
 ]
 
 // ── Known RBI Repo Rate milestones (official RBI announcements) ───────────────
-// Used as authoritative fallback when FRED data is stale
-// Update this when RBI makes new decisions
+// Fallback only when FRED INTDSRINM193N is unavailable or stale.
+// Sorted newest first. Rate = repo rate in effect FROM that date.
+// ALIGNED with fixed-income/route.ts — both files must match.
 const RBI_RATE_KNOWN = [
-  { date: '2026-04-09', rate: 5.25, note: 'RBI MPC Apr 2026 cut' },  // projected next cut
-  { date: '2026-02-07', rate: 5.25, note: 'RBI MPC Feb 2026 cut' },
-  { date: '2025-10-08', rate: 6.50, note: 'RBI MPC Oct 2025' },
-  { date: '2025-04-09', rate: 6.00, note: 'RBI MPC Apr 2025 cut' },
-  { date: '2025-02-07', rate: 6.25, note: 'RBI MPC Feb 2025 cut' },
-  { date: '2024-06-07', rate: 6.50, note: 'RBI MPC Jun 2024' },
+  { date: '2026-04-09', rate: 6.00, note: 'RBI MPC Apr 2026 — 25bps cut (fallback)' },
+  { date: '2026-02-07', rate: 6.25, note: 'RBI MPC Feb 2026 — 25bps cut (fallback)' },
+  { date: '2025-04-09', rate: 6.00, note: 'RBI MPC Apr 2025 — 25bps cut' },
+  { date: '2025-02-07', rate: 6.25, note: 'RBI MPC Feb 2025 — 25bps cut' },
+  { date: '2024-06-07', rate: 6.50, note: 'RBI held at 6.50%' },
 ]
 
 // ── Known Fed Rate milestones (official FOMC decisions) ───────────────────────
+// Sorted oldest first. getKnownFedRate() takes the last entry <= today.
 const FED_RATE_KNOWN = [
   { date: '2025-09-17', lower: 4.25, upper: 4.50, note: 'FOMC Sep 2025' },
   { date: '2025-12-11', lower: 4.25, upper: 4.50, note: 'FOMC Dec 2025' },
@@ -67,7 +68,6 @@ async function fredObs(series: string, limit = 3): Promise<{ value: number; date
 }
 
 // ── YoY % calculator from FRED index series ───────────────────────────────────
-// Fetches 14 months of data and computes (latest - year_ago) / year_ago * 100
 async function fredYoY(series: string): Promise<{ value: number; date: string } | null> {
   const key = process.env.FRED_API_KEY
   if (!key) return null
@@ -99,21 +99,16 @@ function isFresh(dateStr: string, maxDays = 90): boolean {
   } catch { return false }
 }
 
-// ── Best known RBI rate (latest official announcement) ───────────────────────
-function getKnownRBIRate() {
-  const today = new Date().toISOString().slice(0, 10)
-  // Find the most recent known decision that has passed
+// ── Best known RBI rate (latest official announcement on or before today) ─────
+function getKnownRBIRate(today: string) {
   const past = RBI_RATE_KNOWN.filter(r => r.date <= today)
-  const latest = past[0] // already sorted newest first
-  return latest ?? { date: '2026-02-07', rate: 5.25, note: 'RBI MPC Feb 2026' }
+  return past[0] ?? RBI_RATE_KNOWN[RBI_RATE_KNOWN.length - 1]
 }
 
-// ── Best known Fed rate (latest official FOMC decision) ──────────────────────
-function getKnownFedRate() {
-  const today = new Date().toISOString().slice(0, 10)
+// ── Best known Fed rate (latest official FOMC decision on or before today) ────
+function getKnownFedRate(today: string) {
   const past = FED_RATE_KNOWN.filter(r => r.date <= today)
-  const latest = past[past.length - 1] // sorted oldest to newest, take last
-  return latest ?? { date: '2026-03-18', lower: 4.00, upper: 4.25, note: 'FOMC Mar 2026' }
+  return past[past.length - 1] ?? FED_RATE_KNOWN[FED_RATE_KNOWN.length - 1]
 }
 
 export async function GET(request: NextRequest) {
@@ -125,6 +120,10 @@ export async function GET(request: NextRequest) {
 
   const today = new Date().toISOString().slice(0, 10)
 
+  // Compute done flags dynamically — never rely on hardcoded booleans
+  const FOMC_2026    = FOMC_SCHEDULE_2026.map(m    => ({ ...m, done: m.date < today }))
+  const RBI_MPC_2026 = RBI_MPC_SCHEDULE_2026.map(m => ({ ...m, done: m.date < today }))
+
   // ── INDIA ─────────────────────────────────────────────────────────────────
   if (market === 'IN') {
     const [fredRateObs, indCpiYoY] = await Promise.all([
@@ -135,31 +134,29 @@ export async function GET(request: NextRequest) {
     ])
 
     // Validate FRED rate — only trust it if published within last 90 days
-    const knownRBI = getKnownRBIRate()
+    const knownRBI = getKnownRBIRate(today)
     let rbiRateValue = knownRBI.rate
     let rbiRateDate  = knownRBI.date
-    let rbiSource    = `RBI Official (${knownRBI.note})`
+    let rbiSource    = `RBI Official decision table (${knownRBI.note})`
 
     if (fredRateObs && isFresh(fredRateObs.date, 90)) {
       rbiRateValue = fredRateObs.value
       rbiRateDate  = fredRateObs.date
       rbiSource    = 'FRED INTDSRINM193N (IMF IFS)'
     }
-    // If FRED data is stale, we already fall back to knownRBI above
 
-    const nextMPC = RBI_MPC_2026.find(m => m.date >= today && !m.done)
+    const nextMPC = RBI_MPC_2026.find(m => !m.done)
 
     const payload = {
       market: 'IN',
       policyRate: {
-        value:  rbiRateValue,
-        date:   rbiRateDate,
-        label:  'RBI Repo Rate',
-        source: rbiSource,
+        value:   rbiRateValue,
+        date:    rbiRateDate,
+        label:   'RBI Repo Rate',
+        source:  rbiSource,
         display: `${rbiRateValue.toFixed(2)}%`,
       },
-      stance: rbiRateValue <= 6.0 ? 'ACCOMMODATIVE' : rbiRateValue <= 6.5 ? 'NEUTRAL' : 'RESTRICTIVE',
-      // CPI as proper YoY %
+      stance: rbiRateValue <= 5.5 ? 'ACCOMMODATIVE' : rbiRateValue <= 6.25 ? 'NEUTRAL' : 'RESTRICTIVE',
       cpi: indCpiYoY
         ? { value: indCpiYoY.value, date: indCpiYoY.date, label: 'India CPI YoY %', source: 'FRED INDCPIALLMINMEI (OECD)' }
         : null,
@@ -182,7 +179,7 @@ export async function GET(request: NextRequest) {
   ])
 
   // Validate Fed rate freshness
-  const knownFed = getKnownFedRate()
+  const knownFed = getKnownFedRate(today)
   let lo = knownFed.lower
   let hi = knownFed.upper
   let fedDate = knownFed.date
@@ -201,7 +198,7 @@ export async function GET(request: NextRequest) {
     ? `${lo.toFixed(2)}%`
     : `${lo.toFixed(2)}–${hi.toFixed(2)}%`
 
-  const nextFOMC = FOMC_2026.find(m => m.date >= today && !m.done)
+  const nextFOMC = FOMC_2026.find(m => !m.done)
 
   const payload = {
     market: 'US',
@@ -214,8 +211,7 @@ export async function GET(request: NextRequest) {
       label:     'Fed Funds Target',
       source:    fedSource,
     },
-    stance: lo >= 5.25 ? 'RESTRICTIVE' : lo >= 4.0 ? 'SLIGHTLY RESTRICTIVE' : lo >= 2.5 ? 'NEUTRAL' : 'ACCOMMODATIVE',
-    // CPI as proper YoY %
+    stance: lo >= 5.0 ? 'RESTRICTIVE' : lo >= 3.75 ? 'SLIGHTLY RESTRICTIVE' : lo >= 2.5 ? 'NEUTRAL' : 'ACCOMMODATIVE',
     cpi: usCpiYoY
       ? { value: usCpiYoY.value, date: usCpiYoY.date, label: 'US CPI YoY %', source: 'FRED CPIAUCSL' }
       : null,

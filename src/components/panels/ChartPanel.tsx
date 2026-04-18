@@ -830,7 +830,7 @@ export default function ChartPanel() {
               borderRadius: '5px', width: '290px',
               boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden',
             }}>
-              <div style={{ padding: '4px 10px 3px', fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ padding: '4px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>
                 RESULTS — click or ↑↓ Enter to select
               </div>
               {searchResults.map((r, i) => (
@@ -845,9 +845,9 @@ export default function ChartPanel() {
                     transition: 'background 0.08s',
                   }}
                 >
-                  <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '12px', color: i === searchFocIdx ? 'var(--amber)' : '#fff', minWidth: '64px', flexShrink: 0 }}>{r.symbol}</span>
+                  <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '13px', color: i === searchFocIdx ? 'var(--amber)' : '#fff', minWidth: '64px', flexShrink: 0 }}>{r.symbol}</span>
                   <span style={{ fontSize: '10px', color: 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
-                  <span style={{ fontSize: '8px', color: 'var(--text-muted)', background: 'var(--bg-deep)', padding: '1px 5px', borderRadius: '2px', border: '1px solid var(--border)', flexShrink: 0, fontFamily: 'JetBrains Mono, monospace' }}>{r.exchange || r.type}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'var(--bg-deep)', padding: '2px 7px', borderRadius: '2px', border: '1px solid var(--border)', flexShrink: 0, fontFamily: 'JetBrains Mono, monospace' }}>{r.exchange || r.type}</span>
                 </div>
               ))}
             </div>
@@ -861,11 +861,11 @@ export default function ChartPanel() {
         display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap',
         background: 'rgba(0,0,0,0.18)',
       }}>
-        <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', flexShrink: 0 }}>TYPE</span>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', flexShrink: 0 }}>TYPE</span>
         {CHART_TYPES.map(ct => (
           <button key={ct} onClick={() => setChartType(ct)} style={{
             padding: '2px 7px', borderRadius: '3px', cursor: 'pointer', flexShrink: 0,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
             border: `1px solid ${chartType === ct ? 'var(--amber)' : 'var(--border)'}`,
             background: chartType === ct ? 'rgba(240,165,0,0.1)' : 'transparent',
             color: chartType === ct ? 'var(--amber)' : 'var(--text-2)',
@@ -881,7 +881,7 @@ export default function ChartPanel() {
             onClick={() => setIndOpen(v => !v)}
             style={{
               padding: '2px 9px', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
               border: `1px solid ${indOpen || activeInds.size > 0 ? 'var(--teal)' : 'var(--border)'}`,
               background: indOpen ? 'rgba(0,229,192,0.1)' : activeInds.size > 0 ? 'rgba(0,229,192,0.06)' : 'transparent',
               color: indOpen || activeInds.size > 0 ? 'var(--teal)' : 'var(--text-2)',
@@ -890,9 +890,9 @@ export default function ChartPanel() {
           >
             INDICATORS
             {activeInds.size > 0 && (
-              <span style={{ background: 'var(--teal)', color: '#000', borderRadius: '8px', padding: '0 5px', fontSize: '8px', fontWeight: 700, lineHeight: '14px' }}>{activeInds.size}</span>
+              <span style={{ background: 'var(--teal)', color: '#000', borderRadius: '8px', padding: '0 5px', fontSize: '10px', fontWeight: 700, lineHeight: '14px' }}>{activeInds.size}</span>
             )}
-            <span style={{ fontSize: '7px', opacity: 0.7 }}>▾</span>
+            <span style={{ fontSize: '10px', opacity: 0.7 }}>▾</span>
           </button>
 
           {indOpen && (
@@ -902,7 +902,7 @@ export default function ChartPanel() {
               borderRadius: '5px', width: '200px',
               boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden',
             }}>
-              <div style={{ padding: '5px 10px 3px', fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>OVERLAYS</div>
+              <div style={{ padding: '5px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>OVERLAYS</div>
               {INDICATORS.filter(i => i.group === 'overlay').map(ind => (
                 <div
                   key={ind.id}
@@ -918,13 +918,13 @@ export default function ChartPanel() {
                     border: `1px solid ${activeInds.has(ind.id) ? 'var(--teal)' : 'var(--border)'}`,
                     background: activeInds.has(ind.id) ? 'var(--teal)' : 'transparent',
                   }}>
-                    {activeInds.has(ind.id) && <span style={{ color: '#000', fontSize: '8px', lineHeight: 1, fontWeight: 900 }}>✓</span>}
+                    {activeInds.has(ind.id) && <span style={{ color: '#000', fontSize: '10px', lineHeight: 1, fontWeight: 900 }}>✓</span>}
                   </div>
                   <div style={{ width: '12px', height: '2px', borderRadius: '1px', background: ind.color, flexShrink: 0, opacity: 0.8 }} />
                   <span style={{ fontSize: '11px', color: activeInds.has(ind.id) ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{ind.label}</span>
                 </div>
               ))}
-              <div style={{ padding: '5px 10px 3px', fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>OSCILLATORS</div>
+              <div style={{ padding: '5px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>OSCILLATORS</div>
               {INDICATORS.filter(i => i.group === 'oscillator').map(ind => (
                 <div
                   key={ind.id}
@@ -940,7 +940,7 @@ export default function ChartPanel() {
                     border: `1px solid ${activeInds.has(ind.id) ? 'var(--teal)' : 'var(--border)'}`,
                     background: activeInds.has(ind.id) ? 'var(--teal)' : 'transparent',
                   }}>
-                    {activeInds.has(ind.id) && <span style={{ color: '#000', fontSize: '8px', lineHeight: 1, fontWeight: 900 }}>✓</span>}
+                    {activeInds.has(ind.id) && <span style={{ color: '#000', fontSize: '10px', lineHeight: 1, fontWeight: 900 }}>✓</span>}
                   </div>
                   <div style={{ width: '12px', height: '2px', borderRadius: '1px', background: ind.color, flexShrink: 0, opacity: 0.8 }} />
                   <span style={{ fontSize: '11px', color: activeInds.has(ind.id) ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{ind.label}</span>
@@ -969,7 +969,7 @@ export default function ChartPanel() {
                   key={id} onClick={() => toggleInd(id)}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '3px',
-                    padding: '1px 5px', borderRadius: '3px', fontSize: '9px', flexShrink: 0,
+                    padding: '2px 7px', borderRadius: '3px', fontSize: '11px', flexShrink: 0,
                     fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', whiteSpace: 'nowrap',
                     background: ind.group === 'oscillator' ? 'rgba(240,165,0,0.1)' : 'rgba(0,229,192,0.08)',
                     border: `1px solid ${ind.group === 'oscillator' ? 'rgba(240,165,0,0.3)' : 'rgba(0,229,192,0.25)'}`,
@@ -988,22 +988,22 @@ export default function ChartPanel() {
         display: 'flex', alignItems: 'center', gap: '4px',
         background: 'rgba(0,0,0,0.12)',
       }}>
-        <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', flexShrink: 0 }}>TF</span>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', flexShrink: 0 }}>TF</span>
         {TFS.map(t => (
           <button key={t} onClick={() => setTf(t)} style={{
             padding: '2px 7px', borderRadius: '3px', cursor: 'pointer', flexShrink: 0,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
             border: `1px solid ${tf === t ? 'var(--teal)' : 'var(--border)'}`,
             background: tf === t ? 'rgba(0,229,192,0.1)' : 'transparent',
             color: tf === t ? 'var(--teal)' : 'var(--text-2)',
             transition: 'all 0.12s',
           }}>{t}</button>
         ))}
-        <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '5px' }}>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '5px' }}>
           · {TF_CFG[tf].label}
         </span>
         {chartType === 'P&F' && (
-          <span style={{ marginLeft: 'auto', fontSize: '9px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', border: '1px solid rgba(240,165,0,0.3)', padding: '1px 6px', borderRadius: '2px', background: 'rgba(240,165,0,0.08)', flexShrink: 0 }}>
+          <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', border: '1px solid rgba(240,165,0,0.3)', padding: '2px 8px', borderRadius: '2px', background: 'rgba(240,165,0,0.08)', flexShrink: 0 }}>
             X = up · O = down · 3-box reversal
           </span>
         )}
@@ -1019,21 +1019,21 @@ export default function ChartPanel() {
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '20px', color: '#fff', letterSpacing: '-0.02em' }}>
             {quote.c?.toFixed(2)}
           </span>
-          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: isUp ? 'var(--positive)' : 'var(--negative)' }}>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', color: isUp ? 'var(--positive)' : 'var(--negative)' }}>
             {isUp ? '+' : ''}{quote.d?.toFixed(2)}&nbsp;({isUp ? '+' : ''}{quote.dp?.toFixed(2)}%)
           </span>
           <span style={{ fontSize: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>{effectiveSym}</span>
           {chartType !== 'Candle' && (
-            <span style={{ fontSize: '9px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', padding: '1px 5px', borderRadius: '2px', border: '1px solid rgba(240,165,0,0.3)', background: 'rgba(240,165,0,0.08)' }}>
+            <span style={{ fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', padding: '2px 7px', borderRadius: '2px', border: '1px solid rgba(240,165,0,0.3)', background: 'rgba(240,165,0,0.08)' }}>
               {chartType.toUpperCase()}
             </span>
           )}
           {(hasRsi || hasMacd) && (
-            <span style={{ fontSize: '9px', color: 'var(--teal)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '2px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--teal)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '2px' }}>
               {[hasRsi && 'RSI', hasMacd && 'MACD'].filter(Boolean).join(' · ')}
             </span>
           )}
-          <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: 'auto' }}>scroll=zoom · drag=pan</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: 'auto' }}>scroll=zoom · drag=pan</span>
         </div>
       )}
 
@@ -1059,13 +1059,13 @@ export default function ChartPanel() {
 
         {/* Volume separator */}
         <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, height: '1px', background: '#1e2d3d', zIndex: 5, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', left: '8px', top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, zIndex: 6, fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>VOL</div>
+        <div style={{ position: 'absolute', left: '8px', top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, zIndex: 6, fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>VOL</div>
 
         {/* RSI separator */}
         {hasRsi && (
           <>
             <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasMacd ? 73 : 84}%`, height: '1px', background: '#1e2d3d', zIndex: 5, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', left: '8px', top: `${hasMacd ? 73 : 84}%`, zIndex: 6, fontSize: '9px', color: '#f0a50077', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>RSI 14</div>
+            <div style={{ position: 'absolute', left: '8px', top: `${hasMacd ? 73 : 84}%`, zIndex: 6, fontSize: '11px', color: '#f0a50077', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>RSI 14</div>
           </>
         )}
 
@@ -1073,7 +1073,7 @@ export default function ChartPanel() {
         {hasMacd && (
           <>
             <div style={{ position: 'absolute', left: 0, right: 0, top: '87%', height: '1px', background: '#1e2d3d', zIndex: 5, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', left: '8px', top: '87%', zIndex: 6, fontSize: '9px', color: '#1e90ff77', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>MACD</div>
+            <div style={{ position: 'absolute', left: '8px', top: '87%', zIndex: 6, fontSize: '11px', color: '#1e90ff77', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>MACD</div>
           </>
         )}
 

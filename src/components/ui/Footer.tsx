@@ -218,7 +218,7 @@ export default function Footer() {
             padding: '10px',
             background: 'rgba(0,0,0,0.2)',
             borderRadius: '4px',
-            fontSize: '9px',
+            fontSize: '11px',
             color: 'var(--text-muted)',
             textAlign: 'center',
           }}

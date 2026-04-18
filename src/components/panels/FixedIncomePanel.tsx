@@ -51,6 +51,27 @@ interface IndiaAvailability {
   nseSuccess: boolean; dbieSuccess: boolean; anyLiveData: boolean; message: string
 }
 
+interface TipsBreakeven {
+  dfii5:  DataPoint<number>
+  dfii10: DataPoint<number>
+  be5y:   DataPoint<number>
+  be10y:  DataPoint<number>
+}
+
+interface TradingSignals {
+  duration:        'EXTEND' | 'NEUTRAL' | 'REDUCE'
+  durationReason:  string
+  durationColor:   string
+  credit:          'ADD' | 'NEUTRAL' | 'REDUCE' | 'N/A'
+  creditReason:    string
+  creditColor:     string
+  curveSignal:     'STEEPEN' | 'NEUTRAL' | 'FLATTEN' | 'N/A'
+  curveReason:     string
+  recessionRisk:   'LOW' | 'MODERATE' | 'ELEVATED'
+  recessionReason: string
+  recessionColor:  string
+}
+
 interface FIResponse {
   market: 'US' | 'IN'; yieldCurve: YieldPoint[]; bonds: BondData[]
   spreads: SpreadData | null; macroContext: MacroContext
@@ -58,6 +79,8 @@ interface FIResponse {
   indiaAvailability?: IndiaAvailability
   systemMessages: string[]; fetchedAt: string
   insights?: string; insightsProvider?: string; insightsError?: string
+  tips?: TipsBreakeven
+  signals?: TradingSignals
 }
 
 type Market = 'US' | 'IN' | 'COMPARE'
@@ -85,7 +108,7 @@ function DSTBadge({ dst, small, tooltip }: { dst: DataSourceType; small?: boolea
   return (
     <span title={tooltip} style={{
       display: 'inline-flex', alignItems: 'center', gap: '3px',
-      fontSize: small ? '7px' : '8px', padding: small ? '1px 4px' : '2px 6px', borderRadius: '2px',
+      fontSize: small ? '10px' : '11px', padding: small ? '1px 5px' : '2px 7px', borderRadius: '2px',
       background: m.bg, color: m.color, border: `1px solid ${m.border}`,
       fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, letterSpacing: '0.06em',
       cursor: tooltip ? 'help' : 'default', flexShrink: 0,
@@ -95,12 +118,76 @@ function DSTBadge({ dst, small, tooltip }: { dst: DataSourceType; small?: boolea
   )
 }
 
+function SignalPill({ label, color }: { label: string; color: string }) {
+  return (
+    <span style={{
+      display: 'inline-block', padding: '2px 8px', borderRadius: '2px', fontSize: '11px',
+      fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, letterSpacing: '0.08em',
+      background: color + '20', color, border: `1px solid ${color}40`,
+    }}>{label}</span>
+  )
+}
+
+function TradingSignalsBar({ signals, tips }: { signals: TradingSignals; tips?: TipsBreakeven }) {
+  const rows = [
+    { label: 'DURATION',       signal: signals.duration,     color: signals.durationColor,   reason: signals.durationReason    },
+    { label: 'CREDIT (IG)',    signal: signals.credit,       color: signals.creditColor,     reason: signals.creditReason      },
+    { label: 'CURVE',         signal: signals.curveSignal,  color: signals.curveSignal === 'N/A' ? '#4a6070' : '#38bdf8', reason: signals.curveReason },
+    { label: 'RECESSION RISK', signal: signals.recessionRisk, color: signals.recessionColor, reason: signals.recessionReason   },
+  ]
+  return (
+    <div style={{ margin: '8px 14px', padding: '10px 12px', background: 'rgba(0,229,192,0.03)', border: '1px solid rgba(0,229,192,0.12)', borderRadius: '5px' }}>
+      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: '8px' }}>
+        TRADING SIGNALS — computed from live data
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: tips ? '10px' : 0 }}>
+        {rows.map(r => (
+          <div key={r.label} style={{ padding: '7px 10px', background: 'var(--bg-deep)', borderRadius: '4px', borderLeft: `3px solid ${r.color}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>{r.label}</span>
+              <SignalPill label={r.signal} color={r.color} />
+            </div>
+            <div style={{ fontSize: '10px', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.5 }}>{r.reason}</div>
+          </div>
+        ))}
+      </div>
+      {tips && (
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '8px', marginTop: '2px' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px' }}>
+            TIPS REAL YIELDS &amp; BREAKEVEN INFLATION
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px' }}>
+            {[
+              { label: '5Y TIPS', dp: tips.dfii5  },
+              { label: '10Y TIPS', dp: tips.dfii10 },
+              { label: '5Y BE',   dp: tips.be5y   },
+              { label: '10Y BE',  dp: tips.be10y  },
+            ].map(({ label, dp }) => (
+              <div key={label} title={`Source: ${dp.source}${dp.notes ? ' — ' + dp.notes : ''}`}
+                style={{ padding: '6px 8px', background: 'var(--bg-deep)', borderRadius: '3px', cursor: 'help' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: '2px' }}>{label}</div>
+                <div style={{ fontSize: '14px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: dp.value !== null ? (label.includes('BE') ? '#f0a500' : '#38bdf8') : '#4a6070', lineHeight: 1 }}>
+                  {dp.value !== null ? `${dp.value.toFixed(2)}%` : '—'}
+                </div>
+                <DSTBadge dst={dp.dataSourceType} small />
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '6px', lineHeight: 1.5 }}>
+            TIPS = inflation-protected real yield · BE = market-implied inflation expectation (FRED T5YIE / T10YIE)
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /** Inline source attribution chip — shown on hover via title */
 function SourceChip({ dp }: { dp: DataPoint<any> }) {
   const m = DST_META[dp.dataSourceType]
   return (
     <span title={`Source: ${dp.source}${dp.reportingDate ? ` (${dp.reportingDate})` : ''}${dp.notes ? ` — ${dp.notes}` : ''}`} style={{
-      fontSize: '7px', color: m.color, cursor: 'help', fontFamily: 'JetBrains Mono, monospace',
+      fontSize: '10px', color: m.color, cursor: 'help', fontFamily: 'JetBrains Mono, monospace',
     }}>
       {m.icon}
     </span>
@@ -127,12 +214,12 @@ function SystemMessages({ messages, accentColor }: { messages: string[]; accentC
         </div>
       ))}
       {infos.map((m, i) => (
-        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', color: '#38bdf8', lineHeight: 1.5 }}>
+        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', color: '#38bdf8', lineHeight: 1.5 }}>
           {m}
         </div>
       ))}
       {ok.map((m, i) => (
-        <div key={i} style={{ padding: '4px 8px', borderRadius: '3px', fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+        <div key={i} style={{ padding: '4px 8px', borderRadius: '3px', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', lineHeight: 1.5 }}>
           {m}
         </div>
       ))}
@@ -273,16 +360,16 @@ function KpiCard({ label, dp, color, note }: { label: string; dp: DataPoint<numb
       borderRadius: '4px', cursor: dp.notes ? 'help' : 'default',
     }} title={dp.notes ?? `Source: ${dp.source}${dp.reportingDate ? ` (${dp.reportingDate})` : ''}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-        <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', flex: 1 }}>{label}</div>
+        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', flex: 1 }}>{label}</div>
         <DSTBadge dst={dp.dataSourceType} small />
       </div>
       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: '20px', color: isAvail ? (color ?? '#fff') : '#4a6070', lineHeight: 1 }}>
         {isAvail ? (typeof dp.value === 'number' ? dp.value.toFixed(2) : dp.value) : '—'}
         {isAvail && typeof dp.value === 'number' && label.includes('%') ? '' : isAvail ? '%' : ''}
       </div>
-      {note && <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px' }}>{note}</div>}
+      {note && <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px' }}>{note}</div>}
       {dp.ageHours != null && dp.ageHours > 48 && (
-        <div style={{ fontSize: '7px', color: '#f0a500', fontFamily: 'JetBrains Mono, monospace', marginTop: '2px' }}>
+        <div style={{ fontSize: '10px', color: '#f0a500', fontFamily: 'JetBrains Mono, monospace', marginTop: '2px' }}>
           ⚠ {Math.round(dp.ageHours / 24)}d old
         </div>
       )}
@@ -312,7 +399,7 @@ function SpreadBar({ label, dp, maxBps }: { label: string; dp: DataPoint<number>
           <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, ${m.color}50, ${m.color})`, borderRadius: '3px', transition: 'width 0.8s ease' }}/>
         )}
       </div>
-      {dp.notes && <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px', lineHeight: 1.5 }}>{dp.notes}</div>}
+      {dp.notes && <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '3px', lineHeight: 1.5 }}>{dp.notes}</div>}
     </div>
   )
 }
@@ -325,9 +412,9 @@ function SyntheticBanner({ text }: { text: string }) {
     <div style={{ padding: '8px 12px', background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)', borderLeft: '3px solid #a78bfa', borderRadius: '0 4px 4px 0', marginBottom: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
         <DSTBadge dst="synthetic" />
-        <span style={{ fontSize: '9px', color: '#a78bfa', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', fontWeight: 700 }}>SYNTHETIC BOND UNIVERSE</span>
+        <span style={{ fontSize: '11px', color: '#a78bfa', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', fontWeight: 700 }}>SYNTHETIC BOND UNIVERSE</span>
       </div>
-      <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.6 }}>{text}</div>
+      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.6 }}>{text}</div>
     </div>
   )
 }
@@ -355,7 +442,7 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
 
   const TH = ({ label, sk, right }: { label: string; sk?: string; right?: boolean }) => (
     <th onClick={() => sk && (sk === sortKey ? setSortDir(d => d === 1 ? -1 : 1) : (setSortKey(sk), setSortDir(1)))} style={{
-      padding: '5px 7px', textAlign: right ? 'right' : 'left', fontSize: '7.5px',
+      padding: '5px 7px', textAlign: right ? 'right' : 'left', fontSize: '10px',
       color: sortKey === sk ? '#fff' : 'var(--text-muted)', letterSpacing: '0.1em',
       cursor: sk ? 'pointer' : 'default', borderBottom: '1px solid var(--border)',
       background: 'var(--bg-deep)', userSelect: 'none', fontFamily: 'JetBrains Mono, monospace',
@@ -374,14 +461,14 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
           {types.map(t => (
             <button key={t} onClick={() => setFilter(t)} style={{
-              padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '9px',
+              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px',
               fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase',
               border: `1px solid ${filter === t ? BOND_COLORS[t] ?? 'var(--teal)' : 'var(--border)'}`,
               background: filter === t ? (BOND_COLORS[t] ?? 'var(--teal)') + '18' : 'transparent',
               color: filter === t ? BOND_COLORS[t] ?? 'var(--teal)' : 'var(--text-muted)',
             }}>{t}</button>
           ))}
-          <span style={{ marginLeft: 'auto', fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center' }}>{sorted.length} bonds</span>
+          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center' }}>{sorted.length} bonds</span>
         </div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto' }}>
@@ -409,10 +496,10 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
                   title={`Synthetic: ${b.syntheticNote}`}>
                   <td style={{ padding: '6px 7px' }}>
                     <div style={{ color: '#fff', fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '11px' }}>{b.issuer.length > 22 ? b.issuer.slice(0, 22) + '…' : b.issuer}</div>
-                    {b.isin && <div style={{ fontSize: '8px', color: 'var(--text-muted)' }}>{b.isin}</div>}
+                    {b.isin && <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{b.isin}</div>}
                   </td>
                   <td style={{ padding: '6px 7px' }}>
-                    <span style={{ fontSize: '8px', padding: '1px 5px', borderRadius: '2px', background: tc + '18', color: tc, border: `1px solid ${tc}30` }}>
+                    <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '2px', background: tc + '18', color: tc, border: `1px solid ${tc}30` }}>
                       {b.type}
                     </span>
                   </td>
@@ -447,7 +534,7 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
                       <SourceChip dp={b.spreadBps} />
                     </div>
                   </td>
-                  <td style={{ padding: '6px 7px', fontSize: '9px', color: b.rating === 'UST' || b.rating === 'Sov' ? '#00c97a' : 'var(--text-2)' }}>{b.rating}</td>
+                  <td style={{ padding: '6px 7px', fontSize: '11px', color: b.rating === 'UST' || b.rating === 'Sov' ? '#00c97a' : 'var(--text-2)' }}>{b.rating}</td>
                   <td style={{ padding: '6px 7px' }}>
                     <div style={{ display: 'flex', gap: '1px' }}>
                       {Array.from({ length: 10 }, (_, j) => (
@@ -543,7 +630,7 @@ export default function FixedIncomePanel() {
           {(['US', 'IN', 'COMPARE'] as Market[]).map(m => (
             <button key={m} onClick={() => setMarket(m)} style={{
               padding: '3px 10px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', fontWeight: 700,
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', fontWeight: 700,
               border: `1px solid ${market === m ? (m === 'IN' ? INDIA_COLOR : US_COLOR) : 'var(--border)'}`,
               background: market === m ? (m === 'IN' ? INDIA_COLOR : US_COLOR) + '18' : 'transparent',
               color: market === m ? (m === 'IN' ? INDIA_COLOR : US_COLOR) : 'var(--text-muted)',
@@ -559,15 +646,15 @@ export default function FixedIncomePanel() {
           return (
             <div key={dst} style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
               <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: m.color }} />
-              <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{m.label}</span>
+              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{m.label}</span>
             </div>
           )
         })}
         {/* India modeled opt-in */}
         {(market === 'IN' || market === 'COMPARE') && !inAvail?.nseSuccess && (
           <button onClick={() => setAllowModeled(v => !v)} style={{
-            marginLeft: 'auto', padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '8px',
+            marginLeft: 'auto', padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
             border: `1px solid ${allowModeled ? '#f0a500' : 'var(--border)'}`,
             background: allowModeled ? 'rgba(240,165,0,0.1)' : 'transparent',
             color: allowModeled ? '#f0a500' : 'var(--text-muted)',
@@ -582,7 +669,7 @@ export default function FixedIncomePanel() {
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: '6px 14px', cursor: 'pointer', flexShrink: 0,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', letterSpacing: '0.08em',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', letterSpacing: '0.08em',
             border: 'none', borderBottom: `2px solid ${tab === t.id ? accent : 'transparent'}`,
             background: 'transparent', color: tab === t.id ? accent : 'var(--text-muted)',
             fontWeight: tab === t.id ? 700 : 400, transition: 'all 0.15s',
@@ -609,7 +696,7 @@ export default function FixedIncomePanel() {
           <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
             {(market === 'US' || market === 'COMPARE') && usData && (
               <div>
-                {market === 'COMPARE' && <div style={{ fontSize: '9px', color: US_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px' }}>🇺🇸 US TREASURY</div>}
+                {market === 'COMPARE' && <div style={{ fontSize: '11px', color: US_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px' }}>🇺🇸 US TREASURY</div>}
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' }}>
                   <KpiCard label="FED FUNDS RATE %" dp={usData.macroContext.policyRate} color={US_COLOR} note={usData.macroContext.stance} />
                   <KpiCard label="10Y TREASURY %" dp={{ ...usData.yieldCurve.find(p => p.maturityYears >= 9)?.yieldData ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' } }} color={US_COLOR} note="Benchmark" />
@@ -618,18 +705,21 @@ export default function FixedIncomePanel() {
                   <KpiCard label="HY OAS bp" dp={usData.spreads?.hyOAS ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} color="#f0a500" />
                 </div>
                 <div style={{ padding: '10px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     US TREASURY CURVE — {usData.yieldCurve[0]?.yieldData.reportingDate}
                     <DSTBadge dst={usData.curveDataQuality} small />
                     <span style={{ color: '#4a6070' }}>{livePoints.length}/11 live tenors</span>
                   </div>
                   <YieldCurveChart us={usData.yieldCurve} india={[]} mode="US" h={130} />
                 </div>
+                {usData.signals && market !== 'COMPARE' && (
+                  <TradingSignalsBar signals={usData.signals} tips={usData.tips} />
+                )}
               </div>
             )}
             {(market === 'IN' || market === 'COMPARE') && inData && (
               <div style={{ marginTop: market === 'COMPARE' ? '6px' : 0 }}>
-                {market === 'COMPARE' && <div style={{ fontSize: '9px', color: INDIA_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>🇮🇳 INDIA G-SEC</div>}
+                {market === 'COMPARE' && <div style={{ fontSize: '11px', color: INDIA_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '6px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>🇮🇳 INDIA G-SEC</div>}
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' }}>
                   <KpiCard label="RBI REPO RATE %" dp={inData.macroContext.policyRate} color={INDIA_COLOR} note={inData.macroContext.stance} />
                   <KpiCard label="10Y G-SEC %" dp={{ ...(inData.yieldCurve.find(p => p.maturityYears >= 9)?.yieldData ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }) }} color={INDIA_COLOR} note="Benchmark" />
@@ -639,7 +729,7 @@ export default function FixedIncomePanel() {
                 </div>
                 {market !== 'COMPARE' && (
                   <div style={{ padding: '10px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       INDIA G-SEC CURVE
                       <DSTBadge dst={inData.curveDataQuality} small />
                       {!inAvail?.nseSuccess && !allowModeled && (
@@ -654,7 +744,7 @@ export default function FixedIncomePanel() {
             {/* Compare mode cross-market */}
             {market === 'COMPARE' && usData && inData && (
               <div style={{ padding: '10px 12px', background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.15)', borderRadius: '5px' }}>
-                <div style={{ fontSize: '9px', color: '#a78bfa', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px' }}>⇄ CROSS-MARKET</div>
+                <div style={{ fontSize: '11px', color: '#a78bfa', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px' }}>⇄ CROSS-MARKET</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                   {[
                     { l:'10Y Yield Differential', v: (() => { const u=usData.yieldCurve.find(p=>p.maturityYears>=9)?.yieldData.value; const i=inData.yieldCurve.find(p=>p.maturityYears>=9)?.yieldData.value; return u&&i?`+${(i-u).toFixed(2)}%`:'N/A' })(), s:'India − US (carry)' },
@@ -663,9 +753,9 @@ export default function FixedIncomePanel() {
                     { l:'Real Rate (India)', v: inData.macroContext.policyRate.value&&inData.macroContext.cpi.value?`${(inData.macroContext.policyRate.value-inData.macroContext.cpi.value).toFixed(2)}%`:'N/A', s:'Repo − CPI' },
                   ].map(({ l, v, s }) => (
                     <div key={l} style={{ padding: '8px', background: 'var(--bg-deep)', borderRadius: '4px' }}>
-                      <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{l}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{l}</div>
                       <div style={{ fontSize: '18px', fontWeight: 900, fontFamily: 'Syne, sans-serif', color: '#fff', lineHeight: 1.2 }}>{v}</div>
-                      <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '2px' }}>{s}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '2px' }}>{s}</div>
                     </div>
                   ))}
                 </div>
@@ -678,7 +768,7 @@ export default function FixedIncomePanel() {
         {!loading && tab === 'curve' && (
           <div style={{ padding: '10px 14px', flex: 1 }}>
             <div style={{ padding: '10px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)', marginBottom: '10px' }}>
-              <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {market === 'COMPARE' ? 'US TREASURY vs INDIA G-SEC' : market === 'US' ? 'US TREASURY YIELD CURVE' : 'INDIA G-SEC YIELD CURVE'}
                 <DSTBadge dst={active?.curveDataQuality ?? 'unavailable'} small />
               </div>
@@ -689,7 +779,7 @@ export default function FixedIncomePanel() {
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
                     {['TENOR','MAT','YIELD','vs 2Y','SOURCE','QUALITY'].map(h => (
-                      <th key={h} style={{ padding: '5px 8px', textAlign: h === 'TENOR' || h === 'SOURCE' || h === 'QUALITY' ? 'left' : 'right', fontSize: '8px', color: 'var(--text-muted)', letterSpacing: '0.1em', background: 'var(--bg-deep)' }}>{h}</th>
+                      <th key={h} style={{ padding: '5px 8px', textAlign: h === 'TENOR' || h === 'SOURCE' || h === 'QUALITY' ? 'left' : 'right', fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.1em', background: 'var(--bg-deep)' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -708,7 +798,7 @@ export default function FixedIncomePanel() {
                         <td style={{ padding: '6px 8px', textAlign: 'right', color: vs2Y != null ? (vs2Y > 0 ? '#00c97a' : '#ff4560') : '#4a6070' }}>
                           {vs2Y != null ? `${vs2Y > 0 ? '+' : ''}${vs2Y}bp` : '—'}
                         </td>
-                        <td style={{ padding: '6px 8px', fontSize: '8px', color: 'var(--text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '6px 8px', fontSize: '10px', color: 'var(--text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {p.yieldData.source}
                         </td>
                         <td style={{ padding: '6px 8px' }}><DSTBadge dst={p.yieldData.dataSourceType} small /></td>
@@ -738,7 +828,7 @@ export default function FixedIncomePanel() {
           <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {(market === 'US' || market === 'COMPARE') && usData?.spreads && (
               <div>
-                <div style={{ fontSize: '9px', color: US_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px' }}>🇺🇸 US CREDIT SPREADS</div>
+                <div style={{ fontSize: '11px', color: US_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px' }}>🇺🇸 US CREDIT SPREADS</div>
                 <div style={{ padding: '10px 14px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
                   <SpreadBar label="IG OAS"        dp={usData.spreads.igOAS}        maxBps={300} />
                   <SpreadBar label="HY OAS"        dp={usData.spreads.hyOAS}        maxBps={900} />
@@ -749,14 +839,14 @@ export default function FixedIncomePanel() {
             )}
             {(market === 'IN' || market === 'COMPARE') && inData?.spreads && (
               <div>
-                <div style={{ fontSize: '9px', color: INDIA_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', borderTop: market === 'COMPARE' ? '1px solid var(--border)' : 'none', paddingTop: market === 'COMPARE' ? '10px' : 0 }}>🇮🇳 INDIA G-SEC SPREADS</div>
+                <div style={{ fontSize: '11px', color: INDIA_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', borderTop: market === 'COMPARE' ? '1px solid var(--border)' : 'none', paddingTop: market === 'COMPARE' ? '10px' : 0 }}>🇮🇳 INDIA G-SEC SPREADS</div>
                 <div style={{ padding: '10px 14px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
                   <SpreadBar label="2Y-10Y G-Sec"  dp={inData.spreads.twoTenSpread}              maxBps={200} />
                   <SpreadBar label="10Y vs Repo"   dp={inData.spreads.tenYrVsRepo  ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} maxBps={300} />
                   <SpreadBar label="SDL vs G-Sec"  dp={inData.spreads.sdlSpread   ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} maxBps={120} />
                   <SpreadBar label="PSU vs G-Sec"  dp={inData.spreads.psuSpread   ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} maxBps={100} />
                 </div>
-                <div style={{ marginTop: '8px', padding: '8px 12px', fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', background: 'rgba(74,96,112,0.08)', border: '1px solid rgba(74,96,112,0.15)', borderRadius: '4px', lineHeight: 1.7 }}>
+                <div style={{ marginTop: '8px', padding: '8px 12px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', background: 'rgba(74,96,112,0.08)', border: '1px solid rgba(74,96,112,0.15)', borderRadius: '4px', lineHeight: 1.7 }}>
                   ⚠ SDL and AAA PSU spreads are not available from any free real-time source. CCIL, Bloomberg, or NSE BOND required for live spread data. Historical ranges: SDL ~40-70bps, AAA PSU ~30-55bps over G-Sec.
                 </div>
               </div>
@@ -772,9 +862,9 @@ export default function FixedIncomePanel() {
             )}
             {(market === 'US' || market === 'COMPARE') && !loadingInsights && (
               <div style={{ padding: '12px 14px', background: 'rgba(0,229,192,0.04)', border: '1px solid rgba(0,229,192,0.15)', borderRadius: '5px' }}>
-                <div style={{ fontSize: '9px', color: US_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '11px', color: US_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   🇺🇸 US MARKET INSIGHTS
-                  {usData?.insightsProvider && <span style={{ color: 'var(--text-muted)', fontSize: '8px' }}>via {usData.insightsProvider.toUpperCase()}</span>}
+                  {usData?.insightsProvider && <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>via {usData.insightsProvider.toUpperCase()}</span>}
                   {usData?.insightsError && <DSTBadge dst="unavailable" small tooltip={usData.insightsError} />}
                 </div>
                 <div style={{ fontSize: '11px', color: usData?.insightsError ? '#f0a500' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>
@@ -784,9 +874,9 @@ export default function FixedIncomePanel() {
             )}
             {(market === 'IN' || market === 'COMPARE') && !loadingInsights && (
               <div style={{ padding: '12px 14px', background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.15)', borderRadius: '5px' }}>
-                <div style={{ fontSize: '9px', color: INDIA_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '11px', color: INDIA_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   🇮🇳 INDIA MARKET INSIGHTS
-                  {inData?.insightsProvider && <span style={{ color: 'var(--text-muted)', fontSize: '8px' }}>via {inData.insightsProvider.toUpperCase()}</span>}
+                  {inData?.insightsProvider && <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>via {inData.insightsProvider.toUpperCase()}</span>}
                   {inData?.insightsError && <DSTBadge dst="unavailable" small tooltip={inData.insightsError} />}
                 </div>
                 <div style={{ fontSize: '11px', color: inData?.insightsError ? '#f0a500' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>
@@ -794,10 +884,10 @@ export default function FixedIncomePanel() {
                 </div>
               </div>
             )}
-            <button onClick={loadInsights} disabled={loadingInsights} style={{ padding: '6px 16px', borderRadius: '3px', cursor: 'pointer', width: 'fit-content', fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}>
+            <button onClick={loadInsights} disabled={loadingInsights} style={{ padding: '6px 16px', borderRadius: '3px', cursor: 'pointer', width: 'fit-content', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}>
               ↺ REGENERATE
             </button>
-            <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.6, borderLeft: '2px solid var(--border)', padding: '6px 10px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.6, borderLeft: '2px solid var(--border)', padding: '6px 10px' }}>
               AI insights use live FRED/NSE data as context. Quality scales with data availability — LIVE → OFFICIAL → MODELED. Insights are not financial advice.
             </div>
           </div>
@@ -805,7 +895,7 @@ export default function FixedIncomePanel() {
       </div>
 
       {/* FOOTER */}
-      <div style={{ padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0, fontSize: '7px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0, fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>US: FRED Treasury + ICE BofA · IN: NSE India → RBI DBIE → Official table · Quant: NR-YTM · Duration · Convexity · NS-curve</span>
         {active && <span>{new Date(active.fetchedAt).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}</span>}
       </div>

@@ -112,7 +112,7 @@ export default function MacroPanel() {
           <div className="dot" style={{ background: '#1e90ff' }} />
           MACRO MONITOR
         </div>
-        <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
           FRED · LIVE
         </span>
       </div>
@@ -160,7 +160,7 @@ export default function MacroPanel() {
                   {ind.label}
                   {badge && (
                     <span style={{
-                      fontSize: '8px', padding: '1px 4px', borderRadius: '2px',
+                      fontSize: '10px', padding: '1px 4px', borderRadius: '2px',
                       fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em',
                       background: badge.color + '18', color: badge.color,
                       border: `1px solid ${badge.color}30`,
@@ -169,7 +169,7 @@ export default function MacroPanel() {
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                   {ind.date}
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function MacroPanel() {
                     : ind.current.toFixed(2) + ind.unit}
                 </div>
                 <div style={{
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
                   color: chgPos ? 'var(--positive)' : 'var(--negative)',
                 }}>
                   {chgPos ? '+' : ''}{ind.change.toFixed(2)}

@@ -105,7 +105,16 @@ const US_SYMBOLS = [
   'AAPL','MSFT','NVDA','TSLA','META','AMZN','GOOGL',
   'JPM','BAC','GS','XOM','AMD','NFLX','V','MA','GM',
 ]
-const IN_SYMBOLS = ['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','NIFTYNXT50']
+const IN_INDEX_SYMBOLS = ['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','NIFTYNXT50']
+const IN_STOCK_SYMBOLS = [
+  'RELIANCE','TATAMOTORS','INFY','TCS','HDFCBANK','ICICIBANK',
+  'SBIN','AXISBANK','BAJFINANCE','WIPRO','LT','MARUTI','ONGC',
+  'BHARTIARTL','ITC','HINDUNILVR','KOTAKBANK','ADANIENT',
+  'DRREDDY','SUNPHARMA','CIPLA','TATASTEEL','JSWSTEEL',
+  'POWERGRID','NTPC','TECHM','HCLTECH','EICHERMOT','MM',
+  'HEROMOTOCO','BAJAJ-AUTO','DIVISLAB','APOLLOHOSP','BIOCON',
+]
+const IN_SYMBOLS = [...IN_INDEX_SYMBOLS, ...IN_STOCK_SYMBOLS]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmtNum(v: number, d = 0): string {
@@ -154,18 +163,35 @@ export default function OptionsPanel() {
   const [data,       setData]       = useState<OptionsData|null>(null)
   const [loading,    setLoading]    = useState(false)
   const [loadStep,   setLoadStep]   = useState(0)  // for progressive messages
-  const [tab,        setTab]        = useState<Tab>('chain')
+  const [tab,        setTab]        = useState<Tab>('oi')
   const [showGreeks, setShowGreeks] = useState(false)
   const [showSug,    setShowSug]    = useState(false)
   const [nseStatus,  setNseStatus]  = useState(getNSEStatus)
-  const abortRef = useRef<AbortController|null>(null)
-  const stepRef  = useRef<ReturnType<typeof setInterval>|null>(null)
+  const abortRef      = useRef<AbortController|null>(null)
+  const stepRef       = useRef<ReturnType<typeof setInterval>|null>(null)
+  const containerRef  = useRef<HTMLDivElement|null>(null)
+  const atmRef        = useRef<HTMLTableRowElement|null>(null)
 
   // Update NSE clock every second
   useEffect(() => {
     const id = setInterval(() => setNseStatus(getNSEStatus()), 1000)
     return () => clearInterval(id)
   }, [])
+
+  // Auto-scroll to ATM strike when chain loads or tab switches to chain
+  useEffect(() => {
+    if (!data || tab !== 'chain') return
+    const t = setTimeout(() => {
+      const row = atmRef.current
+      const container = containerRef.current
+      if (!row || !container) return
+      const rRect = row.getBoundingClientRect()
+      const cRect = container.getBoundingClientRect()
+      const offset = rRect.top - cRect.top - container.clientHeight / 2 + rRect.height / 2
+      container.scrollTop += offset
+    }, 60)
+    return () => clearTimeout(t)
+  }, [data, tab])
 
   const load = useCallback(async (mkt: 'US'|'IN', sym: string, exp?: string) => {
     abortRef.current?.abort()
@@ -253,6 +279,68 @@ export default function OptionsPanel() {
     .sort((a, b) => a.strike - b.strike)
   const maxOI = Math.max(...oiRows.map(r => Math.max(r.ce?.oi??0, r.pe?.oi??0)), 1)
 
+  // ── Genuine options analytics ────────────────────────────────────────────────
+  // Find closest-to-spot row as ATM
+  const atmRow = enriched.length > 0 && S > 0
+    ? enriched.reduce((b, r) => Math.abs(r.strike - S) < Math.abs(b.strike - S) ? r : b)
+    : null
+
+  // BSM 1σ expected move = spot × ATM_IV × √T  (standard, used by all brokers)
+  const atmIVDecimal   = atmRow ? Math.max(atmRow.ceIV, atmRow.peIV) / 100 : 0
+  const expectedMove   = S > 0 && atmIVDecimal > 0 && T > 0
+    ? +(S * atmIVDecimal * Math.sqrt(T)).toFixed(market === 'IN' ? 0 : 2)
+    : 0
+
+  // ATM straddle cost = market's dollar/rupee priced expected move
+  const straddleCost   = atmRow
+    ? +((atmRow.ce?.ltp ?? 0) + (atmRow.pe?.ltp ?? 0)).toFixed(market === 'IN' ? 0 : 2)
+    : 0
+
+  // Call Wall = highest call OI strike (resistance), Put Wall = highest put OI (support)
+  const callWall = oiRows.length > 0
+    ? [...oiRows].sort((a, b) => (b.ce?.oi ?? 0) - (a.ce?.oi ?? 0))[0].strike
+    : 0
+  const putWall  = oiRows.length > 0
+    ? [...oiRows].sort((a, b) => (b.pe?.oi ?? 0) - (a.pe?.oi ?? 0))[0].strike
+    : 0
+
+  // Interpretation signals — all derived from real market structure
+  type Signal = { text: string; dir: 'bull' | 'bear' | 'neutral' }
+  const signals: Signal[] = []
+  if (data && S > 0) {
+    const pcr = data.pcr
+    if      (pcr > 1.2) signals.push({ text: `PCR ${pcr.toFixed(3)} — bearish hedge-heavy, put buying dominant`, dir: 'bear' })
+    else if (pcr < 0.7) signals.push({ text: `PCR ${pcr.toFixed(3)} — bullish, call buying dominant`, dir: 'bull' })
+    else if (pcr > 0)   signals.push({ text: `PCR ${pcr.toFixed(3)} — balanced market sentiment`, dir: 'neutral' })
+
+    if (mp > 0) {
+      const mpDiff = (mp - S) / S * 100
+      if (Math.abs(mpDiff) > 0.4) signals.push({
+        text: `Max Pain ${mpDiff > 0 ? '▲' : '▼'} ${Math.abs(mpDiff).toFixed(1)}% ${mpDiff > 0 ? 'above' : 'below'} spot — price gravitates ${mpDiff > 0 ? 'upward' : 'downward'} into expiry`,
+        dir: mpDiff > 0 ? 'bull' : 'bear',
+      })
+    }
+
+    if (callWall > 0 && callWall > S) signals.push({ text: `Call wall at ${callWall.toLocaleString()} — heaviest call OI resistance level`, dir: 'bear' })
+    if (putWall  > 0 && putWall  < S) signals.push({ text: `Put wall at ${putWall.toLocaleString()} — heaviest put OI support level`,    dir: 'bull' })
+
+    if (callWall > 0 && putWall > 0) {
+      const band = callWall - putWall
+      const bandPct = (band / S * 100).toFixed(1)
+      signals.push({ text: `OI-defined range: ${putWall.toLocaleString()} – ${callWall.toLocaleString()} (${bandPct}% wide band)`, dir: 'neutral' })
+    }
+
+    if (expectedMove > 0) signals.push({
+      text: `BSM 1σ range: ${(S - expectedMove).toFixed(market === 'IN' ? 0 : 2)} – ${(S + expectedMove).toFixed(market === 'IN' ? 0 : 2)} by expiry  (${(expectedMove / S * 100).toFixed(1)}% implied move)`,
+      dir: 'neutral',
+    })
+
+    if (straddleCost > 0) signals.push({
+      text: `ATM straddle: ${market === 'IN' ? '₹' : '$'}${straddleCost.toLocaleString()} — market-priced expected move (straddle = breakeven distance)`,
+      dir: 'neutral',
+    })
+  }
+
   // Loading messages
   const US_STEPS  = ['Acquiring Yahoo Finance session…', 'Fetching options chain…', 'Building strike table…', 'Falling back to CBOE…']
   const IN_STEPS  = ['Warming NSE session (Akamai)…', 'Fetching NIFTY chain…', 'Retrying with fresh cookies…', 'Building strike table…']
@@ -267,7 +355,7 @@ export default function OptionsPanel() {
         <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
           <div className="dot" style={{ background: acent }} />
           OPTIONS ANALYTICS
-          <span style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
+          <span style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
             BSM · Newton-Raphson IV · Greeks
           </span>
         </div>
@@ -275,7 +363,7 @@ export default function OptionsPanel() {
           {(['chain','oi'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               padding:'2px 10px', borderRadius:'3px', cursor:'pointer',
-              fontFamily:'JetBrains Mono,monospace', fontSize:'9px',
+              fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
               border:`1px solid ${tab===t ? acent : 'var(--border)'}`,
               background: tab===t ? acent+'1a' : 'transparent',
               color: tab===t ? acent : 'var(--text-muted)',
@@ -295,7 +383,7 @@ export default function OptionsPanel() {
             ? 'rgba(240,165,0,0.06)'
             : nseStatus.isOpen ? 'rgba(0,201,122,0.06)' : 'rgba(255,69,96,0.06)',
           display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap',
-          fontSize:'9px', fontFamily:'JetBrains Mono,monospace',
+          fontSize:'11px', fontFamily:'JetBrains Mono,monospace',
         }}>
           {market === 'IN' && (
             <>
@@ -326,7 +414,7 @@ export default function OptionsPanel() {
                   onClick={() => load(market, symbol, expiry || undefined)}
                   style={{
                     padding:'1px 7px', borderRadius:'2px', cursor:'pointer',
-                    fontFamily:'JetBrains Mono,monospace', fontSize:'8px',
+                    fontFamily:'JetBrains Mono,monospace', fontSize:'10px',
                     border:'1px solid var(--amber)', background:'rgba(240,165,0,0.1)', color:'var(--amber)',
                   }}
                 >
@@ -336,7 +424,7 @@ export default function OptionsPanel() {
             </>
           )}
           {!data?.staleData && market === 'IN' && data && (
-            <span style={{ marginLeft:'auto', color:'var(--text-muted)', fontSize:'8px' }}>
+            <span style={{ marginLeft:'auto', color:'var(--text-muted)', fontSize:'10px' }}>
               Real-time · {new Date(data.fetchedAt).toLocaleTimeString('en-US', { timeZone:'Asia/Kolkata', hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' })} IST
             </span>
           )}
@@ -354,7 +442,7 @@ export default function OptionsPanel() {
           {(['US','IN'] as const).map(m => (
             <button key={m} onClick={() => onMarket(m)} style={{
               padding:'3px 10px', borderRadius:'3px', cursor:'pointer',
-              fontFamily:'JetBrains Mono,monospace', fontSize:'10px', fontWeight:700,
+              fontFamily:'JetBrains Mono,monospace', fontSize:'11px', fontWeight:700,
               border:`1px solid ${market===m ? acent : 'var(--border)'}`,
               background: market===m ? acent+'15' : 'transparent',
               color: market===m ? acent : 'var(--text-muted)',
@@ -364,52 +452,45 @@ export default function OptionsPanel() {
           ))}
         </div>
 
-        {/* Symbol */}
-        {market === 'US' ? (
-          <div style={{ position:'relative', flex:1, minWidth:'100px', maxWidth:'140px' }}>
-            <input
-              value={symInput}
-              onChange={e => { setSymInput(e.target.value.toUpperCase()); setShowSug(true) }}
-              onFocus={() => setShowSug(true)}
-              onBlur={() => setTimeout(() => setShowSug(false), 200)}
-              onKeyDown={e => { if (e.key === 'Enter' && symInput) onSymbol(symInput) }}
-              placeholder="SPY, AAPL, SPX…"
-              style={{
-                width:'100%', fontFamily:'JetBrains Mono,monospace', fontSize:'10px',
-                padding:'4px 8px', background:'var(--bg-deep)',
-                border:`1px solid ${acent}44`, borderRadius:'3px', color:'#fff', outline:'none',
-              }}
-            />
-            {showSug && suggest.length > 0 && (
-              <div style={{
-                position:'absolute', top:'100%', left:0, right:0, zIndex:50,
-                background:'#0d1117', border:'1px solid var(--border)', borderRadius:'4px',
-                boxShadow:'0 8px 24px rgba(0,0,0,0.8)', maxHeight:'200px', overflowY:'auto',
-              }}>
-                {suggest.map(s => (
-                  <div key={s} onMouseDown={() => onSymbol(s)} style={{
-                    padding:'5px 10px', cursor:'pointer', fontSize:'10px',
-                    fontFamily:'JetBrains Mono,monospace', color:'var(--text-2)',
-                    borderBottom:'1px solid var(--border)',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >{s}</div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <select value={symbol} onChange={e => onSymbol(e.target.value)}
-            style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'10px', padding:'4px 6px' }}>
-            {IN_SYMBOLS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        )}
+        {/* Symbol — searchable for both markets */}
+        <div style={{ position:'relative', flex:1, minWidth:'100px', maxWidth:'160px' }}>
+          <input
+            value={symInput}
+            onChange={e => { setSymInput(e.target.value.toUpperCase()); setShowSug(true) }}
+            onFocus={() => setShowSug(true)}
+            onBlur={() => setTimeout(() => setShowSug(false), 200)}
+            onKeyDown={e => { if (e.key === 'Enter' && symInput) onSymbol(symInput) }}
+            placeholder={market === 'IN' ? 'NIFTY, RELIANCE…' : 'SPY, AAPL, SPX…'}
+            style={{
+              width:'100%', fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
+              padding:'4px 8px', background:'var(--bg-deep)',
+              border:`1px solid ${acent}44`, borderRadius:'3px', color:'#fff', outline:'none',
+            }}
+          />
+          {showSug && suggest.length > 0 && (
+            <div style={{
+              position:'absolute', top:'100%', left:0, right:0, zIndex:50,
+              background:'#0d1117', border:'1px solid var(--border)', borderRadius:'4px',
+              boxShadow:'0 8px 24px rgba(0,0,0,0.8)', maxHeight:'200px', overflowY:'auto',
+            }}>
+              {suggest.map(s => (
+                <div key={s} onMouseDown={() => onSymbol(s)} style={{
+                  padding:'5px 10px', cursor:'pointer', fontSize:'11px',
+                  fontFamily:'JetBrains Mono,monospace', color:'var(--text-2)',
+                  borderBottom:'1px solid var(--border)',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >{s}</div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Expiry */}
         {data?.expiries && data.expiries.length > 0 && (
           <select value={expiry} onChange={e => onExpiry(e.target.value)}
-            style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'10px', padding:'4px 6px', maxWidth:'120px' }}>
+            style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'11px', padding:'4px 8px', maxWidth:'120px' }}>
             {data.expiries.map(e => (
               <option key={e} value={e}>{fmtExpiry(e)}</option>
             ))}
@@ -419,7 +500,7 @@ export default function OptionsPanel() {
         {/* Greeks toggle */}
         <button onClick={() => setShowGreeks(v => !v)} style={{
           padding:'2px 8px', borderRadius:'3px', cursor:'pointer',
-          fontFamily:'JetBrains Mono,monospace', fontSize:'9px',
+          fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
           border:`1px solid ${showGreeks ? '#00e5c0' : 'var(--border)'}`,
           background: showGreeks ? 'rgba(0,229,192,0.1)' : 'transparent',
           color: showGreeks ? '#00e5c0' : 'var(--text-muted)',
@@ -430,7 +511,7 @@ export default function OptionsPanel() {
           disabled={loading}
           style={{
             marginLeft:'auto', padding:'2px 10px', borderRadius:'3px', cursor:'pointer',
-            fontFamily:'JetBrains Mono,monospace', fontSize:'9px',
+            fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
             border:'1px solid var(--border)', background:'transparent', color:'var(--text-muted)',
           }}
         >
@@ -443,7 +524,7 @@ export default function OptionsPanel() {
         <div style={{
           padding:'5px 12px', borderBottom:'1px solid var(--border)', flexShrink:0,
           display:'flex', gap:'16px', alignItems:'center', flexWrap:'wrap',
-          fontSize:'10px', fontFamily:'JetBrains Mono,monospace',
+          fontSize:'11px', fontFamily:'JetBrains Mono,monospace',
         }}>
           <span>
             <span style={{ color:'var(--text-muted)' }}>SPOT </span>
@@ -473,8 +554,14 @@ export default function OptionsPanel() {
             <span style={{ color:'var(--text-muted)' }}>STRIKES </span>
             <b style={{ color:'#fff' }}>{enriched.length}</b>
           </span>
+          {expectedMove > 0 && (
+            <span>
+              <span style={{ color:'var(--text-muted)' }}>EXP MOVE </span>
+              <b style={{ color: acent }}>±{market === 'IN' ? expectedMove.toLocaleString('en-IN') : expectedMove.toFixed(2)}</b>
+            </span>
+          )}
           <span style={{
-            marginLeft:'auto', fontSize:'8px',
+            marginLeft:'auto', fontSize:'10px',
             color: data.staleData ? 'var(--amber)' : 'var(--text-muted)',
           }}>
             {data.source}
@@ -486,7 +573,7 @@ export default function OptionsPanel() {
       )}
 
       {/* ── Content ────────────────────────────────────────────────────────── */}
-      <div style={{ flex:1, overflowY:'auto', overflowX:'auto', position:'relative' }}>
+      <div ref={containerRef} style={{ flex:1, overflowY:'auto', overflowX:'auto', position:'relative' }}>
 
         {/* Loading */}
         {loading && (
@@ -503,7 +590,7 @@ export default function OptionsPanel() {
               <div style={{
                 padding:'8px 14px', borderRadius:'4px',
                 background:'rgba(249,115,22,0.06)', border:'1px solid rgba(249,115,22,0.2)',
-                fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
+                fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
                 textAlign:'center', maxWidth:'300px', lineHeight:1.7,
               }}>
                 NSE India uses bot protection. Session warm-up may take 10–15 seconds.
@@ -549,7 +636,7 @@ export default function OptionsPanel() {
               onClick={() => load(market, symbol, expiry || undefined)}
               style={{
                 marginTop:'12px', padding:'6px 18px', borderRadius:'4px', cursor:'pointer',
-                fontFamily:'JetBrains Mono,monospace', fontSize:'10px', fontWeight:700,
+                fontFamily:'JetBrains Mono,monospace', fontSize:'11px', fontWeight:700,
                 border:`1px solid ${acent}`, background: acent+'15', color: acent,
               }}
             >
@@ -575,7 +662,7 @@ export default function OptionsPanel() {
                 <th style={TH('var(--positive)')}>Vol</th>
                 <th style={TH('#f0a500')}>IV%</th>
                 <th style={TH('var(--positive)')}>LTP</th>
-                <th style={{ ...TH('#fff'), background:'rgba(255,255,255,0.06)', minWidth:'70px', fontSize:'9px' }}>STRIKE</th>
+                <th style={{ ...TH('#fff'), background:'rgba(255,255,255,0.06)', minWidth:'70px', fontSize:'11px' }}>STRIKE</th>
                 <th style={TH('var(--negative)')}>LTP</th>
                 <th style={TH('#f0a500')}>IV%</th>
                 <th style={TH('var(--negative)')}>Vol</th>
@@ -596,7 +683,7 @@ export default function OptionsPanel() {
                 const itP = S > 0 && K > S   // in-the-money for puts
 
                 return (
-                  <tr key={K} style={{
+                  <tr key={K} ref={atm ? atmRef : undefined} style={{
                     borderBottom:'1px solid rgba(30,45,61,0.6)',
                     background: atm ? 'rgba(240,165,0,0.06)' : mps ? acent+'08' : 'transparent',
                   }}>
@@ -632,8 +719,8 @@ export default function OptionsPanel() {
                       whiteSpace:'nowrap',
                     }}>
                       {K.toLocaleString()}
-                      {atm && <sup style={{ fontSize:'7px', color:'#f0a500', marginLeft:'2px' }}>ATM</sup>}
-                      {mps && !atm && <sup style={{ fontSize:'7px', color: acent, marginLeft:'2px' }}>MP</sup>}
+                      {atm && <sup style={{ fontSize:'10px', color:'#f0a500', marginLeft:'2px' }}>ATM</sup>}
+                      {mps && !atm && <sup style={{ fontSize:'10px', color: acent, marginLeft:'2px' }}>MP</sup>}
                     </td>
 
                     <td style={{ ...TD('#fff', itP), fontWeight: 600 }}>
@@ -692,32 +779,90 @@ export default function OptionsPanel() {
             {/* PCR + Max Pain */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
               <div style={{ padding:'12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid var(--border)' }}>
-                <div style={{ fontSize:'8px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', letterSpacing:'0.1em' }}>PUT / CALL RATIO</div>
+                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', letterSpacing:'0.1em' }}>PUT / CALL RATIO</div>
                 <div style={{ fontSize:'28px', fontWeight:900, fontFamily:'Syne,sans-serif', lineHeight:1,
                   color: (data?.pcr??0) > 1.2 ? 'var(--positive)' : (data?.pcr??0) < 0.7 ? 'var(--negative)' : '#f0a500' }}>
                   {data && data?.pcr > 0 ? data.pcr.toFixed(3) : '—'}
                 </div>
-                <div style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginTop:'4px' }}>
+                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginTop:'4px' }}>
                   {(data?.pcr??0) > 1.2 ? '▲ Bearish hedge-heavy' : (data?.pcr??0) < 0.7 ? '▼ Call-side heavy' : '~ Balanced sentiment'}
                 </div>
               </div>
               <div style={{ padding:'12px', borderRadius:'6px', background:'var(--bg-deep)', border:`1px solid ${acent}33` }}>
-                <div style={{ fontSize:'8px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', letterSpacing:'0.1em' }}>MAX PAIN STRIKE</div>
+                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', letterSpacing:'0.1em' }}>MAX PAIN STRIKE</div>
                 <div style={{ fontSize:'28px', fontWeight:900, fontFamily:'Syne,sans-serif', lineHeight:1, color: acent }}>
                   {mp > 0 ? mp.toLocaleString() : '—'}
                 </div>
-                <div style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginTop:'4px' }}>
+                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginTop:'4px' }}>
                   {S > 0 && mp > 0
-                    ? `${((mp - S) / S * 100).toFixed(2)}% from spot`
+                    ? `${((mp - S) / S * 100).toFixed(2)}% from spot — writer profit peak`
                     : 'Point of max option-writer profit'}
                 </div>
               </div>
             </div>
 
+            {/* Put Wall / Call Wall / Expected Move */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px' }}>
+              <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid rgba(0,201,122,0.2)' }}>
+                <div style={{ fontSize:'10px', color:'var(--positive)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', letterSpacing:'0.1em' }}>PUT WALL · SUPPORT</div>
+                <div style={{ fontSize:'22px', fontWeight:900, fontFamily:'Syne,sans-serif', lineHeight:1, color:'var(--positive)' }}>
+                  {putWall > 0 ? putWall.toLocaleString() : '—'}
+                </div>
+                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginTop:'4px' }}>
+                  {putWall > 0 && S > 0 ? `${((putWall - S) / S * 100).toFixed(1)}% from spot` : 'Heaviest put OI'}
+                </div>
+              </div>
+              <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid rgba(255,69,96,0.2)' }}>
+                <div style={{ fontSize:'10px', color:'var(--negative)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', letterSpacing:'0.1em' }}>CALL WALL · RESISTANCE</div>
+                <div style={{ fontSize:'22px', fontWeight:900, fontFamily:'Syne,sans-serif', lineHeight:1, color:'var(--negative)' }}>
+                  {callWall > 0 ? callWall.toLocaleString() : '—'}
+                </div>
+                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginTop:'4px' }}>
+                  {callWall > 0 && S > 0 ? `${((callWall - S) / S * 100).toFixed(1)}% from spot` : 'Heaviest call OI'}
+                </div>
+              </div>
+              <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:`1px solid ${acent}33` }}>
+                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', letterSpacing:'0.1em' }}>BSM 1σ EXP MOVE</div>
+                <div style={{ fontSize:'22px', fontWeight:900, fontFamily:'Syne,sans-serif', lineHeight:1, color: acent }}>
+                  {expectedMove > 0 ? `±${expectedMove.toLocaleString()}` : '—'}
+                </div>
+                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginTop:'4px' }}>
+                  {expectedMove > 0 && S > 0 ? `${(expectedMove / S * 100).toFixed(1)}% by expiry · straddle ${market === 'IN' ? '₹' : '$'}${straddleCost}` : 'S × ATM IV × √T'}
+                </div>
+              </div>
+            </div>
+
+            {/* Signals — derived from PCR, max pain, OI walls, and BSM */}
+            {signals.length > 0 && (
+              <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid var(--border)' }}>
+                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'8px', letterSpacing:'0.1em' }}>
+                  MARKET STRUCTURE SIGNALS
+                </div>
+                <div style={{ display:'flex', flexDirection:'column', gap:'5px' }}>
+                  {signals.map((sig, i) => (
+                    <div key={i} style={{
+                      display:'flex', alignItems:'flex-start', gap:'7px',
+                      fontSize:'11px', fontFamily:'JetBrains Mono,monospace', lineHeight:1.5,
+                    }}>
+                      <span style={{
+                        flexShrink:0, marginTop:'1px',
+                        color: sig.dir === 'bull' ? 'var(--positive)' : sig.dir === 'bear' ? 'var(--negative)' : '#f0a500',
+                      }}>
+                        {sig.dir === 'bull' ? '▲' : sig.dir === 'bear' ? '▼' : '◆'}
+                      </span>
+                      <span style={{ color: sig.dir === 'neutral' ? 'var(--text-2)' : sig.dir === 'bull' ? 'var(--positive)' : 'var(--negative)' }}>
+                        {sig.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* OI bars */}
             {oiRows.length > 0 ? (
               <>
-                <div style={{ fontSize:'8px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.1em' }}>
+                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.1em' }}>
                   OPEN INTEREST BY STRIKE · ■ CALLS (green) ■ PUTS (red)
                 </div>
                 {oiRows.map(row => {
@@ -734,7 +879,7 @@ export default function OptionsPanel() {
                         {row.strike.toLocaleString()}{atm ? ' ★' : mps ? ' ⊕' : ''}
                       </div>
                       <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:'4px' }}>
-                        <span style={{ fontSize:'9px', color:'var(--positive)', fontFamily:'JetBrains Mono,monospace', minWidth:'34px', textAlign:'right' }}>
+                        <span style={{ fontSize:'11px', color:'var(--positive)', fontFamily:'JetBrains Mono,monospace', minWidth:'34px', textAlign:'right' }}>
                           {fmtNum(row.ce?.oi??0)}
                         </span>
                         <div style={{ width:'80px', height:'10px', background:'var(--bg-deep)', borderRadius:'2px', overflow:'hidden', display:'flex', justifyContent:'flex-end' }}>
@@ -745,14 +890,14 @@ export default function OptionsPanel() {
                         <div style={{ width:'80px', height:'10px', background:'var(--bg-deep)', borderRadius:'2px', overflow:'hidden' }}>
                           <div style={{ width:`${peW}%`, background:'rgba(255,69,96,0.8)' }} />
                         </div>
-                        <span style={{ fontSize:'9px', color:'var(--negative)', fontFamily:'JetBrains Mono,monospace', minWidth:'34px' }}>
+                        <span style={{ fontSize:'11px', color:'var(--negative)', fontFamily:'JetBrains Mono,monospace', minWidth:'34px' }}>
                           {fmtNum(row.pe?.oi??0)}
                         </span>
                       </div>
                     </div>
                   )
                 })}
-                <div style={{ fontSize:'8px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', paddingTop:'4px' }}>
+                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', paddingTop:'4px' }}>
                   ★ ATM strike · ⊕ Max Pain strike
                 </div>
               </>
@@ -775,7 +920,7 @@ export default function OptionsPanel() {
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <div style={{
         padding:'4px 12px', borderTop:'1px solid var(--border)', flexShrink:0,
-        fontSize:'7px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
+        fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
         display:'flex', justifyContent:'space-between', gap:'8px',
       }}>
         <span>
@@ -797,7 +942,7 @@ export default function OptionsPanel() {
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
 const TH = (color: string): React.CSSProperties => ({
-  padding: '5px 5px', textAlign: 'right', fontSize: '8px',
+  padding: '6px 6px', textAlign: 'right', fontSize: '11px',
   color, letterSpacing: '0.06em', fontWeight: 600,
   borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap',
   background: '#0d1117',
@@ -807,5 +952,5 @@ const TD = (color: string, highlight = false): React.CSSProperties => ({
   padding: '4px 5px', textAlign: 'right',
   color: highlight ? color : 'var(--text-muted)',
   background: highlight ? color + '06' : 'transparent',
-  fontFamily: 'JetBrains Mono,monospace', fontSize: '10px',
+  fontFamily: 'JetBrains Mono,monospace', fontSize: '11px',
 })

@@ -91,7 +91,7 @@ export default function EarningsPanel() {
           EARNINGS CALENDAR
           {todayCount > 0 && (
             <span style={{
-              fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
+              fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
               background: 'rgba(167,139,250,0.15)', color: '#a78bfa',
               border: '1px solid rgba(167,139,250,0.3)',
               fontFamily: 'JetBrains Mono, monospace',
@@ -103,7 +103,7 @@ export default function EarningsPanel() {
         <div style={{ display: 'flex', gap: '3px' }}>
           {(['US', 'IN'] as Market[]).map(m => (
             <button key={m} onClick={() => setMarket(m)} style={{
-              padding: '2px 10px', borderRadius: '3px', cursor: 'pointer',
+              padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
               fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
               letterSpacing: '0.08em', fontWeight: 700,
               border:     `1px solid ${market === m ? '#a78bfa' : 'var(--border)'}`,
@@ -127,8 +127,8 @@ export default function EarningsPanel() {
           ['all',      `All (${earnings.length})`],
         ] as const).map(([f, label]) => (
           <button key={f} onClick={() => setFilter(f)} style={{
-            padding: '2px 10px', borderRadius: '3px', cursor: 'pointer',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+            padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
             border:     `1px solid ${filter === f ? 'var(--teal)' : 'var(--border)'}`,
             background: filter === f ? 'rgba(0,229,192,0.08)' : 'transparent',
             color:      filter === f ? 'var(--teal)' : 'var(--text-muted)',
@@ -136,7 +136,7 @@ export default function EarningsPanel() {
             {label}
           </button>
         ))}
-        <div style={{ marginLeft: 'auto', fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+        <div style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
           {isIndia ? 'via Yahoo Finance' : 'via Finnhub · ±30d'}
         </div>
       </div>
@@ -154,12 +154,12 @@ export default function EarningsPanel() {
           ].map(({ color, label }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: color }} />
-              <span style={{ fontSize: '8px', color, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
+              <span style={{ fontSize: '10px', color, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
                 {label}
               </span>
             </div>
           ))}
-          <span style={{ marginLeft: 'auto', fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
             {displayed.filter(e => e.beat === true).length} beat · {displayed.filter(e => e.beat === false).length} missed
           </span>
         </div>
@@ -179,7 +179,7 @@ export default function EarningsPanel() {
             <br />
             <button onClick={() => setFilter('all')} style={{
               marginTop: '8px', padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
               border: '1px solid var(--teal)', background: 'rgba(0,229,192,0.08)', color: 'var(--teal)',
             }}>
               Show All ({earnings.length})
@@ -218,7 +218,7 @@ export default function EarningsPanel() {
                     {/* Beat/miss badge */}
                     {hasBeat && !e.isFuture && (
                       <span style={{
-                        fontSize: '8px', padding: '1px 6px', borderRadius: '2px', fontWeight: 700,
+                        fontSize: '10px', padding: '2px 8px', borderRadius: '2px', fontWeight: 700,
                         background: beaten ? 'rgba(0,201,122,0.12)' : 'rgba(255,69,96,0.12)',
                         color:      beaten ? 'var(--positive)' : 'var(--negative)',
                         border:     `1px solid ${beaten ? 'rgba(0,201,122,0.3)' : 'rgba(255,69,96,0.3)'}`,
@@ -231,7 +231,7 @@ export default function EarningsPanel() {
                     {/* EPS surprise % */}
                     {surprise !== null && Math.abs(surprise) > 0.5 && (
                       <span style={{
-                        fontSize: '8px', padding: '1px 5px', borderRadius: '2px',
+                        fontSize: '10px', padding: '2px 7px', borderRadius: '2px',
                         fontFamily: 'JetBrains Mono, monospace',
                         color:     surprise >= 0 ? 'var(--positive)' : 'var(--negative)',
                         background: surprise >= 0 ? 'rgba(0,201,122,0.08)' : 'rgba(255,69,96,0.08)',
@@ -243,7 +243,7 @@ export default function EarningsPanel() {
                     {/* Upcoming badge */}
                     {e.isFuture && (
                       <span style={{
-                        fontSize: '8px', padding: '1px 6px', borderRadius: '2px',
+                        fontSize: '10px', padding: '2px 8px', borderRadius: '2px',
                         fontFamily: 'JetBrains Mono, monospace',
                         background: 'rgba(167,139,250,0.1)', color: '#a78bfa',
                         border: '1px solid rgba(167,139,250,0.25)',
@@ -253,13 +253,13 @@ export default function EarningsPanel() {
                     )}
 
                     {/* Hour badge */}
-                    <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                       {e.hour === 'bmo' ? 'BMO' : e.hour === 'amc' ? 'AMC' : 'INTRA'}
                     </span>
 
                     {/* Quarter label for India */}
                     {isIndia && e.quarter && e.quarter !== 'Upcoming' && (
-                      <span style={{ fontSize: '8px', color: '#f97316', fontFamily: 'JetBrains Mono, monospace' }}>
+                      <span style={{ fontSize: '10px', color: '#f97316', fontFamily: 'JetBrains Mono, monospace' }}>
                         {e.quarter}
                       </span>
                     )}
@@ -267,7 +267,7 @@ export default function EarningsPanel() {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{
-                      fontSize: '9px', fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: '11px', fontFamily: 'JetBrains Mono, monospace',
                       color:      isToday ? '#a78bfa' : 'var(--text-muted)',
                       fontWeight: isToday ? 700 : 400,
                     }}>
@@ -289,7 +289,7 @@ export default function EarningsPanel() {
                   {/* EPS Estimate */}
                   {e.epsEstimate !== null && (
                     <div>
-                      <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
                         EPS EST
                       </div>
                       <div style={{ fontSize: '11px', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -301,7 +301,7 @@ export default function EarningsPanel() {
                   {/* EPS Actual */}
                   {!e.isFuture && e.epsActual !== null && (
                     <div>
-                      <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
                         EPS ACTUAL
                       </div>
                       <div style={{
@@ -316,7 +316,7 @@ export default function EarningsPanel() {
                   {/* Revenue Estimate */}
                   {e.revenueEstimate !== null && (
                     <div>
-                      <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
                         REV EST
                       </div>
                       <div style={{ fontSize: '11px', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -328,7 +328,7 @@ export default function EarningsPanel() {
                   {/* Revenue Actual */}
                   {!e.isFuture && e.revenueActual !== null && (
                     <div>
-                      <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
                         REV ACTUAL
                       </div>
                       <div style={{ fontSize: '11px', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -340,7 +340,7 @@ export default function EarningsPanel() {
                   {/* YoY Growth or surprise */}
                   {e.yoyGrowth !== null && e.yoyGrowth !== undefined && (
                     <div>
-                      <div style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
                         SURPRISE
                       </div>
                       <div style={{
@@ -376,7 +376,7 @@ export default function EarningsPanel() {
         {/* India data note */}
         {isIndia && !loading && (
           <div style={{
-            padding: '8px 14px', fontSize: '8px', color: 'var(--text-muted)',
+            padding: '8px 14px', fontSize: '10px', color: 'var(--text-muted)',
             fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.6,
             borderTop: '1px solid var(--border)',
           }}>

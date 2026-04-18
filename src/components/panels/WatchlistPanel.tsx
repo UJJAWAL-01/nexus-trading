@@ -172,7 +172,7 @@ export default function WatchlistPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" />
           WATCHLIST
-          <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
             {symbols.length}/20
           </span>
         </div>
@@ -182,7 +182,7 @@ export default function WatchlistPanel() {
             background: adding ? 'var(--amber)' : 'transparent',
             border: `1px solid ${adding ? 'var(--amber)' : 'var(--border)'}`,
             color: adding ? '#000' : 'var(--text-2)',
-            borderRadius: '3px', padding: '2px 10px',
+            borderRadius: '3px', padding: '4px 12px',
             fontSize: '11px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace',
             fontWeight: 700,
           }}
@@ -281,7 +281,7 @@ export default function WatchlistPanel() {
                 <div style={{ fontWeight: 700, fontSize: '13px', color: '#fff', fontFamily: 'Syne, sans-serif' }}>
                   {row.symbol}
                 </div>
-                <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '1px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '1px' }}>
                   {row.exchange || (row.symbol.endsWith('.NS') ? 'NSE' : 'US')}
                 </div>
               </div>
@@ -326,7 +326,7 @@ export default function WatchlistPanel() {
       {rows.length > 0 && (
         <div style={{
           padding: '4px 12px', borderTop: '1px solid var(--border)',
-          fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
         }}>
           Hover a symbol → click × to remove (confirm click required)
         </div>

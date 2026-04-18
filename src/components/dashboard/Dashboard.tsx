@@ -192,7 +192,7 @@ export default function Dashboard() {
         .tagline {
           border-left: 1px solid var(--border);
           padding-left: 10px;
-          font-size: 9px;
+          font-size: 11px;
           color: var(--text-muted);
           font-family: 'JetBrains Mono', monospace;
           letter-spacing: 0.12em;
@@ -229,7 +229,7 @@ export default function Dashboard() {
         }
 
         .clock-label {
-          font-size: 8px;
+          font-size: 10px;
           color: var(--text-muted);
         }
 

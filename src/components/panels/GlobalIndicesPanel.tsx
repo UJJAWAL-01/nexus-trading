@@ -1,9 +1,6 @@
 'use client'
-// src/components/panels/GlobalIndicesPanel.tsx
-// Before: 12 parallel fetch() calls every 15s per user = massive invocation cost
-// After:  1 SWR call to /api/global-indices, 30s refresh, shared across all users
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { TTL } from '@/lib/data-hooks'
 
@@ -13,8 +10,8 @@ interface QuoteData {
 }
 
 const SECTION_BREAKS: Record<string, string> = {
-  '^NSEI':  '── INDIA ──────────────',
-  '^N225':  '── ASIA ───────────────',
+  '^NSEI':  'INDIA',
+  '^N225':  'ASIA / PACIFIC',
 }
 
 export default function GlobalIndicesPanel() {
@@ -22,16 +19,24 @@ export default function GlobalIndicesPanel() {
     '/api/global-indices',
     { refreshInterval: TTL.FAST, dedupingInterval: 20_000 },
   )
+  const [hovered, setHovered] = useState<string | null>(null)
 
   const quotes = useMemo(() => data?.quotes ?? [], [data])
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="panel-header">
-        <div className="dot" />
+        <div className="dot" style={{ background: '#4da6ff' }} />
         GLOBAL INDICES
         {isLoading && !quotes.length && (
-          <span style={{ marginLeft: 'auto', fontSize: '8px', color: 'var(--text-muted)' }}>loading…</span>
+          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+            loading…
+          </span>
+        )}
+        {data?.lastUpdated && !isLoading && (
+          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'JetBrains Mono, monospace' }}>
+            live
+          </span>
         )}
       </div>
 
@@ -39,34 +44,37 @@ export default function GlobalIndicesPanel() {
         {quotes.map(q => {
           const isPos = (q.change ?? 0) >= 0
           const sectionLabel = SECTION_BREAKS[q.symbol]
+          const isHov = hovered === q.symbol
 
           return (
             <div key={q.symbol}>
               {sectionLabel && (
-                <div style={{
-                  padding: '4px 14px', fontSize: '8px', color: 'var(--text-muted)',
-                  letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace',
-                  borderBottom: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)',
-                }}>
+                <div className="nx-section">
                   {sectionLabel}
                 </div>
               )}
-              <div style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '7px 14px', borderBottom: '1px solid var(--border)',
-              }}>
+              <div
+                onMouseEnter={() => setHovered(q.symbol)}
+                onMouseLeave={() => setHovered(null)}
+                style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '8px 14px', borderBottom: '1px solid var(--border)',
+                  background: isHov ? 'rgba(255,255,255,0.025)' : 'transparent',
+                  transition: 'background 0.12s',
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '12px' }}>{q.flag}</span>
-                  <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '12px', color: '#fff' }}>
+                  <span style={{ fontSize: '13px' }}>{q.flag}</span>
+                  <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '13px', color: 'var(--text)' }}>
                     {q.label}
                   </span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#fff' }}>
-                    {q.price != null ? q.price.toFixed(q.digits) : '···'}
+                  <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
+                    {q.price != null ? q.price.toLocaleString('en-US', { maximumFractionDigits: q.digits }) : '···'}
                   </div>
                   <div style={{
-                    fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
                     color: q.change == null ? 'var(--text-muted)' : isPos ? 'var(--positive)' : 'var(--negative)',
                   }}>
                     {q.change != null ? `${isPos ? '+' : ''}${q.change.toFixed(2)}%` : '···'}
@@ -76,6 +84,12 @@ export default function GlobalIndicesPanel() {
             </div>
           )
         })}
+
+        {quotes.length === 0 && !isLoading && (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>
+            No data available
+          </div>
+        )}
       </div>
     </div>
   )

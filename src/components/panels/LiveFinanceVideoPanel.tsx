@@ -117,7 +117,7 @@ export default function LiveFinanceVideoPanel() {
           }} />
           <span style={{ whiteSpace: 'nowrap' }}>LIVE FINANCE TV</span>
           <span style={{
-            fontSize: '9px', padding: '1px 6px', borderRadius: '2px',
+            fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
             background: 'rgba(255,69,96,0.12)', color: '#ff4560',
             border: '1px solid rgba(255,69,96,0.25)',
             fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
@@ -130,7 +130,7 @@ export default function LiveFinanceVideoPanel() {
           {REGION_FILTERS.map(f => (
             <button key={f.key} onClick={() => setRegion(f.key)} style={{
               padding: '2px 7px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '9px',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
               border: `1px solid ${region === f.key ? '#ff4560' : 'var(--border)'}`,
               background: region === f.key ? 'rgba(255,69,96,0.1)' : 'transparent',
               color: region === f.key ? '#ff4560' : 'var(--text-muted)',
@@ -218,7 +218,7 @@ export default function LiveFinanceVideoPanel() {
           }}>
             <div style={{ fontSize: '40px' }}>📺</div>
             <div style={{
-              fontSize: '12px', color: 'var(--text-muted)',
+              fontSize: '13px', color: 'var(--text-muted)',
               fontFamily: 'JetBrains Mono, monospace',
               textAlign: 'center', lineHeight: 1.6, maxWidth: '260px',
             }}>
@@ -233,7 +233,7 @@ export default function LiveFinanceVideoPanel() {
                 rel="noopener noreferrer"
                 style={{
                   padding: '10px 24px', background: 'rgba(255,0,0,0.9)', color: '#fff',
-                  borderRadius: '4px', fontSize: '12px',
+                  borderRadius: '4px', fontSize: '13px',
                   fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
                   textDecoration: 'none', letterSpacing: '0.06em',
                   display: 'flex', alignItems: 'center', gap: '8px',
@@ -278,7 +278,7 @@ export default function LiveFinanceVideoPanel() {
                 {active.channelName}
               </span>
               {active.isVerified && (
-                <span style={{ fontSize: '9px', color: '#00c97a', fontFamily: 'JetBrains Mono, monospace' }}>✓ LIVE</span>
+                <span style={{ fontSize: '11px', color: '#00c97a', fontFamily: 'JetBrains Mono, monospace' }}>✓ LIVE</span>
               )}
             </div>
 
@@ -288,7 +288,7 @@ export default function LiveFinanceVideoPanel() {
                 style={{
                   background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.15)',
                   color: 'var(--text-muted)', padding: '4px 9px', borderRadius: '3px',
-                  fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer',
+                  fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer',
                 }}
                 title="Reload stream"
               >
@@ -299,7 +299,7 @@ export default function LiveFinanceVideoPanel() {
                 style={{
                   background: 'rgba(255,0,0,0.85)', color: '#fff',
                   padding: '4px 9px', borderRadius: '3px',
-                  fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+                  fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
                   textDecoration: 'none',
                 }}
               >
@@ -313,7 +313,7 @@ export default function LiveFinanceVideoPanel() {
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <div style={{
         padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
-        fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
+        fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <span>8 channels · 24/7 live · tap to switch</span>

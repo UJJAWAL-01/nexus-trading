@@ -450,7 +450,7 @@ export default function GridLayout() {
                 {PANEL_GROUPS.map(group => (
                   <div key={group.label} style={{ marginBottom: '10px' }}>
                     <div style={{
-                      fontSize:    '8px',
+                      fontSize:    '10px',
                       color:       'var(--text-muted)',
                       fontFamily:  'JetBrains Mono, monospace',
                       letterSpacing: '0.12em',
@@ -685,7 +685,7 @@ export default function GridLayout() {
                       <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>⠿ DRAG</span>
                       <span style={{ fontSize: '11px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: meta.color, letterSpacing: '0.1em' }}>{meta.label}</span>
                     </div>
-                    <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>↔ move · ↘ resize</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>↔ move · ↘ resize</span>
                   </div>
                 )}
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, borderRadius: editing ? '0 0 6px 6px' : '6px' }}>
@@ -742,7 +742,7 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
         paddingBottom:  '6px',
         borderBottom:   '1px solid var(--border)',
       }}>
-        <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
           TOGGLE PANELS
         </span>
         <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px' }}>
@@ -753,7 +753,7 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
       {PANEL_GROUPS.map(group => (
         <div key={group.label} style={{ marginBottom: '10px' }}>
           <div style={{
-            fontSize:    '8px',
+            fontSize:    '10px',
             color:       'var(--text-muted)',
             fontFamily:  'JetBrains Mono, monospace',
             letterSpacing:'0.12em',
@@ -791,7 +791,7 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
                     <div style={{ fontSize: '11px', color: visible ? '#fff' : 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                       {meta.label}
                     </div>
-                    <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                       {meta.description}
                     </div>
                   </div>

@@ -95,6 +95,27 @@ export interface IndiaAvailability {
   message:       string
 }
 
+export interface TipsBreakeven {
+  dfii5:  DataPoint<number>
+  dfii10: DataPoint<number>
+  be5y:   DataPoint<number>
+  be10y:  DataPoint<number>
+}
+
+export interface TradingSignals {
+  duration:        'EXTEND' | 'NEUTRAL' | 'REDUCE'
+  durationReason:  string
+  durationColor:   string
+  credit:          'ADD' | 'NEUTRAL' | 'REDUCE' | 'N/A'
+  creditReason:    string
+  creditColor:     string
+  curveSignal:     'STEEPEN' | 'NEUTRAL' | 'FLATTEN' | 'N/A'
+  curveReason:     string
+  recessionRisk:   'LOW' | 'MODERATE' | 'ELEVATED'
+  recessionReason: string
+  recessionColor:  string
+}
+
 export interface FixedIncomeResponse {
   market:             'US' | 'IN'
   yieldCurve:         YieldPoint[]
@@ -109,6 +130,8 @@ export interface FixedIncomeResponse {
   insights?:          string
   insightsProvider?:  string
   insightsError?:     string
+  tips?:              TipsBreakeven
+  signals?:           TradingSignals
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -226,6 +249,97 @@ async function fredFetch(series: string): Promise<{ value: number; date: string 
     cache.set(ck, { data: result, expires: Date.now() + 3_600_000 })
     return result
   } catch { return null }
+}
+
+// ── YoY % from FRED index series (computes 12-month change) ─────────────────
+async function fredYoY(series: string): Promise<{ value: number; date: string } | null> {
+  if (!process.env.FRED_API_KEY) return null
+  const ck = `fredyoy:${series}`
+  const hit = cache.get(ck)
+  if (hit && hit.expires > Date.now()) return hit.data as { value: number; date: string }
+  try {
+    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${process.env.FRED_API_KEY}&file_type=json&sort_order=desc&limit=14`
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    if (!res.ok) return null
+    const j = await res.json()
+    const obs = (j.observations ?? [])
+      .filter((o: any) => o.value !== '.')
+      .map((o: any) => ({ value: parseFloat(o.value), date: o.date }))
+    if (obs.length < 13) return null
+    const yoy = ((obs[0].value - obs[12].value) / Math.abs(obs[12].value)) * 100
+    const result = { value: parseFloat(yoy.toFixed(2)), date: obs[0].date }
+    cache.set(ck, { data: result, expires: Date.now() + 4 * 3600_000 })
+    return result
+  } catch { return null }
+}
+
+// ── TIPS real yields + breakeven inflation from FRED ────────────────────────
+async function fetchTipsBreakeven(): Promise<TipsBreakeven> {
+  const now = new Date().toISOString()
+  const mk = async (series: string, label: string): Promise<DataPoint<number>> => {
+    const obs = await fredFetch(series)
+    const age = obs ? (Date.now() - new Date(obs.date).getTime()) / 3_600_000 : 9999
+    return {
+      value:          obs?.value ?? null,
+      source:         `FRED ${series} — ${label}`,
+      sourceUrl:      `https://fred.stlouisfed.org/series/${series}`,
+      dataSourceType: (obs && age < 96 ? 'live' : obs ? 'official' : 'unavailable') as DataSourceType,
+      fetchedAt:      now,
+      reportingDate:  obs?.date,
+      ageHours:       obs ? Math.round(age) : undefined,
+      notes:          !obs ? `${series} unavailable from FRED.` : undefined,
+    }
+  }
+  const [dfii5, dfii10, be5y, be10y] = await Promise.all([
+    mk('DFII5',  '5Y TIPS Real Yield'),
+    mk('DFII10', '10Y TIPS Real Yield'),
+    mk('T5YIE',  '5Y Breakeven Inflation'),
+    mk('T10YIE', '10Y Breakeven Inflation'),
+  ])
+  return { dfii5, dfii10, be5y, be10y }
+}
+
+// ── Trading signals from live market data ────────────────────────────────────
+function computeSignals(
+  realRate: number | null,
+  igOAS: number | null,
+  twoTenBps: number | null,
+): TradingSignals {
+  let duration: TradingSignals['duration'] = 'NEUTRAL'
+  let durationReason = 'Real rate near neutral — no directional edge'
+  let durationColor  = '#f0a500'
+  if (realRate !== null) {
+    if (realRate > 1.5)  { duration = 'REDUCE'; durationReason = `Real rate +${realRate.toFixed(2)}% — bonds expensive vs cash`; durationColor = '#ff4560' }
+    else if (realRate < -0.5) { duration = 'EXTEND'; durationReason = `Negative real rate (${realRate.toFixed(2)}%) — duration attractive`; durationColor = '#00c97a' }
+    else if (realRate <= 0.5) { duration = 'EXTEND'; durationReason = `Low real rate (${realRate.toFixed(2)}%) — carry favors longer duration`; durationColor = '#00c97a' }
+  }
+
+  let credit: TradingSignals['credit'] = 'N/A'
+  let creditReason = 'IG OAS data unavailable from FRED'
+  let creditColor  = '#4a6070'
+  if (igOAS !== null) {
+    if (igOAS < 80)       { credit = 'REDUCE'; creditReason = `IG OAS ${igOAS}bp — historically tight, limited margin of safety`; creditColor = '#ff4560' }
+    else if (igOAS < 110) { credit = 'NEUTRAL'; creditReason = `IG OAS ${igOAS}bp — fair value, selective sector allocation`;       creditColor = '#f0a500' }
+    else                  { credit = 'ADD';     creditReason = `IG OAS ${igOAS}bp — spreads offer real compensation for risk`;      creditColor = '#00c97a' }
+  }
+
+  let curveSignal: TradingSignals['curveSignal'] = 'N/A'
+  let curveReason = '2Y/10Y data insufficient for curve signal'
+  if (twoTenBps !== null) {
+    if (twoTenBps > 80)       { curveSignal = 'FLATTEN'; curveReason = `2s10s +${twoTenBps}bp — curve steep, flatteners in focus` }
+    else if (twoTenBps < -10) { curveSignal = 'STEEPEN'; curveReason = `2s10s ${twoTenBps}bp inverted — steepeners if recession unfolds` }
+    else                       { curveSignal = 'NEUTRAL'; curveReason = `2s10s ${twoTenBps}bp — flat curve, no strong directional signal` }
+  }
+
+  let recessionRisk: TradingSignals['recessionRisk'] = 'LOW'
+  let recessionReason = 'Curve not inverted — no structural recession signal'
+  let recessionColor  = '#00c97a'
+  if (twoTenBps !== null) {
+    if (twoTenBps < -25)     { recessionRisk = 'ELEVATED'; recessionReason = `2s10s ${twoTenBps}bp — deep inversion historically precedes recession by 12-18M`; recessionColor = '#ff4560' }
+    else if (twoTenBps < 10) { recessionRisk = 'MODERATE'; recessionReason = `2s10s flat (${twoTenBps}bp) — watch for sustained inversion`; recessionColor = '#f0a500' }
+  }
+
+  return { duration, durationReason, durationColor, credit, creditReason, creditColor, curveSignal, curveReason, recessionRisk, recessionReason, recessionColor }
 }
 
 async function fetchUSYieldCurve(): Promise<YieldPoint[]> {
@@ -506,14 +620,16 @@ async function fetchRBIDBIE(): Promise<{ repoRate: number | null; gsec10Y: numbe
   }
 }
 
-/** Authoritative RBI rate table — official decisions, NOT live */
+// Authoritative RBI rate table — official decisions, NOT live.
+// Fallback only when DBIE and FRED both fail.
+// ALIGNED with macro-rates/route.ts — both files must match.
+// Sorted newest first; getOfficialRBIRate() returns first entry with date <= today.
 const RBI_DECISIONS: { date: string; rate: number; note: string }[] = [
-  { date: '2026-04-09', rate: 6.00, note: 'RBI MPC Apr 2026 — 25bps cut' },
-  { date: '2026-02-07', rate: 6.25, note: 'RBI MPC Feb 2026 — 25bps cut' },
-  { date: '2025-10-08', rate: 6.50, note: 'RBI MPC Oct 2025 — hold' },
+  { date: '2026-04-09', rate: 6.00, note: 'RBI MPC Apr 2026 — 25bps cut (fallback)' },
+  { date: '2026-02-07', rate: 6.25, note: 'RBI MPC Feb 2026 — 25bps cut (fallback)' },
   { date: '2025-04-09', rate: 6.00, note: 'RBI MPC Apr 2025 — 25bps cut' },
   { date: '2025-02-07', rate: 6.25, note: 'RBI MPC Feb 2025 — 25bps cut' },
-  { date: '2024-08-07', rate: 6.50, note: 'RBI MPC Aug 2024 — hold' },
+  { date: '2024-08-07', rate: 6.50, note: 'RBI held at 6.50%' },
 ]
 
 function getOfficialRBIRate() {
@@ -784,17 +900,19 @@ export async function GET(request: NextRequest) {
       }, { status: 503 })
     }
 
-    const [curve, rateObs, rateHi] = await Promise.all([
+    const [curve, rateObs, rateHi, usCpiLive, tips] = await Promise.all([
       fetchUSYieldCurve(),
       fredFetch('DFEDTARL'),
       fredFetch('DFEDTARU'),
+      fredYoY('CPIAUCSL'),         // live YoY CPI — no hardcoded values
+      fetchTipsBreakeven(),        // TIPS real yields + breakeven inflation
     ])
 
     const liveCount = curve.filter(p => p.yieldData.dataSourceType === 'live').length
     if (liveCount < 5) sysmsgs.push(`⚠ Only ${liveCount}/11 Treasury tenors available from FRED.`)
     if (liveCount === 0) sysmsgs.push('❌ No US Treasury yield data from FRED. The API may be down.')
 
-    const spreads  = await fetchUSSpreads(curve)
+    const spreads = await fetchUSSpreads(curve)
     const lo = rateObs?.value ?? null
     const hi = rateHi?.value ?? lo
 
@@ -807,21 +925,36 @@ export async function GET(request: NextRequest) {
       notes: !lo ? 'FRED DFEDTARL unavailable.' : hi && hi !== lo ? `Target range: ${lo?.toFixed(2)}-${hi?.toFixed(2)}%` : undefined,
     }
 
-    // US CPI — known approx March 2026 BLS. For exact YoY, use macro-rates endpoint.
-    const cpi: DataPoint<number> = {
-      value: 2.8, source: 'Approximate US CPI YoY — Mar 2026 BLS release',
-      sourceUrl: 'https://www.bls.gov/cpi/',
-      dataSourceType: 'official', fetchedAt: now, reportingDate: '2026-03-12',
-      ageHours: Math.round(ageHours('2026-03-12')),
-      notes: 'Approximate YoY. Exact value from macro-rates endpoint or BLS.gov.',
-    }
+    // Live CPI from FRED CPIAUCSL — no hardcoded fallback; show null if unavailable
+    const cpi: DataPoint<number> = usCpiLive
+      ? {
+          value: usCpiLive.value, source: 'FRED CPIAUCSL (US CPI All Items, YoY %)',
+          sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+          dataSourceType: 'official', fetchedAt: now, reportingDate: usCpiLive.date,
+          ageHours: Math.round(ageHours(usCpiLive.date)),
+        }
+      : {
+          value: null, source: 'FRED CPIAUCSL unavailable',
+          dataSourceType: 'unavailable', fetchedAt: now,
+          notes: 'US CPI could not be fetched from FRED. No hardcoded fallback used.',
+        }
+
+    // Compute actionable trading signals from live data
+    const realRate = lo !== null && cpi.value !== null ? lo - cpi.value : null
+    const signals  = computeSignals(realRate, spreads.igOAS.value, spreads.twoTenSpread.value)
 
     const resp: FixedIncomeResponse = {
       market: 'US', yieldCurve: curve, bonds: buildUSBonds(curve, spreads),
-      spreads, macroContext: { policyRate, cpi, label: `Fed Funds ${lo?.toFixed(2) ?? 'N/A'}${hi && hi !== lo ? `-${hi.toFixed(2)}` : ''}%`, stance: (lo ?? 4) >= 5 ? 'RESTRICTIVE' : (lo ?? 4) >= 4 ? 'SLIGHTLY RESTRICTIVE' : 'NEUTRAL' },
+      spreads,
+      macroContext: {
+        policyRate, cpi,
+        label: `Fed Funds ${lo?.toFixed(2) ?? 'N/A'}${hi && hi !== lo ? `-${hi.toFixed(2)}` : ''}%`,
+        stance: (lo ?? 4) >= 5.0 ? 'RESTRICTIVE' : (lo ?? 4) >= 3.75 ? 'SLIGHTLY RESTRICTIVE' : 'NEUTRAL',
+      },
       curveShape: classifyCurve(curve),
       curveDataQuality: curve.every(p => p.yieldData.dataSourceType === 'live') ? 'live' : 'official',
       systemMessages: sysmsgs, fetchedAt: now,
+      tips, signals,
     }
 
     if (type === 'insights') {
@@ -835,12 +968,13 @@ export async function GET(request: NextRequest) {
   }
 
   // ── INDIA ───────────────────────────────────────────────────────────────────
-  const [nse, dbie, repoPoint] = await Promise.all([
+  const [nse, dbie, repoPoint, indCpiLive] = await Promise.all([
     fetchNSEGSec(),
     fetchRBIDBIE(),
     fetchRBIRepo(),
+    fredYoY('INDCPIALLMINMEI'),   // India CPI YoY from FRED — no hardcoded fallback
   ])
-  const repoRate = repoPoint.value ?? 6.25
+  const repoRate = repoPoint.value ?? 6.00
 
   const { points: curve, availability, messages } = await buildIndiaYieldCurve(nse, dbie.gsec10Y, repoRate, allowModeled)
   sysmsgs.push(...messages)
@@ -876,18 +1010,25 @@ export async function GET(request: NextRequest) {
     },
   }
 
-  const cpiIndia: DataPoint<number> = {
-    value: 4.2, source: 'MOSPI CPI India (March 2026 approximate)',
-    sourceUrl: 'https://mospi.gov.in/',
-    dataSourceType: 'official', fetchedAt: now, reportingDate: '2026-03-12',
-    ageHours: Math.round(ageHours('2026-03-12')),
-    notes: 'Approximate India CPI YoY. Check MOSPI for latest official release.',
-  }
+  // Live India CPI from FRED INDCPIALLMINMEI — no hardcoded fallback
+  const cpiIndia: DataPoint<number> = indCpiLive
+    ? {
+        value: indCpiLive.value, source: 'FRED INDCPIALLMINMEI (OECD India CPI, YoY %)',
+        sourceUrl: 'https://fred.stlouisfed.org/series/INDCPIALLMINMEI',
+        dataSourceType: 'official', fetchedAt: now, reportingDate: indCpiLive.date,
+        ageHours: Math.round(ageHours(indCpiLive.date)),
+        notes: 'OECD/FRED series. Typically 1-2 month lag behind MOSPI release.',
+      }
+    : {
+        value: null, source: 'FRED INDCPIALLMINMEI unavailable',
+        dataSourceType: 'unavailable', fetchedAt: now,
+        notes: 'India CPI could not be fetched from FRED. No hardcoded fallback used.',
+      }
 
   const resp: FixedIncomeResponse = {
     market: 'IN', yieldCurve: curve, bonds: buildIndiaBonds(curve, repoRate),
     spreads: indiaSpreads,
-    macroContext: { policyRate: repoPoint, cpi: cpiIndia, label: 'RBI Repo Rate', stance: repoRate <= 6.0 ? 'ACCOMMODATIVE' : repoRate <= 6.5 ? 'NEUTRAL' : 'RESTRICTIVE' },
+    macroContext: { policyRate: repoPoint, cpi: cpiIndia, label: 'RBI Repo Rate', stance: repoRate <= 5.5 ? 'ACCOMMODATIVE' : repoRate <= 6.25 ? 'NEUTRAL' : 'RESTRICTIVE' },
     curveShape: classifyCurve(curve),
     curveDataQuality: availability.nseSuccess ? 'live' : availability.dbieSuccess ? 'official' : allowModeled ? 'modeled' : 'unavailable',
     indiaAvailability: availability, systemMessages: sysmsgs, fetchedAt: now,

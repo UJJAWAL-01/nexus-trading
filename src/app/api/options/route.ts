@@ -545,6 +545,27 @@ function parseNSEResponse(json: any, symbol: string, selectedExpiry?: string): a
   }
 }
 
+// ── Indian options: Yahoo .NS for stocks, NSE direct for indices ───────────────
+async function fetchIndian(symbol: string, selectedExpiry?: string): Promise<any> {
+  const sym = symbol.toUpperCase()
+  if (!NSE_INDEX.has(sym)) {
+    try {
+      const yData = await fetchYahooOptions(`${sym}.NS`, selectedExpiry)
+      if (yData.chain.length > 0 && yData.spot > 0) {
+        return {
+          ...yData,
+          lotSize:      NSE_LOTS[sym] ?? 1,
+          riskFreeRate: 0.065,
+          source:       'NSE/Yahoo Finance (15-min delayed)',
+        }
+      }
+    } catch (e: any) {
+      console.warn(`[options] Yahoo .NS failed for ${sym}, trying NSE direct:`, e?.message)
+    }
+  }
+  return fetchNSE(sym, selectedExpiry)
+}
+
 async function fetchNSE(symbol: string, selectedExpiry?: string): Promise<any> {
   const sym      = symbol.toUpperCase()
   const isIndex  = NSE_INDEX.has(sym)
@@ -622,7 +643,7 @@ export async function GET(request: NextRequest) {
   try {
     if (market === 'IN') {
       try {
-        payload = await fetchNSE(symbol, expiry)
+        payload = await fetchIndian(symbol, expiry)
       } catch (e: any) {
         // Serve stale data with age info
         const stale = staleStore.get(ck)

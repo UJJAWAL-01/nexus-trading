@@ -159,7 +159,7 @@ export default function EconomicCalendarPanel() {
           ECONOMIC CALENDAR
           {todayCount > 0 && (
             <span style={{
-              fontSize:'9px', padding:'1px 6px', borderRadius:'2px',
+              fontSize:'11px', padding:'1px 6px', borderRadius:'2px',
               background:'rgba(255,69,96,0.15)', color:'var(--negative)',
               border:'1px solid rgba(255,69,96,0.3)', fontFamily:'JetBrains Mono,monospace',
             }}>
@@ -167,7 +167,7 @@ export default function EconomicCalendarPanel() {
             </span>
           )}
         </div>
-        <span style={{ fontSize:'8px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
+        <span style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
           {loading ? 'updating…' : source}
         </span>
       </div>
@@ -181,7 +181,7 @@ export default function EconomicCalendarPanel() {
         {(['ALL','US','IN','EU','UK'] as RegionFilter[]).map(r => (
           <button key={r} onClick={() => setRegion(r)} style={{
             padding:'2px 7px', borderRadius:'3px', cursor:'pointer',
-            fontFamily:'JetBrains Mono,monospace', fontSize:'9px',
+            fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
             border:`1px solid ${region===r ? 'var(--teal)' : 'var(--border)'}`,
             background: region===r ? 'rgba(0,229,192,0.1)' : 'transparent',
             color: region===r ? 'var(--teal)' : 'var(--text-muted)',
@@ -193,7 +193,7 @@ export default function EconomicCalendarPanel() {
           {(['ALL','high','medium'] as ImpactFilter[]).map(i => (
             <button key={i} onClick={() => setImpact(i)} style={{
               padding:'2px 7px', borderRadius:'3px', cursor:'pointer',
-              fontFamily:'JetBrains Mono,monospace', fontSize:'9px',
+              fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
               border:`1px solid ${impact===i ? (IMPACT_COLOR[i]??'var(--border)') : 'var(--border)'}`,
               background: impact===i ? (IMPACT_BG[i]??'transparent') : 'transparent',
               color: impact===i ? (IMPACT_COLOR[i]??'#fff') : 'var(--text-muted)',
@@ -234,7 +234,7 @@ export default function EconomicCalendarPanel() {
             }}>
               {/* Day + dot */}
               <div style={{ textAlign:'center', paddingTop:'2px' }}>
-                <div style={{ fontSize:'8px', color: today?'var(--negative)':'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', fontWeight: today?700:400 }}>
+                <div style={{ fontSize:'10px', color: today?'var(--negative)':'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', fontWeight: today?700:400 }}>
                   {rel}
                 </div>
                 <div style={{
@@ -252,11 +252,11 @@ export default function EconomicCalendarPanel() {
                     {ev.title}
                   </span>
                 </div>
-                <div style={{ fontSize:'9px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px' }}>
+                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px' }}>
                   {ev.time}{ev.country ? ` · ${ev.country}` : ''}
                 </div>
                 {(ev.forecast || ev.previous || ev.actual) && (
-                  <div style={{ display:'flex', gap:'10px', fontSize:'9px', fontFamily:'JetBrains Mono,monospace' }}>
+                  <div style={{ display:'flex', gap:'10px', fontSize:'11px', fontFamily:'JetBrains Mono,monospace' }}>
                     {ev.forecast && <span><span style={{color:'var(--text-muted)'}}>Est </span><span style={{color:'var(--text-2)'}}>{ev.forecast}</span></span>}
                     {ev.previous && <span><span style={{color:'var(--text-muted)'}}>Prev </span><span style={{color:'var(--text-2)'}}>{ev.previous}</span></span>}
                     {ev.actual   && <span><span style={{color:'var(--text-muted)'}}>Act </span><span style={{color:'var(--positive)',fontWeight:700}}>{ev.actual}</span></span>}
@@ -266,7 +266,7 @@ export default function EconomicCalendarPanel() {
 
               {/* Impact badge */}
               <div style={{
-                fontSize:'8px', padding:'2px 6px', borderRadius:'2px',
+                fontSize:'10px', padding:'2px 6px', borderRadius:'2px',
                 background: ib, color: ic,
                 border: `1px solid ${ic}33`,
                 fontFamily:'JetBrains Mono,monospace', fontWeight:700,
@@ -283,7 +283,7 @@ export default function EconomicCalendarPanel() {
       {/* Footer */}
       <div style={{
         padding:'4px 12px', borderTop:'1px solid var(--border)', flexShrink:0,
-        fontSize:'7px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
+        fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace',
         display:'flex', justifyContent:'space-between',
       }}>
         <span>{displayed.length} events</span>
