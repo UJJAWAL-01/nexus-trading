@@ -5,6 +5,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
+const dev = process.env.NODE_ENV !== 'production'
+
 // ── In-memory caches ───────────────────────────────────────────────────────────
 const liveCache  = new Map<string, { data: unknown; exp: number; fetchedAt: number }>()
 const staleStore = new Map<string, { data: unknown; fetchedAt: number }>()  // never expires
@@ -40,7 +42,7 @@ async function getYFSession(): Promise<{ crumb: string; cookie: string } | null>
     return { crumb: yfSession.crumb, cookie: yfSession.cookie }
   }
 
-  console.log('[options] Acquiring Yahoo Finance crumb...')
+  dev && console.log('[options] Acquiring Yahoo Finance crumb...')
 
   // Step 1: Hit Yahoo Finance to get session cookies (GDPR consent cookies)
   const cookieJar: Record<string, string> = {}
@@ -69,12 +71,12 @@ async function getYFSession(): Promise<{ crumb: string; cookie: string } | null>
         }
       })
     } catch (e) {
-      console.warn(`[options] YF cookie page ${page} failed:`, e)
+      dev && console.warn(`[options] YF cookie page ${page} failed:`, e)
     }
   }
 
   const cookieStr = Object.entries(cookieJar).map(([k, v]) => `${k}=${v}`).join('; ')
-  console.log(`[options] YF got ${Object.keys(cookieJar).length} cookies`)
+  dev && console.log(`[options] YF got ${Object.keys(cookieJar).length} cookies`)
 
   // Step 2: Exchange cookies for crumb
   const crumbUrls = [
@@ -94,27 +96,27 @@ async function getYFSession(): Promise<{ crumb: string; cookie: string } | null>
       })
 
       if (!r.ok) {
-        console.warn(`[options] YF crumb ${url}: HTTP ${r.status}`)
+        dev && console.warn(`[options] YF crumb ${url}: HTTP ${r.status}`)
         continue
       }
 
       const crumb = (await r.text()).trim()
       if (!crumb || crumb.startsWith('<') || crumb.length < 3) {
-        console.warn(`[options] YF crumb invalid: "${crumb.slice(0, 30)}"`)
+        dev && console.warn(`[options] YF crumb invalid: "${crumb.slice(0, 30)}"`)
         continue
       }
 
       yfSession.crumb  = crumb
       yfSession.cookie = cookieStr
       yfSession.exp    = Date.now() + 3 * 3600_000  // 3 hours
-      console.log(`[options] YF crumb acquired: ${crumb.slice(0, 8)}...`)
+      dev && console.log(`[options] YF crumb acquired: ${crumb.slice(0, 8)}...`)
       return { crumb, cookie: cookieStr }
     } catch (e) {
-      console.warn(`[options] YF crumb ${url} error:`, e)
+      dev && console.warn(`[options] YF crumb ${url} error:`, e)
     }
   }
 
-  console.warn('[options] YF crumb acquisition failed')
+  dev && console.warn('[options] YF crumb acquisition failed')
   return null
 }
 
@@ -154,7 +156,7 @@ function parseYahooResult(result: any, symbol: string): any {
     ? new Date(expiryTs * 1000).toISOString().slice(0, 10)
     : expiries[0] ?? ''
 
-  console.log(`[options] Yahoo parsed: spot=${spot}, expiries=${expiries.length}, calls=${calls.length}, puts=${puts.length}`)
+  dev && console.log(`[options] Yahoo parsed: spot=${spot}, expiries=${expiries.length}, calls=${calls.length}, puts=${puts.length}`)
 
   // Build strike map
   const strikeSet = new Set([
@@ -211,7 +213,7 @@ async function fetchYahooOptions(symbol: string, selectedExpiry?: string): Promi
 
   for (const base of bases) {
     const url = `${base}/v7/finance/options/${encodeURIComponent(sym)}?formatted=false&lang=en-US&region=US${expiryParam}${crumbParam}`
-    console.log(`[options] Yahoo fetch: ${base}/v7/finance/options/${sym}${expiryParam ? ' (with expiry)' : ''}${session ? ' (with crumb)' : ' (no crumb)'}`)
+    dev && console.log(`[options] Yahoo fetch: ${base}/v7/finance/options/${sym}${expiryParam ? ' (with expiry)' : ''}${session ? ' (with crumb)' : ' (no crumb)'}`)
 
     try {
       const headers: Record<string, string> = {
@@ -230,10 +232,10 @@ async function fetchYahooOptions(symbol: string, selectedExpiry?: string): Promi
       if (!res.ok) {
         // If 401 with crumb, invalidate and try without
         if (res.status === 401 || res.status === 403) {
-          console.warn(`[options] Yahoo ${res.status} — crumb may be expired, invalidating`)
+          dev && console.warn(`[options] Yahoo ${res.status} — crumb may be expired, invalidating`)
           yfSession.exp = 0
         }
-        console.error(`[options] Yahoo ${base}: HTTP ${res.status}`)
+        dev && console.error(`[options] Yahoo ${base}: HTTP ${res.status}`)
         continue
       }
 
@@ -241,7 +243,7 @@ async function fetchYahooOptions(symbol: string, selectedExpiry?: string): Promi
       const result = json?.optionChain?.result?.[0]
 
       if (!result) {
-        console.warn(`[options] Yahoo ${base}: no result`)
+        dev && console.warn(`[options] Yahoo ${base}: no result`)
         continue
       }
 
@@ -249,7 +251,7 @@ async function fetchYahooOptions(symbol: string, selectedExpiry?: string): Promi
 
       // If we got spot but no chain, try fetching again with an explicit expiry
       if (parsed.spot > 0 && parsed.chain.length === 0 && parsed.expiries.length > 0 && !selectedExpiry) {
-        console.log(`[options] Yahoo: got spot + expiries but empty chain — refetching with explicit expiry ${parsed.expiries[0]}`)
+        dev && console.log(`[options] Yahoo: got spot + expiries but empty chain — refetching with explicit expiry ${parsed.expiries[0]}`)
         const ts = Math.floor(new Date(parsed.expiries[0] + 'T00:00:00Z').getTime() / 1000)
         const url2 = `${base}/v7/finance/options/${encodeURIComponent(sym)}?formatted=false&lang=en-US&region=US&date=${ts}${crumbParam}`
         try {
@@ -260,19 +262,19 @@ async function fetchYahooOptions(symbol: string, selectedExpiry?: string): Promi
             if (result2) {
               const parsed2 = parseYahooResult(result2, sym)
               if (parsed2.chain.length > 0) {
-                console.log(`[options] Yahoo retry success: ${parsed2.chain.length} strikes`)
+                dev && console.log(`[options] Yahoo retry success: ${parsed2.chain.length} strikes`)
                 return parsed2
               }
             }
           }
         } catch (e) {
-          console.warn('[options] Yahoo retry failed:', e)
+          dev && console.warn('[options] Yahoo retry failed:', e)
         }
       }
 
       if (parsed.spot > 0) return parsed
     } catch (e: any) {
-      console.error(`[options] Yahoo ${base} error:`, e?.message ?? e)
+      dev && console.error(`[options] Yahoo ${base} error:`, e?.message ?? e)
     }
   }
 
@@ -316,7 +318,7 @@ async function fetchCBOE(symbol: string, selectedExpiry?: string): Promise<any> 
   const sym = symbol.toUpperCase()
   const cboeSymbol = CBOE_INDEX.has(sym) ? `_${sym}` : sym
   const url = `https://cdn.cboe.com/api/global/delayed_quotes/options/${cboeSymbol}.json`
-  console.log(`[options] CBOE fetch: ${url}`)
+  dev && console.log(`[options] CBOE fetch: ${url}`)
 
   const res = await fetch(url, {
     headers: {
@@ -331,12 +333,12 @@ async function fetchCBOE(symbol: string, selectedExpiry?: string): Promise<any> 
   if (!res.ok) throw new Error(`CBOE HTTP ${res.status}`)
 
   const raw  = await res.json()
-  console.log(`[options] CBOE raw keys: ${Object.keys(raw?.data ?? {}).slice(0, 10).join(', ')}`)
+  dev && console.log(`[options] CBOE raw keys: ${Object.keys(raw?.data ?? {}).slice(0, 10).join(', ')}`)
 
   const spot: number = raw?.data?.current_price ?? raw?.data?.close ?? 0
   const opts: any[]  = raw?.data?.options ?? []
 
-  console.log(`[options] CBOE: spot=${spot}, total options=${opts.length}`)
+  dev && console.log(`[options] CBOE: spot=${spot}, total options=${opts.length}`)
   if (!opts.length) throw new Error(`CBOE returned 0 options for ${sym}`)
 
   // CBOE options have both { type, strike, expiration } directly AND OCC symbol
@@ -366,12 +368,12 @@ async function fetchCBOE(symbol: string, selectedExpiry?: string): Promise<any> 
     return null
   }).filter(Boolean) as Array<{ type: 'C'|'P'; strike: number; expiry: string; data: any }>
 
-  console.log(`[options] CBOE parsed: ${parsedOpts.length} options, ${expSet.size} expiries`)
+  dev && console.log(`[options] CBOE parsed: ${parsedOpts.length} options, ${expSet.size} expiries`)
 
   const expiries  = [...expSet].sort()
   const chosen    = (selectedExpiry && expiries.includes(selectedExpiry)) ? selectedExpiry : expiries[0] ?? ''
 
-  console.log(`[options] CBOE: expiries=${expiries.slice(0, 5).join(', ')}... chosen=${chosen}`)
+  dev && console.log(`[options] CBOE: expiries=${expiries.slice(0, 5).join(', ')}... chosen=${chosen}`)
 
   const cMap = new Map<number, any>()
   const pMap = new Map<number, any>()
@@ -383,7 +385,7 @@ async function fetchCBOE(symbol: string, selectedExpiry?: string): Promise<any> 
   }
 
   const strikes = new Set([...cMap.keys(), ...pMap.keys()])
-  console.log(`[options] CBOE chain strikes for ${chosen}: ${strikes.size}`)
+  dev && console.log(`[options] CBOE chain strikes for ${chosen}: ${strikes.size}`)
 
   const chain = [...strikes]
     .filter(k => k > 0 && isFinite(k))
@@ -459,7 +461,7 @@ async function warmNSESession(): Promise<string> {
 
   nseSession.cookie = Object.entries(cookieJar).map(([k, v]) => `${k}=${v}`).join('; ')
   nseSession.exp    = Date.now() + 7 * 60_000
-  console.log(`[options] NSE session warmed: ${Object.keys(cookieJar).length} cookies`)
+  dev && console.log(`[options] NSE session warmed: ${Object.keys(cookieJar).length} cookies`)
   return nseSession.cookie
 }
 
@@ -560,7 +562,7 @@ async function fetchIndian(symbol: string, selectedExpiry?: string): Promise<any
         }
       }
     } catch (e: any) {
-      console.warn(`[options] Yahoo .NS failed for ${sym}, trying NSE direct:`, e?.message)
+      dev && console.warn(`[options] Yahoo .NS failed for ${sym}, trying NSE direct:`, e?.message)
     }
   }
   return fetchNSE(sym, selectedExpiry)
@@ -578,7 +580,7 @@ async function fetchNSE(symbol: string, selectedExpiry?: string): Promise<any> {
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      console.log(`[options] NSE attempt ${attempt}: ${sym}`)
+      dev && console.log(`[options] NSE attempt ${attempt}: ${sym}`)
       const res = await fetch(endpoint, {
         headers: { ...NSE_HDRS, ...(cookie ? { Cookie: cookie } : {}) },
         signal: AbortSignal.timeout(15000),
@@ -596,7 +598,7 @@ async function fetchNSE(symbol: string, selectedExpiry?: string): Promise<any> {
       }
 
       if (!res.ok) {
-        console.error(`[options] NSE HTTP ${res.status}`)
+        dev && console.error(`[options] NSE HTTP ${res.status}`)
         continue
       }
 
@@ -610,10 +612,10 @@ async function fetchNSE(symbol: string, selectedExpiry?: string): Promise<any> {
       }
 
       const parsed = parseNSEResponse(json, sym, selectedExpiry)
-      console.log(`[options] NSE success: ${sym}, spot=${parsed.spot}, chain=${parsed.chain.length}`)
+      dev && console.log(`[options] NSE success: ${sym}, spot=${parsed.spot}, chain=${parsed.chain.length}`)
       return parsed
     } catch (e: any) {
-      console.error(`[options] NSE attempt ${attempt} error:`, e?.message ?? e)
+      dev && console.error(`[options] NSE attempt ${attempt} error:`, e?.message ?? e)
       if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * attempt))
       else throw e
     }
@@ -655,7 +657,7 @@ export async function GET(request: NextRequest) {
             ? `${ageMins} min${ageMins !== 1 ? 's' : ''}`
             : `${Math.round(ageMins / 60)} hr${Math.round(ageMins / 60) !== 1 ? 's' : ''}`
 
-          console.log(`[options] NSE live failed, serving stale data (${ageStr} old)`)
+          dev && console.log(`[options] NSE live failed, serving stale data (${ageStr} old)`)
           const staleResult = {
             ...s,
             symbol, market,
@@ -676,7 +678,7 @@ export async function GET(request: NextRequest) {
         payload = await fetchYahooOptions(symbol, expiry)
         // If Yahoo returned data but empty chain, try CBOE
         if (payload.chain.length === 0 && payload.spot > 0) {
-          console.warn(`[options] Yahoo returned empty chain for ${symbol}, trying CBOE`)
+          dev && console.warn(`[options] Yahoo returned empty chain for ${symbol}, trying CBOE`)
           try {
             const cboe = await fetchCBOE(symbol, expiry)
             if (cboe.chain.length > 0) {
@@ -684,12 +686,12 @@ export async function GET(request: NextRequest) {
               payload = { ...cboe, spot: Math.max(payload.spot, cboe.spot) }
             }
           } catch (cboeE: any) {
-            console.warn('[options] CBOE also failed:', cboeE?.message)
+            dev && console.warn('[options] CBOE also failed:', cboeE?.message)
           }
         }
       } catch (e: any) {
         yahooErr = e?.message ?? 'Yahoo failed'
-        console.warn(`[options] Yahoo primary failed: ${yahooErr}, trying CBOE`)
+        dev && console.warn(`[options] Yahoo primary failed: ${yahooErr}, trying CBOE`)
         try {
           payload = await fetchCBOE(symbol, expiry)
         } catch (cboeE: any) {
@@ -706,7 +708,10 @@ export async function GET(request: NextRequest) {
               fetchedAt: new Date().toISOString(),
             })
           }
-          throw new Error(`Yahoo: ${yahooErr}. CBOE: ${cboeE?.message ?? 'failed'}`)
+          if (process.env.NODE_ENV !== 'production') {
+            dev && console.error(`[options] Yahoo: ${yahooErr}. CBOE: ${cboeE?.message ?? 'failed'}`)
+          }
+          throw new Error('Options data unavailable from all sources')
         }
       }
     }
@@ -728,12 +733,13 @@ export async function GET(request: NextRequest) {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' }
     })
 
-  } catch (err: any) {
-    const msg = err?.message ?? 'Options fetch failed'
-    console.error(`[options] Final error for ${market}:${symbol}:`, msg)
+  } catch (err: unknown) {
+    if (process.env.NODE_ENV !== 'production') {
+      dev && console.error(`[options] Final error for ${market}:${symbol}:`, err)
+    }
 
     return NextResponse.json({
-      error: msg,
+      error: 'Options data unavailable',
       chain: [], expiries: [], spot: 0, pcr: 0,
       callOI: 0, putOI: 0, lotSize: 100, selectedExpiry: '',
       symbol, market, staleData: false,

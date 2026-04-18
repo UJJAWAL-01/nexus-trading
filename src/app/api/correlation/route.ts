@@ -2,6 +2,7 @@
 // Uses the AI provider abstraction — Grok free → Claude paid → Gemini free
 import { NextRequest, NextResponse } from 'next/server'
 import { callAI, parseAIJson } from '@/lib/ai-provider'
+import { rateLimit } from '@/lib/ratelimiter'
 
 // ── Caches ────────────────────────────────────────────────────────────────────
 const intelligenceCache = new Map<string, { data: CompanyIntelligence; expires: number }>()
@@ -259,9 +260,24 @@ function regimeShift(a: number[], b: number[]) {
 
 // ── Main handler ──────────────────────────────────────────────────────────────
 
+// Validate symbol to prevent prompt injection: only allow valid ticker characters
+const SYMBOL_RE = /^[A-Z0-9.\^=\-]{1,15}$/
+
 export async function GET(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const rl = rateLimit(`correlation:${ip}`, 10, 60_000)  // 10 req/min per IP (AI route)
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded', correlations: [], target: '' }, { status: 429 })
+  }
+
   const { searchParams } = new URL(request.url)
-  const symbol   = (searchParams.get('symbol')||'AAPL').trim()
+  const rawSymbol = (searchParams.get('symbol') || 'AAPL').trim().toUpperCase()
+
+  if (!SYMBOL_RE.test(rawSymbol)) {
+    return NextResponse.json({ error: 'Invalid symbol', correlations: [], target: rawSymbol }, { status: 400 })
+  }
+
+  const symbol   = rawSymbol
   const cacheKey = `result:${symbol}`
 
   const cached = resultCache.get(cacheKey)

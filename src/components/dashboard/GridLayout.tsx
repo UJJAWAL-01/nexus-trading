@@ -22,9 +22,17 @@ import SentimentPanel           from '@/components/panels/SentimentPanel'
 import WatchlistPanel           from '@/components/panels/WatchlistPanel'
 import CommoditiesPanel         from '@/components/panels/CommoditiesPanel'
 import InsiderDealsPanel        from '@/components/panels/InsiderDealsPanel'
-import IpoScreenerPanel from '@/components/panels/IpoScreenerPanel'
-import OptionsPanel from '@/components/panels/OptionsPanel'
-import FixedIncomePanel from '@/components/panels/FixedIncomePanel'
+import IpoScreenerPanel         from '@/components/panels/IpoScreenerPanel'
+import OptionsPanel             from '@/components/panels/OptionsPanel'
+import FixedIncomePanel         from '@/components/panels/FixedIncomePanel'
+// ── Forex / Crypto trading suite
+import { TradingProvider }          from '@/components/trading/TradingContext'
+import { RiskPanel }                from '@/components/panels/RiskPanel'
+import { LiveDashboard }            from '@/components/panels/LiveDashboard'
+import { JournalPanel }             from '@/components/panels/JournalPanel'
+import { AnalyticsPanel }           from '@/components/panels/AnalyticsPanel'
+import { CalendarPanel }            from '@/components/panels/CalendarPanel'
+import { PropFirmPanel }            from '@/components/panels/PropFirmPanel'
 const ReactGridLayout = WidthProvider(GridLayoutBase)
 
 // ── Panel registry ─────────────────────────────────────────────────────────────
@@ -35,7 +43,10 @@ const PANEL_IDS = [
   'sentiment', 'calendar', 'earnings',
   'heatmap', 'indiamarkets', 'macrorates',
   'altsignals','insiderdeals', 'commodities', 'correlation',
-  'options', 'ipo', 'fixedincome'
+  'options', 'ipo', 'fixedincome',
+  // Forex / Crypto trading suite
+  'fx-risk', 'fx-live', 'fx-journal', 'fx-analytics',
+  'fx-calendar', 'fx-propfirm',
 ] as const
 
 type PanelId = (typeof PANEL_IDS)[number]
@@ -69,12 +80,19 @@ const PANEL_META: Record<PanelId, PanelMeta> = {
   correlation:  { component: <CorrelationPanel />,         label: 'CORRELATION',   color: '#1e90ff',        mobileH: 500, description: 'AI stock correlation map' },
   ipo:          { component: <IpoScreenerPanel />,         label: 'IPO',           color: '#1e90ff',    mobileH: 380, description: 'Upcoming and recent IPOs' },
   options:      { component: <OptionsPanel />,             label: 'OPTIONS',       color: '#a78bfa',    mobileH: 560, description: 'BSM pricing · IV · Greeks · Monte Carlo · OI' },
-  fixedincome:  { component: <FixedIncomePanel />,        label: 'FIXED INCOME',  color: '#38bdf8',    mobileH: 560, description: 'India yield curve · credit spreads' },
+  fixedincome:    { component: <FixedIncomePanel />,         label: 'FIXED INCOME',   color: '#38bdf8',   mobileH: 560, description: 'India yield curve · credit spreads' },
+  // ── Forex / Crypto trading suite (shared TradingContext injected at render) ──
+  'fx-risk':        { component: <RiskPanel />,              label: 'FX RISK CALC',   color: '#00ff88',   mobileH: 640, description: 'Position size · pip value · R:R · daily drawdown' },
+  'fx-live':        { component: <LiveDashboard />,   label: 'FX LIVE',       color: '#00ff88', mobileH: 540, description: 'Live Forex & Crypto prices · Yahoo Finance · session clock' },
+  'fx-journal':     { component: <JournalPanel />,   label: 'FX JOURNAL',    color: '#a78bfa', mobileH: 600, description: 'Trade log · setup tags · emotion tracking' },
+  'fx-analytics':   { component: <AnalyticsPanel />, label: 'FX ANALYTICS',  color: '#a78bfa', mobileH: 600, description: 'Equity curve · win rate · P&L heatmap' },
+  'fx-calendar':    { component: <CalendarPanel />,  label: 'ECON CALENDAR', color: '#f0a500', mobileH: 520, description: 'Economic calendar · Finnhub + official schedule' },
+  'fx-propfirm':    { component: <PropFirmPanel />,  label: 'PROP FIRM',     color: '#f0a500', mobileH: 560, description: 'Prop firm challenge tracker · drawdown limits' },
 }
 
-// ── DESKTOP default layout — version 7 ────────────────────────────────────────
-// Order: Live TV + News + Watchlist → Indices + Clock + Chart → Analytics → India/Macro
-const LS_KEY = 'nexus-layout-v8'
+// ── DESKTOP default layout — version 9 ────────────────────────────────────────
+// Added FX / Crypto trading suite rows at the bottom
+const LS_KEY = 'nexus-layout-v10'
 
 const DEFAULT_LAYOUT: DashboardLayout = [
   // Row 1 — Live TV (large) + News + Watchlist
@@ -103,20 +121,35 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   { i: 'correlation',  x: 6,  y: 42, w: 6, h: 14, minW: 4, minH: 10 },
   { i: 'ipo',  x: 12,  y: 72, w: 6, h: 16, minW: 4, minH: 10 },
   { i: 'options', x: 0, y: 72, w: 6, h: 16, minW: 6, minH: 14 },
-  { i: 'fixedincome', x: 0, y: 88, w: 9, h: 14, minW: 6, minH: 14 },
-  { i: 'macrorates',   x: 9,  y: 88, w: 3, h: 14, minW: 2, minH: 10  },
+  { i: 'fixedincome',     x: 0, y: 88, w: 9, h: 14, minW: 6, minH: 14 },
+  { i: 'macrorates',     x: 9, y: 88, w: 3, h: 14, minW: 2, minH: 10 },
+
+  // ── Forex / Crypto trading suite rows ─────────────────────────────────────
+  // Row FX-1: Risk Calculator + Live Dashboard
+  { i: 'fx-risk',        x: 0, y: 103, w: 4, h: 18, minW: 3, minH: 14 },
+  { i: 'fx-live',        x: 4, y: 103, w: 8, h: 18, minW: 4, minH: 12 },
+
+  // Row FX-2: Trade Journal + Analytics
+  { i: 'fx-journal',     x: 0, y: 121, w: 6, h: 22, minW: 4, minH: 14 },
+  { i: 'fx-analytics',   x: 6, y: 121, w: 6, h: 22, minW: 4, minH: 14 },
+
+  // Row FX-3: Economic Calendar
+  { i: 'fx-calendar',    x: 0, y: 143, w: 12, h: 18, minW: 4, minH: 12 },
+
+  // Row FX-4: Prop Firm Mode
+  { i: 'fx-propfirm',    x: 0, y: 161, w: 6, h: 18, minW: 4, minH: 14 },
 ]
 
 // ── MOBILE panel order (best-first) ───────────────────────────────────────────
 const MOBILE_ORDER: PanelId[] = [
   'watchlist', 'chart', 'news',
   'livevideo', 'indices', 'mktclock',
-  'sentiment', 'commodities','calendar',
-  'heatmap', 'indiamarkets', 'insiderdeals','ipo','options','fixedincome', 
-  'altsignals', 'correlation','macrorates','earnings',
-  
-
-  
+  'sentiment', 'commodities', 'calendar',
+  'heatmap', 'indiamarkets', 'insiderdeals', 'ipo', 'options', 'fixedincome',
+  'altsignals', 'correlation', 'macrorates', 'earnings',
+  // Forex / Crypto trading suite
+  'fx-live', 'fx-risk', 'fx-calendar',
+  'fx-journal', 'fx-analytics', 'fx-propfirm',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -186,11 +219,12 @@ function saveLayout(layout: DashboardLayout) {
 // ── Panel group definitions for visibility menu ────────────────────────────────
 
 const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
-  { label: 'Live',      ids: ['livevideo', 'news', 'watchlist']               },
-  { label: 'Charts',    ids: ['chart', 'indices', 'mktclock']                 },
-  { label: 'Analytics', ids: ['sentiment', 'calendar', 'earnings', 'heatmap'] },
-  { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals', 'commodities', 'insiderdeals', 'ipo']     },
-  { label: 'Research',  ids: ['correlation', 'options', 'fixedincome']},
+  { label: 'Live',      ids: ['livevideo', 'news', 'watchlist']                                        },
+  { label: 'Charts',    ids: ['chart', 'indices', 'mktclock']                                          },
+  { label: 'Analytics', ids: ['sentiment', 'calendar', 'earnings', 'heatmap']                          },
+  { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals', 'commodities', 'insiderdeals', 'ipo'] },
+  { label: 'Research',  ids: ['correlation', 'options', 'fixedincome']                                 },
+  { label: 'Forex/Crypto', ids: ['fx-live', 'fx-risk', 'fx-journal', 'fx-analytics', 'fx-calendar', 'fx-propfirm'] },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────
@@ -313,6 +347,7 @@ function TabletLayout({ hidden }: { hidden: Set<PanelId> }) {
 
 // ── Main GridLayout component ──────────────────────────────────────────────────
 
+// TradingProvider is hoisted here so all FX panels share one context instance
 export default function GridLayout() {
   const [mounted,  setMounted]  = useState(false)
   const [editing,  setEditing]  = useState(false)
@@ -394,9 +429,14 @@ export default function GridLayout() {
     )
   }
 
+  // All layout variants are wrapped in TradingProvider so the FX panels share context
+  const withTrading = (children: ReactNode) => (
+    <TradingProvider>{children}</TradingProvider>
+  )
+
   // ── MOBILE LAYOUT ────────────────────────────────────────────────────────────
   if (isMobile) {
-    return (
+    return withTrading(
       <div style={{ padding: '8px', paddingBottom: '40px', overflowX: 'hidden' }}>
 
         {/* Mobile toolbar */}
@@ -535,7 +575,7 @@ export default function GridLayout() {
 
   // ── TABLET LAYOUT ────────────────────────────────────────────────────────────
   if (isTablet) {
-    return (
+    return withTrading(
       <div style={{ paddingBottom: '40px' }}>
         <div style={{
           display:        'flex',
@@ -570,13 +610,14 @@ export default function GridLayout() {
   }
 
   // ── DESKTOP DRAG-DROP LAYOUT ──────────────────────────────────────────────────
+
   const btnBase: React.CSSProperties = {
     padding: '4px 14px', borderRadius: '3px', cursor: 'pointer',
     fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
     letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'all 0.15s',
   }
 
-  return (
+  return withTrading(
     <div style={{ padding: '0 6px 40px' }}>
 
       {/* Desktop toolbar */}

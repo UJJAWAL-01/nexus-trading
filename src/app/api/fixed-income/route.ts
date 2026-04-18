@@ -862,11 +862,12 @@ Output ONLY 4 bullet points. No preamble.`
   try {
     const { text, provider } = await callAI([{ role: 'user', content: prompt }], 350)
     if (!text || text.length < 10) {
-      return { text: '⚠ AI service returned empty response. Verify GROK_API_KEY or GEMINI_API_KEY is set.', provider: 'none', error: 'empty_response' }
+      return { text: 'AI analysis temporarily unavailable.', provider: 'none', error: 'empty_response' }
     }
     return { text: text.trim(), provider }
   } catch (err) {
-    return { text: `⚠ AI call failed: ${String(err).slice(0, 100)}`, provider: 'none', error: String(err) }
+    if (process.env.NODE_ENV !== 'production') console.error('[fixed-income] AI error:', err)
+    return { text: 'AI analysis temporarily unavailable.', provider: 'none', error: 'ai_failed' }
   }
 }
 

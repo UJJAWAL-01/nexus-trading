@@ -87,7 +87,11 @@ async function callClaude(messages: AIMessage[], maxTokens = 1500): Promise<stri
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type':      'application/json',
+        'x-api-key':         process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
       body:    JSON.stringify(body),
       signal:  AbortSignal.timeout(30_000),
     })

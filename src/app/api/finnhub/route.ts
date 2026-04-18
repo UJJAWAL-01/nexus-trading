@@ -17,6 +17,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'endpoint required' }, { status: 400 })
   }
 
+  if (!process.env.FINNHUB_API_KEY) {
+    return NextResponse.json({ error: 'Data source unavailable' }, { status: 503 })
+  }
+
   const cacheKey = `finnhub:${endpoint}:${symbol || q || ''}`
   const cached   = cache.get(cacheKey)
 
@@ -27,7 +31,7 @@ export async function GET(request: NextRequest) {
   }
 
   const params = new URLSearchParams()
-  params.set('token', process.env.FINNHUB_API_KEY!)
+  params.set('token', process.env.FINNHUB_API_KEY)
   if (symbol) params.set('symbol', symbol)
   if (q)      params.set('q', q)
 

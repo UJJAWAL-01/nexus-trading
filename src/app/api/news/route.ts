@@ -48,10 +48,10 @@ export async function GET(request: NextRequest) {
     if (stale) return NextResponse.json(stale.data)
     
     // Final fallback: return generic market news structure
-    return NextResponse.json({ 
+    return NextResponse.json({
       articles: [],
       status: 'error',
-      message: 'Unable to fetch news, check API key'
+      message: 'News temporarily unavailable'
     })
   }
 }

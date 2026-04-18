@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       `https://query1.finance.yahoo.com/v8/finance/chart/` +
       `${encodeURIComponent(yfinanceSymbol)}?interval=1d&range=5d&includePrePost=true`
 
-    console.log(`[globalquote] Fetching: ${symbol} → ${yfinanceSymbol}`)
+    if (process.env.NODE_ENV !== 'production') console.log(`[globalquote] Fetching: ${symbol}`)
 
     const res = await fetch(url, {
       headers: {
@@ -65,21 +65,19 @@ export async function GET(request: NextRequest) {
     })
 
     if (res.status === 404) {
-      console.warn(`[globalquote] 404 for ${symbol}`)
       return NextResponse.json({ symbol, price: null, error: 'Symbol not found' })
     }
 
     if (!res.ok) {
-      console.error(`[globalquote] HTTP ${res.status} for ${symbol}`)
+      if (process.env.NODE_ENV !== 'production') console.error(`[globalquote] HTTP ${res.status} for ${symbol}`)
       if (cached?.stale) return NextResponse.json(cached.stale)
-      return NextResponse.json({ symbol, price: null, error: `HTTP ${res.status}` })
+      return NextResponse.json({ symbol, price: null, error: 'Data unavailable' })
     }
 
     const json = await res.json()
     const result = json?.chart?.result?.[0]
 
     if (!result || !result.meta) {
-      console.warn(`[globalquote] No data in response for ${symbol}`, { hasResult: !!result, hasMeta: result?.meta ? true : false })
       if (cached?.stale) return NextResponse.json(cached.stale)
       return NextResponse.json({ symbol, price: null, error: 'No data' })
     }
@@ -125,15 +123,15 @@ export async function GET(request: NextRequest) {
       fiftyTwoWeekLow:  m.fiftyTwoWeekLow  ?? null,
     }
 
-    console.log(`[globalquote] Success: ${symbol} = ${price} (${changePct}%)`)
+    if (process.env.NODE_ENV !== 'production') console.log(`[globalquote] Success: ${symbol} = ${price}`)
     cache.set(cacheKey, { data: payload, stale: payload, expires: Date.now() + 8_000 })
 
     return NextResponse.json(payload, {
       headers: { 'Cache-Control': 'public, s-maxage=8, stale-while-revalidate=30' },
     })
   } catch (err) {
-    console.error('[globalquote] error for', symbol, err)
+    if (process.env.NODE_ENV !== 'production') console.error('[globalquote] error for', symbol, err)
     if (cached?.stale) return NextResponse.json(cached.stale)
-    return NextResponse.json({ symbol, price: null, error: 'Fetch error', details: String(err) })
+    return NextResponse.json({ symbol, price: null, error: 'Data unavailable' })
   }
 }

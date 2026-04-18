@@ -1,6 +1,8 @@
 // src/app/api/edgar/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 
+const dev = process.env.NODE_ENV !== 'production'
+
 const cache = new Map<string, { data: unknown; expires: number }>()
 const SEC_UA = 'NEXUS Trading Intelligence nexus-app/1.0 contact@nexustrading.app'
 
@@ -24,7 +26,7 @@ async function getTickerMap(): Promise<Record<string, string>> {
     })
 
     if (!res.ok) {
-      console.error('[edgar] ticker map fetch failed:', res.status)
+      dev && console.error('[edgar] ticker map fetch failed:', res.status)
       return tickerMap ?? {}
     }
 
@@ -46,7 +48,7 @@ async function getTickerMap(): Promise<Record<string, string>> {
     tickerMapExpiry = Date.now() + 4 * 3600_000 // 4 hours
     return map
   } catch (err) {
-    console.error('[edgar] getTickerMap error:', err)
+    dev && console.error('[edgar] getTickerMap error:', err)
     return tickerMap ?? {}
   }
 }
@@ -90,7 +92,7 @@ async function fetchEdgarFacts(cik: string, ticker: string) {
     })
 
     if (!res.ok) {
-      console.error('[edgar] facts fetch failed:', res.status, 'for', ticker, cik)
+      dev && console.error('[edgar] facts fetch failed:', res.status, 'for', ticker, cik)
       return null
     }
 
@@ -153,7 +155,7 @@ async function fetchEdgarFacts(cik: string, ticker: string) {
     cache.set(key, { data: payload, expires: Date.now() + 3_600_000 })
     return payload
   } catch (err) {
-    console.error('[edgar] fetchFacts error:', err)
+    dev && console.error('[edgar] fetchFacts error:', err)
     return null
   }
 }
@@ -261,7 +263,7 @@ async function fetchYahooFinancials(symbol: string) {
     cache.set(key, { data: payload, expires: Date.now() + 3_600_000 })
     return payload
   } catch (err) {
-    console.error('[edgar] Yahoo financials error:', err)
+    dev && console.error('[edgar] Yahoo financials error:', err)
     return null
   }
 }
