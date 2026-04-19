@@ -1,6 +1,6 @@
 # NEXUS Trading Intelligence
 
-> **Bloomberg Terminal-style market research dashboard for retail and semi-professional traders.** Real-time data, AI-driven analysis, dual US & Indian market support — all in one interface.
+> ** Terminal-style market research dashboard for retail and semi-professional traders.** Real-time data, AI-driven analysis, dual US & Indian market support — all in one interface.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![React](https://img.shields.io/badge/React-19-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![status](https://img.shields.io/badge/status-production-brightgreen)
 
