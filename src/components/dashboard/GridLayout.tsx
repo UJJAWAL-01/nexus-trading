@@ -134,10 +134,10 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   { i: 'fx-analytics',   x: 6, y: 121, w: 6, h: 22, minW: 4, minH: 14 },
 
   // Row FX-3: Economic Calendar
-  { i: 'fx-calendar',    x: 0, y: 143, w: 12, h: 18, minW: 4, minH: 12 },
+  { i: 'fx-calendar',    x: 0, y: 143, w: 6, h: 18, minW: 4, minH: 12 },
 
   // Row FX-4: Prop Firm Mode
-  { i: 'fx-propfirm',    x: 0, y: 161, w: 6, h: 18, minW: 4, minH: 14 },
+  { i: 'fx-propfirm',    x: 6, y: 143, w: 6, h: 18, minW: 4, minH: 14 },
 ]
 
 // ── MOBILE panel order (best-first) ───────────────────────────────────────────
