@@ -195,7 +195,6 @@ export default function NewsFeedPanel() {
     relevant: '', markets: '', macro: '', india: '',
   })
 
-  // Legacy relevant items with AI context (existing functionality)
   const [aiQueue,   setAiQueue]   = useState<string[]>([])
   const [aiItems,   setAiItems]   = useState<Map<string, { context: string|null; loading: boolean }>>(new Map())
   const prevNewsIds = useRef<Set<string>>(new Set())

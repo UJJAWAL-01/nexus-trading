@@ -84,7 +84,7 @@ interface FIResponse {
 }
 
 type Market = 'US' | 'IN' | 'COMPARE'
-type Tab    = 'overview' | 'curve' | 'bonds' | 'spreads' | 'insights'
+type Tab    = 'overview' | 'curve' | 'bonds' | 'spreads'
 
 // ── Design constants ──────────────────────────────────────────────────────────
 const US_COLOR    = '#00e5c0'
@@ -562,7 +562,6 @@ export default function FixedIncomePanel() {
   const [inData,         setInData]         = useState<FIResponse | null>(null)
   const [loading,        setLoading]        = useState(true)
   const [allowModeled,   setAllowModeled]   = useState(false)
-  const [loadingInsights,setLoadingInsights] = useState(false)
   const stale = useRef<{ us: FIResponse | null; in: FIResponse | null }>({ us: null, in: null })
 
   const fetch1 = useCallback(async (mkt: 'US' | 'IN', modeled = false) => {
@@ -585,23 +584,6 @@ export default function FixedIncomePanel() {
     return () => clearInterval(t)
   }, [fetch1, allowModeled])
 
-  const loadInsights = useCallback(async () => {
-    if (loadingInsights) return
-    setLoadingInsights(true)
-    const mkts: ('US' | 'IN')[] = market === 'COMPARE' ? ['US', 'IN'] : [market as 'US' | 'IN']
-    await Promise.all(mkts.map(async m => {
-      try {
-        const res = await fetch(`/api/fixed-income?market=${m}&type=insights${allowModeled ? '&modeled=1' : ''}`)
-        const d   = await res.json() as FIResponse
-        if (m === 'US') setUsData(prev => prev ? { ...prev, insights: d.insights, insightsProvider: d.insightsProvider, insightsError: d.insightsError } : prev)
-        else setInData(prev => prev ? { ...prev, insights: d.insights, insightsProvider: d.insightsProvider, insightsError: d.insightsError } : prev)
-      } catch {}
-    }))
-    setLoadingInsights(false)
-  }, [market, allowModeled, loadingInsights])
-
-  useEffect(() => { if (tab === 'insights') loadInsights() }, [tab])
-
   const active       = market === 'IN' ? inData : usData
   const accent       = market === 'IN' ? INDIA_COLOR : US_COLOR
   const dq           = active?.curveDataQuality ?? 'unavailable'
@@ -613,7 +595,6 @@ export default function FixedIncomePanel() {
     { id: 'curve',    label: 'YIELD CURVE' },
     { id: 'bonds',    label: 'BONDS'       },
     { id: 'spreads',  label: 'SPREADS'     },
-    { id: 'insights', label: '✦ AI'        },
   ]
 
   return (
@@ -854,44 +835,6 @@ export default function FixedIncomePanel() {
           </div>
         )}
 
-        {/* ── AI INSIGHTS ─────────────────────────────────────────────────── */}
-        {tab === 'insights' && (
-          <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {loadingInsights && (
-              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>◆ GENERATING AI INSIGHTS FROM LIVE DATA...</div>
-            )}
-            {(market === 'US' || market === 'COMPARE') && !loadingInsights && (
-              <div style={{ padding: '12px 14px', background: 'rgba(0,229,192,0.04)', border: '1px solid rgba(0,229,192,0.15)', borderRadius: '5px' }}>
-                <div style={{ fontSize: '11px', color: US_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  🇺🇸 US MARKET INSIGHTS
-                  {usData?.insightsProvider && <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>via {usData.insightsProvider.toUpperCase()}</span>}
-                  {usData?.insightsError && <DSTBadge dst="unavailable" small tooltip={usData.insightsError} />}
-                </div>
-                <div style={{ fontSize: '11px', color: usData?.insightsError ? '#f0a500' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>
-                  {usData?.insights ?? '— No insights generated yet —'}
-                </div>
-              </div>
-            )}
-            {(market === 'IN' || market === 'COMPARE') && !loadingInsights && (
-              <div style={{ padding: '12px 14px', background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.15)', borderRadius: '5px' }}>
-                <div style={{ fontSize: '11px', color: INDIA_COLOR, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  🇮🇳 INDIA MARKET INSIGHTS
-                  {inData?.insightsProvider && <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>via {inData.insightsProvider.toUpperCase()}</span>}
-                  {inData?.insightsError && <DSTBadge dst="unavailable" small tooltip={inData.insightsError} />}
-                </div>
-                <div style={{ fontSize: '11px', color: inData?.insightsError ? '#f0a500' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>
-                  {inData?.insights ?? '— No insights generated yet —'}
-                </div>
-              </div>
-            )}
-            <button onClick={loadInsights} disabled={loadingInsights} style={{ padding: '6px 16px', borderRadius: '3px', cursor: 'pointer', width: 'fit-content', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}>
-              ↺ REGENERATE
-            </button>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1.6, borderLeft: '2px solid var(--border)', padding: '6px 10px' }}>
-              AI insights use live FRED/NSE data as context. Quality scales with data availability — LIVE → OFFICIAL → MODELED. Insights are not financial advice.
-            </div>
-          </div>
-        )}
       </div>
 
       {/* FOOTER */}
