@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',   // required for Azure Static Web Apps SSR
   reactCompiler: true,
   poweredByHeader: false,
 
