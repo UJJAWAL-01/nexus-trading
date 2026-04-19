@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     cache.set(cacheKey, { data, stale: data, expires: Date.now() + ttl })
 
     // s-maxage tells Vercel CDN to cache at the edge
-    const sMaxAge = endpoint === 'quote' ? 5 : endpoint === 'news' ? 60 : 30
+    const sMaxAge = endpoint === 'quote' ? 25 : endpoint === 'news' ? 90 : 60
 
     return NextResponse.json(data, {
       headers: { 'Cache-Control': `public, s-maxage=${sMaxAge}, stale-while-revalidate=120` }

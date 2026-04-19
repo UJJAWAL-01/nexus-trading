@@ -159,7 +159,7 @@ export function LiveDashboard() {
     }
 
     fetchAll()
-    const id = setInterval(fetchAll, 30_000)
+    const id = setInterval(fetchAll, 60_000)
     return () => clearInterval(id)
   }, [])
 

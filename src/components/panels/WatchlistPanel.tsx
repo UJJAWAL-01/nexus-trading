@@ -96,7 +96,7 @@ export default function WatchlistPanel() {
 
   useEffect(() => {
     pollPrices()
-    const t = setInterval(pollPrices, 10000)
+    const t = setInterval(pollPrices, 30_000)
     return () => clearInterval(t)
   }, [pollPrices])
 

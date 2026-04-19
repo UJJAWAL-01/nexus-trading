@@ -123,10 +123,12 @@ export async function GET(request: NextRequest) {
 
   const cacheKey = `yq:${symbol}`
 
-  // Live cache (15s TTL)
+  // Live cache (25s TTL)
   const live = liveCache.get(cacheKey)
   if (live && live.expires > Date.now()) {
-    return NextResponse.json(live.data)
+    return NextResponse.json(live.data, {
+      headers: { 'Cache-Control': 'public, s-maxage=25, stale-while-revalidate=60' },
+    })
   }
 
   // Try Yahoo Finance first
@@ -138,9 +140,11 @@ export async function GET(request: NextRequest) {
   }
 
   if (data) {
-    liveCache.set(cacheKey, { data, expires: Date.now() + 15_000 })
+    liveCache.set(cacheKey, { data, expires: Date.now() + 25_000 })
     staleCache.set(cacheKey, data)
-    return NextResponse.json(data)
+    return NextResponse.json(data, {
+      headers: { 'Cache-Control': 'public, s-maxage=25, stale-while-revalidate=60' },
+    })
   }
 
   // Return stale data if available — never return null/blank

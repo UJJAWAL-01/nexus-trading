@@ -167,7 +167,7 @@ export default function IndiaMarketsPanel() {
 
   useEffect(() => {
     fetchAll()
-    const t = setInterval(fetchAll, 30_000)
+    const t = setInterval(fetchAll, 60_000)
     return () => clearInterval(t)
   }, [])
 

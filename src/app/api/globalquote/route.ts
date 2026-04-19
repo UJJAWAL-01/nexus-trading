@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
   const cached = cache.get(cacheKey)
   if (cached && cached.expires > Date.now()) {
     return NextResponse.json(cached.data, {
-      headers: { 'Cache-Control': 'public, s-maxage=8, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'public, s-maxage=25, stale-while-revalidate=60' },
     })
   }
 
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
     cache.set(cacheKey, { data: payload, stale: payload, expires: Date.now() + 8_000 })
 
     return NextResponse.json(payload, {
-      headers: { 'Cache-Control': 'public, s-maxage=8, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'public, s-maxage=25, stale-while-revalidate=60' },
     })
   } catch (err) {
     if (process.env.NODE_ENV !== 'production') console.error('[globalquote] error for', symbol, err)

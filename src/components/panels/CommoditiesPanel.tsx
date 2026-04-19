@@ -185,7 +185,7 @@ export default function CommoditiesPanel() {
 
   useEffect(() => {
     fetchPrices()
-    const id = setInterval(fetchPrices, 30_000)
+    const id = setInterval(fetchPrices, 60_000)
     return () => clearInterval(id)
   }, [fetchPrices])
 

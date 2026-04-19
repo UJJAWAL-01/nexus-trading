@@ -185,7 +185,7 @@ export default function SentimentPanel() {
 
   useEffect(() => {
     fetchSentiment()
-    const t = setInterval(fetchSentiment, 60_000)
+    const t = setInterval(fetchSentiment, 120_000)
     return () => clearInterval(t)
   }, [])
 
