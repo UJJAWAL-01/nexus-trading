@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 const MOBILE_BREAKPOINT = 768
 
@@ -160,22 +161,22 @@ export default function Footer() {
             }}
           >
             {[
-              'Terms of Service',
-              'Privacy Policy',
-              'Full Legal Disclaimer',
-              'Contact Us',
-              'Accessibility',
+              { label: 'Terms of Service',    href: '/terms' },
+              { label: 'Privacy Policy',      href: '/privacy' },
+              { label: 'Full Legal Disclaimer', href: '/legal' },
+              { label: 'Contact Us',          href: '/contact' },
+              { label: 'Accessibility',       href: '/accessibility' },
             ].map((link, idx) => (
-              <a
+              <Link
                 key={idx}
-                href="#"
+                href={link.href}
                 style={{
                   color: 'var(--teal)',
                   textDecoration: 'none',
                 }}
               >
-                {link}
-              </a>
+                {link.label}
+              </Link>
             ))}
           </div>
         </div>
