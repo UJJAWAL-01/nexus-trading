@@ -348,7 +348,7 @@ async function fetchUSYieldCurve(): Promise<YieldPoint[]> {
     US_TENORS.map(async ({ series, tenor, mat }) => {
       const obs = await fredFetch(series)
       const age = obs ? ageHours(obs.date) : 9999
-      const dst: DataSourceType = obs && age < 96 ? 'live' : obs ? 'official' : 'unavailable'
+      const dst: DataSourceType = obs && age < 120 ? 'live' : obs ? 'official' : 'unavailable'
       return {
         tenor,
         maturityYears: mat,
@@ -910,8 +910,13 @@ export async function GET(request: NextRequest) {
     ])
 
     const liveCount = curve.filter(p => p.yieldData.dataSourceType === 'live').length
-    if (liveCount < 5) sysmsgs.push(`⚠ Only ${liveCount}/11 Treasury tenors available from FRED.`)
-    if (liveCount === 0) sysmsgs.push('❌ No US Treasury yield data from FRED. The API may be down.')
+    if (curve.length === 0) {
+      sysmsgs.push('❌ No US Treasury yield data from FRED. The API may be down.')
+    } else if (liveCount === 0) {
+      sysmsgs.push('⚠ Treasury data is from the last FRED business day (weekend/holiday gap — not a FRED failure).')
+    } else if (liveCount < 5) {
+      sysmsgs.push(`⚠ Only ${liveCount}/11 Treasury tenors with live data from FRED.`)
+    }
 
     const spreads = await fetchUSSpreads(curve)
     const lo = rateObs?.value ?? null
@@ -977,11 +982,9 @@ export async function GET(request: NextRequest) {
   ])
   const repoRate = repoPoint.value ?? 6.00
 
-  const { points: curve, availability, messages } = await buildIndiaYieldCurve(nse, dbie.gsec10Y, repoRate, allowModeled)
+  const useModeled = allowModeled || !nse
+  const { points: curve, availability, messages } = await buildIndiaYieldCurve(nse, dbie.gsec10Y, repoRate, useModeled)
   sysmsgs.push(...messages)
-  if (!availability.anyLiveData && !allowModeled) {
-    sysmsgs.push('ℹ Add ?modeled=1 to URL or click "Enable Modeled Curve" in UI to view NS-modeled curve (clearly labeled).')
-  }
 
   const twoY = curve.find(p => Math.abs(p.maturityYears - 2) < 0.5 && p.yieldData.value !== null)
   const tenY = curve.find(p => p.maturityYears >= 9 && p.yieldData.value !== null)
@@ -1031,7 +1034,7 @@ export async function GET(request: NextRequest) {
     spreads: indiaSpreads,
     macroContext: { policyRate: repoPoint, cpi: cpiIndia, label: 'RBI Repo Rate', stance: repoRate <= 5.5 ? 'ACCOMMODATIVE' : repoRate <= 6.25 ? 'NEUTRAL' : 'RESTRICTIVE' },
     curveShape: classifyCurve(curve),
-    curveDataQuality: availability.nseSuccess ? 'live' : availability.dbieSuccess ? 'official' : allowModeled ? 'modeled' : 'unavailable',
+    curveDataQuality: availability.nseSuccess ? 'live' : availability.dbieSuccess ? 'official' : useModeled ? 'modeled' : 'unavailable',
     indiaAvailability: availability, systemMessages: sysmsgs, fetchedAt: now,
   }
 

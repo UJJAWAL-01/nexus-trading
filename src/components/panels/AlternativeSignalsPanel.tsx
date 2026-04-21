@@ -106,11 +106,13 @@ function getOpExInfo() {
   const thisMonthOpEx = findThirdFriday(year, month)
   const nextMonthOpEx = findThirdFriday(month === 11 ? year + 1 : year, month === 11 ? 0 : month + 1)
 
-  const opExDate  = today <= thisMonthOpEx.getDate() ? thisMonthOpEx : nextMonthOpEx
-  const daysToOpEx = Math.ceil((opExDate.getTime() - now.getTime()) / 86400000)
-  const isOpExWeek = daysToOpEx <= 5 && daysToOpEx >= 0
-  const isOpExDay  = daysToOpEx === 0
-  const isWeekAfter = daysToOpEx < 0 && daysToOpEx >= -5 // past OpEx within 5 days
+  const daysSinceThisOpEx = Math.floor((now.getTime() - thisMonthOpEx.getTime()) / 86400000)
+  const isWeekAfter = daysSinceThisOpEx >= 1 && daysSinceThisOpEx <= 5
+  // For countdown always point to the upcoming OpEx, not the past one
+  const opExDate   = today <= thisMonthOpEx.getDate() ? thisMonthOpEx : nextMonthOpEx
+  const daysToOpEx  = Math.ceil((opExDate.getTime() - now.getTime()) / 86400000)
+  const isOpExWeek  = daysToOpEx <= 5 && daysToOpEx >= 0
+  const isOpExDay   = daysToOpEx === 0
 
   // Weekly OpEx (every Friday for weeklies)
   const nextFriday = new Date(now)

@@ -58,12 +58,21 @@ function Sparkline({ ticks, change }: { ticks: number[]; change: number | null }
 
 // ── Session Clock ──────────────────────────────────────────────────────────────
 
-const SESSIONS = [
-  { name: 'Sydney',   open: 22, close: 7  },
-  { name: 'Tokyo',    open: 0,  close: 9  },
-  { name: 'London',   open: 8,  close: 16 },
-  { name: 'New York', open: 13, close: 22 },
-]
+function isDST(date: Date): boolean {
+  const jan = new Date(date.getFullYear(), 0, 1).getTimezoneOffset()
+  const jul = new Date(date.getFullYear(), 6, 1).getTimezoneOffset()
+  return date.getTimezoneOffset() < Math.max(jan, jul)
+}
+
+function getSessions() {
+  const summer = isDST(new Date())
+  return [
+    { name: 'Sydney',   open: 22, close: 7              },
+    { name: 'Tokyo',    open: 0,  close: 9              },
+    { name: 'London',   open: 8,  close: summer ? 15 : 16 },
+    { name: 'New York', open: summer ? 12 : 13, close: summer ? 21 : 22 },
+  ]
+}
 
 function isActive(h: number, open: number, close: number) {
   return open < close ? h >= open && h < close : h >= open || h < close
@@ -79,8 +88,11 @@ function SessionClock() {
   const utcH = now.getUTCHours()
   const utcM = now.getUTCMinutes()
   const utcS = now.getUTCSeconds()
-  const nyOn  = isActive(utcH, 13, 22)
-  const lonOn = isActive(utcH, 8, 16)
+  const sessions = getSessions()
+  const nyS   = sessions.find(s => s.name === 'New York')!
+  const lonS  = sessions.find(s => s.name === 'London')!
+  const nyOn  = isActive(utcH, nyS.open, nyS.close)
+  const lonOn = isActive(utcH, lonS.open, lonS.close)
 
   return (
     <div style={{ padding: '8px 14px', borderTop: '1px solid var(--border)' }}>
@@ -93,7 +105,7 @@ function SessionClock() {
         </span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-        {SESSIONS.map(s => {
+        {sessions.map(s => {
           const active = isActive(utcH, s.open, s.close)
           return (
             <div key={s.name} style={{
@@ -137,18 +149,21 @@ export function LiveDashboard() {
       setPairs(prev => prev.map((p, i) => {
         const r = results[i]
         if (r.status === 'rejected') return { ...p, flash: null }
-        const data = r.value as { price: number | null; change: number | null; stale?: boolean }
+        const data = r.value as { price: number | null; change: number | null; stale?: boolean; history?: number[] }
         if (!data.price) return { ...p, flash: null }
         const flash: PairData['flash'] = p.price !== null
           ? data.price > p.price ? 'up' : data.price < p.price ? 'down' : null
           : null
+        const seedTicks = p.ticks.length === 0 && data.history?.length
+          ? [...data.history, data.price].slice(-30)
+          : [...p.ticks, data.price].slice(-30)
         return {
           ...p,
           price:  data.price,
           change: data.change ?? null,
           high:   p.high === null ? data.price : Math.max(p.high, data.price),
           low:    p.low  === null ? data.price : Math.min(p.low,  data.price),
-          ticks:  [...p.ticks, data.price].slice(-20),
+          ticks:  seedTicks,
           flash,
           stale:  data.stale ?? false,
         }
@@ -171,7 +186,7 @@ export function LiveDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" />
           FX LIVE DASHBOARD
-          <span className="panel-header-sub">Yahoo Finance · 30s refresh</span>
+          <span className="panel-header-sub">Yahoo Finance · 60s refresh</span>
         </div>
         {lastUpdated && (
           <span style={{ fontSize: 9, color: 'var(--text-dim)', fontFamily: 'JetBrains Mono, monospace' }}>

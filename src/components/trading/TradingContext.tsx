@@ -22,6 +22,7 @@ export interface TradeEntry {
   exitPrice: number
   stopLoss: number
   takeProfit: number
+  pnlDollar?: number          // actual realized P&L in account currency (user-entered from broker)
   dateTime: string
   setupTags: string[]
   wasPlanned: boolean
@@ -29,11 +30,10 @@ export interface TradeEntry {
   emotion: string
   notes: string
   screenshotUrl: string
-  // auto-calculated on save
   outcome: 'win' | 'loss' | 'breakeven'
   rr: number
   pips: number
-  pnl: number
+  pnl: number                 // raw price diff (kept for backward compat)
 }
 
 export interface UserSettings {
@@ -62,6 +62,7 @@ interface TradingContextType {
   setOpenPositions: (p: Position[]) => void
   tradeHistory: TradeEntry[]
   addTrade: (t: Omit<TradeEntry, 'id'>) => void
+  updateTrade: (id: string, updates: Partial<Omit<TradeEntry, 'id'>>) => void
   deleteTrade: (id: string) => void
   settings: UserSettings
   updateSettings: (s: Partial<UserSettings>) => void
@@ -90,7 +91,6 @@ const DEFAULT_PROP_FIRM: PropFirmSettings = {
   dailyLoss: 0,
 }
 
-
 // ── Context ───────────────────────────────────────────────────────────────────
 
 const TradingContext = createContext<TradingContextType | null>(null)
@@ -105,52 +105,55 @@ export function TradingProvider({ children }: { children: ReactNode }) {
 
   const [tradeHistory, setTradeHistory] = useState<TradeEntry[]>(() => {
     if (typeof window === 'undefined') return []
-    try {
-      return JSON.parse(localStorage.getItem('trading_journal') ?? '[]')
-    } catch { return [] }
+    try { return JSON.parse(localStorage.getItem('trading_journal') ?? '[]') }
+    catch { return [] }
   })
 
   const [settings, setSettings] = useState<UserSettings>(() => {
     if (typeof window === 'undefined') return DEFAULT_SETTINGS
-    try {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('trading_settings') ?? '{}') }
-    } catch { return DEFAULT_SETTINGS }
+    try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('trading_settings') ?? '{}') } }
+    catch { return DEFAULT_SETTINGS }
   })
 
   const [propFirm, setPropFirm] = useState<PropFirmSettings>(() => {
     if (typeof window === 'undefined') return DEFAULT_PROP_FIRM
-    try {
-      return { ...DEFAULT_PROP_FIRM, ...JSON.parse(localStorage.getItem('trading_propfirm') ?? '{}') }
-    } catch { return DEFAULT_PROP_FIRM }
+    try { return { ...DEFAULT_PROP_FIRM, ...JSON.parse(localStorage.getItem('trading_propfirm') ?? '{}') } }
+    catch { return DEFAULT_PROP_FIRM }
   })
 
-  // Persist to localStorage
-  useEffect(() => { try { localStorage.setItem('trading_balance', String(accountBalance)) } catch {} }, [accountBalance])
-  useEffect(() => { try { localStorage.setItem('trading_journal', JSON.stringify(tradeHistory)) } catch {} }, [tradeHistory])
-  useEffect(() => { try { localStorage.setItem('trading_settings', JSON.stringify(settings)) } catch {} }, [settings])
-  useEffect(() => { try { localStorage.setItem('trading_propfirm', JSON.stringify(propFirm)) } catch {} }, [propFirm])
+  useEffect(() => { try { localStorage.setItem('trading_balance',   String(accountBalance))       } catch {} }, [accountBalance])
+  useEffect(() => { try { localStorage.setItem('trading_journal',   JSON.stringify(tradeHistory)) } catch {} }, [tradeHistory])
+  useEffect(() => { try { localStorage.setItem('trading_settings',  JSON.stringify(settings))     } catch {} }, [settings])
+  useEffect(() => { try { localStorage.setItem('trading_propfirm',  JSON.stringify(propFirm))     } catch {} }, [propFirm])
+
+  const sanitize = (t: Partial<Omit<TradeEntry, 'id'>>): typeof t => ({
+    ...t,
+    pips:      isFinite(t.pips      ?? 0) ? t.pips      : 0,
+    pnl:       isFinite(t.pnl       ?? 0) ? t.pnl       : 0,
+    rr:        isFinite(t.rr        ?? 0) ? t.rr        : 0,
+    pnlDollar: t.pnlDollar !== undefined && isFinite(t.pnlDollar) ? t.pnlDollar : undefined,
+  })
 
   const addTrade = useCallback((t: Omit<TradeEntry, 'id'>) => {
-    setTradeHistory(prev => [{ ...t, id: `t_${Date.now()}` }, ...prev])
+    setTradeHistory(prev => [{ ...sanitize(t) as Omit<TradeEntry, 'id'>, id: `t_${Date.now()}` }, ...prev])
+  }, [])
+
+  const updateTrade = useCallback((id: string, updates: Partial<Omit<TradeEntry, 'id'>>) => {
+    setTradeHistory(prev => prev.map(t => t.id === id ? { ...t, ...sanitize(updates) } : t))
   }, [])
 
   const deleteTrade = useCallback((id: string) => {
     setTradeHistory(prev => prev.filter(t => t.id !== id))
   }, [])
 
-  const updateSettings = useCallback((s: Partial<UserSettings>) => {
-    setSettings(prev => ({ ...prev, ...s }))
-  }, [])
-
-  const updatePropFirm = useCallback((s: Partial<PropFirmSettings>) => {
-    setPropFirm(prev => ({ ...prev, ...s }))
-  }, [])
+  const updateSettings  = useCallback((s: Partial<UserSettings>)     => setSettings(p  => ({ ...p, ...s })), [])
+  const updatePropFirm  = useCallback((s: Partial<PropFirmSettings>)  => setPropFirm(p  => ({ ...p, ...s })), [])
 
   return (
     <TradingContext.Provider value={{
       accountBalance, setAccountBalance,
       openPositions, setOpenPositions,
-      tradeHistory, addTrade, deleteTrade,
+      tradeHistory, addTrade, updateTrade, deleteTrade,
       settings, updateSettings,
       propFirm, updatePropFirm,
     }}>

@@ -11,7 +11,7 @@ function calcPositionSize(balance: number, riskPct: number, entry: number, sl: n
 }
 
 function calcPips(entry: number, sl: number, pair: string): number {
-  const pip = pair.includes('JPY') || pair.includes('XAU') || pair.includes('XAG') ? 0.01 : 0.0001
+  const pip = pair.includes('JPY') || pair.includes('XAU') ? 0.01 : 0.0001
   return Math.abs(entry - sl) / pip
 }
 

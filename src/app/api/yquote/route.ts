@@ -16,6 +16,7 @@ interface QuoteData {
   changeAbs:   number | null
   currency:    string
   marketState: string
+  history:     number[]
 }
 
 /*
@@ -74,6 +75,12 @@ async function fetchFromYahoo(symbol: string): Promise<QuoteData | null> {
 
       if (!price || price <= 0) continue
 
+      const rawCloses = (result.indicators?.quote?.[0]?.close ?? []) as (number | null)[]
+      const history = rawCloses
+        .filter((v): v is number => v !== null && v > 0)
+        .slice(-30)
+        .map(v => Math.round(v * 10000) / 10000)
+
       return {
         symbol,
         price:       Math.round(price * 10000) / 10000,
@@ -81,6 +88,7 @@ async function fetchFromYahoo(symbol: string): Promise<QuoteData | null> {
         changeAbs:   changeAbs !== null ? Math.round(changeAbs * 10000) / 10000 : null,
         currency:    meta.currency ?? 'USD',
         marketState: meta.marketState ?? 'UNKNOWN',
+        history,
       }
     } catch {}
   }
@@ -108,6 +116,7 @@ async function fetchFromFinnhubCrypto(symbol: string): Promise<QuoteData | null>
       changeAbs:   data.d ?? null,
       currency:    'USD',
       marketState: 'REGULAR',
+      history:     [],
     }
   } catch { return null }
 }
@@ -161,5 +170,6 @@ export async function GET(request: NextRequest) {
     changeAbs:   null,
     currency:    'USD',
     marketState: 'UNKNOWN',
+    history:     [],
   })
 }
