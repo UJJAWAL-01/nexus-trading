@@ -147,31 +147,46 @@ function formatCountdown(ts: number): string {
 
 // ── Component ───────────────────────────────────────────────────────────────
 export default function MorningBrief() {
-  // Tick every 30s so the session/clock/countdown stay live
+  // Mounted flag: server renders an inert shell, client takes over on first
+  // effect. Avoids SSR/CSR hydration mismatches from time-dependent content
+  // (session clocks, countdown, locale-formatted time string).
+  const [mounted, setMounted] = useState(false)
+  // Tick every 30s so the session/clock/countdown stay live (post-mount only)
   const [, setTick] = useState(0)
   useEffect(() => {
+    setMounted(true)
     const id = window.setInterval(() => setTick(t => t + 1), 30_000)
     return () => window.clearInterval(id)
   }, [])
 
-  const us = usSession()
-  const ind = inSession()
   const movers = useMovers()
   const nextEvent = useNextEvent()
 
+  const containerStyle: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', gap: '14px',
+    padding: '5px 10px',
+    background: 'linear-gradient(180deg, rgba(167,139,250,0.04), transparent)',
+    borderBottom: '1px solid var(--border)',
+    fontFamily:   'JetBrains Mono, monospace',
+    fontSize:     '11px',
+    overflow:     'hidden',
+    whiteSpace:   'nowrap',
+    flexWrap:     'wrap',
+    rowGap:       '4px',
+    minHeight:    '26px',
+  }
+
+  // Pre-mount: render an empty shell with the same outer dimensions so layout
+  // doesn't shift when the live content appears.
+  if (!mounted) {
+    return <div style={containerStyle} suppressHydrationWarning />
+  }
+
+  const us = usSession()
+  const ind = inSession()
+
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: '14px',
-      padding: '5px 10px',
-      background: 'linear-gradient(180deg, rgba(167,139,250,0.04), transparent)',
-      borderBottom: '1px solid var(--border)',
-      fontFamily:   'JetBrains Mono, monospace',
-      fontSize:     '11px',
-      overflow:     'hidden',
-      whiteSpace:   'nowrap',
-      flexWrap:     'wrap',
-      rowGap:       '4px',
-    }}>
+    <div style={containerStyle}>
       {/* Market sessions */}
       <SessionBadge state={us} />
       <SessionBadge state={ind} />
@@ -223,10 +238,18 @@ export default function MorningBrief() {
 
       <span style={{ marginLeft: 'auto', color: 'var(--text-muted)', fontSize: '10px',
                      letterSpacing: '0.08em' }}>
-        TOP · live · {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        TOP · live · {formatClock(new Date())}
       </span>
     </div>
   )
+}
+
+// Locale-independent HH:MM clock — avoids server/client locale divergence
+// (e.g. server "PM" vs client "pm") that breaks SSR hydration.
+function formatClock(d: Date): string {
+  const h = String(d.getHours()).padStart(2, '0')
+  const m = String(d.getMinutes()).padStart(2, '0')
+  return `${h}:${m}`
 }
 
 // ── Pieces ──────────────────────────────────────────────────────────────────
