@@ -8,7 +8,7 @@ import 'react-resizable/css/styles.css'
 // ── Panel imports ─────────────────────────────────────────────────────────────
 import AlternativeSignalsPanel  from '@/components/panels/AlternativeSignalsPanel'
 import ChartPanel               from '@/components/panels/ChartPanel'
-import CorrelationPanel         from '@/components/panels/CorrelationPanel'
+import SupplyChainPanel        from '@/components/panels/SupplyChainPanel'
 import EarningsPanel            from '@/components/panels/EarningsPanel'
 import EconomicCalendarPanel    from '@/components/panels/EconomicCalendarPanel'
 import GlobalIndicesPanel       from '@/components/panels/GlobalIndicesPanel'
@@ -25,15 +25,32 @@ import InsiderDealsPanel        from '@/components/panels/InsiderDealsPanel'
 import IpoScreenerPanel         from '@/components/panels/IpoScreenerPanel'
 import OptionsPanel             from '@/components/panels/OptionsPanel'
 import FixedIncomePanel         from '@/components/panels/FixedIncomePanel'
+import InstitutionalHoldingsPanel from '@/components/panels/InstitutionalHoldingsPanel'
+import AlternativeDataPanel     from '@/components/panels/AlternativeDataPanel'
+import SecFilingsPanel          from '@/components/panels/SecFilingsPanel'
 // ── Forex / Crypto trading suite
 import { TradingProvider }          from '@/components/trading/TradingContext'
 import { RiskPanel }                from '@/components/panels/RiskPanel'
 import { LiveDashboard }            from '@/components/panels/LiveDashboard'
-import { JournalPanel }             from '@/components/panels/JournalPanel'
-import { AnalyticsPanel }           from '@/components/panels/AnalyticsPanel'
 import { CalendarPanel }            from '@/components/panels/CalendarPanel'
 import { PropFirmPanel }            from '@/components/panels/PropFirmPanel'
+// ── Terminal-grade UX layer
+// (MorningBrief is mounted in Dashboard's top-nav so it sits in the same
+//  sticky block as TickerBar — no gap behind which panels could show.)
+import LazyMount                    from '@/components/dashboard/LazyMount'
+import KeyboardShortcuts            from '@/components/dashboard/KeyboardShortcuts'
+import AlertToasts                  from '@/components/dashboard/AlertToasts'
+import AlertEngine                  from '@/components/dashboard/AlertEngine'
 const ReactGridLayout = WidthProvider(GridLayoutBase)
+
+// Panels that mount eagerly (rows 1-4, y < 56). All below-fold panels are
+// gated behind LazyMount + IntersectionObserver to defer their API calls.
+const EAGER_MOUNT: Set<string> = new Set([
+  'livevideo', 'news', 'watchlist',
+  'indices', 'mktclock', 'chart',
+  'indiamarkets', 'heatmap', 'commodities',
+  'earnings', 'calendar', 'insiderdeals', 'sentiment',
+])
 
 // ── Panel registry ─────────────────────────────────────────────────────────────
 
@@ -44,8 +61,10 @@ const PANEL_IDS = [
   'heatmap', 'indiamarkets', 'macrorates',
   'altsignals','insiderdeals', 'commodities', 'correlation',
   'options', 'ipo', 'fixedincome',
+  // Research add-ons
+  'institutional', 'altdata', 'secfilings',
   // Forex / Crypto trading suite
-  'fx-risk', 'fx-live', 'fx-journal', 'fx-analytics',
+  'fx-risk', 'fx-live',
   'fx-calendar', 'fx-propfirm',
 ] as const
 
@@ -77,79 +96,101 @@ const PANEL_META: Record<PanelId, PanelMeta> = {
   altsignals:   { component: <AlternativeSignalsPanel />,  label: 'ALT SIGNALS',   color: '#a78bfa',        mobileH: 380, description: 'Lunar · Seasonality · DoW' },
   commodities: { component: <CommoditiesPanel/>,           label: 'COMMODITIES',   color: '#f97316',        mobileH: 380, description: 'Gold · Oil · Crypto signals' },
   insiderdeals: { component: <InsiderDealsPanel />,        label: 'INSIDER DEALS', color: '#f97316',         mobileH: 380, description: 'US & India insider transactions' },
-  correlation:  { component: <CorrelationPanel />,         label: 'CORRELATION',   color: '#1e90ff',        mobileH: 500, description: 'AI stock correlation map' },
+  correlation:  { component: <SupplyChainPanel />,         label: 'SUPPLY CHAIN',  color: '#1e90ff',        mobileH: 500, description: 'Verified supplier/customer map (SEC + NSE filings)' },
   ipo:          { component: <IpoScreenerPanel />,         label: 'IPO',           color: '#1e90ff',    mobileH: 380, description: 'Upcoming and recent IPOs' },
   options:      { component: <OptionsPanel />,             label: 'OPTIONS',       color: '#a78bfa',    mobileH: 560, description: 'BSM pricing · IV · Greeks · Monte Carlo · OI' },
   fixedincome:    { component: <FixedIncomePanel />,         label: 'FIXED INCOME',   color: '#38bdf8',   mobileH: 560, description: 'India yield curve · credit spreads' },
+  institutional:  { component: <InstitutionalHoldingsPanel />, label: '13F TRACKER',   color: '#1e90ff',   mobileH: 560, description: 'Institutional holdings · QoQ change' },
+  altdata:        { component: <AlternativeDataPanel />,     label: 'ALT DATA',       color: '#a78bfa',   mobileH: 620, description: 'Wikipedia · Reddit · Google Trends' },
+  secfilings:     { component: <SecFilingsPanel />,          label: 'SEC FILINGS',    color: '#f97316',   mobileH: 540, description: '8-K · S-1 · 13D with AI summaries' },
   // ── Forex / Crypto trading suite (shared TradingContext injected at render) ──
   'fx-risk':        { component: <RiskPanel />,              label: 'FX RISK CALC',   color: '#00ff88',   mobileH: 640, description: 'Position size · pip value · R:R · daily drawdown' },
   'fx-live':        { component: <LiveDashboard />,   label: 'FX LIVE',       color: '#00ff88', mobileH: 540, description: 'Live Forex & Crypto prices · Yahoo Finance · session clock' },
-  'fx-journal':     { component: <JournalPanel />,   label: 'FX JOURNAL',    color: '#a78bfa', mobileH: 600, description: 'Trade log · setup tags · emotion tracking' },
-  'fx-analytics':   { component: <AnalyticsPanel />, label: 'FX ANALYTICS',  color: '#a78bfa', mobileH: 600, description: 'Equity curve · win rate · P&L heatmap' },
   'fx-calendar':    { component: <CalendarPanel />,  label: 'ECON CALENDAR', color: '#f0a500', mobileH: 520, description: 'Economic calendar · Finnhub + official schedule' },
   'fx-propfirm':    { component: <PropFirmPanel />,  label: 'PROP FIRM',     color: '#f0a500', mobileH: 560, description: 'Prop firm challenge tracker · drawdown limits' },
 }
 
-// ── DESKTOP default layout — version 9 ────────────────────────────────────────
-// Added FX / Crypto trading suite rows at the bottom
-const LS_KEY = 'nexus-layout-v10'
+// ── DESKTOP default layout — v13 ─────────────────────────────────────────────
+// Full layout redesign: priority tiers, content-fit heights, IPO offscreen bug fixed.
+// Rows 1-3 locked per user instruction. Rows 4+ reorganized by live-data value.
+// rowHeight=30 → h:1 = 30px rendered.
+const LS_KEY = 'nexus-layout-v13'
 
 const DEFAULT_LAYOUT: DashboardLayout = [
-  // Row 1 — Live TV (large) + News + Watchlist
-  { i: 'livevideo',    x: 0,  y: 0,  w: 5, h: 14, minW: 3, minH: 10 },
-  { i: 'news',         x: 5,  y: 0,  w: 5, h: 14, minW: 3, minH: 8  },
-  { i: 'watchlist',    x: 10, y: 0,  w: 2, h: 14, minW: 2, minH: 8  },
+  // ══ ROW 1 (y:0→14) — Live intelligence feed ══════════════════════════════
+  // Unchanged per user: TV | News | Watchlist
+  { i: 'livevideo',     x: 0,  y: 0,  w: 5,  h: 14, minW: 3, minH: 10 },
+  { i: 'news',          x: 5,  y: 0,  w: 5,  h: 14, minW: 3, minH: 8  },
+  { i: 'watchlist',     x: 10, y: 0,  w: 2,  h: 14, minW: 2, minH: 8  },
 
-  // Row 2 — Indices + World Clock + Chart (hero)
-  { i: 'indices',      x: 0,  y: 14, w: 2, h: 16, minW: 2, minH: 8  },
-  { i: 'mktclock',     x: 2,  y: 14, w: 3, h: 16, minW: 2, minH: 8  },
-  { i: 'chart',        x: 5,  y: 14, w: 7, h: 16, minW: 4, minH: 14 },
+  // ══ ROW 2 (y:14→30) — Market pulse ═══════════════════════════════════════
+  // Unchanged per user: Indices | Clock | Chart (hero)
+  { i: 'indices',       x: 0,  y: 14, w: 2,  h: 16, minW: 2, minH: 8  },
+  { i: 'mktclock',      x: 2,  y: 14, w: 3,  h: 16, minW: 2, minH: 8  },
+  { i: 'chart',         x: 5,  y: 14, w: 7,  h: 16, minW: 4, minH: 14 },
 
-  // Row 4 — Sentiment + Calendar + Earnings
-  { i: 'sentiment',    x: 0,  y: 56, w: 2, h: 12, minW: 2, minH: 7  },
-  { i: 'calendar',     x: 2,  y: 56, w: 3, h: 12, minW: 2, minH: 7  },
-  { i: 'earnings',     x: 5,  y: 56, w: 3, h: 12, minW: 2, minH: 8  },
-  { i: 'altsignals',   x: 8,  y: 56, w: 4, h: 12, minW: 2, minH: 8  },
+  // ══ ROW 3 (y:30→44) — Global markets overview ════════════════════════════
+  // Unchanged per user: India | Heatmap | Commodities
+  { i: 'indiamarkets',  x: 0,  y: 30, w: 3,  h: 14, minW: 2, minH: 10 },
+  { i: 'heatmap',       x: 3,  y: 30, w: 4,  h: 14, minW: 2, minH: 10 },
+  { i: 'commodities',   x: 7,  y: 30, w: 5,  h: 14, minW: 2, minH: 10 },
 
-  // Row 3 — India Markets + Macro Rates + Alt Signals + Correlation
-  { i: 'indiamarkets', x: 0,  y: 30, w: 3, h: 14, minW: 2, minH: 10  },
-  { i: 'heatmap',      x: 3,  y: 30, w: 4, h: 14, minW: 2, minH: 10  },
-  { i: 'commodities',  x: 7,  y: 30, w: 5, h: 14, minW: 2, minH: 10  },
+  // ══ ROW 4 (y:44→56) — Time-critical signals (earnings · events · flow) ════
+  // All panels here are market-moving and need daily attention.
+  // Heights matched to content: each needs ~330-360px (h:12 = 360px).
+  { i: 'earnings',      x: 0,  y: 44, w: 3,  h: 12, minW: 2, minH: 8  },
+  { i: 'calendar',      x: 3,  y: 44, w: 3,  h: 12, minW: 2, minH: 8  },
+  { i: 'insiderdeals',  x: 6,  y: 44, w: 4,  h: 12, minW: 3, minH: 8  },
+  { i: 'sentiment',     x: 10, y: 44, w: 2,  h: 12, minW: 2, minH: 8  },
 
-  // Row 4 alternative — move Correlation up, swap Commodities with Insider Deals
-  { i: 'insiderdeals', x: 0, y: 42, w: 6, h: 14 ,minW: 4, minH: 12},
-  { i: 'correlation',  x: 6,  y: 42, w: 6, h: 14, minW: 4, minH: 10 },
-  { i: 'ipo',  x: 12,  y: 72, w: 6, h: 16, minW: 4, minH: 10 },
-  { i: 'options', x: 0, y: 72, w: 6, h: 16, minW: 6, minH: 14 },
-  { i: 'fixedincome',     x: 0, y: 88, w: 9, h: 14, minW: 6, minH: 14 },
-  { i: 'macrorates',     x: 9, y: 88, w: 3, h: 14, minW: 2, minH: 10 },
+  // ══ ROW 5 (y:56→74) — Deep analytics ═════════════════════════════════════
+  // Options needs most height (BSM + Greeks + OI chart ≈ 480px → h:18 = 540px).
+  // Supply Chain (correlation): given 4 cols so the 3-col map layout fits.
+  // Macro Rates: rich but scrollable; h:18 gives it room for FED schedule.
+  { i: 'options',       x: 0,  y: 56, w: 5,  h: 18, minW: 4, minH: 14 },
+  { i: 'correlation',   x: 5,  y: 56, w: 4,  h: 18, minW: 3, minH: 12 },
+  { i: 'macrorates',    x: 9,  y: 56, w: 3,  h: 18, minW: 2, minH: 10 },
 
-  // ── Forex / Crypto trading suite rows ─────────────────────────────────────
-  // Row FX-1: Risk Calculator + Live Dashboard
-  { i: 'fx-risk',        x: 0, y: 103, w: 4, h: 18, minW: 3, minH: 14 },
-  { i: 'fx-live',        x: 4, y: 103, w: 8, h: 18, minW: 4, minH: 12 },
+  // ══ ROW 6 (y:74→90) — Market structure ═══════════════════════════════════
+  // Fixed Income yield curve needs h:16 (480px) to show curve + signals without cut.
+  // IPO: bug fix — was at x:12 (offscreen). Now x:5 w:4 h:16.
+  // Alt Signals: was truncating at h:12; h:16 gives each tab room to breathe.
+  { i: 'fixedincome',   x: 0,  y: 74, w: 5,  h: 16, minW: 3, minH: 12 },
+  { i: 'ipo',           x: 5,  y: 74, w: 4,  h: 16, minW: 3, minH: 10 },
+  { i: 'altsignals',    x: 9,  y: 74, w: 3,  h: 16, minW: 2, minH: 10 },
 
-  // Row FX-2: Trade Journal + Analytics
-  { i: 'fx-journal',     x: 0, y: 121, w: 6, h: 22, minW: 4, minH: 14 },
-  { i: 'fx-analytics',   x: 6, y: 121, w: 6, h: 22, minW: 4, minH: 14 },
+  // ══ ROW 7 (y:90→106) — Smart money research ══════════════════════════════
+  // 13F holdings + SEC filings: both are table/list UIs, h:16 is tight but workable.
+  { i: 'institutional', x: 0,  y: 90, w: 6,  h: 16, minW: 4, minH: 12 },
+  { i: 'secfilings',    x: 6,  y: 90, w: 6,  h: 16, minW: 4, minH: 12 },
 
-  // Row FX-3: Economic Calendar
-  { i: 'fx-calendar',    x: 0, y: 143, w: 6, h: 18, minW: 4, minH: 12 },
+  // ══ ROW 8 (y:106→124) — Alternative intelligence + FX live ════════════════
+  // Alt Data needs h:18 (540px) for 3 data sources with charts.
+  // FX Live: price table + session clock, h:18 gives it room for all pairs.
+  { i: 'altdata',       x: 0,  y: 106, w: 7,  h: 18, minW: 4, minH: 14 },
+  { i: 'fx-live',       x: 7,  y: 106, w: 5,  h: 18, minW: 4, minH: 12 },
 
-  // Row FX-4: Prop Firm Mode
-  { i: 'fx-propfirm',    x: 6, y: 143, w: 6, h: 18, minW: 4, minH: 14 },
+  // ══ ROW 9 (y:124→140) — FX / Crypto trading suite ════════════════════════
+  { i: 'fx-risk',       x: 0,  y: 124, w: 4,  h: 16, minW: 3, minH: 14 },
+  { i: 'fx-calendar',   x: 4,  y: 124, w: 4,  h: 16, minW: 4, minH: 12 },
+  { i: 'fx-propfirm',   x: 8,  y: 124, w: 4,  h: 16, minW: 4, minH: 14 },
 ]
 
-// ── MOBILE panel order (best-first) ───────────────────────────────────────────
+// ── MOBILE panel order (priority-first: live data → analytics → research) ─────
 const MOBILE_ORDER: PanelId[] = [
+  // Tier 1: Always-on essentials
   'watchlist', 'chart', 'news',
-  'livevideo', 'indices', 'mktclock',
-  'sentiment', 'commodities', 'calendar',
-  'heatmap', 'indiamarkets', 'insiderdeals', 'ipo', 'options', 'fixedincome',
-  'altsignals', 'correlation', 'macrorates', 'earnings',
-  // Forex / Crypto trading suite
-  'fx-live', 'fx-risk', 'fx-calendar',
-  'fx-journal', 'fx-analytics', 'fx-propfirm',
+  // Tier 2: Market pulse
+  'indices', 'indiamarkets', 'commodities',
+  // Tier 3: Time-critical signals
+  'earnings', 'calendar', 'insiderdeals', 'sentiment',
+  // Tier 4: Deep analytics
+  'options', 'macrorates', 'heatmap', 'fixedincome',
+  // Tier 5: Research
+  'correlation', 'ipo', 'institutional', 'secfilings',
+  // Tier 6: Alternative + FX
+  'fx-live', 'altdata', 'altsignals', 'mktclock',
+  'fx-risk', 'fx-calendar', 'fx-propfirm', 'livevideo',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -219,12 +260,12 @@ function saveLayout(layout: DashboardLayout) {
 // ── Panel group definitions for visibility menu ────────────────────────────────
 
 const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
-  { label: 'Live',      ids: ['livevideo', 'news', 'watchlist']                                        },
-  { label: 'Charts',    ids: ['chart', 'indices', 'mktclock']                                          },
-  { label: 'Analytics', ids: ['sentiment', 'calendar', 'earnings', 'heatmap']                          },
-  { label: 'Global',    ids: ['indiamarkets', 'macrorates', 'altsignals', 'commodities', 'insiderdeals', 'ipo'] },
-  { label: 'Research',  ids: ['correlation', 'options', 'fixedincome']                                 },
-  { label: 'Forex/Crypto', ids: ['fx-live', 'fx-risk', 'fx-journal', 'fx-analytics', 'fx-calendar', 'fx-propfirm'] },
+  { label: 'Live Feed',    ids: ['livevideo', 'news', 'watchlist']                                       },
+  { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities'] },
+  { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                    },
+  { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'correlation']                  },
+  { label: 'Research',     ids: ['institutional', 'secfilings', 'altdata', 'ipo', 'altsignals']          },
+  { label: 'FX / Crypto',  ids: ['fx-live', 'fx-risk', 'fx-calendar', 'fx-propfirm']                    },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────
@@ -439,6 +480,10 @@ export default function GridLayout() {
     return withTrading(
       <div style={{ padding: '8px', paddingBottom: '40px', overflowX: 'hidden' }}>
 
+        {/* Alerts work everywhere */}
+        <AlertEngine />
+        <AlertToasts />
+
         {/* Mobile toolbar */}
         <div style={{
           display:        'flex',
@@ -577,6 +622,8 @@ export default function GridLayout() {
   if (isTablet) {
     return withTrading(
       <div style={{ paddingBottom: '40px' }}>
+        <AlertEngine />
+        <AlertToasts />
         <div style={{
           display:        'flex',
           justifyContent: 'flex-end',
@@ -617,18 +664,37 @@ export default function GridLayout() {
     letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'all 0.15s',
   }
 
+  // Pass full panel registry into the keyboard palette
+  const paletteTargets = (Object.keys(PANEL_META) as PanelId[]).map(id => ({
+    id, label: PANEL_META[id].label, description: PANEL_META[id].description,
+  }))
+
   return withTrading(
     <div style={{ padding: '0 6px 40px' }}>
 
-      {/* Desktop toolbar */}
+      {/* Global UX layer — alerts, keyboard shortcuts, alert engine */}
+      <AlertEngine />
+      <AlertToasts />
+      <KeyboardShortcuts panels={paletteTargets} />
+
+      {/* ── STICKY TOOLBAR ──────────────────────────────────────────────── */}
+      {/* Pins to the top of the scrolling grid-container, sitting flush      */}
+      {/* against the top-nav (which holds NEXUS header + ticker + brief).    */}
       <div style={{
-        display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
-        gap: '6px', padding: '6px 0',
-        position: 'relative', top: '4px',bottom: '6px', zIndex: 50,
-        background: 'var(--bg-base)',
-        borderBottom: editing ? '1px solid rgba(240,165,0,0.2)' : '1px solid transparent',
-        transition: 'border-color 0.2s',
+        position:     'sticky',
+        top:          0,
+        zIndex:       100,
+        background:   'var(--bg-base)',
+        borderBottom: '1px solid var(--border)',
+        boxShadow:    '0 4px 12px rgba(0,0,0,0.30)',
       }}>
+        {/* Desktop toolbar */}
+        <div style={{
+          display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
+          gap: '6px', padding: '5px 0',
+          borderBottom: editing ? '1px solid rgba(240,165,0,0.2)' : 'none',
+          transition: 'border-color 0.2s',
+        }}>
         {editing && (
           <span style={{
             fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace',
@@ -683,7 +749,9 @@ export default function GridLayout() {
             </button>
           </>
         )}
+        </div>
       </div>
+      {/* ── /STICKY HEADER ──────────────────────────────────────────────── */}
 
       {/* Desktop grid */}
       <div style={{ marginTop: '8px' }}>
@@ -701,12 +769,13 @@ export default function GridLayout() {
           useCSSTransforms compactType="vertical"
         >
           {visibleLayout.map(({ i }) => {
-            const meta = PANEL_META[i]
+            const meta  = PANEL_META[i]
+            const eager = EAGER_MOUNT.has(i)
             return (
-              <div key={i} style={{
+              <div key={i} data-panel-id={i} style={{
                 display: 'flex', flexDirection: 'column', overflow: 'hidden',
                 outline:      editing ? '1px solid rgba(240,165,0,0.2)' : 'none',
-                borderRadius: '6px', transition: 'outline 0.2s',
+                borderRadius: '6px', transition: 'outline 0.2s, box-shadow 0.2s',
               }}>
                 {editing && (
                   <div
@@ -730,7 +799,7 @@ export default function GridLayout() {
                   </div>
                 )}
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, borderRadius: editing ? '0 0 6px 6px' : '6px' }}>
-                  {meta.component}
+                  {eager ? meta.component : <LazyMount>{meta.component}</LazyMount>}
                 </div>
               </div>
             )

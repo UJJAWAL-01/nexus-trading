@@ -2,21 +2,19 @@
 
 import { useState } from 'react'
 import {
-  ShieldCheck, Activity, BookOpen, BarChart2,
+  ShieldCheck, Activity,
   Calendar, Grid3X3, Trophy, Settings, DollarSign, X,
 } from 'lucide-react'
 import { TradingProvider, useTradingContext } from './TradingContext'
 import { RiskPanel } from '@/components/panels/RiskPanel'
 import { LiveDashboard } from '@/components/panels/LiveDashboard'
-import { JournalPanel } from '@/components/panels/JournalPanel'
-import { AnalyticsPanel } from '@/components/panels/AnalyticsPanel'
 import { CalendarPanel } from '@/components/panels/CalendarPanel'
 import { ForexCorrelationPanel } from '@/components/panels/ForexCorrelationPanel'
 import { PropFirmPanel } from '@/components/panels/PropFirmPanel'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type PanelId = 'risk' | 'live' | 'journal' | 'analytics' | 'calendar' | 'correlation' | 'propfirm'
+type PanelId = 'risk' | 'live' | 'calendar' | 'correlation' | 'propfirm'
 
 interface NavItem {
   id: PanelId
@@ -25,13 +23,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'risk',        label: 'Risk Calculator',   icon: <ShieldCheck size={18} /> },
-  { id: 'live',        label: 'Live Dashboard',    icon: <Activity size={18} /> },
-  { id: 'journal',     label: 'Trade Journal',     icon: <BookOpen size={18} /> },
-  { id: 'analytics',   label: 'Analytics',         icon: <BarChart2 size={18} /> },
-  { id: 'calendar',    label: 'Econ Calendar',     icon: <Calendar size={18} /> },
-  { id: 'correlation', label: 'Correlation Matrix',icon: <Grid3X3 size={18} /> },
-  { id: 'propfirm',    label: 'Prop Firm Mode',    icon: <Trophy size={18} /> },
+  { id: 'risk',        label: 'Risk Calculator',    icon: <ShieldCheck size={18} /> },
+  { id: 'live',        label: 'Live Dashboard',     icon: <Activity size={18} /> },
+  { id: 'calendar',    label: 'Econ Calendar',      icon: <Calendar size={18} /> },
+  { id: 'correlation', label: 'Correlation Matrix', icon: <Grid3X3 size={18} /> },
+  { id: 'propfirm',    label: 'Prop Firm Mode',     icon: <Trophy size={18} /> },
 ]
 
 // ── Settings Modal ────────────────────────────────────────────────────────────
@@ -188,8 +184,6 @@ function PanelView({ active }: { active: PanelId }) {
   switch (active) {
     case 'risk':        return <RiskPanel />
     case 'live':        return <LiveDashboard />
-    case 'journal':     return <JournalPanel />
-    case 'analytics':   return <AnalyticsPanel />
     case 'calendar':    return <CalendarPanel />
     case 'correlation': return <ForexCorrelationPanel />
     case 'propfirm':    return <PropFirmPanel />

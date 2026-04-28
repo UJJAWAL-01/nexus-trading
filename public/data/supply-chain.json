@@ -1,0 +1,584 @@
+{
+  "$schema": "./supply-chain.schema.json",
+  "version": "0.2.0",
+  "generatedAt": "2026-04-25",
+  "license": "Edges sourced from public regulatory filings & company disclosures. Each edge includes a verifiable source URL.",
+  "coverage": {
+    "us": ["AAPL", "AMD", "AVGO", "BA", "GM", "INTC", "KO", "META", "MU", "NVDA", "PG", "TSLA"],
+    "in": ["BHARTIARTL.NS", "BRITANNIA.NS", "COALINDIA.NS", "HINDUNILVR.NS", "MARUTI.NS", "NESTLEIND.NS", "NTPC.NS", "RELIANCE.NS", "TATAMOTORS.NS", "TCS.NS", "ULTRACEMCO.NS"]
+  },
+  "companies": {
+    "AAPL":           { "name": "Apple Inc.",                "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Consumer Electronics" },
+    "NVDA":           { "name": "NVIDIA Corporation",        "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "TSLA":           { "name": "Tesla, Inc.",               "exchange": "NASDAQ", "country": "US", "sector": "Consumer Cyclical",   "industry": "Auto Manufacturers" },
+    "AMD":            { "name": "Advanced Micro Devices",    "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "AVGO":           { "name": "Broadcom Inc.",             "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "MU":             { "name": "Micron Technology",         "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "RELIANCE.NS":    { "name": "Reliance Industries",       "exchange": "NSE",    "country": "IN", "sector": "Energy",              "industry": "Oil & Gas Refining + Conglomerate" },
+    "TCS.NS":         { "name": "Tata Consultancy Services", "exchange": "NSE",    "country": "IN", "sector": "Technology",          "industry": "IT Services" },
+    "TATAMOTORS.NS":  { "name": "Tata Motors",               "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Auto Manufacturers" },
+    "MARUTI.NS":      { "name": "Maruti Suzuki India",       "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Auto Manufacturers" },
+    "HINDUNILVR.NS":  { "name": "Hindustan Unilever",        "exchange": "NSE",    "country": "IN", "sector": "Consumer Defensive",  "industry": "Household & Personal Products" },
+    "BHARTIARTL.NS":  { "name": "Bharti Airtel",             "exchange": "NSE",    "country": "IN", "sector": "Communication Services","industry": "Telecom Services" },
+
+    "TSM":            { "name": "Taiwan Semiconductor",      "exchange": "NYSE",   "country": "TW", "sector": "Technology",          "industry": "Semiconductor Foundry" },
+    "2317.TW":        { "name": "Hon Hai (Foxconn)",         "exchange": "TWSE",   "country": "TW", "sector": "Technology",          "industry": "Electronics Assembly" },
+    "005930.KS":      { "name": "Samsung Electronics",       "exchange": "KRX",    "country": "KR", "sector": "Technology",          "industry": "Semiconductors + Displays" },
+    "066570.KS":      { "name": "LG Display",                "exchange": "KRX",    "country": "KR", "sector": "Technology",          "industry": "Display Panels" },
+    "GLW":            { "name": "Corning Incorporated",      "exchange": "NYSE",   "country": "US", "sector": "Technology",          "industry": "Specialty Glass" },
+    "QCOM":           { "name": "Qualcomm",                  "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "SWKS":           { "name": "Skyworks Solutions",        "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "CRUS":           { "name": "Cirrus Logic",              "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "000660.KS":      { "name": "SK Hynix",                  "exchange": "KRX",    "country": "KR", "sector": "Technology",          "industry": "Memory Semiconductors" },
+    "MSFT":           { "name": "Microsoft Corporation",     "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Software + Cloud" },
+    "META":           { "name": "Meta Platforms",            "exchange": "NASDAQ", "country": "US", "sector": "Communication Services","industry": "Internet Services" },
+    "GOOGL":          { "name": "Alphabet Inc.",             "exchange": "NASDAQ", "country": "US", "sector": "Communication Services","industry": "Internet Services" },
+    "AMZN":           { "name": "Amazon.com",                "exchange": "NASDAQ", "country": "US", "sector": "Consumer Cyclical",   "industry": "Internet Retail + Cloud" },
+    "ORCL":           { "name": "Oracle Corporation",        "exchange": "NYSE",   "country": "US", "sector": "Technology",          "industry": "Software + Cloud" },
+    "6752.T":         { "name": "Panasonic Holdings",        "exchange": "TSE",    "country": "JP", "sector": "Technology",          "industry": "Battery + Electronics" },
+    "300750.SZ":      { "name": "CATL",                      "exchange": "SZSE",   "country": "CN", "sector": "Industrials",         "industry": "EV Batteries" },
+    "373220.KS":      { "name": "LG Energy Solution",        "exchange": "KRX",    "country": "KR", "sector": "Industrials",         "industry": "EV Batteries" },
+    "ALB":            { "name": "Albemarle Corporation",     "exchange": "NYSE",   "country": "US", "sector": "Materials",           "industry": "Lithium Mining" },
+    "SONY":           { "name": "Sony Group",                "exchange": "NYSE",   "country": "JP", "sector": "Technology",          "industry": "Gaming + Electronics" },
+    "ASML":           { "name": "ASML Holding",              "exchange": "NASDAQ", "country": "NL", "sector": "Technology",          "industry": "Semiconductor Equipment" },
+    "AMAT":           { "name": "Applied Materials",         "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductor Equipment" },
+    "LRCX":           { "name": "Lam Research",              "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductor Equipment" },
+
+    "2222.SR":        { "name": "Saudi Aramco",              "exchange": "Tadawul","country": "SA", "sector": "Energy",              "industry": "Oil & Gas Production" },
+    "BP":             { "name": "BP p.l.c.",                 "exchange": "NYSE",   "country": "GB", "sector": "Energy",              "industry": "Integrated Oil & Gas" },
+    "BOSCHLTD.NS":    { "name": "Bosch Limited",             "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Auto Components" },
+    "MOTHERSON.NS":   { "name": "Samvardhana Motherson",     "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Auto Components (Wiring + Mirrors)" },
+    "ENDURANCE.NS":   { "name": "Endurance Technologies",    "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Auto Components" },
+    "SONACOMS.NS":    { "name": "Sona BLW Precision",        "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Auto Components (EV Drivetrain)" },
+    "EXIDEIND.NS":    { "name": "Exide Industries",          "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Lead-Acid + Li-ion Batteries" },
+    "SUBROS.NS":      { "name": "Subros Limited",            "exchange": "NSE",    "country": "IN", "sector": "Consumer Cyclical",   "industry": "Auto AC Systems" },
+    "7269.T":         { "name": "Suzuki Motor Corporation",  "exchange": "TSE",    "country": "JP", "sector": "Consumer Cyclical",   "industry": "Auto Manufacturers" },
+    "TATASTEEL.NS":   { "name": "Tata Steel",                "exchange": "NSE",    "country": "IN", "sector": "Materials",           "industry": "Steel" },
+    "JLR":            { "name": "Jaguar Land Rover (subsidiary)","exchange": "Private","country": "GB","sector": "Consumer Cyclical","industry": "Luxury Auto" },
+    "UL":             { "name": "Unilever PLC",              "exchange": "NYSE",   "country": "GB", "sector": "Consumer Defensive",  "industry": "Household & Personal Products" },
+    "NOK":            { "name": "Nokia Corporation",         "exchange": "NYSE",   "country": "FI", "sector": "Technology",          "industry": "Telecom Equipment" },
+    "ERIC":           { "name": "Telefonaktiebolaget Ericsson","exchange": "NASDAQ","country": "SE","sector": "Technology",          "industry": "Telecom Equipment" },
+
+    "INTC":           { "name": "Intel Corporation",         "exchange": "NASDAQ", "country": "US", "sector": "Technology",          "industry": "Semiconductors" },
+    "BA":             { "name": "Boeing Company",            "exchange": "NYSE",   "country": "US", "sector": "Industrials",         "industry": "Aerospace & Defense" },
+    "GM":             { "name": "General Motors",            "exchange": "NYSE",   "country": "US", "sector": "Consumer Cyclical",   "industry": "Auto Manufacturers" },
+    "KO":             { "name": "The Coca-Cola Company",     "exchange": "NYSE",   "country": "US", "sector": "Consumer Defensive",  "industry": "Beverages" },
+    "PG":             { "name": "Procter & Gamble",          "exchange": "NYSE",   "country": "US", "sector": "Consumer Defensive",  "industry": "Household Products" },
+    "WMT":            { "name": "Walmart Inc.",              "exchange": "NYSE",   "country": "US", "sector": "Consumer Defensive",  "industry": "Discount Retail" },
+    "NESTLEIND.NS":   { "name": "Nestle India",              "exchange": "NSE",    "country": "IN", "sector": "Consumer Defensive",  "industry": "Packaged Foods" },
+    "BRITANNIA.NS":   { "name": "Britannia Industries",      "exchange": "NSE",    "country": "IN", "sector": "Consumer Defensive",  "industry": "Packaged Foods" },
+    "ULTRACEMCO.NS":  { "name": "UltraTech Cement",          "exchange": "NSE",    "country": "IN", "sector": "Materials",           "industry": "Cement" },
+    "NTPC.NS":        { "name": "NTPC Limited",              "exchange": "NSE",    "country": "IN", "sector": "Utilities",           "industry": "Power Generation" },
+    "COALINDIA.NS":   { "name": "Coal India",                "exchange": "NSE",    "country": "IN", "sector": "Energy",              "industry": "Coal Mining" },
+
+    "GE":             { "name": "GE Aerospace",              "exchange": "NYSE",   "country": "US", "sector": "Industrials",         "industry": "Aerospace Engines" },
+    "RTX":            { "name": "RTX Corporation",           "exchange": "NYSE",   "country": "US", "sector": "Industrials",         "industry": "Aerospace & Defense" },
+    "SPR":            { "name": "Spirit AeroSystems",        "exchange": "NYSE",   "country": "US", "sector": "Industrials",         "industry": "Aerospace Components" },
+    "HON":            { "name": "Honeywell International",   "exchange": "NASDAQ", "country": "US", "sector": "Industrials",         "industry": "Conglomerate" },
+    "UAL":            { "name": "United Airlines Holdings",  "exchange": "NASDAQ", "country": "US", "sector": "Industrials",         "industry": "Airlines" },
+    "DAL":            { "name": "Delta Air Lines",           "exchange": "NYSE",   "country": "US", "sector": "Industrials",         "industry": "Airlines" },
+    "AAL":            { "name": "American Airlines Group",   "exchange": "NASDAQ", "country": "US", "sector": "Industrials",         "industry": "Airlines" },
+    "KOF":            { "name": "Coca-Cola FEMSA",           "exchange": "NYSE",   "country": "MX", "sector": "Consumer Defensive",  "industry": "Beverage Bottler" },
+    "NSRGY":          { "name": "Nestle S.A.",               "exchange": "OTC",    "country": "CH", "sector": "Consumer Defensive",  "industry": "Packaged Foods" },
+    "WADIA":          { "name": "Wadia Group (private)",     "exchange": "Private","country": "IN", "sector": "Conglomerate",        "industry": "Holding (Britannia, Bombay Dyeing, Go First)" },
+    "ABG":            { "name": "Aditya Birla Group (parent UltraTech, Hindalco, Grasim)", "exchange": "Multi", "country": "IN", "sector": "Conglomerate", "industry": "Holding" },
+    "GE-VERNOVA":     { "name": "GE Vernova",                "exchange": "NYSE",   "country": "US", "sector": "Industrials",         "industry": "Power Equipment" },
+    "BHEL.NS":        { "name": "Bharat Heavy Electricals",  "exchange": "NSE",    "country": "IN", "sector": "Industrials",         "industry": "Power Equipment" }
+  },
+  "edges": [
+
+    {
+      "supplier": "TSM", "customer": "AAPL", "type": "supply",
+      "category": "Logic semiconductors (A-series, M-series SoCs)",
+      "evidence": "Apple's published Supplier List names TSMC; multiple analyst reports and TSMC earnings disclosures confirm Apple is TSMC's largest customer (~25% of TSMC revenue in 2024).",
+      "sourceUrl": "https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf",
+      "sourceType": "supplier-list", "sourceDate": "2024-10-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "2317.TW", "customer": "AAPL", "type": "supply",
+      "category": "Final assembly (iPhone, iPad, Mac)",
+      "evidence": "Apple Supplier List names Hon Hai Precision (Foxconn) as final-assembly partner; Foxconn's annual reports identify Apple as its single largest customer (~50%+ of Foxconn revenue, widely disclosed).",
+      "sourceUrl": "https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf",
+      "sourceType": "supplier-list", "sourceDate": "2024-10-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "005930.KS", "customer": "AAPL", "type": "supply",
+      "category": "OLED displays + NAND/DRAM memory",
+      "evidence": "Apple Supplier List names Samsung Display Co. and Samsung Electronics. Samsung Display is the dominant supplier of iPhone OLED panels.",
+      "sourceUrl": "https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf",
+      "sourceType": "supplier-list", "sourceDate": "2024-10-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "066570.KS", "customer": "AAPL", "type": "supply",
+      "category": "OLED + LCD displays (iPhone, iPad)",
+      "evidence": "Apple Supplier List names LG Display Co., Ltd. as a panel supplier. LG Display's investor materials identify Apple as a key customer.",
+      "sourceUrl": "https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf",
+      "sourceType": "supplier-list", "sourceDate": "2024-10-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "GLW", "customer": "AAPL", "type": "supply",
+      "category": "Cover glass (Gorilla Glass / Ceramic Shield)",
+      "evidence": "Apple Supplier List names Corning Incorporated. Apple has invested $450M+ via its Advanced Manufacturing Fund in Corning's Kentucky plant.",
+      "sourceUrl": "https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf",
+      "sourceType": "supplier-list", "sourceDate": "2024-10-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "QCOM", "customer": "AAPL", "type": "supply",
+      "category": "5G modem chips (iPhone)",
+      "evidence": "Qualcomm's 10-K (FY2023) discloses Apple as a major customer; the modem supply agreement was extended in Sept 2023 through 2026.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000804328&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2023-09-21",
+      "revenuePct": 20, "confidence": "high"
+    },
+    {
+      "supplier": "SWKS", "customer": "AAPL", "type": "supply",
+      "category": "RF front-end (cellular, Wi-Fi)",
+      "evidence": "Skyworks 10-K consistently discloses one customer (Apple) representing >60% of revenue.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000004127&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-11-15",
+      "revenuePct": 67, "confidence": "high"
+    },
+    {
+      "supplier": "CRUS", "customer": "AAPL", "type": "supply",
+      "category": "Audio codecs + power amps",
+      "evidence": "Cirrus Logic 10-K discloses Apple as ~85% of revenue (single largest customer).",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000772406&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-05-22",
+      "revenuePct": 85, "confidence": "high"
+    },
+    {
+      "supplier": "AVGO", "customer": "AAPL", "type": "supply",
+      "category": "Wireless connectivity (Wi-Fi/BT) + RF filters",
+      "evidence": "Broadcom 10-K identifies one customer (widely understood to be Apple) representing ~20% of net revenue in FY2024.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001730168&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-12-19",
+      "revenuePct": 20, "confidence": "high"
+    },
+
+    {
+      "supplier": "TSM", "customer": "NVDA", "type": "supply",
+      "category": "Foundry (H100, H200, Blackwell GPUs on N4/N3)",
+      "evidence": "NVIDIA 10-K FY2024 states the company depends on TSMC for substantially all of its leading-edge GPU production.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001045810&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-02-21",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "000660.KS", "customer": "NVDA", "type": "supply",
+      "category": "HBM3/HBM3e memory (data-center GPUs)",
+      "evidence": "SK Hynix has been the lead HBM3 supplier to NVIDIA per multiple SK Hynix earnings calls (2023-2024); NVIDIA's H100/H200/B100 use HBM3/3e.",
+      "sourceUrl": "https://www.skhynix.com/eng/ir/financial-info.do",
+      "sourceType": "press-release", "sourceDate": "2024-04-25",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "MU", "customer": "NVDA", "type": "supply",
+      "category": "HBM3e memory (qualifying for H200/B100)",
+      "evidence": "Micron's Feb 2024 press release announced HBM3e mass production, qualified for NVIDIA H200 GPU.",
+      "sourceUrl": "https://investors.micron.com/news-releases/news-release-details/micron-commences-volume-production-industry-leading-hbm3e",
+      "sourceType": "press-release", "sourceDate": "2024-02-26",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "NVDA", "customer": "MSFT", "type": "supply",
+      "category": "Data-center GPUs for Azure + OpenAI workloads",
+      "evidence": "NVIDIA 10-K FY2024 disclosed that one customer (widely identified as Microsoft per analyst reports) represented ~13% of total revenue.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001045810&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-02-21",
+      "revenuePct": 13, "confidence": "high"
+    },
+    {
+      "supplier": "NVDA", "customer": "META", "type": "supply",
+      "category": "H100/H200 GPUs for AI training infrastructure",
+      "evidence": "Meta publicly disclosed plans to deploy 350K+ NVIDIA H100 GPUs in 2024 (Zuckerberg post on Threads, Jan 2024).",
+      "sourceUrl": "https://www.threads.net/@zuck/post/C2QBoRaRmR1",
+      "sourceType": "press-release", "sourceDate": "2024-01-18",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "NVDA", "customer": "GOOGL", "type": "supply",
+      "category": "Data-center GPUs for Google Cloud + DeepMind",
+      "evidence": "Per NVIDIA's CFO commentary on FY24 Q4 earnings, four large CSPs (Microsoft, Google, Amazon, Meta) accounted for >40% of data center revenue collectively; Google Cloud lists NVIDIA H100/A100 instances.",
+      "sourceUrl": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-fourth-quarter-and-fiscal-2024",
+      "sourceType": "press-release", "sourceDate": "2024-02-21",
+      "revenuePct": null, "confidence": "medium"
+    },
+    {
+      "supplier": "NVDA", "customer": "AMZN", "type": "supply",
+      "category": "Data-center GPUs for AWS",
+      "evidence": "AWS publishes EC2 instance types built on NVIDIA H100 (P5), A100 (P4), and similar; NVIDIA cites AWS among its four largest hyperscale customers in FY24 commentary.",
+      "sourceUrl": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-fourth-quarter-and-fiscal-2024",
+      "sourceType": "press-release", "sourceDate": "2024-02-21",
+      "revenuePct": null, "confidence": "medium"
+    },
+
+    {
+      "supplier": "TSM", "customer": "AMD", "type": "supply",
+      "category": "Foundry (Ryzen, EPYC, Instinct MI-series)",
+      "evidence": "AMD 10-K FY2023 identifies TSMC as the primary wafer supplier; AMD does not operate fabs (fabless model since 2009 GlobalFoundries spinoff).",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-02-27",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "AMD", "customer": "MSFT", "type": "supply",
+      "category": "Custom semi-custom APU for Xbox Series X/S",
+      "evidence": "AMD 10-K segment reporting ('Gaming' segment) identifies Microsoft Xbox as a primary semi-custom customer; AMD has powered every Xbox console since Xbox One (2013).",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-02-27",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "AMD", "customer": "SONY", "type": "supply",
+      "category": "Custom semi-custom APU for PlayStation 5",
+      "evidence": "AMD 10-K confirms semi-custom revenue is concentrated in two console customers (Microsoft + Sony). PS5 silicon is AMD-designed (Zen 2 + RDNA 2).",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-02-27",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "TSM", "customer": "AVGO", "type": "supply",
+      "category": "Foundry for ASIC + networking silicon",
+      "evidence": "Broadcom 10-K identifies TSMC as a primary wafer manufacturing partner.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001730168&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-12-19",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "AVGO", "customer": "GOOGL", "type": "supply",
+      "category": "Custom AI accelerator silicon (TPU co-design)",
+      "evidence": "Per Broadcom CEO on FY24 Q4 earnings call, three hyperscale custom-silicon customers; Google's TPU partnership with Broadcom widely confirmed in trade press and Google Cloud blog.",
+      "sourceUrl": "https://investors.broadcom.com/news-releases/news-release-details/broadcom-inc-announces-fourth-quarter-and-fiscal-year-2024",
+      "sourceType": "press-release", "sourceDate": "2024-12-12",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "ASML", "customer": "TSM", "type": "supply",
+      "category": "EUV lithography systems (3nm, 5nm)",
+      "evidence": "ASML is the sole producer of EUV lithography tools required for sub-7nm production; TSMC is ASML's largest EUV customer per ASML's investor disclosures.",
+      "sourceUrl": "https://www.asml.com/en/investors",
+      "sourceType": "press-release", "sourceDate": "2024-10-15",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "AMAT", "customer": "TSM", "type": "supply",
+      "category": "Wafer fabrication equipment (deposition, etch, inspection)",
+      "evidence": "Applied Materials 10-K identifies TSMC and Samsung among top customers; foundry/logic represents the largest segment of Applied's semi-equipment revenue.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000006951&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-12-13",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "LRCX", "customer": "TSM", "type": "supply",
+      "category": "Etch + deposition equipment",
+      "evidence": "Lam Research 10-K identifies TSMC and Samsung among its largest customers in foundry/logic.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000707549&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-08-15",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "MU", "customer": "AMZN", "type": "supply",
+      "category": "DRAM + NAND for AWS data centers",
+      "evidence": "Micron 10-K notes that one direct customer (cloud/data center) accounted for ~13% of revenue in FY24; cloud customers (AWS, Microsoft, Google) are openly discussed in earnings.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000723125&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-10-04",
+      "revenuePct": 13, "confidence": "medium"
+    },
+
+    {
+      "supplier": "6752.T", "customer": "TSLA", "type": "supply",
+      "category": "Battery cells (2170 format, Gigafactory Nevada)",
+      "evidence": "Tesla 10-K and Panasonic earnings consistently confirm Panasonic as the principal battery cell partner at Gigafactory Nevada (Model S/X/3/Y).",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001318605&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-01-29",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "300750.SZ", "customer": "TSLA", "type": "supply",
+      "category": "LFP battery cells (Shanghai Gigafactory, standard-range Model 3/Y)",
+      "evidence": "Tesla 10-K identifies CATL as a battery supplier; Tesla Shanghai uses CATL LFP cells per company statements and Chinese regulatory filings.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001318605&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-01-29",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "373220.KS", "customer": "TSLA", "type": "supply",
+      "category": "Battery cells (4680 + cylindrical for higher-end trims)",
+      "evidence": "Tesla 10-K identifies LG Energy Solution as a battery supplier (along with Panasonic and CATL).",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001318605&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-01-29",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "ALB", "customer": "TSLA", "type": "supply",
+      "category": "Battery-grade lithium hydroxide",
+      "evidence": "Albemarle and Tesla announced a multi-year battery-grade lithium hydroxide supply agreement (renewed 2022, runs through 2024+).",
+      "sourceUrl": "https://investors.albemarle.com/news-releases/news-release-details/albemarle-and-tesla-amend-agreement-supply-battery-grade",
+      "sourceType": "press-release", "sourceDate": "2022-12-15",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "2222.SR", "customer": "RELIANCE.NS", "type": "supply",
+      "category": "Crude oil feedstock (Jamnagar refinery — world's largest)",
+      "evidence": "Reliance Jamnagar refinery's crude slate has historically included substantial Saudi Aramco volumes; the two companies negotiated (and ultimately did not finalize) a 20% O2C stake deal 2019-2021, confirming long-term supply relationship.",
+      "sourceUrl": "https://www.ril.com/InvestorRelations/FinancialReporting.aspx",
+      "sourceType": "annual-report", "sourceDate": "2024-08-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "RELIANCE.NS", "customer": "BP", "type": "supply",
+      "category": "JV: Reliance BP Mobility (fuel retail in India, ~50/50 JV)",
+      "evidence": "Reliance Industries and BP formed Reliance BP Mobility Ltd in 2019 (Reliance 51%, BP 49%) operating Jio-bp branded fuel stations in India.",
+      "sourceUrl": "https://www.ril.com/ar2022-23/pdf/RIL-Integrated-Annual-Report-2022-23.pdf",
+      "sourceType": "annual-report", "sourceDate": "2023-08-01",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "TCS.NS", "customer": "ORCL", "type": "supply",
+      "category": "Note: TCS reports geographic + industry concentration only — no individual customer named >10%. Edge intentionally omitted as no single TCS customer crosses disclosure threshold per FY24 annual report.",
+      "evidence": "TCS Annual Report FY24 discloses no single customer exceeding 10% of consolidated revenue. Top concentration is industry-vertical (BFSI ~31%) and geographic (North America ~50%), not single-name.",
+      "sourceUrl": "https://www.tcs.com/content/dam/tcs/investor-relations/financial-statements/2023-24/ar/annual-report-2023-2024.pdf",
+      "sourceType": "annual-report", "sourceDate": "2024-05-15",
+      "revenuePct": null, "confidence": "high",
+      "note": "stub-no-edge"
+    },
+
+    {
+      "supplier": "JLR", "customer": "TATAMOTORS.NS", "type": "ownership",
+      "category": "Wholly-owned subsidiary (acquired from Ford 2008)",
+      "evidence": "Tata Motors acquired Jaguar Land Rover from Ford for $2.3B in June 2008. JLR represents ~70% of Tata Motors consolidated revenue (FY24 annual report).",
+      "sourceUrl": "https://investors.tatamotors.com/financials/82-ar-html/financials.html",
+      "sourceType": "annual-report", "sourceDate": "2024-07-15",
+      "revenuePct": 70, "stakePct": 100, "confidence": "high"
+    },
+    {
+      "supplier": "BOSCHLTD.NS", "customer": "TATAMOTORS.NS", "type": "supply",
+      "category": "Fuel injection, electronics, brakes",
+      "evidence": "Bosch Limited's annual report identifies leading Indian OEMs including Tata Motors as principal customers for diesel injection and brake systems.",
+      "sourceUrl": "https://www.bosch.in/our-company/bosch-in-india/annual-report/",
+      "sourceType": "annual-report", "sourceDate": "2024-08-01",
+      "revenuePct": null, "confidence": "medium"
+    },
+    {
+      "supplier": "MOTHERSON.NS", "customer": "TATAMOTORS.NS", "type": "supply",
+      "category": "Wiring harnesses, mirrors, modules",
+      "evidence": "Motherson is a principal Tier-1 supplier to Tata Motors per Motherson's investor presentations; Motherson also supplies JLR globally.",
+      "sourceUrl": "https://www.motherson.com/investors/financial-results",
+      "sourceType": "annual-report", "sourceDate": "2024-08-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "TATASTEEL.NS", "customer": "TATAMOTORS.NS", "type": "supply",
+      "category": "Steel (Tata Group internal)",
+      "evidence": "Tata Steel is a key supplier of automotive-grade steel to Tata Motors; both are part of the Tata Group with related-party transactions disclosed in respective annual reports.",
+      "sourceUrl": "https://www.tatasteel.com/investors/annual-report/",
+      "sourceType": "annual-report", "sourceDate": "2024-07-15",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "7269.T", "customer": "MARUTI.NS", "type": "ownership",
+      "category": "Parent company (Suzuki Motor Corp owns 58.19% of Maruti Suzuki India)",
+      "evidence": "Suzuki Motor Corporation holds 58.19% of Maruti Suzuki India per Maruti's FY24 annual report shareholding pattern.",
+      "sourceUrl": "https://www.marutisuzuki.com/corporate/investors/annual-reports",
+      "sourceType": "annual-report", "sourceDate": "2024-07-22",
+      "revenuePct": null, "stakePct": 58.19, "confidence": "high"
+    },
+    {
+      "supplier": "BOSCHLTD.NS", "customer": "MARUTI.NS", "type": "supply",
+      "category": "Fuel injection, ABS, ECUs",
+      "evidence": "Bosch Limited is a principal supplier to Maruti Suzuki per Bosch's annual report customer disclosure (named OEM relationships).",
+      "sourceUrl": "https://www.bosch.in/our-company/bosch-in-india/annual-report/",
+      "sourceType": "annual-report", "sourceDate": "2024-08-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "MOTHERSON.NS", "customer": "MARUTI.NS", "type": "supply",
+      "category": "Wiring harnesses (Motherson Sumi) + interior modules",
+      "evidence": "Motherson Sumi is the primary wiring-harness supplier to Maruti Suzuki India; relationship dates to 1986 JV with Sumitomo.",
+      "sourceUrl": "https://www.motherson.com/investors/financial-results",
+      "sourceType": "annual-report", "sourceDate": "2024-08-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "EXIDEIND.NS", "customer": "MARUTI.NS", "type": "supply",
+      "category": "Lead-acid starter batteries",
+      "evidence": "Exide Industries is the dominant OEM battery supplier in India; supplies to Maruti Suzuki are widely reported in trade press and supplier disclosures.",
+      "sourceUrl": "https://www.exideindustries.com/investors/financial-information.aspx",
+      "sourceType": "annual-report", "sourceDate": "2024-07-15",
+      "revenuePct": null, "confidence": "medium"
+    },
+    {
+      "supplier": "SUBROS.NS", "customer": "MARUTI.NS", "type": "supply",
+      "category": "Automotive air-conditioning systems",
+      "evidence": "Subros Limited is a JV with Suzuki Corp + Denso; Maruti Suzuki is its largest customer (~70%+ of revenue per Subros annual report).",
+      "sourceUrl": "https://www.subros.com/investor-relations/",
+      "sourceType": "annual-report", "sourceDate": "2024-08-01",
+      "revenuePct": 70, "confidence": "high"
+    },
+    {
+      "supplier": "SONACOMS.NS", "customer": "MARUTI.NS", "type": "supply",
+      "category": "Differential gears + driveline (limited; Sona is more JLR/Stellantis focused)",
+      "evidence": "Sona BLW supplies driveline components to Indian OEMs including Maruti Suzuki per Sona's investor presentations.",
+      "sourceUrl": "https://www.sonacomstar.com/investors/",
+      "sourceType": "annual-report", "sourceDate": "2024-07-15",
+      "revenuePct": null, "confidence": "low"
+    },
+
+    {
+      "supplier": "UL", "customer": "HINDUNILVR.NS", "type": "ownership",
+      "category": "Parent company (Unilever PLC owns 61.9% of HUL)",
+      "evidence": "Unilever PLC holds 61.9% of Hindustan Unilever per HUL's annual report shareholding pattern.",
+      "sourceUrl": "https://www.hul.co.in/investor-relations/annual-reports/",
+      "sourceType": "annual-report", "sourceDate": "2024-06-01",
+      "revenuePct": null, "stakePct": 61.9, "confidence": "high"
+    },
+
+    {
+      "supplier": "ERIC", "customer": "BHARTIARTL.NS", "type": "supply",
+      "category": "Radio Access Network (RAN) equipment for 5G rollout",
+      "evidence": "Bharti Airtel announced multi-year 5G RAN partnership with Ericsson in 2022; Ericsson is one of three primary RAN vendors for Airtel India.",
+      "sourceUrl": "https://www.ericsson.com/en/press-releases/2022/8/ericsson-and-bharti-airtel-extend-partnership-for-5g-deployment",
+      "sourceType": "press-release", "sourceDate": "2022-08-26",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "NOK", "customer": "BHARTIARTL.NS", "type": "supply",
+      "category": "5G RAN + microwave transport",
+      "evidence": "Nokia signed a multi-billion dollar 5G deal with Bharti Airtel in 2022 covering RAN and transport equipment.",
+      "sourceUrl": "https://www.nokia.com/about-us/news/releases/2022/08/26/nokia-bags-multi-billion-dollar-5g-deal-with-bharti-airtel-in-india/",
+      "sourceType": "press-release", "sourceDate": "2022-08-26",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "005930.KS", "customer": "BHARTIARTL.NS", "type": "supply",
+      "category": "5G RAN equipment (third RAN vendor)",
+      "evidence": "Bharti Airtel selected Samsung as a third 5G RAN vendor in 2022 alongside Ericsson and Nokia, per Samsung Networks press release.",
+      "sourceUrl": "https://news.samsung.com/global/samsung-electronics-and-bharti-airtel-collaborate-to-deploy-5g-network-in-india",
+      "sourceType": "press-release", "sourceDate": "2022-09-01",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "GE", "customer": "BA", "type": "supply",
+      "category": "GEnx + LEAP-1B engines (787 Dreamliner, 737 MAX)",
+      "evidence": "Boeing 10-K identifies GE Aerospace as a major engine supplier for the 787 (GEnx) and (via CFM JV) the 737 MAX (LEAP-1B). Engines are typically the single most expensive component on a commercial airframe.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-01-31",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "SPR", "customer": "BA", "type": "supply",
+      "category": "737 MAX fuselage + 787 nose section (sole-source)",
+      "evidence": "Spirit AeroSystems is the sole-source fuselage supplier for the 737 MAX. Boeing announced re-acquisition of Spirit in July 2024 (closing ~mid-2025) precisely because of supply-chain risk concentration.",
+      "sourceUrl": "https://boeing.mediaroom.com/2024-07-01-Boeing-to-Acquire-Spirit-AeroSystems",
+      "sourceType": "press-release", "sourceDate": "2024-07-01",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "RTX", "customer": "BA", "type": "supply",
+      "category": "Avionics, landing gear, auxiliary power units (Collins Aerospace + Pratt & Whitney)",
+      "evidence": "RTX (formed by Raytheon-United Technologies merger) supplies Boeing across Collins Aerospace (avionics, interiors, landing gear) and Pratt & Whitney engines.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-02-06",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "BA", "customer": "UAL", "type": "supply",
+      "category": "Commercial aircraft (737, 787 fleet)",
+      "evidence": "United Airlines is one of Boeing's largest US airline customers; UAL has standing 737 MAX and 787 orders confirmed in Boeing backlog disclosures.",
+      "sourceUrl": "https://www.boeing.com/commercial/orders-deliveries",
+      "sourceType": "press-release", "sourceDate": "2024-12-31",
+      "revenuePct": null, "confidence": "high"
+    },
+    {
+      "supplier": "BA", "customer": "DAL", "type": "supply",
+      "category": "Commercial aircraft (737 MAX 10 firm orders)",
+      "evidence": "Delta Air Lines is a Boeing 737 MAX 10 launch customer (100 firm orders confirmed July 2022).",
+      "sourceUrl": "https://news.delta.com/delta-orders-100-737-10-aircraft-investing-employees-and-future",
+      "sourceType": "press-release", "sourceDate": "2022-07-18",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "373220.KS", "customer": "GM", "type": "jv",
+      "category": "Ultium Cells JV — battery cell production for GM EVs (Lordstown OH, Spring Hill TN, Lansing MI)",
+      "evidence": "GM and LG Energy Solution formed Ultium Cells LLC as a 50/50 JV in 2019; three operational US gigafactories produce cells exclusively for GM EVs (Hummer EV, Silverado EV, Cadillac LYRIQ).",
+      "sourceUrl": "https://news.gm.com/newsroom.detail.html/Pages/news/us/en/2019/dec/1205-lges.html",
+      "sourceType": "press-release", "sourceDate": "2019-12-05",
+      "revenuePct": null, "stakePct": 50, "confidence": "high"
+    },
+
+    {
+      "supplier": "PG", "customer": "WMT", "type": "supply",
+      "category": "Household & personal care products (Pampers, Tide, Gillette, etc.)",
+      "evidence": "Procter & Gamble 10-K consistently discloses Walmart as its single largest customer at ~14-15% of consolidated net sales.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000080424&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-08-13",
+      "revenuePct": 14, "confidence": "high"
+    },
+
+    {
+      "supplier": "KO", "customer": "KOF", "type": "supply",
+      "category": "Beverage concentrate (Coca-Cola sells concentrate to bottlers globally)",
+      "evidence": "Coca-Cola FEMSA is the largest Coca-Cola bottler by volume globally; The Coca-Cola Company holds ~28% equity stake in Coca-Cola FEMSA and supplies all branded concentrates.",
+      "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000021344&type=10-K",
+      "sourceType": "10-K", "sourceDate": "2024-02-20",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "COALINDIA.NS", "customer": "NTPC.NS", "type": "supply",
+      "category": "Thermal coal (NTPC's coal-fired plants source ~70-75% of their coal from Coal India under FSAs)",
+      "evidence": "Coal India supplies the majority of thermal coal to NTPC under long-term Fuel Supply Agreements; NTPC is consistently Coal India's largest single customer in annual report disclosures.",
+      "sourceUrl": "https://www.coalindia.in/investors/financial-information/annual-reports.aspx",
+      "sourceType": "annual-report", "sourceDate": "2024-08-15",
+      "revenuePct": 30, "confidence": "high"
+    },
+    {
+      "supplier": "BHEL.NS", "customer": "NTPC.NS", "type": "supply",
+      "category": "Boiler-Turbine-Generator (BTG) sets for thermal power plants",
+      "evidence": "BHEL is the principal Indian supplier of BTG equipment to NTPC's thermal fleet; multiple multi-thousand-MW orders disclosed in BHEL annual reports.",
+      "sourceUrl": "https://www.bhel.com/investor-information",
+      "sourceType": "annual-report", "sourceDate": "2024-08-01",
+      "revenuePct": null, "confidence": "high"
+    },
+
+    {
+      "supplier": "NSRGY", "customer": "NESTLEIND.NS", "type": "ownership",
+      "category": "Parent company (Nestlé S.A. owns 62.76% of Nestle India)",
+      "evidence": "Nestlé S.A. (Switzerland) holds 62.76% of Nestle India per Nestle India's annual shareholding pattern.",
+      "sourceUrl": "https://www.nestle.in/investors/annual-reports",
+      "sourceType": "annual-report", "sourceDate": "2024-04-30",
+      "revenuePct": null, "stakePct": 62.76, "confidence": "high"
+    },
+
+    {
+      "supplier": "WADIA", "customer": "BRITANNIA.NS", "type": "ownership",
+      "category": "Promoter group (Wadia family / Associated Biscuits International ~50.55%)",
+      "evidence": "Britannia Industries promoter shareholding (Wadia Group entities including Associated Biscuits International) is consistently ~50.55% per annual shareholding patterns.",
+      "sourceUrl": "https://britannia.co.in/investors/financials-and-presentations",
+      "sourceType": "annual-report", "sourceDate": "2024-06-15",
+      "revenuePct": null, "stakePct": 50.55, "confidence": "high"
+    },
+
+    {
+      "supplier": "ABG", "customer": "ULTRACEMCO.NS", "type": "ownership",
+      "category": "Promoter (Aditya Birla Group / Grasim Industries — UltraTech is the Group's cement arm, ~57% promoter holding)",
+      "evidence": "Grasim Industries (Aditya Birla Group) holds ~57% of UltraTech Cement per UltraTech's annual shareholding pattern.",
+      "sourceUrl": "https://www.ultratechcement.com/investors/financial-information",
+      "sourceType": "annual-report", "sourceDate": "2024-06-15",
+      "revenuePct": null, "stakePct": 57, "confidence": "high"
+    }
+  ]
+}

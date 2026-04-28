@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import TickerBar   from '@/components/ui/TickerBar'
-import GridLayout  from '@/components/dashboard/GridLayout'
+import TickerBar     from '@/components/ui/TickerBar'
+import GridLayout    from '@/components/dashboard/GridLayout'
+import MorningBrief  from '@/components/dashboard/MorningBrief'
 import Footer from '@/components/ui/Footer'
 
 // ── Market status bar ─────────────────────────────────────────────────────────
@@ -131,9 +132,13 @@ export default function Dashboard() {
         </header>
 
         <TickerBar />
+
+        {/* Bloomberg-TOP-style brief — joined with TickerBar in one sticky block,
+            no gap behind which panels could show through. Hidden on mobile via CSS. */}
+        <div className="top-brief">
+          <MorningBrief />
+        </div>
       </div>
-      
-      <div style={{ height: '6px' }} /> {/* Spacer to prevent content jump */}
 
       {/* ── Scrollable Content ─────────────────────────────────────────── */}
       <main
@@ -207,9 +212,13 @@ export default function Dashboard() {
         .grid-container {
           overflow-y: auto;
           overflow-x: hidden;
-          padding: 12px;
+          /* No top padding — sticky toolbar inside GridLayout sits flush
+             against the top-nav. Side+bottom padding remain for breathing room. */
+          padding: 0 12px 12px;
           scroll-behavior: smooth;
         }
+
+        .top-brief { display: block; }
 
         .divider {
           width: 1px;
@@ -253,6 +262,7 @@ export default function Dashboard() {
           .tagline { display: none; }
           .status-sub { display: none; }
           .header { padding: 0 10px; }
+          .top-brief { display: none; }   /* too dense for phones */
         }
 
         /* Tablet */
