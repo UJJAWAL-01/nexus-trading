@@ -1,7 +1,7 @@
 'use client'
 // src/components/panels/SupplyChainPanel.tsx
 //
-// Bloomberg SPLC-style supplier/customer map.
+// Verified supplier/customer relationship map.
 // All compute is client-side — dataset is shipped as /public/data/supply-chain.json
 // (version-controlled, citable, community-PR-friendly). Server only serves the file.
 //

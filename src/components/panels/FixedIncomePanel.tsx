@@ -294,16 +294,16 @@ function YieldCurveChart({ us, india, mode, h = 190 }: { us: YieldPoint[]; india
       </defs>
       {gridYs.map(({ y: gy, v }) => (
         <g key={v}>
-          <line x1={PAD.l} y1={gy.toFixed(1)} x2={W - PAD.r} y2={gy.toFixed(1)} stroke="#1e2d3d" strokeWidth="1" strokeDasharray="3,4"/>
+          <line x1={PAD.l} y1={gy.toFixed(1)} x2={W - PAD.r} y2={gy.toFixed(1)} stroke="#1c1f25" strokeWidth="1" strokeDasharray="3,4"/>
           <text x={PAD.l - 4} y={(gy + 3.5).toFixed(1)} textAnchor="end" fill="#4a6070" fontSize="9" fontFamily="JetBrains Mono, monospace">{v.toFixed(1)}%</text>
         </g>
       ))}
-      <line x1={PAD.l} y1={H - PAD.b} x2={W - PAD.r} y2={H - PAD.b} stroke="#1e2d3d" strokeWidth="1"/>
+      <line x1={PAD.l} y1={H - PAD.b} x2={W - PAD.r} y2={H - PAD.b} stroke="#1c1f25" strokeWidth="1"/>
       {xTicks.map(m => {
         const px = x(m).toFixed(1)
         return (
           <g key={m}>
-            <line x1={px} y1={H - PAD.b} x2={px} y2={(H - PAD.b + 4).toFixed(1)} stroke="#1e2d3d" strokeWidth="1"/>
+            <line x1={px} y1={H - PAD.b} x2={px} y2={(H - PAD.b + 4).toFixed(1)} stroke="#1c1f25" strokeWidth="1"/>
             <text x={px} y={(H - PAD.b + 14).toFixed(1)} textAnchor="middle" fill="#4a6070" fontSize="8.5" fontFamily="JetBrains Mono, monospace">{tl(m)}</text>
           </g>
         )
@@ -828,7 +828,7 @@ export default function FixedIncomePanel() {
                   <SpreadBar label="PSU vs G-Sec"  dp={inData.spreads.psuSpread   ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} maxBps={100} />
                 </div>
                 <div style={{ marginTop: '8px', padding: '8px 12px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', background: 'rgba(74,96,112,0.08)', border: '1px solid rgba(74,96,112,0.15)', borderRadius: '4px', lineHeight: 1.7 }}>
-                  ⚠ SDL and AAA PSU spreads are not available from any free real-time source. CCIL, Bloomberg, or NSE BOND required for live spread data. Historical ranges: SDL ~40-70bps, AAA PSU ~30-55bps over G-Sec.
+                  ⚠ SDL and AAA PSU spreads are not available from any free real-time source. Paid CCIL or NSE bond data terminal required for live spreads. Historical ranges: SDL ~40-70bps, AAA PSU ~30-55bps over G-Sec.
                 </div>
               </div>
             )}

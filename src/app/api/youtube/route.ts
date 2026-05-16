@@ -4,7 +4,6 @@ const cache = new Map<string, { data: unknown; expires: number }>()
 
 const FINANCIAL_CHANNELS = [
   'UCrM7B7SL_g1edFOnmj-SDKg', // CNBC
-  'UCIALMKvObZNtJ6AmdCLP_aQ', // Bloomberg
 ]
 
 export async function GET(request: NextRequest) {

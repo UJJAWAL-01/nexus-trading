@@ -167,8 +167,34 @@ export default function EconomicCalendarPanel() {
             </span>
           )}
         </div>
-        <span style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
-          {loading ? 'updating…' : source}
+        <span
+          title={
+            loading
+              ? 'Fetching latest events from data provider…'
+              : source.includes('Finnhub')
+                ? 'Live event data from Finnhub, merged with central-bank scheduled meetings'
+                : 'Showing embedded scheduled meetings only — live event feed (Finnhub) unavailable'
+          }
+          style={{
+            fontSize:'10px', fontFamily:'JetBrains Mono,monospace',
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            color: loading
+              ? 'var(--text-muted)'
+              : source.includes('Finnhub')
+                ? 'var(--positive)'
+                : 'var(--amber)',
+          }}
+        >
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: loading
+              ? 'var(--text-muted)'
+              : source.includes('Finnhub')
+                ? 'var(--positive)'
+                : 'var(--amber)',
+            boxShadow: source.includes('Finnhub') && !loading ? '0 0 6px var(--positive)' : 'none',
+          }} />
+          {loading ? 'UPDATING' : source.includes('Finnhub') ? 'LIVE' : 'SCHEDULED ONLY'}
         </span>
       </div>
 

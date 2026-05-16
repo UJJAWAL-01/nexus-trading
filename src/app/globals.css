@@ -5,14 +5,15 @@
 
 /* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --bg-base:    #090c10;
-  --bg-panel:   #0d1117;
-  --bg-deep:    #0a0f14;
-  --bg-row:     #111820;
+  /* Pitch-black terminal palette — true black bg, panels lift just enough to be visible */
+  --bg-base:    #000000;   /* viewport background — pitch black */
+  --bg-panel:   #0c0d10;   /* panels / cards — slight lift to separate from base */
+  --bg-deep:    #060708;   /* nested / sub-panel — between base and panel */
+  --bg-row:     #15171c;   /* row hover / highlight */
 
-  /* Borders — more visible than before */
-  --border:     #1f2e3e;
-  --border-br:  #2d4460;
+  /* Borders — neutral grey, no blue tint */
+  --border:     #1c1f25;
+  --border-br:  #2a2e36;
 
   /* Brand */
   --amber:      #f0a500;

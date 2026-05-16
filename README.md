@@ -37,7 +37,7 @@ No account required. No subscription. Open the app and start trading smarter.
 | **Insider Deals** | SEC Form 4 filings (US) + NSE insider transactions (India) |
 | **IPO Screener** | Recent and upcoming IPOs with sector filters and sentiment |
 | **Alternative Signals** | Seasonality, day-of-week patterns, lunar cycle indicators |
-| **Live Finance TV** | 24/7 embedded streams: Bloomberg TV, CNBC, Reuters, Yahoo Finance, CNBC TV18, NDTV Profit, ET Now, Zee Business |
+| **Live Finance TV** | 24/7 embedded streams: CNBC, Reuters, Yahoo Finance, CNBC TV18, NDTV Profit, ET Now, Zee Business |
 
 ---
 

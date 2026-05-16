@@ -1,7 +1,7 @@
 'use client'
 // src/components/dashboard/MorningBrief.tsx
 //
-// Bloomberg "TOP" monitor analog. Slim pinned strip rendered above the panel
+// Top-of-day monitor strip. Slim pinned bar rendered above the panel
 // grid, always visible (no scroll required during the trading session):
 //
 //   [● US OPEN 14:23 EST]   [↑ NVDA +3.2  ↓ TSLA -1.8  ↑ AAPL +0.9]   [⚠ NEXT · CPI in 2d 14h]   [F&G 67 GREED]
@@ -20,18 +20,27 @@ type Session = 'pre' | 'open' | 'after' | 'closed'
 
 interface MarketState { exchange: 'US' | 'IN'; session: Session; localTime: string }
 
+// Cache one Intl.DateTimeFormat per timezone — these are expensive to construct
+// (~0.5-1ms each on average hardware), and we build one per render otherwise.
+const TZ_FORMATTERS: Record<string, Intl.DateTimeFormat> = {}
+const DOW_MAP: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
+
+function fmtForTZ(tz: string): Intl.DateTimeFormat {
+  if (!TZ_FORMATTERS[tz]) {
+    TZ_FORMATTERS[tz] = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hour12: false, weekday: 'short',
+      hour: '2-digit', minute: '2-digit',
+    })
+  }
+  return TZ_FORMATTERS[tz]
+}
+
 function nowInTZ(tz: string): { h: number; m: number; dow: number; iso: string } {
-  const d = new Date()
-  const fmt = new Intl.DateTimeFormat('en-US', {
-    timeZone: tz, hour12: false, weekday: 'short',
-    hour: '2-digit', minute: '2-digit',
-  })
-  const parts = fmt.formatToParts(d)
+  const parts = fmtForTZ(tz).formatToParts(new Date())
   const h = parseInt(parts.find(p => p.type === 'hour')!.value, 10) % 24
   const m = parseInt(parts.find(p => p.type === 'minute')!.value, 10)
   const wd = parts.find(p => p.type === 'weekday')!.value
-  const dowMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
-  return { h, m, dow: dowMap[wd] ?? 0, iso: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` }
+  return { h, m, dow: DOW_MAP[wd] ?? 0, iso: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` }
 }
 
 function usSession(): MarketState {

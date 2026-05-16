@@ -1002,7 +1002,7 @@ export async function GET(request: NextRequest) {
     },
     sdlSpread: {
       value: null, source: 'No free real-time SDL spread source available', dataSourceType: 'unavailable', fetchedAt: now,
-      notes: 'SDL-G-Sec spreads historically 40-70bps. CCIL or Bloomberg required for live data.',
+      notes: 'SDL-G-Sec spreads historically 40-70bps. Paid bond data terminal required for live data.',
     },
     psuSpread: {
       value: null, source: 'No free real-time AAA PSU spread source', dataSourceType: 'unavailable', fetchedAt: now,

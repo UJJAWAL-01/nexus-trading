@@ -246,7 +246,6 @@ const RSS_SOURCES: Record<string, { url: string; label: string; categories: Feed
     { url: 'https://feeds.reuters.com/reuters/topNews',       label: 'Reuters World',    categories: ['geopolitics','markets'] },
     { url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml',  label: 'MarketWatch',      categories: ['markets','relevant'] },
     { url: 'https://www.ft.com/?format=rss',                 label: 'Financial Times',  categories: ['markets','macro'] },
-    { url: 'https://feeds.bloomberg.com/markets/news.rss',   label: 'Bloomberg Markets',categories: ['markets','macro'] },
   ],
   macro: [
     { url: 'https://feeds.reuters.com/reuters/economyNews',  label: 'Reuters Economy',  categories: ['macro'] },

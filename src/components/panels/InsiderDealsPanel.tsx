@@ -1,7 +1,7 @@
 'use client'
 // src/components/panels/InsiderDealsPanel.tsx
 // Intelligence layer: smart-money scoring, sector clustering, unusual activity
-// detection, multi-insider CLUSTER signals (the Bloomberg-beater).
+// detection, multi-insider CLUSTER signals.
 
 import { useMemo, useState } from 'react'
 import { useInsiderDeals, type InsiderDeal } from '@/lib/data-hooks'
@@ -333,7 +333,7 @@ export default function InsiderDealsPanel() {
               </div>
             )}
 
-            {/* ═══ CLUSTER SIGNALS — the Bloomberg-beater USP ═══════════════ */}
+            {/* ═══ CLUSTER SIGNALS — multi-insider conviction signal ═══════════ */}
             {clusters.length > 0 && (
               <div>
                 <div style={{ fontSize:'10px', color:'var(--teal)', letterSpacing:'0.12em', marginBottom:'8px', display:'flex', alignItems:'center', gap:'6px' }}>

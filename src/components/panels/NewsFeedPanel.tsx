@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useWatchlist } from '@/store/watchlist'
 import type { FeedCategory, FeedItem } from '@/app/api/news-feed/route'
 
@@ -200,19 +200,41 @@ export default function NewsFeedPanel() {
   const prevNewsIds = useRef<Set<string>>(new Set())
   const loadedTabs  = useRef<Set<TabId>>(new Set())
 
+  // Stable ref so the AI processor always reads the latest watchlist
+  // without re-running on every symbols change.
+  const symbolsRef = useRef(symbols)
+  useEffect(() => { symbolsRef.current = symbols }, [symbols])
+
+  // Stable key for the symbols watchlist (used as effect dependency).
+  // Primitive string comparison avoids re-runs when array reference changes
+  // but contents are identical.
+  const watchlistKey = useMemo(() => symbols.slice(0, 20).join(','), [symbols])
+
+  // Abort controllers for in-flight tab fetches (cancel previous on rapid switches)
+  const tabAbortRef = useRef<Map<TabId, AbortController>>(new Map())
+
   // ── Fetch a specific tab ──────────────────────────────────────────────────
   const fetchTab = useCallback(async (tab: TabId, force = false) => {
     if (!force && loadedTabs.current.has(tab)) return
     loadedTabs.current.add(tab)
 
+    // Cancel any prior in-flight fetch for this tab
+    tabAbortRef.current.get(tab)?.abort()
+    const ctrl = new AbortController()
+    tabAbortRef.current.set(tab, ctrl)
+
     setTabLoading(prev => ({ ...prev, [tab]: true }))
     setTabError(prev => ({ ...prev, [tab]: '' }))
 
     try {
-      const watchlistParam = symbols.slice(0, 20).join(',')
-      const res  = await fetch(`/api/news-feed?category=${tab}&watchlist=${encodeURIComponent(watchlistParam)}`)
+      const res  = await fetch(
+        `/api/news-feed?category=${tab}&watchlist=${encodeURIComponent(watchlistKey)}`,
+        { signal: ctrl.signal },
+      )
       const data = await res.json()
       const items: FeedItem[] = data.items ?? []
+
+      if (ctrl.signal.aborted) return
 
       setTabData(prev => ({ ...prev, [tab]: items }))
 
@@ -225,18 +247,23 @@ export default function NewsFeedPanel() {
         newIds.forEach(id => prevNewsIds.current.add(id))
         if (newIds.length > 0) setAiQueue(q => [...q, ...newIds])
       }
-    } catch (e: any) {
-      setTabError(prev => ({ ...prev, [tab]: e?.message ?? 'Failed to load' }))
+    } catch (e: unknown) {
+      // AbortError = newer fetch superseded us; not a user-facing error
+      if (e instanceof DOMException && e.name === 'AbortError') return
+      const msg = e instanceof Error ? e.message : 'Failed to load'
+      setTabError(prev => ({ ...prev, [tab]: msg }))
     } finally {
-      setTabLoading(prev => ({ ...prev, [tab]: false }))
+      if (!ctrl.signal.aborted) {
+        setTabLoading(prev => ({ ...prev, [tab]: false }))
+      }
     }
-  }, [symbols])
+  }, [watchlistKey])
 
-  // Initial load — relevant tab
+  // Initial load — relevant tab. Triggers on watchlistKey change too.
   useEffect(() => {
     loadedTabs.current.clear()  // Reset when watchlist changes
     fetchTab('relevant', true)
-  }, [symbols.join(',')])
+  }, [watchlistKey, fetchTab])
 
   // Load tab on switch
   useEffect(() => {
@@ -252,6 +279,15 @@ export default function NewsFeedPanel() {
     return () => clearInterval(id)
   }, [activeTab, fetchTab])
 
+  // Cleanup: cancel all in-flight tab fetches on unmount
+  useEffect(() => {
+    const abortMap = tabAbortRef.current
+    return () => {
+      abortMap.forEach(c => c.abort())
+      abortMap.clear()
+    }
+  }, [])
+
   // ── AI context processor ──────────────────────────────────────────────────
   useEffect(() => {
     if (aiQueue.length === 0) return
@@ -266,7 +302,9 @@ export default function NewsFeedPanel() {
     fetch('/api/ai-context', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ headline: item.headline, summary: item.summary, watchlist: symbols }),
+      // Read symbols from ref so we always send the LATEST watchlist,
+      // not whatever value was captured when the queue item was enqueued.
+      body: JSON.stringify({ headline: item.headline, summary: item.summary, watchlist: symbolsRef.current }),
     })
       .then(r => r.json())
       .then(data => {
@@ -277,7 +315,7 @@ export default function NewsFeedPanel() {
         setAiItems(m => new Map(m).set(nextId, { context: null, loading: false }))
         setAiQueue(rest)
       })
-  }, [aiQueue])
+  }, [aiQueue, tabData.relevant])
 
   // ── Tab stats ──────────────────────────────────────────────────────────────
   const currentItems  = tabData[activeTab]

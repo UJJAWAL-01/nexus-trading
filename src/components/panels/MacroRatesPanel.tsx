@@ -101,9 +101,34 @@ export default function MacroRatesPanel() {
                 {rateStr}
               </div>
             )}
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '5px' }}>
-              As of {data?.policyRate?.date ?? '···'} · {data?.policyRate?.source ?? 'FRED'}
-            </div>
+            {(() => {
+              const src    = data?.policyRate?.source ?? 'FRED'
+              const isLive = src.startsWith('FRED') || src.includes('IMF') || src.includes('OECD')
+              const date   = data?.policyRate?.date ?? '···'
+              const dotColor = loading ? 'var(--text-muted)' : isLive ? 'var(--positive)' : 'var(--amber)'
+              return (
+                <div
+                  title={isLive
+                    ? `Live data from ${src}, observation date ${date}`
+                    : `Live API unavailable — showing last known official policy rate from regulator's decision table`}
+                  style={{
+                    fontSize: '11px', color: 'var(--text-muted)',
+                    fontFamily: 'JetBrains Mono, monospace', marginTop: '5px',
+                    display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
+                  }}
+                >
+                  <span style={{
+                    width: 6, height: 6, borderRadius: '50%',
+                    background: dotColor,
+                    boxShadow: isLive && !loading ? `0 0 6px ${dotColor}` : 'none',
+                  }} />
+                  <span style={{ color: isLive ? 'var(--text-2)' : 'var(--amber)' }}>
+                    {isLive ? 'LIVE' : 'LAST KNOWN'}
+                  </span>
+                  · As of {date} · {src}
+                </div>
+              )
+            })()}
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{

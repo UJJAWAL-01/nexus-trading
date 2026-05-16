@@ -42,15 +42,31 @@ export default function WatchlistPanel() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
 
-  const prevRef    = useRef<StockRow[]>([])
-  const searchTmr  = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const inputRef   = useRef<HTMLInputElement>(null)
-  const toastId    = useRef(0)
+  const prevRef       = useRef<StockRow[]>([])
+  const searchTmr     = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const inputRef      = useRef<HTMLInputElement>(null)
+  const toastId       = useRef(0)
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pollAbortRef  = useRef<AbortController | null>(null)
+  const toastTimers   = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
 
   const toast = useCallback((msg: string, type: 'ok' | 'err' = 'err') => {
     const id = ++toastId.current
     setToasts(p => [...p, { id, msg, type }])
-    setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000)
+    const t = setTimeout(() => {
+      setToasts(p => p.filter(tt => tt.id !== id))
+      toastTimers.current.delete(t)
+    }, 3000)
+    toastTimers.current.add(t)
+  }, [])
+
+  // Cleanup ALL pending timers + in-flight requests on unmount
+  useEffect(() => () => {
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current)
+    if (searchTmr.current)     clearTimeout(searchTmr.current)
+    pollAbortRef.current?.abort()
+    toastTimers.current.forEach(t => clearTimeout(t))
+    toastTimers.current.clear()
   }, [])
 
   useEffect(() => {
@@ -62,6 +78,12 @@ export default function WatchlistPanel() {
 
   const pollPrices = useCallback(async () => {
     if (symbols.length === 0) return
+
+    // Cancel any in-flight requests from a previous poll cycle
+    pollAbortRef.current?.abort()
+    const ctrl = new AbortController()
+    pollAbortRef.current = ctrl
+
     const updates = await Promise.all(
       symbols.map(async sym => {
         try {
@@ -69,7 +91,7 @@ export default function WatchlistPanel() {
           const endpoint = isYahoo
             ? `/api/yquote?symbol=${encodeURIComponent(sym)}`
             : `/api/finnhub?endpoint=quote&symbol=${encodeURIComponent(sym)}`
-          const res = await fetch(endpoint)
+          const res = await fetch(endpoint, { signal: ctrl.signal })
           const d   = await res.json()
           const price = isYahoo ? d.price : d.c
           const pct   = isYahoo ? d.change : d.dp
@@ -79,11 +101,19 @@ export default function WatchlistPanel() {
           }
           return { symbol: sym, price, changePercent: pct, currency: d.currency ?? 'USD', exchange: d.exchange ?? '', longName: d.longName || d.name || '', flash: null }
         } catch {
+          // AbortError or network — fall back to previous row
           return prevRef.current.find(r => r.symbol === sym) ??
             { symbol: sym, price: null, changePercent: null, currency: 'USD', exchange: '', longName: '', flash: null }
         }
       })
     )
+
+    // If a newer poll cycle started while we were awaiting, abandon this one
+    if (ctrl.signal.aborted) return
+
+    // Clear any pending flash-reset from a prior cycle to avoid mixing animations
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current)
+
     const withFlash = updates.map(u => {
       const old   = prevRef.current.find(r => r.symbol === u.symbol)
       const flash = old?.price && u.price && u.price !== old.price ? (u.price > old.price ? 'up' : 'down') : null
@@ -91,7 +121,10 @@ export default function WatchlistPanel() {
     })
     prevRef.current = withFlash
     setRows(withFlash)
-    setTimeout(() => setRows(p => p.map(r => ({ ...r, flash: null }))), 650)
+    flashTimerRef.current = setTimeout(() => {
+      setRows(p => p.map(r => ({ ...r, flash: null })))
+      flashTimerRef.current = null
+    }, 650)
   }, [symbols])
 
   useEffect(() => {
@@ -135,18 +168,30 @@ export default function WatchlistPanel() {
     setValidating(false)
   }
 
+  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const handleRemove = (sym: string) => {
     if (confirmRemove === sym) {
+      if (confirmTimerRef.current) { clearTimeout(confirmTimerRef.current); confirmTimerRef.current = null }
       removeSymbol(sym)
       setConfirmRemove(null)
       setHoveredRow(null)
       toast(`Removed ${sym}`, 'ok')
     } else {
+      if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
       setConfirmRemove(sym)
-      // Auto-cancel confirm after 2.5s
-      setTimeout(() => setConfirmRemove(null), 2500)
+      // Auto-cancel confirm after 3s; ref so it's clearable on unmount/next click
+      confirmTimerRef.current = setTimeout(() => {
+        setConfirmRemove(null)
+        confirmTimerRef.current = null
+      }, 3000)
     }
   }
+
+  // Cleanup confirm timer on unmount
+  useEffect(() => () => {
+    if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
+  }, [])
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -223,7 +268,7 @@ export default function WatchlistPanel() {
           {showDrop && results.length > 0 && (
             <div style={{
               position: 'absolute', left: '10px', right: '10px', top: '100%',
-              background: '#0d1117', border: '1px solid var(--border)',
+              background: '#0c0d10', border: '1px solid var(--border)',
               borderRadius: '4px', zIndex: 999, boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
               maxHeight: '200px', overflowY: 'auto',
             }}>
@@ -296,27 +341,34 @@ export default function WatchlistPanel() {
                 </div>
               </div>
 
-              {/* Remove button (appears on hover) */}
-              {isHov && (
-                <button
-                  onClick={() => handleRemove(row.symbol)}
-                  title={isConfirm ? 'Click again to confirm' : 'Remove from watchlist'}
-                  style={{
-                    position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                    width: '26px', height: '26px', borderRadius: '4px', cursor: 'pointer',
-                    border: `1px solid ${isConfirm ? 'rgba(255,69,96,0.6)' : 'rgba(255,69,96,0.25)'}`,
-                    background: isConfirm ? 'rgba(255,69,96,0.2)' : 'rgba(255,69,96,0.08)',
-                    color: isConfirm ? '#ff4560' : 'rgba(255,69,96,0.6)',
-                    fontSize: isConfirm ? '10px' : '14px', lineHeight: 1,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    transition: 'all 0.15s',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontWeight: 700,
-                  }}
-                >
-                  {isConfirm ? '✓?' : '×'}
-                </button>
-              )}
+              {/* Remove button — hidden until hover/focus on desktop, ALWAYS shown
+                  on touch devices (where hover doesn't exist).  When confirming,
+                  the button widens with a clear "TAP TO REMOVE" label. */}
+              <button
+                onClick={() => handleRemove(row.symbol)}
+                aria-label={isConfirm ? `Confirm removal of ${row.symbol}` : `Remove ${row.symbol} from watchlist`}
+                className={`wl-remove ${isHov ? 'visible' : ''} ${isConfirm ? 'confirm' : ''}`}
+                style={{
+                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+                  minHeight: '34px',
+                  borderRadius: '4px', cursor: 'pointer',
+                  border: `1px solid ${isConfirm ? 'rgba(255,69,96,0.7)' : 'rgba(255,69,96,0.25)'}`,
+                  background: isConfirm ? 'rgba(255,69,96,0.22)' : 'rgba(255,69,96,0.08)',
+                  color: isConfirm ? '#ff5e75' : 'rgba(255,69,96,0.85)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.18s',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  whiteSpace: 'nowrap',
+                  padding: isConfirm ? '0 12px' : '0',
+                  width: isConfirm ? 'auto' : '34px',
+                  fontSize: isConfirm ? '10px' : '15px',
+                  lineHeight: 1,
+                }}
+              >
+                {isConfirm ? 'TAP TO REMOVE' : '×'}
+              </button>
             </div>
           )
         })}
@@ -328,9 +380,25 @@ export default function WatchlistPanel() {
           padding: '4px 12px', borderTop: '1px solid var(--border)',
           fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
         }}>
-          Hover a symbol → click × to remove (confirm click required)
+          Tap × to remove · second tap confirms
         </div>
       )}
+
+      <style>{`
+        /* Hide remove-button on desktop until row is hovered/focused */
+        .wl-remove { opacity: 0; pointer-events: none; }
+        .wl-remove.visible, .wl-remove.confirm { opacity: 1; pointer-events: auto; }
+
+        /* Touch devices (no hover) — always show, full opacity */
+        @media (hover: none) {
+          .wl-remove { opacity: 1; pointer-events: auto; }
+        }
+
+        /* Larger tap target on small screens (WCAG 2.5.5 = 44px target ideal) */
+        @media (max-width: 639px) {
+          .wl-remove { min-height: 38px !important; min-width: 38px !important; }
+        }
+      `}</style>
     </div>
   )
 }

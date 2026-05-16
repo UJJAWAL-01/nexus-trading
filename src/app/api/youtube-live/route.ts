@@ -18,7 +18,6 @@ const cache = new Map<string, { data: unknown; expires: number }>()
   5. These IDs should work indefinitely unless the channel ends that specific stream
 
   CURRENT VERIFIED IDs (April 2026):
-  - Bloomberg TV: dp8PhLsUcFE  — bloomberg.com/live links to this
   - CNBC: 4qBnxBs3P_A          — CNBC's official "TV" 24/7 stream
   - Yahoo Finance: oNNezBELQqM — Yahoo's market hours + AH stream
   - Reuters: 8tSBTHtAv6c       — Reuters World News 24/7
@@ -44,16 +43,6 @@ interface ChannelConfig {
 
 const CHANNELS: ChannelConfig[] = [
   // ── US ─────────────────────────────────────────────────────────────────────
-  // {
-  //   channelId:   'UCrM7B7SL_g1edFOnmj-SDKg',
-  //   channelName: 'Bloomberg Television',
-  //   shortName:   'Bloomberg',
-  //   region:      'US',
-  //   accent:      '#f0a500',
-  //   videoId:     'dp8PhLsUcFE',
-  //   watchUrl:    'https://www.youtube.com/watch?v=dp8PhLsUcFE',
-  //   description: 'Markets, finance, business 24/7',
-  // },
   {
     channelId:   'UCvJJ_dzjViJCoLf5uKUTwoA',
     channelName: 'CNBC Television',

@@ -78,7 +78,7 @@ function SectorHoverOverlay({ sector, change, movers, loading }: SectorHoverProp
       zIndex: 999, 
       width: '92%',
       maxWidth: '280px',
-      background: '#0d1117', 
+      background: '#0c0d10', 
       border: '1px solid var(--border)', 
       borderRadius: '8px',
       boxShadow: '0 16px 48px rgba(0,0,0,0.95)', 

@@ -44,6 +44,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# internal dev tooling — not for repo or prod
+/agents/
+/.claude/commands/
+.nexus-session.json
+
 # Node modules
 node_modules/
 .next/

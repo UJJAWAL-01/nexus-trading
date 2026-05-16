@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useWatchlist } from '@/store/watchlist'
+import { useActiveSymbol } from '@/store/symbol'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -241,8 +242,8 @@ function renderPnF(canvas: HTMLCanvasElement, columns: PnFColumn[], containerH: 
   const numRows = Math.round((maxPrice - minPrice) / boxSize) + 3
   canvas.width = columns.length * BOX_W + PAD.l + PAD.r
   canvas.height = numRows * BOX_H + PAD.t + PAD.b
-  ctx.fillStyle = '#090c10'; ctx.fillRect(0, 0, canvas.width, canvas.height)
-  ctx.strokeStyle = '#1e2d3d55'; ctx.lineWidth = 0.5
+  ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.strokeStyle = '#1c1f2555'; ctx.lineWidth = 0.5
   for (let r = 0; r <= numRows; r++) { const y = PAD.t + r * BOX_H; ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(canvas.width - PAD.r, y); ctx.stroke() }
   for (let c = 0; c <= columns.length; c++) { const x = PAD.l + c * BOX_W; ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, canvas.height - PAD.b); ctx.stroke() }
   ctx.font = '9px JetBrains Mono, monospace'; ctx.textAlign = 'right'
@@ -350,6 +351,24 @@ export default function ChartPanel() {
     if (symbols.length > 0 && !symbols.includes(sym)) setSym(symbols[0])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbols.join(',')])
+
+  // ── Global active symbol (driven by the top search bar) ───────────────────
+  const activeSymbol = useActiveSymbol(s => s.activeSymbol)
+  useEffect(() => {
+    if (!activeSymbol) return
+    const upper = activeSymbol.toUpperCase()
+    if (symbols.includes(upper)) {
+      setSym(upper)
+      setSearchSym('')
+      setSearchInput('')
+    } else {
+      setSearchSym(upper)
+      setSearchInput(upper)
+    }
+    setSearchOpen(false)
+    setSearchResults([])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSymbol])
 
   // ── Click-outside closes dropdowns ────────────────────────────────────────
   useEffect(() => {
@@ -586,14 +605,14 @@ export default function ChartPanel() {
           width:  containerRef.current.clientWidth,
           height: containerRef.current.clientHeight,
           layout: { background: { color: 'transparent' }, textColor: '#7a9ab0', fontSize: 10 },
-          grid: { vertLines: { color: '#1e2d3d44', style: 1 }, horzLines: { color: '#1e2d3d44', style: 1 } },
+          grid: { vertLines: { color: '#1c1f2544', style: 1 }, horzLines: { color: '#1c1f2544', style: 1 } },
           crosshair: {
             mode: 1,
             vertLine: { color: '#f0a50066', width: 1, style: 0, labelBackgroundColor: '#f0a500' },
-            horzLine: { color: '#f0a50066', width: 1, style: 0, labelBackgroundColor: '#1e2d3d' },
+            horzLine: { color: '#f0a50066', width: 1, style: 0, labelBackgroundColor: '#1c1f25' },
           },
-          rightPriceScale: { borderColor: '#1e2d3d', textColor: '#7a9ab0' },
-          timeScale: { borderColor: '#1e2d3d', timeVisible: true, secondsVisible: false, rightOffset: 10 },
+          rightPriceScale: { borderColor: '#1c1f25', textColor: '#7a9ab0' },
+          timeScale: { borderColor: '#1c1f25', timeVisible: true, secondsVisible: false, rightOffset: 10 },
           handleScroll: { mouseWheel: true, pressedMouseMove: true },
           handleScale:  { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: true } },
         })
@@ -649,13 +668,13 @@ export default function ChartPanel() {
           priceScaleId: 'rsi', color: '#f0a500', lineWidth: 2,
           lastValueVisible: true, priceLineVisible: false, crosshairMarkerVisible: false,
         })
-        chart.priceScale('rsi').applyOptions({ scaleMargins: { top: 0.99, bottom: 0.005 }, borderColor: '#1e2d3d', textColor: '#7a9ab0' })
+        chart.priceScale('rsi').applyOptions({ scaleMargins: { top: 0.99, bottom: 0.005 }, borderColor: '#1c1f25', textColor: '#7a9ab0' })
 
         // MACD pane
         const macdLine   = chart.addLineSeries({ priceScaleId: 'macd', color: '#1e90ff', lineWidth: 2, lastValueVisible: true, priceLineVisible: false, crosshairMarkerVisible: false })
         const macdSignal = chart.addLineSeries({ ...shared, priceScaleId: 'macd', color: '#ff9f43', lineWidth: 1, lineStyle: 2 })
         const macdHist   = chart.addHistogramSeries({ priceScaleId: 'macd', color: 'rgba(0,201,122,0.6)', lastValueVisible: false, priceLineVisible: false })
-        chart.priceScale('macd').applyOptions({ scaleMargins: { top: 0.99, bottom: 0.005 }, borderColor: '#1e2d3d', textColor: '#7a9ab0' })
+        chart.priceScale('macd').applyOptions({ scaleMargins: { top: 0.99, bottom: 0.005 }, borderColor: '#1c1f25', textColor: '#7a9ab0' })
 
         seriesR.current = {
           candle, bar, line, area, volume,
@@ -740,7 +759,18 @@ export default function ChartPanel() {
         dataRef.current = candles
         applyAll(candles, activeInds)
         updatePaneLayout(activeInds)
-        if (chartType !== 'P&F') chartR.current?.timeScale().scrollToRealTime()
+        if (chartType !== 'P&F') {
+          const ts = chartR.current?.timeScale()
+          // Focus on most recent ~120 candles (better than fitContent which crams everything).
+          // Falls back to fitContent for short series, then snaps right edge to latest bar.
+          const visible = Math.min(120, candles.length)
+          if (visible < candles.length) {
+            ts?.setVisibleLogicalRange({ from: candles.length - visible, to: candles.length - 1 })
+          } else {
+            ts?.fitContent()
+          }
+          chartR.current?.priceScale('right').applyOptions({ autoScale: true })
+        }
       }
       setLoading(false)
     }).catch(() => setLoading(false))
@@ -1058,13 +1088,13 @@ export default function ChartPanel() {
         }} />
 
         {/* Volume separator */}
-        <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, height: '1px', background: '#1e2d3d', zIndex: 5, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, height: '1px', background: '#1c1f25', zIndex: 5, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', left: '8px', top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, zIndex: 6, fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>VOL</div>
 
         {/* RSI separator */}
         {hasRsi && (
           <>
-            <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasMacd ? 73 : 84}%`, height: '1px', background: '#1e2d3d', zIndex: 5, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasMacd ? 73 : 84}%`, height: '1px', background: '#1c1f25', zIndex: 5, pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', left: '8px', top: `${hasMacd ? 73 : 84}%`, zIndex: 6, fontSize: '11px', color: '#f0a50077', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>RSI 14</div>
           </>
         )}
@@ -1072,14 +1102,14 @@ export default function ChartPanel() {
         {/* MACD separator */}
         {hasMacd && (
           <>
-            <div style={{ position: 'absolute', left: 0, right: 0, top: '87%', height: '1px', background: '#1e2d3d', zIndex: 5, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', left: 0, right: 0, top: '87%', height: '1px', background: '#1c1f25', zIndex: 5, pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', left: '8px', top: '87%', zIndex: 6, fontSize: '11px', color: '#1e90ff77', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>MACD</div>
           </>
         )}
 
         {/* P&F canvas */}
         {chartType === 'P&F' && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 7, overflowX: 'auto', overflowY: 'auto', background: '#090c10' }}>
+          <div style={{ position: 'absolute', inset: 0, zIndex: 7, overflowX: 'auto', overflowY: 'auto', background: '#000000' }}>
             {pfData.length > 0
               ? <canvas ref={pfCanvasRef} style={{ display: 'block', cursor: 'crosshair' }} />
               : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>

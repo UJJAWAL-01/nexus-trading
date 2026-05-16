@@ -470,7 +470,7 @@ export default function OptionsPanel() {
           {showSug && suggest.length > 0 && (
             <div style={{
               position:'absolute', top:'100%', left:0, right:0, zIndex:50,
-              background:'#0d1117', border:'1px solid var(--border)', borderRadius:'4px',
+              background:'#0c0d10', border:'1px solid var(--border)', borderRadius:'4px',
               boxShadow:'0 8px 24px rgba(0,0,0,0.8)', maxHeight:'200px', overflowY:'auto',
             }}>
               {suggest.map(s => (
@@ -651,7 +651,7 @@ export default function OptionsPanel() {
             width:'100%', borderCollapse:'collapse',
             fontFamily:'JetBrains Mono,monospace', fontSize:'10px', minWidth:'560px',
           }}>
-            <thead style={{ position:'sticky', top:0, background:'#0d1117', zIndex:2 }}>
+            <thead style={{ position:'sticky', top:0, background:'#0c0d10', zIndex:2 }}>
               <tr>
                 {showGreeks && <>
                   <th style={TH('var(--positive)')}>Δ</th>
@@ -945,7 +945,7 @@ const TH = (color: string): React.CSSProperties => ({
   padding: '6px 6px', textAlign: 'right', fontSize: '11px',
   color, letterSpacing: '0.06em', fontWeight: 600,
   borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap',
-  background: '#0d1117',
+  background: '#0c0d10',
 })
 
 const TD = (color: string, highlight = false): React.CSSProperties => ({

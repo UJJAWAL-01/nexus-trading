@@ -200,7 +200,7 @@ function buildSectorIntel(deals: InsiderDeal[]): SectorIntelligence[] {
     .slice(0, 10)
 }
 
-// Cluster detection — the Bloomberg-beater signal.
+// Cluster detection — multi-insider conviction signal.
 // When 3+ distinct people/entities buy (or sell) the same stock within the
 // dataset, that's a stronger signal than any single high-value trade.
 function buildClusters(deals: InsiderDeal[]): ClusterSignal[] {

@@ -28,13 +28,13 @@ export default function AlertEngine() {
   useEffect(() => { symbolsRef.current = symbols }, [symbols])
 
   useEffect(() => {
-    let cancelled = false
+    const ctrl = new AbortController()
     const run = async () => {
-      if (cancelled) return
+      if (ctrl.signal.aborted) return
       try {
         await Promise.allSettled([
-          checkMovers(symbolsRef.current),
-          checkEarnings(symbolsRef.current),
+          checkMovers(symbolsRef.current, ctrl.signal),
+          checkEarnings(symbolsRef.current, ctrl.signal),
         ])
       } catch { /* swallow — no engine should ever crash the app */ }
     }
@@ -42,7 +42,7 @@ export default function AlertEngine() {
     const startTimer = window.setTimeout(run, 8_000)
     const interval   = window.setInterval(run, POLL_MS)
     return () => {
-      cancelled = true
+      ctrl.abort()           // cancels in-flight fetches, gates push calls
       window.clearTimeout(startTimer)
       window.clearInterval(interval)
     }
@@ -54,11 +54,13 @@ export default function AlertEngine() {
 // ── Trigger 1: Watchlist mover ──────────────────────────────────────────────
 // Uses /api/yquote (same as WatchlistPanel) — regular-session change only,
 // no pre/post-market readings. Field name is `change` (already a percentage).
-async function checkMovers(symbols: string[]): Promise<void> {
-  const slice = symbols.slice(0, 12)
-  for (const sym of slice) {
+// Processes the FULL watchlist (capped at 20 by useWatchlist) sequentially
+// with a small delay to respect rate limits.
+async function checkMovers(symbols: string[], signal: AbortSignal): Promise<void> {
+  for (const sym of symbols) {
+    if (signal.aborted) return
     try {
-      const r = await fetch(`/api/yquote?symbol=${encodeURIComponent(sym)}`)
+      const r = await fetch(`/api/yquote?symbol=${encodeURIComponent(sym)}`, { signal })
       if (!r.ok) continue
       const j = await r.json() as { change?: number | null; marketState?: string }
       const pct = j.change
@@ -66,6 +68,7 @@ async function checkMovers(symbols: string[]): Promise<void> {
 
       const abs = Math.abs(pct)
       if (abs >= 5) {
+        if (signal.aborted) return
         const up = pct > 0
         useAlerts.getState().push({
           // Bucket id by symbol + day so the alert refreshes (not duplicates)
@@ -79,24 +82,28 @@ async function checkMovers(symbols: string[]): Promise<void> {
           ttlMs:  20 * 60_000,
         })
       }
-    } catch { /* continue */ }
+      // Small delay between requests to stay polite with upstream rate limits
+      await new Promise(r => setTimeout(r, 150))
+    } catch { /* continue (incl. AbortError) */ }
   }
 }
 
 // ── Trigger 2: Earnings imminent (within 24h) ──────────────────────────────
 // /api/earnings returns EarningItem[] directly, not wrapped in {events}.
-async function checkEarnings(symbols: string[]): Promise<void> {
+async function checkEarnings(symbols: string[], signal: AbortSignal): Promise<void> {
   if (symbols.length === 0) return
   try {
-    const r = await fetch('/api/earnings')
+    const r = await fetch('/api/earnings', { signal })
     if (!r.ok) return
     const arr = await r.json() as { symbol: string; date: string; hour?: string }[]
     if (!Array.isArray(arr)) return
+    if (signal.aborted) return
     const set = new Set(symbols.map(s => s.toUpperCase()))
     const now = Date.now()
     const cutoff = now + 24 * 60 * 60_000
 
     for (const e of arr) {
+      if (signal.aborted) return
       const sym = (e.symbol ?? '').toUpperCase()
       if (!set.has(sym)) continue
       const ts = new Date(e.date).getTime()
@@ -113,7 +120,7 @@ async function checkEarnings(symbols: string[]): Promise<void> {
         ttlMs:  6 * 60 * 60_000,
       })
     }
-  } catch { /* continue */ }
+  } catch { /* continue (incl. AbortError) */ }
 }
 
 // ── helpers ─────────────────────────────────────────────────────────────────

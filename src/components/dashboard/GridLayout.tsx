@@ -1,120 +1,29 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import GridLayoutBase, { WidthProvider, type Layout, type LayoutItem } from 'react-grid-layout/legacy'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
-// ── Panel imports ─────────────────────────────────────────────────────────────
-import AlternativeSignalsPanel  from '@/components/panels/AlternativeSignalsPanel'
-import ChartPanel               from '@/components/panels/ChartPanel'
-import SupplyChainPanel        from '@/components/panels/SupplyChainPanel'
-import EarningsPanel            from '@/components/panels/EarningsPanel'
-import EconomicCalendarPanel    from '@/components/panels/EconomicCalendarPanel'
-import GlobalIndicesPanel       from '@/components/panels/GlobalIndicesPanel'
-import IndiaMarketsPanel        from '@/components/panels/IndiaMarketsPanel'
-import LiveFinanceVideoPanel    from '@/components/panels/LiveFinanceVideoPanel'
-import MacroRatesPanel          from '@/components/panels/MacroRatesPanel'
-import MarketClockPanel         from '@/components/panels/MarketClockPanel'
-import NewsFeedPanel            from '@/components/panels/NewsFeedPanel'
-import SectorHeatmapPanel       from '@/components/panels/SectorHeatmapPanel'
-import SentimentPanel           from '@/components/panels/SentimentPanel'
-import WatchlistPanel           from '@/components/panels/WatchlistPanel'
-import CommoditiesPanel         from '@/components/panels/CommoditiesPanel'
-import InsiderDealsPanel        from '@/components/panels/InsiderDealsPanel'
-import IpoScreenerPanel         from '@/components/panels/IpoScreenerPanel'
-import OptionsPanel             from '@/components/panels/OptionsPanel'
-import FixedIncomePanel         from '@/components/panels/FixedIncomePanel'
-import InstitutionalHoldingsPanel from '@/components/panels/InstitutionalHoldingsPanel'
-import AlternativeDataPanel     from '@/components/panels/AlternativeDataPanel'
-import SecFilingsPanel          from '@/components/panels/SecFilingsPanel'
-// ── Forex / Crypto trading suite
-import { TradingProvider }          from '@/components/trading/TradingContext'
-import { RiskPanel }                from '@/components/panels/RiskPanel'
-import { LiveDashboard }            from '@/components/panels/LiveDashboard'
-import { CalendarPanel }            from '@/components/panels/CalendarPanel'
-import { PropFirmPanel }            from '@/components/panels/PropFirmPanel'
-// ── Terminal-grade UX layer
-// (MorningBrief is mounted in Dashboard's top-nav so it sits in the same
-//  sticky block as TickerBar — no gap behind which panels could show.)
-import LazyMount                    from '@/components/dashboard/LazyMount'
-import KeyboardShortcuts            from '@/components/dashboard/KeyboardShortcuts'
-import AlertToasts                  from '@/components/dashboard/AlertToasts'
-import AlertEngine                  from '@/components/dashboard/AlertEngine'
+// Panel registry is shared between Classic Grid and the new Tabbed Dashboard.
+import { PANEL_IDS, PANEL_META, EAGER_MOUNT, type PanelId } from '@/components/dashboard/panelRegistry'
+
+// Terminal-grade UX layer
+import LazyMount         from '@/components/dashboard/LazyMount'
+import KeyboardShortcuts from '@/components/dashboard/KeyboardShortcuts'
+import AlertToasts       from '@/components/dashboard/AlertToasts'
+import AlertEngine       from '@/components/dashboard/AlertEngine'
+import { useWorkspace, WORKSPACES, type WorkspaceId } from '@/store/workspace'
 const ReactGridLayout = WidthProvider(GridLayoutBase)
 
-// Panels that mount eagerly (rows 1-4, y < 56). All below-fold panels are
-// gated behind LazyMount + IntersectionObserver to defer their API calls.
-const EAGER_MOUNT: Set<string> = new Set([
-  'livevideo', 'news', 'watchlist',
-  'indices', 'mktclock', 'chart',
-  'indiamarkets', 'heatmap', 'commodities',
-  'earnings', 'calendar', 'insiderdeals', 'sentiment',
-])
-
-// ── Panel registry ─────────────────────────────────────────────────────────────
-
-const PANEL_IDS = [
-  'livevideo', 'news', 'watchlist',
-  'indices', 'mktclock', 'chart',
-  'sentiment', 'calendar', 'earnings',
-  'heatmap', 'indiamarkets', 'macrorates',
-  'altsignals','insiderdeals', 'commodities', 'correlation',
-  'options', 'ipo', 'fixedincome',
-  // Research add-ons
-  'institutional', 'altdata', 'secfilings',
-  // Forex / Crypto trading suite
-  'fx-risk', 'fx-live',
-  'fx-calendar', 'fx-propfirm',
-] as const
-
-type PanelId = (typeof PANEL_IDS)[number]
 type DashboardLayoutItem = LayoutItem & { i: PanelId }
 type DashboardLayout     = DashboardLayoutItem[]
-
-type PanelMeta = {
-  component:   ReactNode
-  label:       string
-  color:       string
-  mobileH:     number   // px height on mobile
-  description: string
-}
-
-const PANEL_META: Record<PanelId, PanelMeta> = {
-  livevideo:    { component: <LiveFinanceVideoPanel />,    label: 'LIVE TV',       color: '#ff4560',        mobileH: 420, description: 'Bloomberg · CNBC · Yahoo · NDTV · ET Now' },
-  news:         { component: <NewsFeedPanel />,            label: 'INTEL FEED',    color: 'var(--amber)',   mobileH: 480, description: 'AI-powered financial news feed' },
-  watchlist:    { component: <WatchlistPanel />,           label: 'WATCHLIST',     color: 'var(--amber)',   mobileH: 400, description: 'Live prices + watchlist' },
-  indices:      { component: <GlobalIndicesPanel />,       label: 'INDICES',       color: '#1e90ff',        mobileH: 520, description: 'US · India · Asia global indices' },
-  mktclock:     { component: <MarketClockPanel />,         label: 'WORLD CLOCK',   color: '#00c97a',        mobileH: 460, description: 'Live global market hours' },
-  chart:        { component: <ChartPanel />,               label: 'CHART',         color: 'var(--teal)',    mobileH: 480, description: 'Candlestick + FIB + Supertrend' },
-  sentiment:    { component: <SentimentPanel />,           label: 'SENTIMENT',     color: 'var(--teal)',    mobileH: 360, description: 'Fear & Greed Index' },
-  calendar:     { component: <EconomicCalendarPanel />,    label: 'ECON CALENDAR', color: '#ff4560',        mobileH: 380, description: 'FOMC · CPI · NFP · RBI' },
-  earnings:     { component: <EarningsPanel />,            label: 'EARNINGS',      color: '#a78bfa',        mobileH: 440, description: 'US + India earnings calendar' },
-  heatmap:      { component: <SectorHeatmapPanel />,       label: 'HEATMAP',       color: 'var(--teal)',    mobileH: 340, description: 'US sector performance' },
-  indiamarkets: { component: <IndiaMarketsPanel />,        label: 'INDIA MKTS',    color: '#f97316',        mobileH: 500, description: 'NIFTY · SENSEX · FII/DII' },
-  macrorates:   { component: <MacroRatesPanel />,          label: 'MACRO RATES',   color: 'var(--teal)',    mobileH: 520, description: 'FED · RBI live rates + World Bank' },
-  altsignals:   { component: <AlternativeSignalsPanel />,  label: 'ALT SIGNALS',   color: '#a78bfa',        mobileH: 380, description: 'Lunar · Seasonality · DoW' },
-  commodities: { component: <CommoditiesPanel/>,           label: 'COMMODITIES',   color: '#f97316',        mobileH: 380, description: 'Gold · Oil · Crypto signals' },
-  insiderdeals: { component: <InsiderDealsPanel />,        label: 'INSIDER DEALS', color: '#f97316',         mobileH: 380, description: 'US & India insider transactions' },
-  correlation:  { component: <SupplyChainPanel />,         label: 'SUPPLY CHAIN',  color: '#1e90ff',        mobileH: 500, description: 'Verified supplier/customer map (SEC + NSE filings)' },
-  ipo:          { component: <IpoScreenerPanel />,         label: 'IPO',           color: '#1e90ff',    mobileH: 380, description: 'Upcoming and recent IPOs' },
-  options:      { component: <OptionsPanel />,             label: 'OPTIONS',       color: '#a78bfa',    mobileH: 560, description: 'BSM pricing · IV · Greeks · Monte Carlo · OI' },
-  fixedincome:    { component: <FixedIncomePanel />,         label: 'FIXED INCOME',   color: '#38bdf8',   mobileH: 560, description: 'India yield curve · credit spreads' },
-  institutional:  { component: <InstitutionalHoldingsPanel />, label: '13F TRACKER',   color: '#1e90ff',   mobileH: 560, description: 'Institutional holdings · QoQ change' },
-  altdata:        { component: <AlternativeDataPanel />,     label: 'ALT DATA',       color: '#a78bfa',   mobileH: 620, description: 'Wikipedia · Reddit · Google Trends' },
-  secfilings:     { component: <SecFilingsPanel />,          label: 'SEC FILINGS',    color: '#f97316',   mobileH: 540, description: '8-K · S-1 · 13D with AI summaries' },
-  // ── Forex / Crypto trading suite (shared TradingContext injected at render) ──
-  'fx-risk':        { component: <RiskPanel />,              label: 'FX RISK CALC',   color: '#00ff88',   mobileH: 640, description: 'Position size · pip value · R:R · daily drawdown' },
-  'fx-live':        { component: <LiveDashboard />,   label: 'FX LIVE',       color: '#00ff88', mobileH: 540, description: 'Live Forex & Crypto prices · Yahoo Finance · session clock' },
-  'fx-calendar':    { component: <CalendarPanel />,  label: 'ECON CALENDAR', color: '#f0a500', mobileH: 520, description: 'Economic calendar · Finnhub + official schedule' },
-  'fx-propfirm':    { component: <PropFirmPanel />,  label: 'PROP FIRM',     color: '#f0a500', mobileH: 560, description: 'Prop firm challenge tracker · drawdown limits' },
-}
 
 // ── DESKTOP default layout — v13 ─────────────────────────────────────────────
 // Full layout redesign: priority tiers, content-fit heights, IPO offscreen bug fixed.
 // Rows 1-3 locked per user instruction. Rows 4+ reorganized by live-data value.
 // rowHeight=30 → h:1 = 30px rendered.
-const LS_KEY = 'nexus-layout-v13'
+const LS_KEY = 'nexus-layout-v15'
 
 const DEFAULT_LAYOUT: DashboardLayout = [
   // ══ ROW 1 (y:0→14) — Live intelligence feed ══════════════════════════════
@@ -145,35 +54,23 @@ const DEFAULT_LAYOUT: DashboardLayout = [
 
   // ══ ROW 5 (y:56→74) — Deep analytics ═════════════════════════════════════
   // Options needs most height (BSM + Greeks + OI chart ≈ 480px → h:18 = 540px).
-  // Supply Chain (correlation): given 4 cols so the 3-col map layout fits.
+  // Supply Chain: 4 cols for the 3-col map layout.
   // Macro Rates: rich but scrollable; h:18 gives it room for FED schedule.
   { i: 'options',       x: 0,  y: 56, w: 5,  h: 18, minW: 4, minH: 14 },
-  { i: 'correlation',   x: 5,  y: 56, w: 4,  h: 18, minW: 3, minH: 12 },
+  { i: 'supplychain',   x: 5,  y: 56, w: 4,  h: 18, minW: 3, minH: 12 },
   { i: 'macrorates',    x: 9,  y: 56, w: 3,  h: 18, minW: 2, minH: 10 },
 
   // ══ ROW 6 (y:74→90) — Market structure ═══════════════════════════════════
-  // Fixed Income yield curve needs h:16 (480px) to show curve + signals without cut.
-  // IPO: bug fix — was at x:12 (offscreen). Now x:5 w:4 h:16.
-  // Alt Signals: was truncating at h:12; h:16 gives each tab room to breathe.
   { i: 'fixedincome',   x: 0,  y: 74, w: 5,  h: 16, minW: 3, minH: 12 },
   { i: 'ipo',           x: 5,  y: 74, w: 4,  h: 16, minW: 3, minH: 10 },
   { i: 'altsignals',    x: 9,  y: 74, w: 3,  h: 16, minW: 2, minH: 10 },
 
-  // ══ ROW 7 (y:90→106) — Smart money research ══════════════════════════════
-  // 13F holdings + SEC filings: both are table/list UIs, h:16 is tight but workable.
-  { i: 'institutional', x: 0,  y: 90, w: 6,  h: 16, minW: 4, minH: 12 },
-  { i: 'secfilings',    x: 6,  y: 90, w: 6,  h: 16, minW: 4, minH: 12 },
-
-  // ══ ROW 8 (y:106→124) — Alternative intelligence + FX live ════════════════
-  // Alt Data needs h:18 (540px) for 3 data sources with charts.
-  // FX Live: price table + session clock, h:18 gives it room for all pairs.
-  { i: 'altdata',       x: 0,  y: 106, w: 7,  h: 18, minW: 4, minH: 14 },
-  { i: 'fx-live',       x: 7,  y: 106, w: 5,  h: 18, minW: 4, minH: 12 },
-
-  // ══ ROW 9 (y:124→140) — FX / Crypto trading suite ════════════════════════
-  { i: 'fx-risk',       x: 0,  y: 124, w: 4,  h: 16, minW: 3, minH: 14 },
-  { i: 'fx-calendar',   x: 4,  y: 124, w: 4,  h: 16, minW: 4, minH: 12 },
-  { i: 'fx-propfirm',   x: 8,  y: 124, w: 4,  h: 16, minW: 4, minH: 14 },
+  // ══ ROW 7 (y:90→108) — Smart money research ══════════════════════════════
+  // 3 panels @ 4-col × h:18 — SEC Filings · Smart Money · Alt Data (Wiki/Reddit/Trends).
+  // Smart Money replaces the old 13F Tracker (which was redundant).
+  { i: 'secfilings',    x: 0,  y: 90, w: 4,  h: 18, minW: 3, minH: 14 },
+  { i: 'smartmoney',    x: 4,  y: 90, w: 4,  h: 18, minW: 3, minH: 14 },
+  { i: 'altdata',       x: 8,  y: 90, w: 4,  h: 18, minW: 3, minH: 14 },
 ]
 
 // ── MOBILE panel order (priority-first: live data → analytics → research) ─────
@@ -187,10 +84,9 @@ const MOBILE_ORDER: PanelId[] = [
   // Tier 4: Deep analytics
   'options', 'macrorates', 'heatmap', 'fixedincome',
   // Tier 5: Research
-  'correlation', 'ipo', 'institutional', 'secfilings',
-  // Tier 6: Alternative + FX
-  'fx-live', 'altdata', 'altsignals', 'mktclock',
-  'fx-risk', 'fx-calendar', 'fx-propfirm', 'livevideo',
+  'smartmoney', 'secfilings', 'altdata', 'supplychain', 'ipo',
+  // Tier 6: Alt + media
+  'altsignals', 'mktclock', 'livevideo',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -257,15 +153,114 @@ function saveLayout(layout: DashboardLayout) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(layout)) } catch {}
 }
 
+// ── Fluid void-free packer ───────────────────────────────────────────────────
+// Reflows visible panels into a fully-tiled grid:
+//   1. Group panels into rows greedily, capping each row at 12 cols
+//   2. Stretch widths so every row totals exactly 12 cols (no horizontal voids)
+//   3. Set every panel in a row to the row's tallest natural height
+//      (no vertical voids between rows)
+//   4. Hidden panels get parked far below the visible grid; they stay in the
+//      layout state because react-grid-layout requires every key present.
+function packLayout(visibleIds: readonly PanelId[]): DashboardLayout {
+  const sizeMap = new Map<PanelId, { w: number; h: number; minW?: number; minH?: number }>()
+  for (const item of DEFAULT_LAYOUT) {
+    sizeMap.set(item.i, { w: item.w, h: item.h, minW: item.minW, minH: item.minH })
+  }
+
+  const COLS = 12
+
+  type Row = {
+    ids:    PanelId[]
+    widths: number[]      // natural widths, mutated in step 2
+    maxH:   number
+  }
+
+  // ── Step 1: greedy row packing ────────────────────────────────────────────
+  const rows: Row[] = []
+  let cur: Row = { ids: [], widths: [], maxH: 0 }
+  let curW = 0
+
+  for (const id of visibleIds) {
+    const sz = sizeMap.get(id)
+    if (!sz) continue
+    const w = Math.min(sz.w, COLS)
+
+    if (curW + w > COLS) {
+      if (cur.ids.length > 0) rows.push(cur)
+      cur = { ids: [id], widths: [w], maxH: sz.h }
+      curW = w
+    } else {
+      cur.ids.push(id)
+      cur.widths.push(w)
+      if (sz.h > cur.maxH) cur.maxH = sz.h
+      curW += w
+    }
+  }
+  if (cur.ids.length > 0) rows.push(cur)
+
+  // ── Step 2: stretch each row's widths to total exactly 12 ─────────────────
+  for (const row of rows) {
+    const total = row.widths.reduce((a, b) => a + b, 0)
+    const leftover = COLS - total
+    if (leftover <= 0) continue
+    let distributed = 0
+    for (let i = 0; i < row.widths.length; i++) {
+      const isLast = i === row.widths.length - 1
+      const extra  = isLast
+        ? leftover - distributed
+        : Math.floor((leftover * row.widths[i]) / total)
+      row.widths[i] += extra
+      distributed   += extra
+    }
+  }
+
+  // ── Step 3: emit items with uniform row heights ───────────────────────────
+  const out: DashboardLayout = []
+  let y = 0
+  for (const row of rows) {
+    let x = 0
+    for (let i = 0; i < row.ids.length; i++) {
+      const id = row.ids[i]
+      const sz = sizeMap.get(id)!
+      out.push({
+        i:    id,
+        x,
+        y,
+        w:    row.widths[i],
+        h:    row.maxH,
+        minW: sz.minW,
+        minH: sz.minH,
+      })
+      x += row.widths[i]
+    }
+    y += row.maxH
+  }
+
+  // ── Step 4: park hidden panels far off-screen ─────────────────────────────
+  const visibleSet = new Set(visibleIds)
+  let hY = y + 100, hX = 0, hRowH = 0
+  for (const id of PANEL_IDS) {
+    if (visibleSet.has(id)) continue
+    const sz = sizeMap.get(id)
+    if (!sz) continue
+    const w = Math.min(sz.w, COLS)
+    if (hX + w > COLS) { hX = 0; hY += hRowH; hRowH = 0 }
+    out.push({ i: id, x: hX, y: hY, w, h: sz.h, minW: sz.minW, minH: sz.minH })
+    hX += w
+    if (sz.h > hRowH) hRowH = sz.h
+  }
+
+  return out
+}
+
 // ── Panel group definitions for visibility menu ────────────────────────────────
 
 const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
-  { label: 'Live Feed',    ids: ['livevideo', 'news', 'watchlist']                                       },
-  { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities'] },
-  { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                    },
-  { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'correlation']                  },
-  { label: 'Research',     ids: ['institutional', 'secfilings', 'altdata', 'ipo', 'altsignals']          },
-  { label: 'FX / Crypto',  ids: ['fx-live', 'fx-risk', 'fx-calendar', 'fx-propfirm']                    },
+  { label: 'Live Feed',    ids: ['livevideo', 'news', 'watchlist']                                          },
+  { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities']  },
+  { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                       },
+  { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'supplychain']                     },
+  { label: 'Research',     ids: ['smartmoney', 'secfilings', 'altdata', 'ipo', 'altsignals']                },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────
@@ -388,20 +383,19 @@ function TabletLayout({ hidden }: { hidden: Set<PanelId> }) {
 
 // ── Main GridLayout component ──────────────────────────────────────────────────
 
-// TradingProvider is hoisted here so all FX panels share one context instance
 export default function GridLayout() {
+  // All state starts at SSR-safe defaults; localStorage is read in useEffect
+  // after hydration to avoid SSR/client divergence.
   const [mounted,  setMounted]  = useState(false)
   const [editing,  setEditing]  = useState(false)
-  const [layout,   setLayout]   = useState<DashboardLayout>(() => loadLayout())
+  const [layout,   setLayout]   = useState<DashboardLayout>(() => cloneLayout(DEFAULT_LAYOUT))
   const [saved,    setSaved]    = useState(false)
   const [showMenu, setShowMenu] = useState(false)
-  const [hidden,   setHidden]   = useState<Set<PanelId>>(() => {
-    if (typeof window === 'undefined') return new Set()
-    try {
-      const stored = localStorage.getItem('nexus-hidden-panels')
-      return stored ? new Set(JSON.parse(stored)) : new Set()
-    } catch { return new Set() }
-  })
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
+  const [hidden,   setHidden]   = useState<Set<PanelId>>(() => new Set())
+
+  const activeWorkspace = useWorkspace(s => s.active)
+  const setWorkspace    = useWorkspace(s => s.setActive)
 
   const bp = useBreakpoint()
   const isMobile = bp === 'mobile'
@@ -410,7 +404,18 @@ export default function GridLayout() {
   const originalLayoutRef     = useRef<DashboardLayout>(cloneLayout(DEFAULT_LAYOUT))
   const saveIndicatorTimerRef = useRef<number | null>(null)
 
+  // Hydrate persisted state from localStorage after mount (single source of truth
+  // for SSR-safety + so originalLayoutRef matches what the user actually has saved).
   useEffect(() => {
+    const persistedLayout = loadLayout()
+    setLayout(persistedLayout)
+    originalLayoutRef.current = cloneLayout(persistedLayout)
+
+    try {
+      const stored = localStorage.getItem('nexus-hidden-panels')
+      if (stored) setHidden(new Set(JSON.parse(stored)))
+    } catch {}
+
     const frameId = window.requestAnimationFrame(() => setMounted(true))
     return () => {
       window.cancelAnimationFrame(frameId)
@@ -420,8 +425,9 @@ export default function GridLayout() {
 
   // Persist hidden panels
   useEffect(() => {
+    if (!mounted) return  // skip the initial-mount write (we just read this value)
     try { localStorage.setItem('nexus-hidden-panels', JSON.stringify([...hidden])) } catch {}
-  }, [hidden])
+  }, [hidden, mounted])
 
   const showSaveIndicator = () => {
     setSaved(true)
@@ -441,7 +447,43 @@ export default function GridLayout() {
     setLayout(n); saveLayout(n); setEditing(false); showSaveIndicator()
   }
 
+  const applyWorkspace = (id: WorkspaceId) => {
+    const ws = WORKSPACES.find(w => w.id === id)
+    if (!ws) return
+    setWorkspace(id)
+    setShowWorkspaceMenu(false)
+
+    if (id === 'all') {
+      // Reveal everything and restore the curated default layout.
+      setHidden(new Set())
+      const fresh = cloneLayout(DEFAULT_LAYOUT)
+      setLayout(fresh)
+      saveLayout(fresh)
+      return
+    }
+
+    if (id === 'custom' || ws.visible === null) {
+      // Keep current layout + hidden as the user left them.
+      return
+    }
+
+    // Preset: hide the panels not in this workspace and reflow the rest into
+    // a void-free packed layout.
+    const visibleSet = new Set(ws.visible as readonly PanelId[])
+    const newHidden = new Set<PanelId>()
+    for (const p of PANEL_IDS) if (!visibleSet.has(p)) newHidden.add(p)
+    setHidden(newHidden)
+
+    const packed = packLayout(ws.visible as readonly PanelId[])
+    setLayout(packed)
+    saveLayout(packed)
+  }
+
   const toggleHide = (id: PanelId) => {
+    // User manually toggling a panel → break out to 'custom' workspace
+    if (activeWorkspace !== 'custom' && activeWorkspace !== 'all') {
+      setWorkspace('custom')
+    }
     setHidden(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id); else next.add(id)
@@ -470,14 +512,9 @@ export default function GridLayout() {
     )
   }
 
-  // All layout variants are wrapped in TradingProvider so the FX panels share context
-  const withTrading = (children: ReactNode) => (
-    <TradingProvider>{children}</TradingProvider>
-  )
-
   // ── MOBILE LAYOUT ────────────────────────────────────────────────────────────
   if (isMobile) {
-    return withTrading(
+    return (
       <div style={{ padding: '8px', paddingBottom: '40px', overflowX: 'hidden' }}>
 
         {/* Alerts work everywhere */}
@@ -492,18 +529,35 @@ export default function GridLayout() {
           marginBottom:   '8px',
           padding:        '6px 4px',
         }}>
-          <span style={{
-            fontSize:   '10px',
-            color:      'var(--text-muted)',
-            fontFamily: 'JetBrains Mono, monospace',
-            letterSpacing: '0.08em',
-          }}>
-            {MOBILE_ORDER.filter(id => !hidden.has(id)).length} PANELS
-          </span>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => { setShowWorkspaceMenu(v => !v); setShowMenu(false) }}
+              style={{
+                padding:    '5px 12px',
+                borderRadius:'3px',
+                cursor:     'pointer',
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize:   '10px',
+                letterSpacing: '0.08em',
+                border:     `1px solid ${showWorkspaceMenu ? 'var(--amber)' : 'var(--border)'}`,
+                background: showWorkspaceMenu ? 'rgba(240,165,0,0.10)' : 'transparent',
+                color:      showWorkspaceMenu ? 'var(--amber)' : 'var(--text-muted)',
+              }}
+            >
+              {(WORKSPACES.find(w => w.id === activeWorkspace)?.label ?? 'All').toUpperCase()} ▾
+            </button>
+            {showWorkspaceMenu && (
+              <WorkspaceMenu
+                active={activeWorkspace}
+                onPick={applyWorkspace}
+                onClose={() => setShowWorkspaceMenu(false)}
+              />
+            )}
+          </div>
 
           <div style={{ position: 'relative' }}>
             <button
-              onClick={() => setShowMenu(v => !v)}
+              onClick={() => { setShowMenu(v => !v); setShowWorkspaceMenu(false) }}
               style={{
                 padding:    '5px 12px',
                 borderRadius:'3px',
@@ -620,7 +674,7 @@ export default function GridLayout() {
 
   // ── TABLET LAYOUT ────────────────────────────────────────────────────────────
   if (isTablet) {
-    return withTrading(
+    return (
       <div style={{ paddingBottom: '40px' }}>
         <AlertEngine />
         <AlertToasts />
@@ -637,7 +691,28 @@ export default function GridLayout() {
         }}>
           <div style={{ position: 'relative' }}>
             <button
-              onClick={() => setShowMenu(v => !v)}
+              onClick={() => { setShowWorkspaceMenu(v => !v); setShowMenu(false) }}
+              style={{
+                padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+                border: `1px solid ${showWorkspaceMenu ? 'var(--amber)' : 'var(--border)'}`,
+                background: showWorkspaceMenu ? 'rgba(240,165,0,0.10)' : 'transparent',
+                color: showWorkspaceMenu ? 'var(--amber)' : 'var(--text-muted)',
+              }}
+            >
+              {(WORKSPACES.find(w => w.id === activeWorkspace)?.label ?? 'All').toUpperCase()} ▾
+            </button>
+            {showWorkspaceMenu && (
+              <WorkspaceMenu
+                active={activeWorkspace}
+                onPick={applyWorkspace}
+                onClose={() => setShowWorkspaceMenu(false)}
+              />
+            )}
+          </div>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => { setShowMenu(v => !v); setShowWorkspaceMenu(false) }}
               style={{
                 padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
                 fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
@@ -669,7 +744,7 @@ export default function GridLayout() {
     id, label: PANEL_META[id].label, description: PANEL_META[id].description,
   }))
 
-  return withTrading(
+  return (
     <div style={{ padding: '0 6px 40px' }}>
 
       {/* Global UX layer — alerts, keyboard shortcuts, alert engine */}
@@ -709,10 +784,40 @@ export default function GridLayout() {
           </span>
         )}
 
+        {/* Workspace preset selector */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowWorkspaceMenu(v => !v); setShowMenu(false) }}
+            title="Switch workspace preset"
+            style={{
+              ...btnBase,
+              border: `1px solid ${showWorkspaceMenu ? 'var(--amber)' : 'var(--border)'}`,
+              background: showWorkspaceMenu ? 'rgba(240,165,0,0.10)' : 'transparent',
+              color: showWorkspaceMenu ? 'var(--amber)' : 'var(--text-muted)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span style={{ opacity: 0.7 }}>WS:</span>
+            <span style={{ color: '#fff', fontWeight: 700 }}>
+              {(WORKSPACES.find(w => w.id === activeWorkspace)?.label ?? 'All Panels').toUpperCase()}
+            </span>
+            <span style={{ fontSize: '8px', opacity: 0.7 }}>▾</span>
+          </button>
+          {showWorkspaceMenu && (
+            <WorkspaceMenu
+              active={activeWorkspace}
+              onPick={applyWorkspace}
+              onClose={() => setShowWorkspaceMenu(false)}
+            />
+          )}
+        </div>
+
         {/* Panel visibility toggle */}
         <div style={{ position: 'relative' }}>
           <button
-            onClick={() => setShowMenu(v => !v)}
+            onClick={() => { setShowMenu(v => !v); setShowWorkspaceMenu(false) }}
             style={{ ...btnBase, border: `1px solid ${showMenu ? 'var(--teal)' : 'var(--border)'}`, background: showMenu ? 'rgba(0,229,192,0.08)' : 'transparent', color: showMenu ? 'var(--teal)' : 'var(--text-muted)' }}
           >
             PANELS {hidden.size > 0 ? `(${hidden.size} off)` : ''}
@@ -808,14 +913,193 @@ export default function GridLayout() {
       </div>
 
       <style>{`
-        .react-grid-item { transition: none !important; }
-        .react-grid-item.cssTransforms { transition-property: transform !important; transition-duration: 100ms !important; transition-timing-function: ease-out !important; }
-        .react-grid-item.react-grid-placeholder { background: rgba(240,165,0,0.07) !important; border: 1px dashed rgba(240,165,0,0.4) !important; border-radius: 6px !important; opacity: 1 !important; z-index: 2 !important; }
-        .react-resizable-handle { background: none !important; border-right: 2px solid rgba(240,165,0,0.7) !important; border-bottom: 2px solid rgba(240,165,0,0.7) !important; border-radius: 0 0 4px 0 !important; width: 14px !important; height: 14px !important; }
+        /* Smooth snap/resize/move transitions */
+        .react-grid-item {
+          transition-property: transform, width, height !important;
+          transition-duration: 180ms !important;
+          transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+          will-change: transform, width, height;
+        }
+        .react-grid-item.cssTransforms {
+          transition-property: transform, width, height !important;
+          transition-duration: 180ms !important;
+          transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        /* Skip transition while actively dragging or resizing → feels glued to cursor */
+        .react-grid-item.react-draggable-dragging,
+        .react-grid-item.resizing {
+          transition: none !important;
+          z-index: 10 !important;
+        }
+        .react-grid-item.react-draggable-dragging {
+          opacity: 0.92;
+          box-shadow:
+            0 16px 40px rgba(0, 0, 0, 0.55),
+            0 0 0 1px rgba(240, 165, 0, 0.55),
+            0 0 24px rgba(240, 165, 0, 0.15) !important;
+          cursor: grabbing !important;
+        }
+        .react-grid-item.resizing {
+          opacity: 0.95;
+          box-shadow:
+            0 0 0 2px rgba(240, 165, 0, 0.55),
+            0 0 18px rgba(240, 165, 0, 0.25) !important;
+        }
+
+        /* Drop-zone preview with diagonal stripe so the snap target is unmistakable */
+        .react-grid-item.react-grid-placeholder {
+          background:
+            repeating-linear-gradient(
+              45deg,
+              rgba(240, 165, 0, 0.08),
+              rgba(240, 165, 0, 0.08) 8px,
+              rgba(240, 165, 0, 0.16) 8px,
+              rgba(240, 165, 0, 0.16) 16px
+            ) !important;
+          border: 1.5px dashed rgba(240, 165, 0, 0.65) !important;
+          border-radius: 6px !important;
+          opacity: 1 !important;
+          z-index: 2 !important;
+          transition: transform 120ms ease-out, width 120ms ease-out, height 120ms ease-out !important;
+          box-shadow: 0 0 0 1px rgba(240, 165, 0, 0.20), inset 0 0 24px rgba(240, 165, 0, 0.08) !important;
+        }
+
+        /* Resize handle — bigger, easier to grab, with a clear corner glyph */
+        .react-resizable-handle {
+          background: none !important;
+          width: 18px !important;
+          height: 18px !important;
+        }
+        .react-resizable-handle::before {
+          content: '';
+          position: absolute;
+          right: 3px;
+          bottom: 3px;
+          width: 12px;
+          height: 12px;
+          border-right: 2px solid rgba(240, 165, 0, 0.75);
+          border-bottom: 2px solid rgba(240, 165, 0, 0.75);
+          border-radius: 0 0 4px 0;
+          transition: border-color 0.15s, transform 0.15s;
+        }
+        .react-resizable-handle:hover::before {
+          border-color: var(--amber);
+          transform: scale(1.15);
+        }
+
         .nexus-drag-handle { user-select: none; }
         @keyframes pulseDot { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
       `}</style>
+    </div>
+  )
+}
+
+// ── Workspace preset menu ──────────────────────────────────────────────────────
+
+function WorkspaceMenu({ active, onPick, onClose }: {
+  active:  WorkspaceId
+  onPick:  (id: WorkspaceId) => void
+  onClose: () => void
+}) {
+  return (
+    <div
+      style={{
+        position:     'absolute',
+        right:        0,
+        top:          'calc(100% + 4px)',
+        background:   'var(--bg-panel)',
+        border:       '1px solid var(--border)',
+        borderRadius: '8px',
+        padding:      '8px',
+        zIndex:       200,
+        width:        '260px',
+        boxShadow:    '0 12px 40px rgba(0,0,0,0.7)',
+      }}
+    >
+      <div style={{
+        display:        'flex',
+        justifyContent: 'space-between',
+        alignItems:     'center',
+        padding:        '4px 6px 8px',
+        borderBottom:   '1px solid var(--border)',
+        marginBottom:   '6px',
+      }}>
+        <span style={{
+          fontSize: '10px', color: 'var(--text-muted)',
+          fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.14em',
+        }}>
+          WORKSPACES
+        </span>
+        <button
+          onClick={onClose}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '13px' }}
+        >
+          ✕
+        </button>
+      </div>
+      {WORKSPACES.map(ws => {
+        const isActive = ws.id === active
+        return (
+          <button
+            key={ws.id}
+            onClick={() => onPick(ws.id)}
+            style={{
+              width:          '100%',
+              textAlign:      'left',
+              display:        'flex',
+              flexDirection:  'column',
+              gap:            '2px',
+              padding:        '8px 10px',
+              borderRadius:   '4px',
+              border:         '1px solid transparent',
+              background:     isActive ? 'rgba(240,165,0,0.10)' : 'transparent',
+              borderColor:    isActive ? 'rgba(240,165,0,0.4)' : 'transparent',
+              cursor:         'pointer',
+              fontFamily:     'JetBrains Mono, monospace',
+              transition:     'background 0.12s',
+              marginBottom:   '2px',
+            }}
+            onMouseEnter={e => {
+              if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'
+            }}
+            onMouseLeave={e => {
+              if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{
+                fontSize: '12px', color: isActive ? 'var(--amber)' : '#fff',
+                fontWeight: 700, letterSpacing: '0.06em',
+              }}>
+                {ws.label}
+              </span>
+              {isActive && (
+                <span style={{
+                  fontSize: '9px', color: 'var(--amber)',
+                  letterSpacing: '0.1em',
+                }}>
+                  ● ACTIVE
+                </span>
+              )}
+            </div>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+              {ws.description}
+            </span>
+          </button>
+        )
+      })}
+      <div style={{
+        marginTop:    '4px',
+        paddingTop:   '6px',
+        borderTop:    '1px solid var(--border)',
+        fontSize:     '10px',
+        color:        'var(--text-muted)',
+        padding:      '6px 6px 2px',
+        lineHeight:   1.4,
+      }}>
+        Toggle individual panels via PANELS to switch to Custom.
+      </div>
     </div>
   )
 }
