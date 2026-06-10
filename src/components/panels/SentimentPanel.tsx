@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
+import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
 
 interface SentimentData {
   score:       number   // 0–100
@@ -12,6 +14,7 @@ interface SentimentData {
   spyRsi:      number | null
   spyVs50d:    number | null
   loading:     boolean
+  fetchedAt:   number | null
 }
 
 // RSI calculation from closing prices
@@ -44,7 +47,7 @@ export default function SentimentPanel() {
   const [data, setData] = useState<SentimentData>({
     score: 50, label: 'LOADING', color: 'var(--text-muted)',
     components: [], vix: null, vixChange: null, spyRsi: null, spyVs50d: null,
-    loading: true,
+    loading: true, fetchedAt: null,
   })
 
   const fetchSentiment = async () => {
@@ -176,6 +179,7 @@ export default function SentimentPanel() {
       setData({
         score: finalScore, label, color, components,
         vix, vixChange, spyRsi: rsi, spyVs50d, loading: false,
+        fetchedAt: Date.now(),
       })
 
     } catch {
@@ -194,12 +198,18 @@ export default function SentimentPanel() {
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div className="panel-header">
-        <div className="dot" />
-        MARKET SENTIMENT
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '6px' }}>
-          Fear &amp; Greed Index
-        </span>
+      <div className="panel-header" style={{ justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="dot" />
+          MARKET SENTIMENT
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '6px' }}>
+            Fear &amp; Greed Index
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <DataQualityBadge kind="modeled" small tooltip="0–100 score computed from VIX level, VIX momentum, SPY RSI-14, and SPY vs 50-day moving average. Each component live from Finnhub/Yahoo." />
+          <DataAgeBadge timestamp={data.fetchedAt} freshSecs={180} staleSecs={600} small />
+        </div>
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px 16px', gap: '12px' }}>

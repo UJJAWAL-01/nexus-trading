@@ -1,58 +1,28 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
+import useSWR from 'swr'
+import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
+import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
 
-// ── Sector definitions with top components ────────────────────────────────────
-const SECTORS = [
-  { symbol: 'XLK',  name: 'Technology',     short: 'TECH',  components: ['AAPL','NVDA','MSFT','AVGO','AMD','ORCL','CRM','ACN'] },
-  { symbol: 'XLC',  name: 'Comm. Services', short: 'COMM',  components: ['META','GOOGL','NFLX','DIS','CMCSA','T','VZ','EA'] },
-  { symbol: 'XLY',  name: 'Cons. Discret.', short: 'DISC',  components: ['AMZN','TSLA','HD','MCD','NKE','SBUX','TJX','LOW'] },
-  { symbol: 'XLF',  name: 'Financials',     short: 'FIN',   components: ['JPM','V','MA','BAC','WFC','GS','MS','AXP'] },
-  { symbol: 'XLV',  name: 'Health Care',    short: 'HLTH',  components: ['LLY','UNH','JNJ','ABBV','MRK','PFE','TMO','ABT'] },
-  { symbol: 'XLI',  name: 'Industrials',    short: 'IND',   components: ['GE','CAT','HON','UNP','RTX','BA','MMM','DE'] },
-  { symbol: 'XLE',  name: 'Energy',         short: 'ENGY',  components: ['XOM','CVX','COP','SLB','EOG','MPC','VLO','PSX'] },
-  { symbol: 'XLP',  name: 'Cons. Staples',  short: 'STPL',  components: ['PG','KO','PEP','COST','WMT','PM','MO','CL'] },
-  { symbol: 'XLB',  name: 'Materials',      short: 'MATL',  components: ['LIN','APD','SHW','ECL','NEM','FCX','NUE','VMC'] },
-  { symbol: 'XLRE', name: 'Real Estate',    short: 'REIT',  components: ['AMT','PLD','EQIX','CCI','PSA','WELL','DLR','SPG'] },
-  { symbol: 'XLU',  name: 'Utilities',      short: 'UTIL',  components: ['NEE','DUK','AEP','EXC','SO','PCG','XEL','WEC'] },
-]
+// ── Sector universe loaded from /public/data/sector-etfs.json ────────────────
+// This used to be a hardcoded constant inside this file.  Migrating it out
+// makes the dataset citable + refreshable independently of code releases.
 
-// ── Full company name lookup ───────────────────────────────────────────────────
-const COMPANY_NAMES: Record<string, string> = {
-  // Tech
-  AAPL: 'Apple', NVDA: 'Nvidia', MSFT: 'Microsoft', AVGO: 'Broadcom', AMD: 'AMD',
-  ORCL: 'Oracle', CRM: 'Salesforce', ACN: 'Accenture',
-  // Comm
-  META: 'Meta', GOOGL: 'Alphabet', NFLX: 'Netflix', DIS: 'Disney', CMCSA: 'Comcast',
-  T: 'AT&T', VZ: 'Verizon', EA: 'EA Sports',
-  // Disc
-  AMZN: 'Amazon', TSLA: 'Tesla', HD: 'Home Depot', MCD: "McDonald's", NKE: 'Nike',
-  SBUX: 'Starbucks', TJX: 'TJX Cos', LOW: "Lowe's",
-  // Fin
-  JPM: 'JPMorgan', V: 'Visa', MA: 'Mastercard', BAC: 'Bank of America',
-  WFC: 'Wells Fargo', GS: 'Goldman Sachs', MS: 'Morgan Stanley', AXP: 'Amex',
-  // Health
-  LLY: 'Eli Lilly', UNH: 'UnitedHealth', JNJ: 'J&J', ABBV: 'AbbVie',
-  MRK: 'Merck', PFE: 'Pfizer', TMO: 'Thermo Fisher', ABT: 'Abbott',
-  // Industrials
-  GE: 'GE Aero', CAT: 'Caterpillar', HON: 'Honeywell', UNP: 'Union Pacific',
-  RTX: 'RTX Corp', BA: 'Boeing', MMM: '3M', DE: 'John Deere',
-  // Energy
-  XOM: 'ExxonMobil', CVX: 'Chevron', COP: 'ConocoPhillips', SLB: 'SLB',
-  EOG: 'EOG Resources', MPC: 'Marathon', VLO: 'Valero', PSX: 'Phillips 66',
-  // Staples
-  PG: 'Procter & G', KO: 'Coca-Cola', PEP: 'PepsiCo', COST: 'Costco',
-  WMT: 'Walmart', PM: 'Philip Morris', MO: 'Altria', CL: 'Colgate',
-  // Materials
-  LIN: 'Linde', APD: 'Air Products', SHW: 'Sherwin-Williams', ECL: 'Ecolab',
-  NEM: 'Newmont', FCX: 'Freeport', NUE: 'Nucor', VMC: 'Vulcan',
-  // REIT
-  AMT: 'Amer. Tower', PLD: 'Prologis', EQIX: 'Equinix', CCI: 'Crown Castle',
-  PSA: 'Public Storage', WELL: 'Welltower', DLR: 'Digital Realty', SPG: 'Simon Prop',
-  // Utilities
-  NEE: 'NextEra', DUK: 'Duke Energy', AEP: 'AEP', EXC: 'Exelon',
-  SO: 'Southern Co', PCG: 'PG&E', XEL: 'Xcel Energy', WEC: 'WEC Energy',
+interface SectorDef {
+  symbol:     string
+  name:       string
+  short:      string
+  components: string[]
 }
+interface SectorETFFile {
+  version:      string
+  generatedAt:  string
+  source:       string
+  sectors:      SectorDef[]
+  companyNames: Record<string, string>
+}
+const sectorEtfFetcher = (url: string) => fetch(url).then(r => r.json() as Promise<SectorETFFile>)
 
 interface SectorData { symbol: string; change: number | null }
 interface MoverData { symbol: string; name: string; change: number | null; fetched: boolean }
@@ -74,18 +44,30 @@ function getColors(change: number | null) {
 }
 
 export default function SectorHeatmapPanel() {
-  const [data, setData]             = useState<SectorData[]>(
-    SECTORS.map(s => ({ symbol: s.symbol, change: null }))
-  )
-  const [lastUpdated, setUpdated]   = useState('')
+  // Load the versioned sector dataset (sectors + components + company names).
+  const { data: etfFile } = useSWR<SectorETFFile>('/data/sector-etfs.json', sectorEtfFetcher, {
+    revalidateOnFocus: false, dedupingInterval: 60_000_000,
+  })
+  const SECTORS = useMemo<SectorDef[]>(() => etfFile?.sectors ?? [], [etfFile])
+  const COMPANY_NAMES = useMemo<Record<string, string>>(() => etfFile?.companyNames ?? {}, [etfFile])
+
+  const [data, setData]             = useState<SectorData[]>([])
+  const [lastUpdatedTs, setUpdatedTs] = useState<number | null>(null)
   const [activeSector, setActive]   = useState<string | null>(null)
   const [movers, setMovers]         = useState<MoverData[]>([])
   const [loadingMovers, setLoadingMovers] = useState(false)
   const hoverTimerRef               = useRef<ReturnType<typeof setTimeout> | null>(null)
   const popupRef                    = useRef<HTMLDivElement>(null)
 
+  // Initialize empty rows once the JSON file resolves
+  useEffect(() => {
+    if (SECTORS.length === 0) return
+    setData(prev => prev.length ? prev : SECTORS.map(s => ({ symbol: s.symbol, change: null })))
+  }, [SECTORS])
+
   // ── Fetch sector ETF prices ─────────────────────────────────────────────────
   const fetchData = useCallback(async () => {
+    if (SECTORS.length === 0) return
     const updates = await Promise.all(
       SECTORS.map(async ({ symbol }) => {
         try {
@@ -103,16 +85,16 @@ export default function SectorHeatmapPanel() {
       })
     )
     setData(updates)
-    setUpdated(
-      new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
-    )
-  }, [data])
+    setUpdatedTs(Date.now())
+  }, [data, SECTORS])
 
   useEffect(() => {
+    if (SECTORS.length === 0) return
     fetchData()
     const t = setInterval(fetchData, 60_000)
     return () => clearInterval(t)
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [SECTORS])
 
   // ── Fetch movers for active sector ─────────────────────────────────────────
   // KEY FIX: use stale data immediately, fetch fresh in background
@@ -259,10 +241,14 @@ export default function SectorHeatmapPanel() {
           }}>
             avg {avgChg >= 0 ? '+' : ''}{avgChg.toFixed(2)}%
           </span>
-          {lastUpdated && (
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
-              {lastUpdated}
-            </span>
+          <DataQualityBadge kind="live" small tooltip="Sector ETF quotes from Finnhub, polled every 60s" />
+          <DataAgeBadge timestamp={lastUpdatedTs} freshSecs={90} staleSecs={300} small />
+          {etfFile?.generatedAt && (
+            <DataQualityBadge
+              kind="versioned"
+              small
+              tooltip={`Sector membership snapshot from ${new Date(etfFile.generatedAt).toLocaleDateString()} — top 8 ETF holdings per sector. Source: ${etfFile.source}`}
+            />
           )}
         </div>
       </div>

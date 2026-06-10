@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface IPOData {
   ticker: string
@@ -19,32 +19,53 @@ const ratingColor = (r: string) => r === 'bullish' ? 'var(--positive)' : r === '
 const ratingBg = (r: string) => r === 'bullish' ? 'rgba(0,201,122,0.12)' : r === 'bearish' ? 'rgba(255,69,96,0.12)' : 'rgba(74,96,112,0.12)'
 
 export default function IpoScreenerPanel() {
-  const [ipos, setIpos] = useState<IPOData[]>([])
+  const [ipos, setIpos]       = useState<IPOData[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'recent'>('all')
+  const [error, setError]     = useState<string | null>(null)
+  const [filter, setFilter]   = useState<'all' | 'upcoming' | 'recent'>('all')
   const [ratingFilter, setRatingFilter] = useState<'all' | 'bullish' | 'neutral' | 'bearish'>('all')
+  const abortRef = useRef<AbortController | null>(null)
+
+  const fetchIPOs = useCallback(async (signal: AbortSignal) => {
+    setLoading(true)
+    setError(null)
+    let url = '/api/ipo-data'
+    const params: string[] = []
+    if (filter !== 'all')       params.push(`status=${filter}`)
+    if (ratingFilter !== 'all') params.push(`rating=${ratingFilter}`)
+    if (params.length) url += `?${params.join('&')}`
+
+    try {
+      const res = await fetch(url, { signal })
+      if (!res.ok) throw new Error(`HTTP ${res.status} from /api/ipo-data`)
+      const data = await res.json()
+      if (signal.aborted) return
+      setIpos(Array.isArray(data.ipos) ? data.ipos : [])
+      setLoading(false)
+    } catch (e) {
+      // AbortError is expected when the filter changes mid-flight — silent.
+      if ((e as { name?: string }).name === 'AbortError') return
+      // Don't console.error transient upstream failures; surface in UI so
+      // the user has a Retry path and the dev console stays clean.
+      setError(e instanceof Error ? e.message : 'Network error')
+      setLoading(false)
+    }
+  }, [filter, ratingFilter])
 
   useEffect(() => {
-    const fetchIPOs = async () => {
-      try {
-        let url = '/api/ipo-data'
-        const params = []
-        if (filter !== 'all') params.push(`status=${filter}`)
-        if (ratingFilter !== 'all') params.push(`rating=${ratingFilter}`)
-        if (params.length) url += `?${params.join('&')}`
+    abortRef.current?.abort()
+    const ctrl = new AbortController()
+    abortRef.current = ctrl
+    fetchIPOs(ctrl.signal)
+    return () => ctrl.abort()
+  }, [fetchIPOs])
 
-        const res = await fetch(url)
-        const data = await res.json()
-        setIpos(data.ipos || [])
-      } catch {
-        console.error('Failed to fetch IPOs')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchIPOs()
-  }, [filter, ratingFilter])
+  const retry = () => {
+    abortRef.current?.abort()
+    const ctrl = new AbortController()
+    abortRef.current = ctrl
+    fetchIPOs(ctrl.signal)
+  }
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -97,6 +118,24 @@ export default function IpoScreenerPanel() {
         {loading ? (
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>
             LOADING IPO DATA...
+          </div>
+        ) : error ? (
+          <div style={{
+            padding: '32px 20px', textAlign: 'center',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+            lineHeight: 1.6,
+          }}>
+            <div style={{ color: 'var(--negative)', marginBottom: '6px' }}>⚠ Failed to load IPO data</div>
+            <div style={{ color: 'var(--text-muted)', marginBottom: '14px' }}>{error}</div>
+            <button
+              onClick={retry}
+              style={{
+                padding: '5px 14px', borderRadius: '3px', cursor: 'pointer',
+                border: '1px solid var(--amber)', background: 'rgba(240,165,0,0.10)',
+                color: 'var(--amber)', fontSize: '11px',
+                fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', fontWeight: 700,
+              }}
+            >↺ RETRY</button>
           </div>
         ) : ipos.length === 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>

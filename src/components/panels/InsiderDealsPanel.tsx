@@ -4,6 +4,7 @@
 // detection, multi-insider CLUSTER signals.
 
 import { useMemo, useState } from 'react'
+import { useEffectiveSymbol, useActiveSymbol } from '@/store/symbol'
 import { useInsiderDeals, type InsiderDeal } from '@/lib/data-hooks'
 
 type Market    = 'ALL' | 'US' | 'IN'
@@ -108,12 +109,24 @@ export default function InsiderDealsPanel() {
     setMarket(m); setSearch(''); setDtype('ALL'); setSigF('ALL')
   }
 
+  // ── Active-symbol subscription ─────────────────────────────────────────────
+  // Filter deals to only this ticker when active.  Matches on the .NS-stripped
+  // base so RELIANCE.NS picks up insider deals filed under RELIANCE.
+  const { symbol: effSym } = useEffectiveSymbol('insiderdeals')
+  const clearActive = useActiveSymbol(s => s.setActiveSymbol)
+  const effSymBase = effSym?.replace(/\.(NS|BO)$/, '').toUpperCase() ?? null
+
   // ── Derived values (memoized) ──────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim()
     return deals.filter(d => {
       if (dtype !== 'ALL' && d.type !== dtype) return false
       if (sigF  !== 'ALL' && d.significance !== sigF) return false
+      // Active-symbol narrow filter (takes precedence over the text search)
+      if (effSymBase) {
+        const dealBase = d.symbol.replace(/\.(NS|BO)$/, '').toUpperCase()
+        if (dealBase !== effSymBase) return false
+      }
       if (q) {
         return d.symbol.toLowerCase().includes(q) ||
                d.company.toLowerCase().includes(q) ||
@@ -122,7 +135,7 @@ export default function InsiderDealsPanel() {
       }
       return true
     })
-  }, [deals, dtype, sigF, search])
+  }, [deals, dtype, sigF, search, effSymBase])
 
   const { buyCount, sellCount, sentiment } = useMemo(() => {
     const b = filtered.filter(d => d.side === 'BUY').length
@@ -272,6 +285,29 @@ export default function InsiderDealsPanel() {
           <span style={{ fontSize:'10px', color:'var(--text-muted)', whiteSpace:'nowrap' }}>
             {filtered.length}/{deals.length}
           </span>
+        </div>
+      )}
+
+      {/* ── Active-symbol filter banner ────────────────────────────────────── */}
+      {effSym && (
+        <div style={{
+          padding:'5px 12px', borderBottom:'1px solid var(--border)', flexShrink:0,
+          fontSize:'10px', fontFamily:'JetBrains Mono,monospace',
+          background:'rgba(240,165,0,0.08)', color:'var(--amber)',
+          display:'flex', justifyContent:'space-between', alignItems:'center',
+        }}>
+          <span>🎯 Showing deals for <b>{effSym}</b> only · {filtered.length} match{filtered.length === 1 ? '' : 'es'}</span>
+          <button
+            onClick={() => clearActive(null)}
+            style={{
+              background:'transparent', border:'1px solid rgba(240,165,0,0.4)',
+              color:'var(--amber)', padding:'2px 8px', borderRadius:3,
+              cursor:'pointer', fontSize:'9px', fontFamily:'JetBrains Mono,monospace',
+              letterSpacing:'0.08em',
+            }}
+          >
+            CLEAR
+          </button>
         </div>
       )}
 

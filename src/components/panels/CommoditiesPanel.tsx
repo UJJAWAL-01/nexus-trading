@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
+import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
+import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
 
 // ── Commodity definitions ─────────────────────────────────────────────────────
 
@@ -140,6 +142,7 @@ export default function CommoditiesPanel() {
   const [loadPrices, setLoadPrices] = useState(true)
   const [loadNews,   setLoadNews]   = useState(false)
   const [lastUpdate, setLastUpdate] = useState('')
+  const [lastUpdateTs, setLastUpdateTs] = useState<number | null>(null)
 
   // ── Fetch prices via yquote ────────────────────────────────────────────────
   const fetchPrices = useCallback(async () => {
@@ -181,6 +184,7 @@ export default function CommoditiesPanel() {
     })
     setLoadPrices(false)
     setLastUpdate(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }))
+    setLastUpdateTs(Date.now())
   }, [])
 
   useEffect(() => {
@@ -289,6 +293,8 @@ export default function CommoditiesPanel() {
           }}>
             {gainers > 0 ? `▲${gainers}` : ''} {losers > 0 ? `▼${losers}` : ''}
           </span>
+          <DataQualityBadge kind="live" small tooltip="Commodity & crypto prices from Yahoo Finance, polled every 60s" />
+          <DataAgeBadge timestamp={lastUpdateTs} freshSecs={90} staleSecs={300} small />
         </div>
         <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
           {(['prices', 'news'] as ActiveView[]).map(v => (

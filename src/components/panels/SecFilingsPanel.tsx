@@ -5,7 +5,8 @@
 // 13D/G: filer name, ownership %, shares
 // S-1: offering headline
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
 import { useWatchlist } from '@/store/watchlist'
 
@@ -96,6 +97,19 @@ export default function SecFilingsPanel() {
   const submit = () => { const v = input.trim().toUpperCase(); if (v) setTicker(v) }
   const toggleType = (t: string) =>
     setActive(prev => { const n = new Set(prev); n.has(t) ? n.delete(t) : n.add(t); return n })
+
+  // ── Active-symbol subscription ─────────────────────────────────────────────
+  // SEC only covers US-listed companies, so we ignore India tickers (.NS / .BO)
+  // — the panel will continue showing whatever was last loaded for those.
+  const { symbol: effSym } = useEffectiveSymbol('secfilings')
+  useEffect(() => {
+    if (!effSym) return
+    if (effSym.endsWith('.NS') || effSym.endsWith('.BO') || effSym.startsWith('^')) return
+    if (effSym === ticker) return
+    setTicker(effSym)
+    setInput(effSym)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effSym])
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', fontFamily: 'JetBrains Mono, monospace' }}>

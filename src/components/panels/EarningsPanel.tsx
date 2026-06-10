@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
 import { TTL } from '@/lib/data-hooks'
 import type { EarningItem } from '@/app/api/earnings/route'
@@ -60,6 +61,33 @@ function epsSuprise(actual: number | null, estimate: number | null): number | nu
 export default function EarningsPanel() {
   const [market, setMarket] = useState<Market>('US')
   const [filter, setFilter] = useState<TimeFilter>('upcoming')
+
+  // ── Active-symbol subscription ─────────────────────────────────────────────
+  // When a ticker is globally active, highlight its earnings row and scroll
+  // it into view.  We do NOT filter the list — context (peer earnings around
+  // the same date) is valuable.  Match strips .NS/.BO suffix for India tickers.
+  const { symbol: effSym } = useEffectiveSymbol('earnings')
+  const activeRowRef = useRef<HTMLDivElement | null>(null)
+  const effSymBase = effSym?.replace(/\.(NS|BO)$/, '') ?? null
+
+  useEffect(() => {
+    if (!effSym) return
+    // Auto-switch market based on the symbol so the matching row is in the list
+    const isIndia = effSym.endsWith('.NS') || effSym.endsWith('.BO')
+    if (isIndia && market !== 'IN') setMarket('IN')
+    if (!isIndia && market !== 'US') setMarket('US')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effSym])
+
+  // Scroll the highlighted row into view whenever the active symbol changes
+  // (uses requestAnimationFrame to wait for re-render).
+  useEffect(() => {
+    if (!activeRowRef.current) return
+    const raf = requestAnimationFrame(() => {
+      activeRowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [effSymBase, market])
 
   const { data: earnings = [], isLoading: loading } = useSWR<EarningItem[]>(
     `/api/earnings?market=${market}`,
@@ -192,9 +220,11 @@ export default function EarningsPanel() {
             const surprise = epsSuprise(e.epsActual, e.epsEstimate)
             const hasBeat  = e.beat !== null
             const beaten   = e.beat === true
+            const isActive = effSymBase != null && e.symbol.replace(/\.(NS|BO)$/, '') === effSymBase
 
-            // Color coding
+            // Color coding — active symbol takes precedence over other borders
             const leftBorderColor =
+              isActive ? 'var(--amber)' :
               isToday ? '#a78bfa' :
               hasBeat && beaten ? 'rgba(0,201,122,0.5)' :
               hasBeat && !beaten ? 'rgba(255,69,96,0.5)' :
@@ -202,11 +232,17 @@ export default function EarningsPanel() {
               'transparent'
 
             return (
-              <div key={`${e.symbol}-${e.date}-${i}`} style={{
-                padding:      '9px 14px',
-                borderBottom: '1px solid var(--border)',
-                background:   isToday ? 'rgba(167,139,250,0.04)' : 'transparent',
-                borderLeft:   `3px solid ${leftBorderColor}`,
+              <div
+                key={`${e.symbol}-${e.date}-${i}`}
+                ref={isActive ? activeRowRef : undefined}
+                style={{
+                  padding:      '9px 14px',
+                  borderBottom: '1px solid var(--border)',
+                  background:   isActive ? 'rgba(240,165,0,0.10)' :
+                                isToday  ? 'rgba(167,139,250,0.04)' : 'transparent',
+                  borderLeft:   `3px solid ${leftBorderColor}`,
+                  boxShadow:    isActive ? 'inset 0 0 0 1px rgba(240,165,0,0.18)' : 'none',
+                  transition:   'background 0.2s, box-shadow 0.2s',
               }}>
                 {/* Row 1: Symbol + badges + time */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>

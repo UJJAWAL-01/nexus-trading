@@ -6,8 +6,10 @@ import TopSearchBar      from '@/components/ui/TopSearchBar'
 import GridLayout        from '@/components/dashboard/GridLayout'
 import TabbedDashboard   from '@/components/dashboard/TabbedDashboard'
 import MorningBrief      from '@/components/dashboard/MorningBrief'
+import ActiveSymbolPill  from '@/components/dashboard/ActiveSymbolPill'
 import Footer            from '@/components/ui/Footer'
 import { useLayoutMode } from '@/store/layoutMode'
+import { SymbolUrlSync } from '@/store/symbol'
 
 // ── Market status bar ─────────────────────────────────────────────────────────
 
@@ -166,6 +168,10 @@ export default function Dashboard() {
   return (
     <div className="app-root">
 
+      {/* Reads `?s=AAPL` from the URL on mount and on browser back/forward.
+          Mounted once at the app root — fire-and-forget, renders nothing. */}
+      <SymbolUrlSync />
+
       {/* ── Sticky Top Nav (Header + Ticker) ───────────────────────────── */}
       <div ref={topRef} className="top-nav">
 
@@ -183,6 +189,8 @@ export default function Dashboard() {
           <div className="header-search">
             <TopSearchBar />
           </div>
+
+          <ActiveSymbolPill />
 
           <LayoutModeToggle />
 
@@ -402,6 +410,7 @@ export default function Dashboard() {
           .clock-ist { display: none; }
           .top-brief { display: none; }
           .layout-mode-toggle { display: none; }
+          .active-symbol-pill { display: none; } /* TODO: surface in mobile-search row in a later pass */
         }
 
         @keyframes pulseDot {

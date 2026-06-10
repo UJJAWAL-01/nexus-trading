@@ -9,6 +9,7 @@
 // the central target node out to suppliers (left) and customers (right).
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
 
 // ── Types (mirror JSON shape) ────────────────────────────────────────────────
@@ -91,6 +92,20 @@ export default function SupplyChainPanel() {
     const def = REGION_DEFAULT[r]
     setTarget(def); setInput(def); setPicked(null); setShowAll(false)
   }
+
+  // ── Active-symbol subscription ─────────────────────────────────────────────
+  // Auto-focus the network on the globally-active ticker.  Region snaps to
+  // match (the existing useEffect at line ~107 handles that on `resolved`).
+  const { symbol: effSym } = useEffectiveSymbol('supplychain')
+  useEffect(() => {
+    if (!effSym) return
+    if (effSym === target) return
+    setTarget(effSym)
+    setInput(effSym)
+    setPicked(null)
+    setShowAll(false)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effSym])
 
   // Resolve target — accept any case, normalize against company keys
   const resolved = useMemo<string | null>(() => {

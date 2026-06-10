@@ -49,6 +49,12 @@ next-env.d.ts
 /.claude/commands/
 .nexus-session.json
 
+# DB studio cache + DuckDB scratch
+/.drizzle/
+*.duckdb
+*.duckdb.wal
+*.parquet
+
 # Node modules
 node_modules/
 .next/

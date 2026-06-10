@@ -5,7 +5,8 @@
 // from latest vs 30-day baseline, peak detection, and trend slope. No AI, no
 // trading recommendations — just descriptive statistics in plain English.
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
 import {
   ResponsiveContainer, LineChart, Line, Bar,
@@ -189,6 +190,19 @@ export default function AlternativeDataPanel() {
     const v = input.trim().toUpperCase()
     if (v) setQuery(v)
   }
+
+  // ── Active-symbol subscription ─────────────────────────────────────────────
+  // Strip .NS/.BO suffix because alt-data sources (Wikipedia, Reddit, HN) key
+  // off the plain company name, not the exchange-qualified ticker.
+  const { symbol: effSym } = useEffectiveSymbol('altdata')
+  useEffect(() => {
+    if (!effSym) return
+    const cleaned = effSym.replace(/\.(NS|BO)$/, '').replace(/^\^/, '')
+    if (cleaned === query) return
+    setQuery(cleaned)
+    setInput(cleaned)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effSym])
 
   const wiki   = data?.sources.wikipedia  ?? null
   const reddit = data?.sources.reddit     ?? null

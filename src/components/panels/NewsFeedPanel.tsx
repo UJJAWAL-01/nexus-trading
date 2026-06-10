@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useWatchlist } from '@/store/watchlist'
+import { useEffectiveSymbol, useActiveSymbol } from '@/store/symbol'
 import type { FeedCategory, FeedItem } from '@/app/api/news-feed/route'
 
 // ── Re-export types locally to avoid import issues ────────────────────────────
@@ -317,11 +318,34 @@ export default function NewsFeedPanel() {
       })
   }, [aiQueue, tabData.relevant])
 
+  // ── Active-symbol narrow filter ───────────────────────────────────────────
+  // When a symbol is globally active, narrow the visible feed to articles
+  // that explicitly reference it (via relatedSymbols, or substring-match in
+  // the headline as a fallback for items where the API didn't tag the ticker).
+  const { symbol: effSym } = useEffectiveSymbol('news')
+  const clearActive = useActiveSymbol(s => s.setActiveSymbol)
+  const effSymBase  = effSym?.replace(/\.(NS|BO)$/, '') ?? null
+
+  const matchesActive = useCallback((item: FeedItem | LegacyNewsItem): boolean => {
+    if (!effSym) return true
+    const rel = (item as FeedItem).relatedSymbols
+    if (Array.isArray(rel) && rel.some(s => {
+      const base = s.replace(/\.(NS|BO)$/, '').toUpperCase()
+      return base === effSymBase || base === effSym
+    })) return true
+    // Fallback: word-boundary match in headline.  Reduces false positives
+    // (e.g. "MAC" matching inside "MACRO") at the cost of missing some.
+    const re = new RegExp(`\\b${effSymBase ?? effSym}\\b`, 'i')
+    return re.test(item.headline)
+  }, [effSym, effSymBase])
+
   // ── Tab stats ──────────────────────────────────────────────────────────────
-  const currentItems  = tabData[activeTab]
-  const isLoading     = tabLoading[activeTab]
-  const hasError      = tabError[activeTab]
-  const relevantCount = tabData.relevant.filter(n => n.relevanceScore > 0).length
+  const rawCurrentItems = tabData[activeTab]
+  const currentItems    = effSym ? rawCurrentItems.filter(matchesActive) : rawCurrentItems
+  const isLoading       = tabLoading[activeTab]
+  const hasError        = tabError[activeTab]
+  const relevantCount   = tabData.relevant.filter(n => n.relevanceScore > 0).length
+  const narrowedCount   = effSym ? (rawCurrentItems.length - currentItems.length) : 0
 
   const sentimentCounts = currentItems.reduce((acc, item) => {
     acc[item.sentiment as SentimentType] = (acc[item.sentiment as SentimentType] ?? 0) + 1
@@ -397,6 +421,38 @@ export default function NewsFeedPanel() {
           )
         })}
       </div>
+
+      {/* ── Active-symbol filter banner ────────────────────────────────────── */}
+      {effSym && (
+        <div style={{
+          padding:'5px 12px', borderBottom:'1px solid var(--border)', flexShrink:0,
+          fontSize:'10px', fontFamily:'JetBrains Mono,monospace',
+          background:'rgba(240,165,0,0.08)',
+          display:'flex', justifyContent:'space-between', alignItems:'center',
+          color:'var(--amber)',
+        }}>
+          <span>
+            🎯 Filtered to <b>{effSym}</b>
+            {narrowedCount > 0 && (
+              <span style={{ color:'var(--text-muted)', marginLeft:6 }}>
+                · {narrowedCount} hidden
+              </span>
+            )}
+          </span>
+          <button
+            onClick={() => clearActive(null)}
+            title="Clear filter (Esc)"
+            style={{
+              background:'transparent', border:'1px solid rgba(240,165,0,0.4)',
+              color:'var(--amber)', padding:'2px 8px', borderRadius:3,
+              cursor:'pointer', fontSize:'9px', fontFamily:'JetBrains Mono,monospace',
+              letterSpacing:'0.08em',
+            }}
+          >
+            CLEAR
+          </button>
+        </div>
+      )}
 
       {/* ── Tab description ────────────────────────────────────────────────── */}
       <div style={{

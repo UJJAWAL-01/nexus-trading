@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useActiveSymbol } from '@/store/symbol'
+import { useActiveSymbol, useEffectiveSymbol } from '@/store/symbol'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -76,9 +76,10 @@ function Skeleton() {
 }
 
 // Row for the consensus view (multiple funds holding the same stock)
-function ConsensusRow({ item, totalFunds, market, prices, onClick }: {
+function ConsensusRow({ item, totalFunds, market, prices, isActive, onClick }: {
   item: ConsensusItem; totalFunds: number; market: 'US' | 'IN'
   prices: Record<string, { price: number; change: number }>
+  isActive: boolean
   onClick: () => void
 }) {
   const filled = '●'.repeat(item.count) + '○'.repeat(totalFunds - item.count)
@@ -95,10 +96,12 @@ function ConsensusRow({ item, totalFunds, market, prices, onClick }: {
         padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)',
         alignItems: 'center', fontFamily: 'JetBrains Mono, monospace',
         fontSize: 11, cursor: item.ticker ? 'pointer' : 'default',
-        transition: 'background 0.1s',
+        transition: 'background 0.15s, box-shadow 0.15s',
+        background:   isActive ? 'rgba(240,165,0,0.12)' : 'transparent',
+        boxShadow:    isActive ? 'inset 3px 0 0 var(--amber)' : 'none',
       }}
-      onMouseEnter={e => item.ticker && (e.currentTarget.style.background = 'rgba(167,139,250,0.08)')}
-      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+      onMouseEnter={e => { if (item.ticker && !isActive) e.currentTarget.style.background = 'rgba(167,139,250,0.08)' }}
+      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
     >
       <span style={{ color: 'var(--text-muted)', fontSize: 9 }}>{item.count}</span>
       <div style={{ overflow: 'hidden' }}>
@@ -126,9 +129,10 @@ function ConsensusRow({ item, totalFunds, market, prices, onClick }: {
 }
 
 // Row for individual fund holdings
-function HoldingRow({ holding, rank, market, prices, onClick }: {
+function HoldingRow({ holding, rank, market, prices, isActive, onClick }: {
   holding: Holding; rank: number; market: 'US' | 'IN'
   prices: Record<string, { price: number; change: number }>
+  isActive: boolean
   onClick: () => void
 }) {
   // For US: get live price from prices map (Finnhub call)
@@ -146,10 +150,12 @@ function HoldingRow({ holding, rank, market, prices, onClick }: {
         padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)',
         alignItems: 'center', fontFamily: 'JetBrains Mono, monospace',
         fontSize: 11, cursor: holding.ticker ? 'pointer' : 'default',
-        transition: 'background 0.1s',
+        transition: 'background 0.15s, box-shadow 0.15s',
+        background:   isActive ? 'rgba(240,165,0,0.12)' : 'transparent',
+        boxShadow:    isActive ? 'inset 3px 0 0 var(--amber)' : 'none',
       }}
-      onMouseEnter={e => holding.ticker && (e.currentTarget.style.background = 'rgba(167,139,250,0.08)')}
-      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+      onMouseEnter={e => { if (holding.ticker && !isActive) e.currentTarget.style.background = 'rgba(167,139,250,0.08)' }}
+      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
     >
       <span style={{ color: 'var(--text-muted)', fontSize: 9 }}>{rank}</span>
       <div style={{ overflow: 'hidden' }}>
@@ -244,6 +250,16 @@ export default function SmartMoneyPanel() {
     // Smooth-scroll to chart panel if present
     document.querySelector('[data-panel-id="chart"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
+
+  // ── Active-symbol subscription (highlight, no filter) ─────────────────────
+  // Show all rows but visually anchor the user to the ticker they're focused on.
+  // Match strips .NS/.BO so RELIANCE.NS highlights RELIANCE in the NSE table.
+  const { symbol: effSym } = useEffectiveSymbol('smartmoney')
+  const effSymBase = effSym?.replace(/\.(NS|BO)$/, '').toUpperCase() ?? null
+  const tickerMatches = useCallback((t: string | undefined): boolean => {
+    if (!effSymBase || !t) return false
+    return t.replace(/\.(NS|BO)$/, '').toUpperCase() === effSymBase
+  }, [effSymBase])
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -389,6 +405,7 @@ export default function SmartMoneyPanel() {
                   totalFunds={funds.length}
                   market={market}
                   prices={prices}
+                  isActive={tickerMatches(c.ticker)}
                   onClick={() => c.ticker && openChart(c.ticker)}
                 />
               ))}
@@ -403,6 +420,7 @@ export default function SmartMoneyPanel() {
                 rank={i + 1}
                 market={market}
                 prices={prices}
+                isActive={tickerMatches(h.ticker)}
                 onClick={() => h.ticker && openChart(h.ticker)}
               />
             ))}

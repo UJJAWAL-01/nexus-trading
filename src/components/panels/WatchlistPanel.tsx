@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useWatchlist } from '@/store/watchlist'
+import { useActiveSymbol } from '@/store/symbol'
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: '$', EUR: '€', GBP: '£', JPY: '¥', INR: '₹', CNY: '¥', CAD: 'C$', AUD: 'A$',
@@ -32,6 +33,10 @@ interface Toast { id: number; msg: string; type: 'ok' | 'err' }
 
 export default function WatchlistPanel() {
   const { symbols, addSymbol, removeSymbol } = useWatchlist()
+  // Clicking a watchlist row publishes the symbol globally — every subscribing
+  // panel (Chart, Options, News, SmartMoney, etc.) updates in lockstep.
+  const setActiveSymbol = useActiveSymbol(s => s.setActiveSymbol)
+  const activeSymbol    = useActiveSymbol(s => s.activeSymbol)
   const [rows, setRows]           = useState<StockRow[]>([])
   const [input, setInput]         = useState('')
   const [adding, setAdding]       = useState(false)
@@ -301,24 +306,42 @@ export default function WatchlistPanel() {
         )}
 
         {rows.map(row => {
-          const isPos    = (row.changePercent ?? 0) >= 0
-          const isHov    = hoveredRow === row.symbol
+          const isPos     = (row.changePercent ?? 0) >= 0
+          const isHov     = hoveredRow === row.symbol
           const isConfirm = confirmRemove === row.symbol
+          const isActive  = activeSymbol === row.symbol
 
           return (
             <div
               key={row.symbol}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isActive}
+              aria-label={`Focus ${row.symbol} across all panels`}
+              onClick={() => setActiveSymbol(row.symbol)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setActiveSymbol(row.symbol)
+                }
+              }}
               onMouseEnter={() => setHoveredRow(row.symbol)}
               onMouseLeave={() => { setHoveredRow(null); setConfirmRemove(null) }}
               style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '8px 12px', borderBottom: '1px solid var(--border)',
+                cursor: 'pointer',
+                // Flash animations win over hover; active state wins over both
+                // when neither flash nor remove-confirm is in play.
                 background:
                   row.flash === 'up'   ? 'rgba(0,201,122,0.1)'  :
                   row.flash === 'down' ? 'rgba(255,69,96,0.1)'   :
+                  isActive             ? 'rgba(240,165,0,0.10)'  :
                   isHov                ? 'rgba(255,255,255,0.02)' : 'transparent',
-                transition: 'background 0.15s',
+                boxShadow: isActive ? 'inset 3px 0 0 var(--amber)' : 'none',
+                transition: 'background 0.15s, box-shadow 0.15s',
                 position: 'relative',
+                outline: 'none',
               }}
             >
               {/* Symbol + exchange */}
@@ -345,7 +368,7 @@ export default function WatchlistPanel() {
                   on touch devices (where hover doesn't exist).  When confirming,
                   the button widens with a clear "TAP TO REMOVE" label. */}
               <button
-                onClick={() => handleRemove(row.symbol)}
+                onClick={(e) => { e.stopPropagation(); handleRemove(row.symbol) }}
                 aria-label={isConfirm ? `Confirm removal of ${row.symbol}` : `Remove ${row.symbol} from watchlist`}
                 className={`wl-remove ${isHov ? 'visible' : ''} ${isConfirm ? 'confirm' : ''}`}
                 style={{
@@ -380,7 +403,7 @@ export default function WatchlistPanel() {
           padding: '4px 12px', borderTop: '1px solid var(--border)',
           fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
         }}>
-          Tap × to remove · second tap confirms
+          Click row → focus everywhere · × to remove
         </div>
       )}
 

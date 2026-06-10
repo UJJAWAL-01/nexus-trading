@@ -40,8 +40,8 @@ export const WORKSPACES: readonly Workspace[] = [
     visible:     [
       // Row 1: livevideo(5) · news(5) · sentiment(2)              → 12
       'livevideo', 'news', 'sentiment',
-      // Row 2: calendar(3) · altsignals(3) · secfilings(6)        → 12
-      'calendar', 'altsignals', 'secfilings',
+      // Row 2: calendar(3) · earnings(3) · secfilings(6)          → 12
+      'calendar', 'earnings', 'secfilings',
       // Row 3: macrorates(3) · fixedincome(5) · insiderdeals(4)   → 12
       'macrorates', 'fixedincome', 'insiderdeals',
     ],

@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { TTL } from '@/lib/data-hooks'
+import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
+import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
 
 interface QuoteData {
   symbol: string; label: string; flag: string
@@ -25,19 +27,22 @@ export default function GlobalIndicesPanel() {
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div className="panel-header">
-        <div className="dot" style={{ background: '#4da6ff' }} />
-        GLOBAL INDICES
-        {isLoading && !quotes.length && (
-          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
-            loading…
-          </span>
-        )}
-        {data?.lastUpdated && !isLoading && (
-          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'JetBrains Mono, monospace' }}>
-            live
-          </span>
-        )}
+      <div className="panel-header" style={{ justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="dot" style={{ background: '#4da6ff' }} />
+          GLOBAL INDICES
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {isLoading && !quotes.length && (
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>loading…</span>
+          )}
+          {data?.lastUpdated && !isLoading && (
+            <>
+              <DataQualityBadge kind="live" small tooltip="Live index quotes via aggregate /api/global-indices" />
+              <DataAgeBadge timestamp={data.lastUpdated} freshSecs={60} staleSecs={300} small />
+            </>
+          )}
+        </div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto' }}>

@@ -5,6 +5,7 @@
 // All BSM / Newton-Raphson IV / Greeks computed CLIENT-SIDE
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffectiveSymbol } from '@/store/symbol'
 
 // ── Client-side BSM + Newton-Raphson IV ───────────────────────────────────────
 function normcdf(x: number): number {
@@ -225,6 +226,32 @@ export default function OptionsPanel() {
   }, [])
 
   useEffect(() => { load('US', 'SPY') }, [])
+
+  // ── Active-symbol subscription ─────────────────────────────────────────────
+  // When the user clicks a ticker anywhere in the app, this panel auto-loads
+  // the matching options chain.  Detect market from the symbol suffix
+  // (.NS / .BO → India; ^NSEI → India index; otherwise → US).  The pin
+  // mechanism from useEffectiveSymbol lets users lock this panel to a
+  // specific ticker even when the global symbol changes.
+  const { symbol: effSym } = useEffectiveSymbol('options')
+  useEffect(() => {
+    if (!effSym) return
+    const isIndia = effSym.endsWith('.NS') || effSym.endsWith('.BO') || effSym.startsWith('^NSEI')
+    const cleaned = effSym.replace(/\.(NS|BO)$/, '').replace(/^\^/, '')
+    const nextMarket: 'US' | 'IN' = isIndia ? 'IN' : 'US'
+
+    // Skip if we already show this symbol — avoids re-load loop when this
+    // panel emits its own symbol change (future: pin-on-search).
+    if (nextMarket === market && cleaned === symbol) return
+
+    setMarket(nextMarket)
+    setSymbol(cleaned)
+    setSymInput(cleaned)
+    setExpiry('')
+    setData(null)
+    load(nextMarket, cleaned)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effSym])
 
   const onMarket = (m: 'US'|'IN') => {
     const sym = m === 'IN' ? 'NIFTY' : 'SPY'

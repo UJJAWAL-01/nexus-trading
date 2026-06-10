@@ -1,5 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
+import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
 
 type Mode = 'FED' | 'RBI'
 
@@ -68,6 +70,16 @@ export default function MacroRatesPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" />
           MACRO RATES
+          {data?.fetchedAt && (
+            <>
+              <DataQualityBadge
+                kind={data.policyRate?.source?.startsWith('FRED') ? 'live' : 'official'}
+                small
+                tooltip={`Policy rate from ${data.policyRate?.source ?? 'official source'}. Inflation/unemployment from FRED.`}
+              />
+              <DataAgeBadge timestamp={data.fetchedAt} freshSecs={600} staleSecs={86400} small />
+            </>
+          )}
         </div>
         <div style={{ display: 'flex', gap: '3px' }}>
           {(['FED', 'RBI'] as Mode[]).map(m => (

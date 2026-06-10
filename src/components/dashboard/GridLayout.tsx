@@ -23,7 +23,7 @@ type DashboardLayout     = DashboardLayoutItem[]
 // Full layout redesign: priority tiers, content-fit heights, IPO offscreen bug fixed.
 // Rows 1-3 locked per user instruction. Rows 4+ reorganized by live-data value.
 // rowHeight=30 → h:1 = 30px rendered.
-const LS_KEY = 'nexus-layout-v15'
+const LS_KEY = 'nexus-layout-v18'
 
 const DEFAULT_LAYOUT: DashboardLayout = [
   // ══ ROW 1 (y:0→14) — Live intelligence feed ══════════════════════════════
@@ -63,14 +63,24 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // ══ ROW 6 (y:74→90) — Market structure ═══════════════════════════════════
   { i: 'fixedincome',   x: 0,  y: 74, w: 5,  h: 16, minW: 3, minH: 12 },
   { i: 'ipo',           x: 5,  y: 74, w: 4,  h: 16, minW: 3, minH: 10 },
-  { i: 'altsignals',    x: 9,  y: 74, w: 3,  h: 16, minW: 2, minH: 10 },
 
-  // ══ ROW 7 (y:90→108) — Smart money research ══════════════════════════════
-  // 3 panels @ 4-col × h:18 — SEC Filings · Smart Money · Alt Data (Wiki/Reddit/Trends).
-  // Smart Money replaces the old 13F Tracker (which was redundant).
-  { i: 'secfilings',    x: 0,  y: 90, w: 4,  h: 18, minW: 3, minH: 14 },
-  { i: 'smartmoney',    x: 4,  y: 90, w: 4,  h: 18, minW: 3, minH: 14 },
-  { i: 'altdata',       x: 8,  y: 90, w: 4,  h: 18, minW: 3, minH: 14 },
+  // ══ ROW 7 (y:90→114) — Equity research deep dive (NEW: SEC fundamentals) ═
+  // EquityResearch is the headline panel — wide and tall to do its 5y
+  // time-series justice.  StockProfile + AnalystConsensus flank it.
+  { i: 'equityresearch',   x: 0, y: 90, w: 12, h: 24, minW: 6, minH: 20 },
+
+  // ══ ROW 8 (y:114→134) — Per-stock company snapshot panels ═══════════════
+  { i: 'stockprofile',     x: 0, y: 114, w: 6, h: 20, minW: 4, minH: 16 },
+  { i: 'analystconsensus', x: 6, y: 114, w: 6, h: 20, minW: 4, minH: 16 },
+
+  // ══ ROW 9 (y:134→152) — Smart money + filings + alt data ═══════════════
+  { i: 'secfilings',    x: 0,  y: 134, w: 4,  h: 18, minW: 3, minH: 14 },
+  { i: 'smartmoney',    x: 4,  y: 134, w: 4,  h: 18, minW: 3, minH: 14 },
+  { i: 'altdata',       x: 8,  y: 134, w: 4,  h: 18, minW: 3, minH: 14 },
+
+  // ══ ROW 10 (y:152→176) — Cross-universe screener ════════════════════════
+  // Full-width because the table needs room for 12 columns of metrics.
+  { i: 'screener',      x: 0,  y: 152, w: 12, h: 24, minW: 6, minH: 18 },
 ]
 
 // ── MOBILE panel order (priority-first: live data → analytics → research) ─────
@@ -83,10 +93,14 @@ const MOBILE_ORDER: PanelId[] = [
   'earnings', 'calendar', 'insiderdeals', 'sentiment',
   // Tier 4: Deep analytics
   'options', 'macrorates', 'heatmap', 'fixedincome',
-  // Tier 5: Research
+  // Tier 5: Equity research (per-stock deep dive, driven by active symbol)
+  'equityresearch', 'stockprofile', 'analystconsensus',
+  // Tier 5.5: Cross-universe screener
+  'screener',
+  // Tier 6: Smart money / filings / alt
   'smartmoney', 'secfilings', 'altdata', 'supplychain', 'ipo',
   // Tier 6: Alt + media
-  'altsignals', 'mktclock', 'livevideo',
+  'mktclock', 'livevideo',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -260,7 +274,7 @@ const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
   { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities']  },
   { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                       },
   { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'supplychain']                     },
-  { label: 'Research',     ids: ['smartmoney', 'secfilings', 'altdata', 'ipo', 'altsignals']                },
+  { label: 'Research',     ids: ['equityresearch', 'screener', 'stockprofile', 'analystconsensus', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────

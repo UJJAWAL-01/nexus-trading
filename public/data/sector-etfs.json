@@ -1,0 +1,32 @@
+{
+  "$schema":     "https://nexustrading.app/schemas/sector-etfs.v1.json",
+  "version":     "1.0.0",
+  "generatedAt": "2026-06-08T00:00:00.000Z",
+  "source":      "iShares + SSGA sponsor disclosures (top-8 holdings per Select Sector SPDR ETF, as of last public 13F)",
+  "sectors": [
+    { "symbol": "XLK",  "name": "Technology",     "short": "TECH",  "components": ["AAPL","NVDA","MSFT","AVGO","AMD","ORCL","CRM","ACN"] },
+    { "symbol": "XLC",  "name": "Comm. Services", "short": "COMM",  "components": ["META","GOOGL","NFLX","DIS","CMCSA","T","VZ","EA"] },
+    { "symbol": "XLY",  "name": "Cons. Discret.", "short": "DISC",  "components": ["AMZN","TSLA","HD","MCD","NKE","SBUX","TJX","LOW"] },
+    { "symbol": "XLF",  "name": "Financials",     "short": "FIN",   "components": ["JPM","V","MA","BAC","WFC","GS","MS","AXP"] },
+    { "symbol": "XLV",  "name": "Health Care",    "short": "HLTH",  "components": ["LLY","UNH","JNJ","ABBV","MRK","PFE","TMO","ABT"] },
+    { "symbol": "XLI",  "name": "Industrials",    "short": "IND",   "components": ["GE","CAT","HON","UNP","RTX","BA","MMM","DE"] },
+    { "symbol": "XLE",  "name": "Energy",         "short": "ENGY",  "components": ["XOM","CVX","COP","SLB","EOG","MPC","VLO","PSX"] },
+    { "symbol": "XLP",  "name": "Cons. Staples",  "short": "STPL",  "components": ["PG","KO","PEP","COST","WMT","PM","MO","CL"] },
+    { "symbol": "XLB",  "name": "Materials",      "short": "MATL",  "components": ["LIN","APD","SHW","ECL","NEM","FCX","NUE","VMC"] },
+    { "symbol": "XLRE", "name": "Real Estate",    "short": "REIT",  "components": ["AMT","PLD","EQIX","CCI","PSA","WELL","DLR","SPG"] },
+    { "symbol": "XLU",  "name": "Utilities",      "short": "UTIL",  "components": ["NEE","DUK","AEP","EXC","SO","PCG","XEL","WEC"] }
+  ],
+  "companyNames": {
+    "AAPL":"Apple","NVDA":"Nvidia","MSFT":"Microsoft","AVGO":"Broadcom","AMD":"AMD","ORCL":"Oracle","CRM":"Salesforce","ACN":"Accenture",
+    "META":"Meta","GOOGL":"Alphabet","NFLX":"Netflix","DIS":"Disney","CMCSA":"Comcast","T":"AT&T","VZ":"Verizon","EA":"EA Sports",
+    "AMZN":"Amazon","TSLA":"Tesla","HD":"Home Depot","MCD":"McDonald's","NKE":"Nike","SBUX":"Starbucks","TJX":"TJX Cos","LOW":"Lowe's",
+    "JPM":"JPMorgan","V":"Visa","MA":"Mastercard","BAC":"Bank of America","WFC":"Wells Fargo","GS":"Goldman Sachs","MS":"Morgan Stanley","AXP":"Amex",
+    "LLY":"Eli Lilly","UNH":"UnitedHealth","JNJ":"J&J","ABBV":"AbbVie","MRK":"Merck","PFE":"Pfizer","TMO":"Thermo Fisher","ABT":"Abbott",
+    "GE":"GE Aero","CAT":"Caterpillar","HON":"Honeywell","UNP":"Union Pacific","RTX":"RTX Corp","BA":"Boeing","MMM":"3M","DE":"John Deere",
+    "XOM":"ExxonMobil","CVX":"Chevron","COP":"ConocoPhillips","SLB":"SLB","EOG":"EOG Resources","MPC":"Marathon","VLO":"Valero","PSX":"Phillips 66",
+    "PG":"Procter & G","KO":"Coca-Cola","PEP":"PepsiCo","COST":"Costco","WMT":"Walmart","PM":"Philip Morris","MO":"Altria","CL":"Colgate",
+    "LIN":"Linde","APD":"Air Products","SHW":"Sherwin-Williams","ECL":"Ecolab","NEM":"Newmont","FCX":"Freeport","NUE":"Nucor","VMC":"Vulcan",
+    "AMT":"Amer. Tower","PLD":"Prologis","EQIX":"Equinix","CCI":"Crown Castle","PSA":"Public Storage","WELL":"Welltower","DLR":"Digital Realty","SPG":"Simon Prop",
+    "NEE":"NextEra","DUK":"Duke Energy","AEP":"AEP","EXC":"Exelon","SO":"Southern Co","PCG":"PG&E","XEL":"Xcel Energy","WEC":"WEC Energy"
+  }
+}

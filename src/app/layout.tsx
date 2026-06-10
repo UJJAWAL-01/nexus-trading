@@ -4,8 +4,8 @@ import Providers from './providers'
 import ServiceWorker from '@/components/dashboard/ServiceWorker'
 
 export const metadata: Metadata = {
-  title:       'NEXUS — Trading Intelligence',
-  description: 'Bloomberg-style real-time trading intelligence for US and Indian markets — chart, smart money, options, news, all in one terminal.',
+  title:       'NEXUS - Trading Intelligence',
+  description: 'Real-time trading intelligence for US and Indian markets - chart, smart money, options, news, all in one terminal.',
   applicationName: 'NEXUS',
   authors:     [{ name: 'NEXUS Trading' }],
   generator:   'Next.js',
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   openGraph: {
     type:        'website',
     siteName:    'NEXUS',
-    title:       'NEXUS — Trading Intelligence',
-    description: 'Bloomberg-style real-time trading intelligence for US and Indian markets.',
+    title:       'NEXUS - Trading Intelligence',
+    description: 'Real-time trading intelligence for US and Indian markets.',
   },
 }
 
