@@ -147,6 +147,45 @@ export function ErrorState({ message, hint, onRetry, retryLabel = 'Retry' }: Err
   )
 }
 
+// ── ComingSoon ──────────────────────────────────────────────────────────────
+//
+// Shown when a capability isn't available yet for the selected market/region
+// (e.g. India coverage for a US-first panel). Friendly, professional, and makes
+// no promises beyond "we're working on it" — never an error.
+
+interface ComingSoonProps {
+  /** What's coming, in title case. Default: "India coverage". */
+  feature?: string
+  /** Optional extra context line. */
+  detail?: string
+}
+
+export function ComingSoon({ feature = 'India coverage', detail }: ComingSoonProps) {
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        gap: 10, padding: '28px 20px', textAlign: 'center',
+        fontFamily: 'JetBrains Mono, monospace',
+      }}
+    >
+      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 14, color: 'var(--amber)', letterSpacing: '0.01em' }}>
+        {feature} is on the way
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-2)', maxWidth: 320, lineHeight: 1.6 }}>
+        We&apos;re actively building {feature.toLowerCase()} and will ship it soon. Thanks for your patience — stay tuned.
+      </div>
+      {detail && (
+        <div style={{ fontSize: 10, color: 'var(--text-muted)', maxWidth: 320, lineHeight: 1.5 }}>{detail}</div>
+      )}
+      <div style={{ marginTop: 4, fontSize: 9, color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 10px', letterSpacing: '0.1em' }}>
+        IN DEVELOPMENT
+      </div>
+    </div>
+  )
+}
+
 // ── EmptyState ────────────────────────────────────────────────────────────────
 
 interface EmptyStateProps {

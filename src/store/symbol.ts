@@ -38,7 +38,30 @@ export function normalizeSymbol(input: string | null | undefined): string | null
   return s === '' ? null : s
 }
 
+/**
+ * Is this an Indian-listed symbol? NSE/BSE suffixes (.NS/.BO) or the Indian
+ * index tickers. Used by US-first panels to show a friendly "India coverage
+ * coming soon" state instead of an empty/error view.
+ */
+export function isIndianSymbol(input: string | null | undefined): boolean {
+  const s = normalizeSymbol(input)
+  if (!s) return false
+  return s.endsWith('.NS') || s.endsWith('.BO') || s === '^NSEI' || s === '^BSESN'
+}
+
 // ── Store shape ───────────────────────────────────────────────────────────────
+
+/**
+ * Pattern-screener → chart hand-off (spec §4.3). When a screener row is clicked
+ * the chart should load the symbol, switch to the scanned timeframe, and draw
+ * that exact pattern. `nonce` makes repeat clicks on the same pattern re-fire.
+ */
+export interface FocusPattern {
+  symbol:    string
+  patternId: string
+  tf:        '1D' | '1W'
+  nonce:     number
+}
 
 interface SymbolState {
   /** Global active symbol — what the app considers "currently focused". */
@@ -50,10 +73,14 @@ interface SymbolState {
    */
   pinnedByPanel: Record<string, string>
 
+  /** Pending pattern to draw on the chart, consumed by ChartPanel. */
+  focusPattern: FocusPattern | null
+
   // ── Mutations ──────────────────────────────────────────────────────────────
   setActiveSymbol: (s: string | null, opts?: { skipUrlSync?: boolean }) => void
   pinPanel:        (panelId: string, symbol: string) => void
   unpinPanel:      (panelId: string) => void
+  focusOnPattern:  (symbol: string, patternId: string, tf: '1D' | '1W') => void
   clearAll:        () => void
 }
 
@@ -91,12 +118,20 @@ export const useActiveSymbol = create<SymbolState>((set, get) => ({
   // gets null which then hydrates to URL value via SymbolUrlSync below).
   activeSymbol:    null,
   pinnedByPanel:   {},
+  focusPattern:    null,
 
   setActiveSymbol: (s, opts) => {
     const norm = normalizeSymbol(s)
     if (norm === get().activeSymbol) return  // no-op for identical updates
     set({ activeSymbol: norm })
     if (!opts?.skipUrlSync) writeSymbolToUrl(norm)
+  },
+
+  focusOnPattern: (symbol, patternId, tf) => {
+    const norm = normalizeSymbol(symbol)
+    if (!norm) return
+    set({ activeSymbol: norm, focusPattern: { symbol: norm, patternId, tf, nonce: Date.now() } })
+    writeSymbolToUrl(norm)
   },
 
   pinPanel: (panelId, symbol) => {
@@ -115,7 +150,7 @@ export const useActiveSymbol = create<SymbolState>((set, get) => ({
   },
 
   clearAll: () => {
-    set({ activeSymbol: null, pinnedByPanel: {} })
+    set({ activeSymbol: null, pinnedByPanel: {}, focusPattern: null })
     writeSymbolToUrl(null)
   },
 }))

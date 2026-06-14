@@ -28,6 +28,7 @@ import StockProfilePanel        from '@/components/panels/StockProfilePanel'
 import AnalystConsensusPanel    from '@/components/panels/AnalystConsensusPanel'
 import EquityResearchPanel      from '@/components/panels/EquityResearchPanel'
 import ScreenerPanel            from '@/components/panels/ScreenerPanel'
+import PatternScreenerPanel     from '@/components/panels/PatternScreenerPanel'
 
 // ── Panel id list ─────────────────────────────────────────────────────────────
 
@@ -42,7 +43,7 @@ export const PANEL_IDS = [
   // Equity research (per-stock deep dives, driven by global active symbol)
   'stockprofile', 'analystconsensus', 'equityresearch',
   // Cross-universe screening (independent of active symbol)
-  'screener',
+  'screener', 'patternscanner',
 ] as const
 
 export type PanelId = (typeof PANEL_IDS)[number]
@@ -81,6 +82,7 @@ export const PANEL_META: Record<PanelId, PanelMeta> = {
   analystconsensus: { component: <AnalystConsensusPanel />, label: 'ANALYST CONSENSUS', color: 'var(--teal)', mobileH: 540, description: 'Buy/Sell/Hold breakdown · score trend · live coverage' },
   equityresearch:   { component: <EquityResearchPanel />,    label: 'EQUITY RESEARCH',   color: '#a78bfa',     mobileH: 720, description: '5y SEC fundamentals · revenue · margins · EPS · FCF time-series' },
   screener:         { component: <ScreenerPanel />,          label: 'SCREENER',          color: '#22d3ee',     mobileH: 720, description: '7,600+ US filers · filter by sector / margin / ROE · click to focus' },
+  patternscanner:   { component: <PatternScreenerPanel />,   label: 'PATTERN SCANNER',   color: '#00e5c0',     mobileH: 720, description: 'Scan US + India for chart & candlestick patterns · click to chart' },
 }
 
 // Panels that mount eagerly in classic mode (above-the-fold).

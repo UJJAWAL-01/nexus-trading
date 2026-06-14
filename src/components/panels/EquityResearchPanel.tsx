@@ -20,7 +20,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell, Line, LineChart, ReferenceLine } from 'recharts'
-import { useEffectiveSymbol } from '@/store/symbol'
+import { useEffectiveSymbol, isIndianSymbol } from '@/store/symbol'
+import { ComingSoon } from '@/components/ui/PanelStates'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -478,8 +479,12 @@ export default function EquityResearchPanel() {
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState<string | null>(null)
 
+  const indianSym = isIndianSymbol(effSym)
+
   useEffect(() => {
-    if (!effSym) {
+    if (!effSym || isIndianSymbol(effSym)) {
+      // India fundamentals aren't ingested yet (coverage is SEC EDGAR / US).
+      // Skip the request entirely so the user sees the friendly notice, not an error.
       setData(null); setError(null); setLoading(false)
       return
     }
@@ -573,8 +578,16 @@ export default function EquityResearchPanel() {
           </div>
         )}
 
+        {/* India — coverage coming soon (no fetch, no error) */}
+        {effSym && indianSym && (
+          <ComingSoon
+            feature="India fundamentals"
+            detail="Today's fundamentals come from SEC EDGAR (US-listed companies). NSE/BSE financial statements are being added."
+          />
+        )}
+
         {/* Loading */}
-        {effSym && loading && !data && (
+        {effSym && !indianSym && loading && !data && (
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
@@ -585,7 +598,7 @@ export default function EquityResearchPanel() {
         )}
 
         {/* Error */}
-        {effSym && !loading && error && (
+        {effSym && !indianSym && !loading && error && (
           <div style={{
             textAlign: 'center', padding: '24px 16px',
             color: 'var(--negative)', fontSize: 11,

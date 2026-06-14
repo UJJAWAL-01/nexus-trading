@@ -3,6 +3,20 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useWatchlist } from '@/store/watchlist'
 import { useActiveSymbol } from '@/store/symbol'
+import { detectAll, computeRating } from '@/lib/patterns'
+import type { DetectAllResult, PatternDetection, TaRating, Timeframe } from '@/lib/patterns'
+import { buildCandleMarkers, drawGeometric } from './chart/patternRender'
+import type { PatternVisibility } from './chart/patternRender'
+import AnalysisDrawer from './chart/AnalysisDrawer'
+import DrawingLayer from './chart/DrawingLayer'
+import { fetchChartAnalysis } from './chart/aiNote'
+import type { AiNote } from './chart/aiNote'
+import {
+  CandlestickChart, BarChart3, LineChart as LineChartIcon, AreaChart, LayoutGrid,
+  Clock, ChevronDown, GitCompareArrows, Layers, RotateCcw, Camera,
+  Maximize2, Minimize2, Activity, Bell, Search as SearchIcon, X as XIcon, SlidersHorizontal,
+} from 'lucide-react'
+import type { ComponentType } from 'react'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -279,6 +293,22 @@ function renderPnF(canvas: HTMLCanvasElement, columns: PnFColumn[], containerH: 
 
 type ChartType = 'Candle' | 'Heikin Ashi' | 'Bar' | 'Line' | 'Area' | 'P&F'
 const CHART_TYPES: ChartType[] = ['Candle', 'Heikin Ashi', 'Bar', 'Line', 'Area', 'P&F']
+// Clean lucide icons so the chart-type dropdown reads at a glance.
+const CHART_TYPE_META: Record<ChartType, { Icon: ComponentType<{ size?: number }>; hint: string }> = {
+  'Candle':      { Icon: CandlestickChart, hint: 'Japanese candlesticks' },
+  'Heikin Ashi': { Icon: CandlestickChart, hint: 'Smoothed trend candles' },
+  'Bar':         { Icon: BarChart3,        hint: 'OHLC bars' },
+  'Line':        { Icon: LineChartIcon,    hint: 'Close line' },
+  'Area':        { Icon: AreaChart,        hint: 'Filled area' },
+  'P&F':         { Icon: LayoutGrid,       hint: 'Point & Figure' },
+}
+const RATING_DISPLAY: Record<string, { text: string; color: string }> = {
+  strong_buy:  { text: 'Strong Buy',  color: '#00c97a' },
+  buy:         { text: 'Buy',         color: '#3ddc97' },
+  neutral:     { text: 'Neutral',     color: '#a0a0a0' },
+  sell:        { text: 'Sell',        color: '#ff8c42' },
+  strong_sell: { text: 'Strong Sell', color: '#ff4560' },
+}
 
 interface IndicatorDef { id: string; label: string; group: 'overlay' | 'oscillator'; color: string }
 const INDICATORS: IndicatorDef[] = [
@@ -298,13 +328,78 @@ const INDICATORS: IndicatorDef[] = [
   { id: 'MACD',   label: 'MACD',             group: 'oscillator',  color: '#1e90ff'  },
 ]
 
-const TFS = ['1D', '5D', '1M', '1Y'] as const
+// Full TradingView-style timeframe set (spec §2.3). Yahoo range limits respected:
+// 1m ≤ 7d · 5/15/30m ≤ 60d · 1h ≤ 730d. 4h is aggregated client-side from 1h.
+const TFS = ['1m', '5m', '15m', '30m', '1h', '4h', '1D', '1W', '1M'] as const
 type TF = typeof TFS[number]
-const TF_CFG: Record<TF, { range: string; interval: string; label: string }> = {
-  '1D': { range: '5d',  interval: '15m', label: '15m · 5d'  },
-  '5D': { range: '1mo', interval: '1h',  label: '1h · 1mo'  },
-  '1M': { range: '3mo', interval: '1d',  label: '1D · 3mo'  },
-  '1Y': { range: '3y',  interval: '1wk', label: '1W · 3y'   },
+const TF_CFG: Record<TF, { range: string; interval: string; label: string; agg4h?: boolean }> = {
+  '1m':  { range: '7d',   interval: '1m',  label: '1m · 7d'    },   // Yahoo 1m max 7d
+  '5m':  { range: '60d',  interval: '5m',  label: '5m · 60d'   },   // 5/15/30m max 60d
+  '15m': { range: '60d',  interval: '15m', label: '15m · 60d'  },
+  '30m': { range: '60d',  interval: '30m', label: '30m · 60d'  },
+  '1h':  { range: '730d', interval: '1h',  label: '1h · 2y'    },   // 1h max 730d
+  '4h':  { range: '730d', interval: '1h',  label: '4h · 2y', agg4h: true },
+  '1D':  { range: '5y',   interval: '1d',  label: '1D · 5y'    },
+  '1W':  { range: '10y',  interval: '1wk', label: '1W · 10y'   },
+  '1M':  { range: 'max',  interval: '1mo', label: '1M · max'   },
+}
+
+// Grouped intervals for the timeframe dropdown.
+const TF_GROUPS: Array<{ label: string; items: TF[] }> = [
+  { label: 'Minutes', items: ['1m', '5m', '15m', '30m'] },
+  { label: 'Hours',   items: ['1h', '4h'] },
+  { label: 'Days',    items: ['1D', '1W', '1M'] },
+]
+
+// The pattern engine reasons about the BAR interval — now an identity mapping.
+const ENGINE_TF: Record<TF, Timeframe> = {
+  '1m': '1m', '5m': '5m', '15m': '15m', '30m': '30m', '1h': '1h', '4h': '4h', '1D': '1D', '1W': '1W', '1M': '1M',
+}
+
+// Map a scanned screener timeframe back to the chart TF that uses that interval.
+const SCAN_TF_TO_CHART: Record<'1D' | '1W', TF> = { '1D': '1D', '1W': '1W' }
+
+// Fetch configs for the per-timeframe rating pills (spec §2.2).
+const RATING_TF_FETCH: Partial<Record<Timeframe, { range: string; interval: string }>> = {
+  '15m': { range: '5d',  interval: '15m' },
+  '1h':  { range: '1mo', interval: '1h'  },
+  '4h':  { range: '3mo', interval: '1h'  },   // 1h candles aggregated to 4h
+  '1D':  { range: '1y',  interval: '1d'  },
+  '1W':  { range: '5y',  interval: '1wk' },
+}
+
+/** Aggregate 1h candles into 4h buckets (Yahoo has no native 4h). */
+function aggregateTo4h(candles: Candle[]): Candle[] {
+  const out: Candle[] = []
+  for (let i = 0; i < candles.length; i += 4) {
+    const grp = candles.slice(i, i + 4)
+    if (!grp.length) break
+    out.push({
+      time: grp[0].time, open: grp[0].open,
+      high: Math.max(...grp.map(c => c.high)),
+      low: Math.min(...grp.map(c => c.low)),
+      close: grp[grp.length - 1].close,
+      volume: grp.reduce((a, c) => a + c.volume, 0),
+    })
+  }
+  return out
+}
+
+/** Shared Yahoo candle fetch (used by the main chart and by compare series). */
+async function fetchCandlesRaw(symbol: string, range: string, interval: string, agg4h: boolean): Promise<Candle[]> {
+  try {
+    const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(symbol)}&range=${range}&interval=${interval}`)
+    const j = await r.json()
+    const res = j?.results?.[0]?.data?.chart?.result?.[0]
+    if (!res) return []
+    const ts = res.timestamp ?? [], q = res.indicators?.quote?.[0]
+    if (!q) return []
+    const raw = (ts as number[])
+      .map((time, i) => ({ time, open: q.open?.[i] ?? null, high: q.high?.[i] ?? null, low: q.low?.[i] ?? null, close: q.close?.[i] ?? null, volume: q.volume?.[i] ?? 0 }))
+      .filter((c): c is Candle => c.open !== null && c.high !== null && c.low !== null && c.close !== null)
+      .sort((a, b) => a.time - b.time)
+    return agg4h ? aggregateTo4h(raw) : raw
+  } catch { return [] }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -331,6 +426,28 @@ export default function ChartPanel() {
   const [ready,         setReady]         = useState(false)
   const [pfData,        setPfData]        = useState<PnFColumn[]>([])
 
+  // ── Pattern engine + ANALYSIS drawer state ─────────────────────────────────
+  const [analysis,        setAnalysis]        = useState<DetectAllResult | null>(null)
+  const [analysisOpen,    setAnalysisOpen]    = useState(false)
+  const [patternVis,      setPatternVis]      = useState<PatternVisibility>('all')
+  const [selectedPattern, setSelectedPattern] = useState<string | null>(null)
+  const [perTfRatings,    setPerTfRatings]    = useState<Partial<Record<Timeframe, TaRating | 'loading'>>>({})
+  const [activeRatingTf,  setActiveRatingTf]  = useState<Timeframe>('1D')
+  const [aiNote,          setAiNote]          = useState<AiNote | null>(null)
+  const [aiLoading,       setAiLoading]       = useState(false)
+  const [aiError,         setAiError]         = useState<string | null>(null)
+  const [scaleMode,       setScaleMode]       = useState<'normal' | 'log' | 'pct'>('normal')
+  const [typeOpen,        setTypeOpen]        = useState(false)
+  const [intervalOpen,    setIntervalOpen]    = useState(false)
+  const [maximized,       setMaximized]       = useState(false)
+  const [analysisHover,   setAnalysisHover]   = useState(false)
+  const [compareSyms,     setCompareSyms]     = useState<string[]>([])
+  const [compareInput,    setCompareInput]    = useState('')
+  const [compareOpen,     setCompareOpen]     = useState(false)
+  const [templates,       setTemplates]       = useState<Array<{ name: string; chartType: ChartType; inds: string[]; tf: TF; vis: PatternVisibility; scale: 'normal' | 'log' | 'pct' }>>([])
+  const [tplOpen,         setTplOpen]         = useState(false)
+  const [alertToast,      setAlertToast]      = useState<string | null>(null)
+
   const effectiveSym = searchSym || sym
 
   // ── Refs ───────────────────────────────────────────────────────────────────
@@ -345,6 +462,18 @@ export default function ChartPanel() {
   const seriesR        = useRef<Record<string, any>>({})
   const priceLines     = useRef<Record<string, any[]>>({ fib: [], pivot: [], sr: [], rsiOB: [], rsiOS: [], rsiMid: [] })
   const dataRef        = useRef<Candle[]>([])
+  // Pattern overlay refs (read inside chart subscriptions, which capture stale state).
+  const overlayRef     = useRef<HTMLCanvasElement>(null)
+  const analysisRef    = useRef<DetectAllResult | null>(null)
+  const selectedRef    = useRef<string | null>(null)
+  const visRef         = useRef<PatternVisibility>('all')
+  const patternLines   = useRef<any[]>([])
+  const chartAreaRef   = useRef<HTMLDivElement>(null)
+  const panelRootRef   = useRef<HTMLDivElement>(null)
+  const barSpacingRef  = useRef(6)
+  const compareSeriesRef = useRef<Record<string, any>>({})
+  const typeDropRef    = useRef<HTMLDivElement>(null)
+  const intervalDropRef = useRef<HTMLDivElement>(null)
 
   // ── Symbol sync ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -354,6 +483,8 @@ export default function ChartPanel() {
 
   // ── Global active symbol (driven by the top search bar) ───────────────────
   const activeSymbol = useActiveSymbol(s => s.activeSymbol)
+  const focusPattern = useActiveSymbol(s => s.focusPattern)
+  const pendingFocusRef = useRef<{ id: string; nonce: number } | null>(null)
   useEffect(() => {
     if (!activeSymbol) return
     const upper = activeSymbol.toUpperCase()
@@ -370,14 +501,27 @@ export default function ChartPanel() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSymbol])
 
+  // ── Screener → chart pattern hand-off (spec §4.3) ──────────────────────────
+  useEffect(() => {
+    if (!focusPattern) return
+    pendingFocusRef.current = { id: focusPattern.patternId, nonce: focusPattern.nonce }
+    setAnalysisOpen(true)
+    setTf(SCAN_TF_TO_CHART[focusPattern.tf])
+    // The activeSymbol effect routes the symbol; runDetection consumes the pending id.
+  }, [focusPattern])
+
   // ── Click-outside closes dropdowns ────────────────────────────────────────
   useEffect(() => {
     const handle = (e: MouseEvent) => {
-      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target as Node)) setSearchOpen(false)
-      if (indDropRef.current   && !indDropRef.current.contains(e.target as Node))   setIndOpen(false)
+      if (searchBoxRef.current   && !searchBoxRef.current.contains(e.target as Node))   setSearchOpen(false)
+      if (indDropRef.current     && !indDropRef.current.contains(e.target as Node))     setIndOpen(false)
+      if (typeDropRef.current    && !typeDropRef.current.contains(e.target as Node))    setTypeOpen(false)
+      if (intervalDropRef.current && !intervalDropRef.current.contains(e.target as Node)) setIntervalOpen(false)
     }
     document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setMaximized(false) }
+    document.addEventListener('keydown', onEsc)
+    return () => { document.removeEventListener('mousedown', handle); document.removeEventListener('keydown', onEsc) }
   }, [])
 
   // ── Search ─────────────────────────────────────────────────────────────────
@@ -592,6 +736,305 @@ export default function ChartPanel() {
 
   }, [chartType])
 
+  // ── Pattern overlay + detection ────────────────────────────────────────────
+  const redrawOverlay = useCallback(() => {
+    const canvas = overlayRef.current, chart = chartR.current, s = seriesR.current
+    if (!canvas || !chart || !s.candle) return
+    drawGeometric(canvas, chart, s.candle, analysisRef.current?.geometric ?? [], {
+      visibility: visRef.current, selectedId: selectedRef.current,
+    })
+  }, [])
+
+  const applyPatternLines = useCallback((det: PatternDetection | null) => {
+    const s = seriesR.current
+    patternLines.current.forEach(l => { try { s.candle?.removePriceLine(l) } catch {} })
+    patternLines.current = []
+    if (!det || !s.candle) return
+    const add = (price: number | null, color: string, style: number, title: string) => {
+      if (price == null) return
+      try { patternLines.current.push(s.candle.createPriceLine({ price, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true, title })) } catch {}
+    }
+    add(det.target,        'rgba(0,201,122,0.9)', 2, 'Target')
+    add(det.invalidation,  'rgba(255,69,96,0.9)', 2, 'Invalid')
+    add(det.breakoutLevel, 'rgba(160,160,160,0.8)', 3, 'Breakout')
+  }, [])
+
+  const focusPatternOnChart = useCallback((det: PatternDetection) => {
+    setSelectedPattern(det.id)
+    selectedRef.current = det.id
+    applyPatternLines(det)
+    const ts = chartR.current?.timeScale()
+    const pad = Math.max(6, Math.round((det.endIndex - det.startIndex) * 0.3))
+    try { ts?.setVisibleLogicalRange({ from: Math.max(0, det.startIndex - pad), to: det.endIndex + pad }) } catch {}
+    redrawOverlay()
+  }, [applyPatternLines, redrawOverlay])
+
+  const runDetection = useCallback((candles: Candle[], chartTf: TF) => {
+    const result = detectAll(candles, { timeframe: ENGINE_TF[chartTf] })
+    analysisRef.current = result
+    setAnalysis(result)
+    try { seriesR.current.candle?.setMarkers(buildCandleMarkers(result.candlestick, visRef.current)) } catch {}
+
+    // If the screener handed us a pattern to focus, prefer it; else top geometric.
+    const all = [...result.geometric, ...result.candlestick]
+    const pending = pendingFocusRef.current
+    const focusTarget = (pending && all.find(d => d.id === pending.id)) || result.geometric[0] || null
+    if (pending) pendingFocusRef.current = null
+
+    setSelectedPattern(focusTarget?.id ?? null)
+    selectedRef.current = focusTarget?.id ?? null
+    applyPatternLines(focusTarget)
+    redrawOverlay()
+  }, [applyPatternLines, redrawOverlay])
+
+  const loadTfRating = useCallback(async (t: Timeframe) => {
+    setActiveRatingTf(t)
+    setPerTfRatings(prev => (prev[t] && prev[t] !== 'loading') ? prev : { ...prev, [t]: 'loading' })
+    if (perTfRatings[t] && perTfRatings[t] !== 'loading') return
+    const cfg = RATING_TF_FETCH[t]
+    if (!cfg) return
+    try {
+      const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(effectiveSym)}&range=${cfg.range}&interval=${cfg.interval}`)
+      const j = await r.json()
+      const res = j?.results?.[0]?.data?.chart?.result?.[0]
+      const ts = res?.timestamp ?? [], q = res?.indicators?.quote?.[0]
+      if (!q) throw new Error('no data')
+      let candles: Candle[] = (ts as number[])
+        .map((time, i) => ({ time, open: q.open?.[i], high: q.high?.[i], low: q.low?.[i], close: q.close?.[i], volume: q.volume?.[i] ?? 0 }))
+        .filter((c): c is Candle => c.open != null && c.close != null && c.high != null && c.low != null)
+      if (t === '4h') candles = aggregateTo4h(candles)
+      const rating = computeRating(candles)
+      setPerTfRatings(prev => ({ ...prev, [t]: rating }))
+    } catch {
+      setPerTfRatings(prev => { const n = { ...prev }; delete n[t]; return n })
+    }
+  }, [effectiveSym, perTfRatings])
+
+  const generateAi = useCallback(async () => {
+    const result = analysisRef.current
+    const candles = dataRef.current
+    if (!result || candles.length < 30) { setAiError('Not enough data for analysis'); return }
+    setAiLoading(true); setAiError(null)
+    try {
+      const close = candles.map(c => c.close)
+      const lastClose = close[close.length - 1]
+      const rsiV = rsiArr(candles).at(-1)?.value ?? null
+      const md = macdData(candles)
+      const macdState = md.macd.length && md.signal.length
+        ? (md.macd[md.macd.length - 1].value > md.signal[md.signal.length - 1].value ? 'bullish (above signal)' : 'bearish (below signal)')
+        : 'n/a'
+      const sma50 = smaArr(close, 50).at(-1) ?? null
+      const sma200 = smaArr(close, 200).at(-1) ?? null
+      const vol20 = candles.slice(-20).reduce((a, c) => a + c.volume, 0) / Math.min(20, candles.length)
+      const volVs20 = vol20 > 0 ? candles[candles.length - 1].volume / vol20 : null
+      let trSum = 0, trN = 0
+      for (let i = Math.max(1, candles.length - 14); i < candles.length; i++) {
+        const c = candles[i], p = candles[i - 1]
+        trSum += Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close)); trN++
+      }
+      const atrPct = lastClose > 0 && trN ? (trSum / trN) / lastClose * 100 : null
+      const note = await fetchChartAnalysis({
+        symbol: effectiveSym, timeframe: ENGINE_TF[tf],
+        rating: result.rating, structure: result.structure,
+        patterns: [...result.geometric, ...result.candlestick].sort((a, b) => b.confidence - a.confidence).slice(0, 5)
+          .map(d => ({ id: d.id, name: d.name, direction: d.direction, status: d.status, confidence: d.confidence, breakoutLevel: d.breakoutLevel, target: d.target, invalidation: d.invalidation, implication: d.implication })),
+        keyLevels: { support: result.structure.support, resistance: result.structure.resistance },
+        indicatorSnapshot: {
+          rsi: rsiV, macdState, volVs20, atrPct,
+          distFrom50: sma50 ? (lastClose - sma50) / sma50 * 100 : null,
+          distFrom200: sma200 ? (lastClose - sma200) / sma200 * 100 : null,
+        },
+        lastClose,
+      })
+      setAiNote(note)
+    } catch (e) {
+      setAiError(e instanceof Error ? e.message : 'Analysis failed')
+    } finally {
+      setAiLoading(false)
+    }
+  }, [effectiveSym, tf])
+
+  // ── Scale / screenshot / fullscreen / keyboard (spec §2.3) ─────────────────
+  const applyScale = useCallback((mode: 'normal' | 'log' | 'pct') => {
+    setScaleMode(mode)
+    const m = mode === 'log' ? 1 : mode === 'pct' ? 2 : 0   // LWC PriceScaleMode
+    try { chartR.current?.priceScale('right').applyOptions({ mode: m }) } catch {}
+  }, [])
+
+  const resetView = useCallback(() => {
+    const chart = chartR.current
+    if (!chart) return
+    try {
+      const n = dataRef.current.length
+      const visible = Math.min(120, n)
+      if (visible < n) chart.timeScale().setVisibleLogicalRange({ from: n - visible, to: n - 1 })
+      else chart.timeScale().fitContent()
+      chart.priceScale('right').applyOptions({ autoScale: true })
+    } catch {}
+  }, [])
+
+  const screenshot = useCallback(() => {
+    const chart = chartR.current
+    if (!chart) return
+    try {
+      const src = chart.takeScreenshot()
+      const out = document.createElement('canvas')
+      out.width = src.width; out.height = src.height
+      const c = out.getContext('2d'); if (!c) return
+      c.drawImage(src, 0, 0)
+      c.font = 'bold 15px Syne, sans-serif'
+      c.fillStyle = 'rgba(0,229,192,0.55)'
+      c.fillText(`NEXUS · ${effectiveSym} · ${tf}`, 12, src.height - 12)
+      const a = document.createElement('a')
+      a.download = `NEXUS_${effectiveSym}_${tf}.png`
+      a.href = out.toDataURL('image/png')
+      a.click()
+    } catch {}
+  }, [effectiveSym, tf])
+
+  const onChartKey = useCallback((e: React.KeyboardEvent) => {
+    const chart = chartR.current
+    if (!chart) return
+    const ts = chart.timeScale()
+    const pos = () => { try { return ts.scrollPosition() } catch { return 0 } }
+    if (e.key === 'ArrowRight') { e.preventDefault(); ts.scrollToPosition(pos() + 3, false) }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); ts.scrollToPosition(pos() - 3, false) }
+    else if (e.key === '+' || e.key === '=') { barSpacingRef.current = Math.min(60, barSpacingRef.current + 1.5); ts.applyOptions({ barSpacing: barSpacingRef.current }) }
+    else if (e.key === '-' || e.key === '_') { barSpacingRef.current = Math.max(2, barSpacingRef.current - 1.5); ts.applyOptions({ barSpacing: barSpacingRef.current }) }
+    else if (e.key === 'f') { try { if (document.fullscreenElement) document.exitFullscreen(); else panelRootRef.current?.requestFullscreen() } catch {} }
+    else if (e.key === 's') { screenshot() }
+    else if (/^[1-9]$/.test(e.key)) { const idx = parseInt(e.key, 10) - 1; if (TFS[idx]) setTf(TFS[idx]) }
+  }, [screenshot])
+
+  const miniBtn = (active: boolean): React.CSSProperties => ({
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+    minWidth: 28, height: 24, padding: '0 7px', borderRadius: '4px', cursor: 'pointer', flexShrink: 0,
+    fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+    border: `1px solid ${active ? 'var(--teal)' : 'var(--border)'}`,
+    background: active ? 'rgba(0,229,192,0.12)' : 'transparent',
+    color: active ? 'var(--teal)' : 'var(--text-2)', transition: 'all 0.12s',
+  })
+  // Dropdown-trigger button (icon + label + caret) for the interval/type pickers.
+  const ddBtn = (active: boolean, accent = 'var(--teal)'): React.CSSProperties => ({
+    display: 'inline-flex', alignItems: 'center', gap: 6, height: 26, padding: '0 10px', borderRadius: '4px', cursor: 'pointer', flexShrink: 0,
+    fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', fontWeight: 600,
+    border: `1px solid ${active ? accent : 'var(--border)'}`,
+    background: active ? 'rgba(0,229,192,0.08)' : 'var(--bg-deep)',
+    color: active ? accent : '#dfe8f0', transition: 'all 0.12s',
+  })
+
+  // ── Symbol comparison (spec §2.3) ──────────────────────────────────────────
+  const COMPARE_COLORS = ['#a78bfa', '#ff9f43', '#22d3ee']
+  const drawCompare = useCallback(async (syms: string[]) => {  // eslint-disable-line react-hooks/exhaustive-deps
+    const chart = chartR.current
+    if (!chart) return
+    for (const s of Object.keys(compareSeriesRef.current)) {
+      if (!syms.includes(s)) { try { chart.removeSeries(compareSeriesRef.current[s]) } catch {}; delete compareSeriesRef.current[s] }
+    }
+    const cfg = TF_CFG[tf]
+    await Promise.all(syms.map(async (s, i) => {
+      const candles = await fetchCandlesRaw(s, cfg.range, cfg.interval, !!cfg.agg4h)
+      if (!candles.length) return
+      let ser = compareSeriesRef.current[s]
+      if (!ser) {
+        ser = chart.addLineSeries({ priceScaleId: 'compare', color: COMPARE_COLORS[i % 3], lineWidth: 1.5, lastValueVisible: true, priceLineVisible: false, crosshairMarkerVisible: false })
+        compareSeriesRef.current[s] = ser
+      }
+      const base = candles[0].close
+      ser.setData(candles.map(c => ({ time: c.time, value: base > 0 ? +(((c.close / base) - 1) * 100).toFixed(2) : 0 })))
+    }))
+    try { chart.priceScale('compare').applyOptions({ visible: false, scaleMargins: { top: 0.02, bottom: 0.15 } }) } catch {}
+  }, [tf])
+
+  const addCompare = useCallback(() => {
+    const s = compareInput.trim().toUpperCase()
+    if (!s || compareSyms.includes(s) || compareSyms.length >= 3) return
+    setCompareSyms(prev => [...prev, s]); setCompareInput('')
+  }, [compareInput, compareSyms])
+  const removeCompare = useCallback((s: string) => setCompareSyms(prev => prev.filter(x => x !== s)), [])
+
+  useEffect(() => { if (ready) drawCompare(compareSyms) }, [compareSyms, tf, effectiveSym, ready, drawCompare])
+
+  // ── Saved templates (spec §2.3) ────────────────────────────────────────────
+  useEffect(() => { try { const r = localStorage.getItem('nexus:templates'); if (r) setTemplates(JSON.parse(r)) } catch {} }, [])
+  const saveTemplate = useCallback(() => {
+    const t = { name: `Layout ${templates.length + 1}`, chartType, inds: [...activeInds], tf, vis: patternVis, scale: scaleMode }
+    const next = [...templates, t]; setTemplates(next)
+    try { localStorage.setItem('nexus:templates', JSON.stringify(next)) } catch {}
+  }, [templates, chartType, activeInds, tf, patternVis, scaleMode])
+  const applyTemplate = useCallback((t: typeof templates[number]) => {
+    setChartType(t.chartType); setActiveInds(new Set(t.inds)); setTf(t.tf)
+    setPatternVis(t.vis); visRef.current = t.vis; applyScale(t.scale); setTplOpen(false)
+  }, [applyScale])
+  const deleteTemplate = useCallback((name: string) => {
+    const next = templates.filter(x => x.name !== name); setTemplates(next)
+    try { localStorage.setItem('nexus:templates', JSON.stringify(next)) } catch {}
+  }, [templates])
+
+  // ── Price alerts (loginless: localStorage + poll, spec §2.3) ───────────────
+  const alertKey = `nexus:alerts:${effectiveSym}`
+  const addAlert = useCallback(() => {
+    const price = quote?.c
+    if (price == null) return
+    const raw = window.prompt(`Alert price for ${effectiveSym} (current ${price.toFixed(2)})`)
+    const lvl = raw ? parseFloat(raw) : NaN
+    if (!isFinite(lvl)) return
+    try {
+      const list = JSON.parse(localStorage.getItem(alertKey) || '[]')
+      list.push({ price: lvl, dir: lvl >= price ? 'above' : 'below', created: Date.now() })
+      localStorage.setItem(alertKey, JSON.stringify(list))
+      setAlertToast(`Alert set: ${effectiveSym} ${lvl >= price ? '≥' : '≤'} ${lvl.toFixed(2)} (fires only while this tab is open)`)
+      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission()
+    } catch {}
+  }, [alertKey, effectiveSym, quote])
+
+  // poll the current quote against stored alerts
+  useEffect(() => {
+    if (!effectiveSym) return
+    const check = () => {
+      let list: Array<{ price: number; dir: 'above' | 'below'; created: number }>
+      try { list = JSON.parse(localStorage.getItem(alertKey) || '[]') } catch { return }
+      if (!list.length) return
+      const px = quote?.c
+      if (px == null) return
+      const remaining = list.filter(a => !((a.dir === 'above' && px >= a.price) || (a.dir === 'below' && px <= a.price)))
+      const fired = list.filter(a => !remaining.includes(a))
+      if (fired.length) {
+        const msg = `${effectiveSym} crossed ${fired.map(a => a.price.toFixed(2)).join(', ')} (now ${px.toFixed(2)})`
+        setAlertToast(msg)
+        try { if ('Notification' in window && Notification.permission === 'granted') new Notification('NEXUS price alert', { body: msg }) } catch {}
+        try { localStorage.setItem(alertKey, JSON.stringify(remaining)) } catch {}
+      }
+    }
+    check()
+  }, [quote, alertKey, effectiveSym])
+
+  useEffect(() => { if (!alertToast) return; const t = setTimeout(() => setAlertToast(null), 4500); return () => clearTimeout(t) }, [alertToast])
+
+  // On maximize toggle the container resizes (autoSize handles the chart canvas);
+  // re-project the overlays once layout settles. Two passes cover the transition.
+  useEffect(() => {
+    if (!ready) return
+    const t1 = setTimeout(() => redrawOverlay(), 60)
+    const t2 = setTimeout(() => redrawOverlay(), 220)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [maximized, ready, redrawOverlay])
+
+  // Full-screen chart via the Fullscreen API — promotes the panel to the top
+  // layer so it's immune to the grid's CSS transforms (a plain fixed overlay
+  // would be positioned relative to a transformed ancestor and get clipped).
+  const toggleMaximize = useCallback(() => {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen()
+      else panelRootRef.current?.requestFullscreen()
+    } catch {}
+  }, [])
+  useEffect(() => {
+    const onFs = () => setMaximized(document.fullscreenElement === panelRootRef.current)
+    document.addEventListener('fullscreenchange', onFs)
+    return () => document.removeEventListener('fullscreenchange', onFs)
+  }, [])
+
   // ── Chart initialization ───────────────────────────────────────────────────
   useEffect(() => {
     if (!containerRef.current) return
@@ -602,22 +1045,43 @@ export default function ChartPanel() {
         if (dead || !containerRef.current) return
 
         const chart = LWC.createChart(containerRef.current, {
+          // Let the library track the container with its own ResizeObserver.
+          // This survives the maximize↔window transition without the price axis
+          // being clipped by a stale manually-applied width.
+          autoSize: true,
           width:  containerRef.current.clientWidth,
           height: containerRef.current.clientHeight,
           layout: { background: { color: 'transparent' }, textColor: '#7a9ab0', fontSize: 10 },
-          grid: { vertLines: { color: '#1c1f2544', style: 1 }, horzLines: { color: '#1c1f2544', style: 1 } },
+          grid: { vertLines: { color: 'rgba(150,165,185,0.12)', style: 1 }, horzLines: { color: 'rgba(150,165,185,0.12)', style: 1 } },
           crosshair: {
             mode: 1,
             vertLine: { color: '#f0a50066', width: 1, style: 0, labelBackgroundColor: '#f0a500' },
             horzLine: { color: '#f0a50066', width: 1, style: 0, labelBackgroundColor: '#1c1f25' },
           },
-          rightPriceScale: { borderColor: '#1c1f25', textColor: '#7a9ab0' },
-          timeScale: { borderColor: '#1c1f25', timeVisible: true, secondsVisible: false, rightOffset: 10 },
-          handleScroll: { mouseWheel: true, pressedMouseMove: true },
-          handleScale:  { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: true } },
+          rightPriceScale: { borderColor: '#1c1f25', textColor: '#7a9ab0', visible: true, ticksVisible: true, minimumWidth: 56 },
+          timeScale: {
+            borderColor: '#1c1f25', timeVisible: true, secondsVisible: false,
+            rightOffset: 8, barSpacing: 8, minBarSpacing: 1.2, fixLeftEdge: false,
+            lockVisibleTimeRangeOnResize: true,
+          },
+          // TradingView-like feel: kinetic momentum scroll, cursor-anchored wheel
+          // zoom, drag-to-pan, double-click axis to auto-reset.
+          handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
+          handleScale: {
+            mouseWheel: true, pinch: true,
+            axisPressedMouseMove: { time: true, price: true },
+            axisDoubleClickReset: { time: true, price: true },
+          },
+          kineticScroll: { touch: true, mouse: true },
         })
 
         const shared = { lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false }
+        // The active price series shows a live last-price line + an axis tag — the
+        // professional touch every trading chart has.
+        const mainExtras = {
+          lastValueVisible: true, priceLineVisible: true,
+          priceLineWidth: 1 as const, priceLineStyle: 2 as const, crosshairMarkerVisible: true,
+        }
 
         // Main series — all types pre-created, active one gets data
         const candle = chart.addCandlestickSeries({
@@ -625,17 +1089,18 @@ export default function ChartPanel() {
           upColor: '#00c97a', downColor: '#ff4560',
           borderUpColor: '#00c97a', borderDownColor: '#ff4560',
           wickUpColor: '#00c97a99', wickDownColor: '#ff456099',
+          ...mainExtras,
         })
         const bar = chart.addBarSeries({
           priceScaleId: 'right',
           upColor: '#00c97a', downColor: '#ff4560',
-          ...shared,
+          ...mainExtras,
         })
-        const line = chart.addLineSeries({ ...shared, priceScaleId: 'right', color: '#00e5c0', lineWidth: 2 })
+        const line = chart.addLineSeries({ ...mainExtras, priceScaleId: 'right', color: '#00e5c0', lineWidth: 2 })
         const area = chart.addAreaSeries({
           priceScaleId: 'right',
-          lineColor: '#00e5c0', topColor: 'rgba(0,229,192,0.22)', bottomColor: 'rgba(0,229,192,0.02)',
-          lineWidth: 2, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: true,
+          lineColor: '#00e5c0', topColor: 'rgba(0,229,192,0.28)', bottomColor: 'rgba(0,229,192,0.01)',
+          lineWidth: 2, ...mainExtras,
         })
 
         // Volume
@@ -686,10 +1151,9 @@ export default function ChartPanel() {
         }
 
         // Resize observer
-        const ro = new ResizeObserver(() => {
-          if (containerRef.current && chartR.current)
-            chartR.current.applyOptions({ width: containerRef.current.clientWidth, height: containerRef.current.clientHeight })
-        })
+        // autoSize handles the chart canvas; we only need to re-project overlays
+        // (pattern lines, drawings) when the container size changes.
+        const ro = new ResizeObserver(() => { redrawOverlay() })
         ro.observe(containerRef.current)
 
         // Crosshair tooltip
@@ -724,19 +1188,8 @@ export default function ChartPanel() {
 
   // ── Fetch helpers ──────────────────────────────────────────────────────────
   const getCandles = useCallback(async (s: string, timeframe: TF): Promise<Candle[]> => {
-    try {
-      const cfg = TF_CFG[timeframe]
-      const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(s)}&range=${cfg.range}&interval=${cfg.interval}`)
-      const j = await r.json()
-      const res = j?.results?.[0]?.data?.chart?.result?.[0]
-      if (!res) return []
-      const ts = res.timestamp ?? [], q = res.indicators?.quote?.[0]
-      if (!q) return []
-      return (ts as number[])
-        .map((time, i) => ({ time, open: q.open?.[i]??null, high: q.high?.[i]??null, low: q.low?.[i]??null, close: q.close?.[i]??null, volume: q.volume?.[i]??0 }))
-        .filter((c): c is Candle => c.open!==null && c.high!==null && c.low!==null && c.close!==null)
-        .sort((a, b) => a.time - b.time)
-    } catch { return [] }
+    const cfg = TF_CFG[timeframe]
+    return fetchCandlesRaw(s, cfg.range, cfg.interval, !!cfg.agg4h)
   }, [])
 
   const getQuote = useCallback(async (s: string) => {
@@ -753,12 +1206,15 @@ export default function ChartPanel() {
     let cancelled = false
     setLoading(true)
     setQuote(null)
+    // Reset per-symbol/TF analysis state.
+    setAiNote(null); setAiError(null); setPerTfRatings({}); setActiveRatingTf(ENGINE_TF[tf])
     Promise.all([getCandles(effectiveSym, tf), getQuote(effectiveSym)]).then(([candles]) => {
       if (cancelled) return
       if (candles.length > 0) {
         dataRef.current = candles
         applyAll(candles, activeInds)
         updatePaneLayout(activeInds)
+        runDetection(candles, tf)
         if (chartType !== 'P&F') {
           const ts = chartR.current?.timeScale()
           // Focus on most recent ~120 candles (better than fitContent which crams everything).
@@ -785,6 +1241,21 @@ export default function ChartPanel() {
     updatePaneLayout(activeInds)
   }, [activeInds, chartType, ready, applyAll, updatePaneLayout])
 
+  // ── Re-project the pattern overlay on pan / zoom / crosshair ───────────────
+  useEffect(() => {
+    if (!ready) return
+    const chart = chartR.current
+    if (!chart) return
+    const ts = chart.timeScale()
+    const handler = () => redrawOverlay()
+    ts.subscribeVisibleLogicalRangeChange(handler)
+    chart.subscribeCrosshairMove(handler)
+    redrawOverlay()
+    return () => {
+      try { ts.unsubscribeVisibleLogicalRangeChange(handler); chart.unsubscribeCrosshairMove(handler) } catch {}
+    }
+  }, [ready, redrawOverlay, analysis, chartType])
+
   // ── Render P&F canvas ──────────────────────────────────────────────────────
   useEffect(() => {
     if (pfData.length > 0 && pfCanvasRef.current && containerRef.current)
@@ -802,7 +1273,11 @@ export default function ChartPanel() {
   const hasMacd = activeInds.has('MACD')
 
   return (
-    <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div ref={panelRootRef} className="panel" style={{
+      display: 'flex', flexDirection: 'column',
+      height: '100%',
+      ...(maximized ? { width: '100vw', height: '100vh', background: 'var(--bg-deep, #090c10)' } : {}),
+    }}>
 
       {/* ── Row 1: Watchlist tabs + search ──────────────────────────────────── */}
       <div className="panel-header" style={{ justifyContent: 'space-between', gap: '6px', padding: '5px 10px', minHeight: '34px', flexWrap: 'nowrap', overflow: 'visible' }}>
@@ -834,7 +1309,7 @@ export default function ChartPanel() {
             border: `1px solid ${searchOpen || searchSym ? 'var(--teal)' : 'var(--border)'}`,
             borderRadius: '4px', overflow: 'visible', transition: 'border-color 0.15s',
           }}>
-            <span style={{ padding: '0 5px 0 7px', color: 'var(--text-muted)', fontSize: '10px', pointerEvents: 'none', userSelect: 'none' }}>⌕</span>
+            <span style={{ padding: '0 4px 0 7px', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', pointerEvents: 'none', userSelect: 'none' }}><SearchIcon size={13} /></span>
             <input
               value={searchInput}
               onChange={e => handleSearchInput(e.target.value.toUpperCase())}
@@ -848,7 +1323,7 @@ export default function ChartPanel() {
               }}
             />
             {(searchInput || searchSym) && (
-              <button onClick={clearSearch} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 8px', fontSize: '13px', lineHeight: 1 }}>×</button>
+              <button onClick={clearSearch} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 7px', display: 'inline-flex', alignItems: 'center' }}><XIcon size={13} /></button>
             )}
           </div>
 
@@ -891,19 +1366,33 @@ export default function ChartPanel() {
         display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap',
         background: 'rgba(0,0,0,0.18)',
       }}>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', flexShrink: 0 }}>TYPE</span>
-        {CHART_TYPES.map(ct => (
-          <button key={ct} onClick={() => setChartType(ct)} style={{
-            padding: '2px 7px', borderRadius: '3px', cursor: 'pointer', flexShrink: 0,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
-            border: `1px solid ${chartType === ct ? 'var(--amber)' : 'var(--border)'}`,
-            background: chartType === ct ? 'rgba(240,165,0,0.1)' : 'transparent',
-            color: chartType === ct ? 'var(--amber)' : 'var(--text-2)',
-            transition: 'all 0.12s',
-          }}>{ct}</button>
-        ))}
+        {/* Chart-type dropdown */}
+        <div ref={typeDropRef} style={{ position: 'relative', flexShrink: 0 }}>
+          <button onClick={() => setTypeOpen(v => !v)} title="Chart type" style={ddBtn(typeOpen, 'var(--amber)')}>
+            {(() => { const I = CHART_TYPE_META[chartType].Icon; return <I size={15} /> })()}
+            <span>{chartType}</span>
+            <ChevronDown size={12} style={{ opacity: 0.6 }} />
+          </button>
+          {typeOpen && (
+            <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 196, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden' }}>
+              <div style={{ padding: '5px 10px 3px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)' }}>CHART TYPE</div>
+              {CHART_TYPES.map(ct => {
+                const I = CHART_TYPE_META[ct].Icon
+                return (
+                  <div key={ct} onMouseDown={() => { setChartType(ct); setTypeOpen(false) }} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 10px', cursor: 'pointer', background: chartType === ct ? 'rgba(240,165,0,0.08)' : 'transparent' }}>
+                    <span style={{ width: 18, display: 'flex', justifyContent: 'center', color: chartType === ct ? 'var(--amber)' : 'var(--text-2)' }}><I size={15} /></span>
+                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: chartType === ct ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{ct}</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{CHART_TYPE_META[ct].hint}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
 
-        <div style={{ width: '1px', height: '14px', background: 'var(--border)', margin: '0 3px', flexShrink: 0 }} />
+        <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 4px', flexShrink: 0 }} />
 
         {/* Indicators dropdown */}
         <div ref={indDropRef} style={{ position: 'relative', flexShrink: 0 }}>
@@ -918,11 +1407,12 @@ export default function ChartPanel() {
               transition: 'all 0.12s',
             }}
           >
+            <SlidersHorizontal size={13} />
             INDICATORS
             {activeInds.size > 0 && (
               <span style={{ background: 'var(--teal)', color: '#000', borderRadius: '8px', padding: '0 5px', fontSize: '10px', fontWeight: 700, lineHeight: '14px' }}>{activeInds.size}</span>
             )}
-            <span style={{ fontSize: '10px', opacity: 0.7 }}>▾</span>
+            <ChevronDown size={12} style={{ opacity: 0.7 }} />
           </button>
 
           {indOpen && (
@@ -988,6 +1478,46 @@ export default function ChartPanel() {
           )}
         </div>
 
+        {/* Compare symbols */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <button onClick={() => setCompareOpen(v => !v)} title="Compare symbols (% normalized)" style={miniBtn(compareSyms.length > 0 || compareOpen)}>
+            <GitCompareArrows size={13} /><span>COMPARE{compareSyms.length > 0 ? ` ${compareSyms.length}` : ''}</span>
+          </button>
+          {compareOpen && (
+            <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 200, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 5, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', padding: 8 }}>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <input value={compareInput} onChange={e => setCompareInput(e.target.value.toUpperCase())} onKeyDown={e => e.key === 'Enter' && addCompare()} placeholder="e.g. MSFT" style={{ flex: 1, background: 'var(--bg-deep)', border: '1px solid var(--border)', borderRadius: 3, color: '#fff', fontSize: 11, padding: '3px 6px', fontFamily: 'JetBrains Mono, monospace', outline: 'none' }} />
+                <button onClick={addCompare} disabled={compareSyms.length >= 3} style={{ ...miniBtn(false), opacity: compareSyms.length >= 3 ? 0.5 : 1 }}>Add</button>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                {compareSyms.map((s, i) => (
+                  <span key={s} style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', padding: '1px 6px', borderRadius: 3, color: COMPARE_COLORS[i % 3], border: `1px solid ${COMPARE_COLORS[i % 3]}55`, cursor: 'pointer' }} onClick={() => removeCompare(s)}>{s} ×</span>
+                ))}
+                {compareSyms.length === 0 && <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Up to 3 · rebased to 0% at start</span>}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Templates */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <button onClick={() => setTplOpen(v => !v)} title="Saved chart layouts" style={miniBtn(tplOpen)}>
+            <Layers size={13} /><span>LAYOUTS</span>
+          </button>
+          {tplOpen && (
+            <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 180, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 5, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden' }}>
+              <div onMouseDown={saveTemplate} style={{ padding: '6px 10px', fontSize: 10, color: 'var(--teal)', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)' }}>＋ Save current layout</div>
+              {templates.length === 0 && <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>No saved layouts</div>}
+              {templates.map(t => (
+                <div key={t.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 10px', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}>
+                  <span onMouseDown={() => applyTemplate(t)} style={{ color: 'var(--text-2)', cursor: 'pointer', flex: 1 }}>{t.name} · {t.tf} · {t.chartType}</span>
+                  <span onMouseDown={() => deleteTemplate(t.name)} style={{ color: 'var(--negative)', cursor: 'pointer', paddingLeft: 6 }}>×</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Active indicator chips */}
         {activeInds.size > 0 && (
           <div style={{ display: 'flex', gap: '3px', flex: 1, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '1px' }}>
@@ -1012,31 +1542,108 @@ export default function ChartPanel() {
         )}
       </div>
 
-      {/* ── Row 3: Timeframe ─────────────────────────────────────────────────── */}
+      {/* ── Row 3: Interval picker + display tools ───────────────────────────── */}
       <div style={{
-        padding: '3px 10px', borderBottom: '1px solid var(--border)',
-        display: 'flex', alignItems: 'center', gap: '4px',
+        padding: '4px 10px', borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', gap: '6px',
         background: 'rgba(0,0,0,0.12)',
       }}>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', flexShrink: 0 }}>TF</span>
-        {TFS.map(t => (
-          <button key={t} onClick={() => setTf(t)} style={{
-            padding: '2px 7px', borderRadius: '3px', cursor: 'pointer', flexShrink: 0,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
-            border: `1px solid ${tf === t ? 'var(--teal)' : 'var(--border)'}`,
-            background: tf === t ? 'rgba(0,229,192,0.1)' : 'transparent',
-            color: tf === t ? 'var(--teal)' : 'var(--text-2)',
-            transition: 'all 0.12s',
-          }}>{t}</button>
-        ))}
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '5px' }}>
-          · {TF_CFG[tf].label}
-        </span>
+        {/* Interval / timeframe dropdown */}
+        <div ref={intervalDropRef} style={{ position: 'relative', flexShrink: 0 }}>
+          <button onClick={() => setIntervalOpen(v => !v)} title="Timeframe / interval" style={ddBtn(intervalOpen)}>
+            <Clock size={13} />
+            <span>{tf}</span>
+            <ChevronDown size={12} style={{ opacity: 0.6 }} />
+          </button>
+          {intervalOpen && (
+            <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 168, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden', paddingBottom: 4 }}>
+              {TF_GROUPS.map(g => (
+                <div key={g.label}>
+                  <div style={{ padding: '6px 10px 3px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace' }}>{g.label.toUpperCase()}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, padding: '0 8px' }}>
+                    {g.items.map(t => (
+                      <button key={t} onMouseDown={() => { setTf(t); setIntervalOpen(false) }} style={{ ...miniBtn(tf === t), minWidth: 36 }}>{t}</button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', flexShrink: 0 }}>{TF_CFG[tf].label}</span>
         {chartType === 'P&F' && (
-          <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', border: '1px solid rgba(240,165,0,0.3)', padding: '2px 8px', borderRadius: '2px', background: 'rgba(240,165,0,0.08)', flexShrink: 0 }}>
-            X = up · O = down · 3-box reversal
-          </span>
+          <span style={{ fontSize: 10, color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', border: '1px solid rgba(240,165,0,0.3)', padding: '2px 8px', borderRadius: 3, background: 'rgba(240,165,0,0.08)', flexShrink: 0 }}>X up · O down · 3-box</span>
         )}
+
+        {/* right-aligned display tools */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {chartType !== 'P&F' && (
+            <>
+              <div style={{ display: 'inline-flex', border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden', height: 24 }} title="Price-axis scale">
+                {(['normal', 'log', 'pct'] as const).map((m, i) => (
+                  <button key={m} onClick={() => applyScale(m)} title={m === 'normal' ? 'Linear scale' : m === 'log' ? 'Logarithmic scale' : 'Percent scale'} style={{
+                    padding: '0 9px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, height: '100%',
+                    border: 'none', borderLeft: i ? '1px solid var(--border)' : 'none',
+                    background: scaleMode === m ? 'rgba(0,229,192,0.16)' : 'transparent',
+                    color: scaleMode === m ? 'var(--teal)' : 'var(--text-2)',
+                  }}>{m === 'normal' ? 'Lin' : m === 'log' ? 'Log' : '%'}</button>
+                ))}
+              </div>
+              <button onClick={resetView} title="Reset view / auto-scale" style={miniBtn(false)}><RotateCcw size={14} /></button>
+              <button onClick={screenshot} title="Save chart image (S)" style={miniBtn(false)}><Camera size={14} /></button>
+            </>
+          )}
+          <button onClick={toggleMaximize} title={maximized ? 'Exit full-screen chart (Esc)' : 'Full-screen chart (F)'} style={miniBtn(maximized)}>{maximized ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
+
+          {/* ANALYSIS — click opens the panel, hover previews what's on the chart */}
+          <div style={{ position: 'relative' }} onMouseEnter={() => setAnalysisHover(true)} onMouseLeave={() => setAnalysisHover(false)}>
+            <button onClick={() => setAnalysisOpen(o => !o)} title="Pattern recognition & technical analysis" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, height: 26, padding: '0 12px', borderRadius: 4, cursor: 'pointer', flexShrink: 0,
+              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 11, letterSpacing: '0.04em',
+              border: `1px solid ${analysisOpen || analysisHover ? 'var(--teal)' : 'var(--border)'}`,
+              background: analysisOpen ? 'rgba(0,229,192,0.16)' : 'rgba(0,229,192,0.04)',
+              color: analysisOpen || analysisHover ? 'var(--teal)' : '#dfe8f0', transition: 'all 0.12s',
+            }}>
+              <Activity size={14} /> ANALYSIS
+              {analysis && (analysis.geometric.length + analysis.candlestick.length) > 0 && (
+                <span style={{ background: 'var(--teal)', color: '#000', borderRadius: 8, padding: '0 5px', fontSize: 9, fontWeight: 800, lineHeight: '14px' }}>{analysis.geometric.length + analysis.candlestick.length}</span>
+              )}
+              <ChevronDown size={12} style={{ opacity: 0.6 }} />
+            </button>
+            {analysisHover && analysis && (() => {
+              const rd = RATING_DISPLAY[analysis.rating.overall.label] ?? RATING_DISPLAY.neutral
+              const pats = [...analysis.geometric, ...analysis.candlestick].sort((a, b) => b.confidence - a.confidence)
+              const setVis = (v: PatternVisibility) => { setPatternVis(v); visRef.current = v; try { seriesR.current.candle?.setMarkers(buildCandleMarkers(analysis.candlestick, v)) } catch {}; redrawOverlay() }
+              return (
+                <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 1001, width: 248, background: 'var(--bg-panel)', border: '1px solid var(--teal)', borderRadius: 6, boxShadow: '0 14px 44px rgba(0,0,0,0.75)', padding: 11 }}>
+                  <div style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>WHAT&apos;S ON THIS CHART</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <span style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>Technical rating</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: rd.color }}>{rd.text}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 9 }}>
+                    <span style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>Structure</span>
+                    <span style={{ fontSize: 10, color: analysis.structure.bias === 'uptrend' ? '#00c97a' : analysis.structure.bias === 'downtrend' ? '#ff4560' : '#a0a0a0', fontFamily: 'JetBrains Mono, monospace', textTransform: 'capitalize' }}>{analysis.structure.bias}</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>{pats.length} pattern{pats.length === 1 ? '' : 's'} detected</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+                    {pats.slice(0, 4).map((d, i) => (
+                      <span key={i} style={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', padding: '1px 6px', borderRadius: 3, color: d.direction === 'bullish' ? '#00c97a' : d.direction === 'bearish' ? '#ff4560' : '#f0a500', border: `1px solid ${(d.direction === 'bullish' ? '#00c97a' : d.direction === 'bearish' ? '#ff4560' : '#f0a500')}55` }}>{d.name} {d.confidence}</span>
+                    ))}
+                    {pats.length === 0 && <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>None on this timeframe</span>}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginRight: 'auto' }}>OVERLAY</span>
+                    {(['all', 'confirmed', 'off'] as PatternVisibility[]).map(v => (
+                      <button key={v} onClick={() => setVis(v)} style={{ ...miniBtn(patternVis === v), height: 20, minWidth: 0, fontSize: 9, textTransform: 'capitalize' }}>{v}</button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 9, fontFamily: 'JetBrains Mono, monospace' }}>Click for the full analysis panel →</div>
+                </div>
+              )
+            })()}
+          </div>
+        </div>
       </div>
 
       {/* ── Quote strip ──────────────────────────────────────────────────────── */}
@@ -1063,12 +1670,26 @@ export default function ChartPanel() {
               {[hasRsi && 'RSI', hasMacd && 'MACD'].filter(Boolean).join(' · ')}
             </span>
           )}
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: 'auto' }}>scroll=zoom · drag=pan</span>
+          <button onClick={addAlert} title="Set a price alert (fires while this tab is open)" style={{ ...miniBtn(false), marginLeft: 'auto', width: 'auto', padding: '0 9px' }}><Bell size={13} /> Alert</button>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>scroll=zoom · drag=pan</span>
         </div>
       )}
 
-      {/* ── Chart area ───────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+      {/* ── Chart area + ANALYSIS drawer ─────────────────────────────────────── */}
+      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+       <div ref={chartAreaRef} tabIndex={0} onKeyDown={onChartKey} style={{ flex: 1, position: 'relative', minHeight: 0, outline: 'none' }}>
+        {/* geometric pattern overlay (synced canvas) */}
+        <canvas ref={overlayRef} style={{ position: 'absolute', inset: 0, zIndex: 6, pointerEvents: 'none', width: '100%', height: '100%', display: chartType === 'P&F' ? 'none' : 'block' }} />
+        {/* interactive drawing tools */}
+        {ready && chartType !== 'P&F' && (
+          <DrawingLayer chart={chartR.current} series={seriesR.current.candle} symbol={effectiveSym} ready={ready} />
+        )}
+        {/* alert toast */}
+        {alertToast && (
+          <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(9,12,16,0.94)', border: '1px solid var(--teal)', borderRadius: 5, padding: '6px 12px', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--teal)', boxShadow: '0 8px 30px rgba(0,0,0,0.6)', maxWidth: '90%' }}>
+            <Bell size={13} /> {alertToast}
+          </div>
+        )}
         {loading && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(9,12,16,0.78)' }}>
             <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.12em' }}>
@@ -1121,6 +1742,31 @@ export default function ChartPanel() {
 
         {/* LWC canvas */}
         <div ref={containerRef} style={{ width: '100%', height: '100%', display: chartType === 'P&F' ? 'none' : 'block' }} />
+       </div>
+
+       {analysisOpen && analysis && (
+         <AnalysisDrawer
+           result={analysis}
+           symbol={effectiveSym}
+           tf={tf}
+           visibility={patternVis}
+           onVisibility={(v) => {
+             setPatternVis(v); visRef.current = v
+             try { seriesR.current.candle?.setMarkers(buildCandleMarkers(analysis.candlestick, v)) } catch {}
+             redrawOverlay()
+           }}
+           selectedId={selectedPattern}
+           onSelectPattern={focusPatternOnChart}
+           perTfRatings={perTfRatings}
+           onLoadTf={loadTfRating}
+           activeRatingTf={activeRatingTf}
+           aiNote={aiNote}
+           aiLoading={aiLoading}
+           aiError={aiError}
+           onGenerateAi={generateAi}
+           onClose={() => setAnalysisOpen(false)}
+         />
+       )}
       </div>
     </div>
   )

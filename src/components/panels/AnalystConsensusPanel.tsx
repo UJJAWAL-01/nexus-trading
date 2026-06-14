@@ -20,6 +20,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
+import { ComingSoon } from '@/components/ui/PanelStates'
 
 interface RecommendationPeriod {
   symbol:     string
@@ -169,19 +170,24 @@ export default function AnalystConsensusPanel() {
           </div>
         )}
 
-        {effSym && unsupported && (
+        {effSym && unsupported === 'india' && (
+          <ComingSoon
+            feature="India analyst coverage"
+            detail="Analyst recommendations currently cover US-listed equities. NSE/BSE coverage is on the roadmap."
+          />
+        )}
+
+        {effSym && unsupported === 'index' && (
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
             fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
             lineHeight: 1.7,
           }}>
-            <div style={{ color: 'var(--amber)', marginBottom: 8 }}>
-              {unsupported === 'index' ? 'INDEX' : 'INDIA-LISTED'}
-            </div>
+            <div style={{ color: 'var(--amber)', marginBottom: 8 }}>INDEX</div>
             <code style={{ color: '#fff', fontSize: 12 }}>{effSym}</code><br/>
             <span style={{ fontSize: 10, marginTop: 8, display: 'inline-block' }}>
-              Analyst recommendations are available for US-listed equities only.
+              Analyst recommendations apply to individual equities, not indices.
             </span>
           </div>
         )}

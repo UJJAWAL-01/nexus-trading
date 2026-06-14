@@ -7,14 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:generate":      "drizzle-kit generate",
-    "db:migrate":       "drizzle-kit migrate",
-    "db:push":          "drizzle-kit push",
-    "db:studio":        "drizzle-kit studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
     "ingest:companies": "tsx scripts/ingest-companies.ts",
-    "ingest:sec":       "tsx scripts/ingest-sec-fundamentals.ts",
-    "ingest:sectors":   "tsx scripts/ingest-sec-sectors.ts",
-    "db:cleanup":       "tsx scripts/cleanup-fundamentals.ts"
+    "ingest:sec": "tsx scripts/ingest-sec-fundamentals.ts",
+    "ingest:sectors": "tsx scripts/ingest-sec-sectors.ts",
+    "db:cleanup": "tsx scripts/cleanup-fundamentals.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1061.0",
@@ -52,6 +54,7 @@
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.9"
   }
 }

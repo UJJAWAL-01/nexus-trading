@@ -16,6 +16,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
+import { ComingSoon } from '@/components/ui/PanelStates'
 
 interface Profile {
   name?: string
@@ -202,22 +203,26 @@ export default function StockProfilePanel() {
           </div>
         )}
 
-        {/* Unsupported symbol (India / index) */}
-        {effSym && unsupported && (
+        {/* India — coverage coming soon */}
+        {effSym && unsupported === 'india' && (
+          <ComingSoon
+            feature="India company profiles"
+            detail="Company profiles currently cover US-listed securities. NSE/BSE profiles are being added."
+          />
+        )}
+
+        {/* Index — not applicable */}
+        {effSym && unsupported === 'index' && (
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
             fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
             lineHeight: 1.7,
           }}>
-            <div style={{ color: 'var(--amber)', marginBottom: 8 }}>
-              {unsupported === 'index' ? 'INDEX' : 'INDIA-LISTED'}
-            </div>
+            <div style={{ color: 'var(--amber)', marginBottom: 8 }}>INDEX</div>
             <code style={{ color: '#fff', fontSize: 12 }}>{effSym}</code><br/>
             <span style={{ fontSize: 10, marginTop: 8, display: 'inline-block' }}>
-              {unsupported === 'index'
-                ? 'Indices don\'t have company-level fundamentals.'
-                : 'Finnhub free tier covers US-listed securities only.'}
+              Indices don&apos;t have company-level fundamentals.
             </span>
           </div>
         )}

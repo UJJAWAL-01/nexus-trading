@@ -14,6 +14,7 @@
 
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useActiveSymbol } from '@/store/symbol'
+import { ComingSoon } from '@/components/ui/PanelStates'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -338,7 +339,14 @@ export default function ScreenerPanel() {
           <div className="loading-state">Querying fundamentals…</div>
         )}
 
-        {!error && data && data.results.length === 0 && (
+        {!error && data && data.results.length === 0 && country === 'IN' && (
+          <ComingSoon
+            feature="India equity screening"
+            detail="The screener currently covers US filers (SEC fundamentals). NSE/BSE company financials are being added."
+          />
+        )}
+
+        {!error && data && data.results.length === 0 && country !== 'IN' && (
           <div className="empty-state">
             <strong>No matches.</strong>
             <div>Try widening the filters or switching country.</div>
