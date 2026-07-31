@@ -14,7 +14,7 @@ interface LayoutModeStore {
 export const useLayoutMode = create<LayoutModeStore>()(
   persist(
     (set, get) => ({
-      mode: 'tabs',
+      mode: 'classic',
       setMode: (mode) => set({ mode }),
       toggle: () => set({ mode: get().mode === 'tabs' ? 'classic' : 'tabs' }),
     }),
