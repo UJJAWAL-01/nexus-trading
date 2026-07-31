@@ -67,7 +67,7 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // ══ ROW 7 (y:90→114) — Equity research deep dive (NEW: SEC fundamentals) ═
   // EquityResearch is the headline panel — wide and tall to do its 5y
   // time-series justice.  StockProfile + AnalystConsensus flank it.
-  { i: 'equityresearch',   x: 0, y: 90, w: 12, h: 24, minW: 6, minH: 20 },
+  // { i: 'equityresearch',   x: 0, y: 90, w: 12, h: 24, minW: 6, minH: 20 },
 
   // ══ ROW 8 (y:114→134) — Per-stock company snapshot panels ═══════════════
   { i: 'stockprofile',     x: 0, y: 114, w: 6, h: 20, minW: 4, minH: 16 },
@@ -80,7 +80,7 @@ const DEFAULT_LAYOUT: DashboardLayout = [
 
   // ══ ROW 10 (y:152→176) — Cross-universe screener ════════════════════════
   // Full-width because the table needs room for 12 columns of metrics.
-  { i: 'screener',      x: 0,  y: 152, w: 12, h: 24, minW: 6, minH: 18 },
+  // { i: 'screener',      x: 0,  y: 152, w: 12, h: 24, minW: 6, minH: 18 },
 ]
 
 // ── MOBILE panel order (priority-first: live data → analytics → research) ─────
