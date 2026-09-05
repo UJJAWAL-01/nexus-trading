@@ -1,10 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  ShieldCheck, Activity,
-  Calendar, Grid3X3, Trophy, Settings, DollarSign, X,
-} from 'lucide-react'
+import { NexusIcon } from '@/components/ui/NexusIcon'
 import { TradingProvider, useTradingContext } from './TradingContext'
 import { RiskPanel } from '@/components/panels/RiskPanel'
 import { LiveDashboard } from '@/components/panels/LiveDashboard'
@@ -23,11 +20,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'risk',        label: 'Risk Calculator',    icon: <ShieldCheck size={18} /> },
-  { id: 'live',        label: 'Live Dashboard',     icon: <Activity size={18} /> },
-  { id: 'calendar',    label: 'Econ Calendar',      icon: <Calendar size={18} /> },
-  { id: 'correlation', label: 'Correlation Matrix', icon: <Grid3X3 size={18} /> },
-  { id: 'propfirm',    label: 'Prop Firm Mode',     icon: <Trophy size={18} /> },
+  { id: 'risk',        label: 'Risk Calculator',    icon: <NexusIcon name="risk-shield" size={18} /> },
+  { id: 'live',        label: 'Live Dashboard',     icon: <NexusIcon name="market-pulse" size={18} /> },
+  { id: 'calendar',    label: 'Econ Calendar',      icon: <NexusIcon name="calendar" size={18} /> },
+  { id: 'correlation', label: 'Correlation Matrix', icon: <NexusIcon name="correlation" size={18} /> },
+  { id: 'propfirm',    label: 'Prop Firm Mode',     icon: <NexusIcon name="prop-firm" size={18} /> },
 ]
 
 // ── Settings Modal ────────────────────────────────────────────────────────────
@@ -49,7 +46,7 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-sm font-semibold text-white tracking-wide">Settings</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
-            <X size={16} />
+            <NexusIcon name="close" size={16} />
           </button>
         </div>
         <div className="space-y-4">
@@ -109,7 +106,7 @@ function Sidebar({
       <div className="px-4 py-5 border-b border-[#1e2130]">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-[#00ff88] flex items-center justify-center">
-            <Activity size={14} className="text-black" />
+            <NexusIcon name="market-pulse" size={14} className="text-black" />
           </div>
           <span className="text-white font-bold text-sm tracking-widest">NEXUS FX</span>
         </div>
@@ -135,7 +132,7 @@ function Sidebar({
       <div className="px-3 py-4 border-t border-[#1e2130] space-y-3">
         <div className="bg-[#1a1d27] rounded-lg p-3">
           <div className="flex items-center gap-1 text-gray-500 text-[10px] mb-1">
-            <DollarSign size={10} /> ACCOUNT BALANCE
+            <NexusIcon name="balance" size={10} /> ACCOUNT BALANCE
           </div>
           {editing ? (
             <input autoFocus type="number" value={draft}
@@ -152,7 +149,7 @@ function Sidebar({
         </div>
         <button onClick={onSettings}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 text-xs transition-all">
-          <Settings size={14} /> Settings
+          <NexusIcon name="settings" size={14} /> Settings
         </button>
       </div>
     </aside>

@@ -19,6 +19,7 @@
 //   5. Footer           — source + revision count
 
 import { useEffect, useMemo, useState } from 'react'
+import { NexusIcon } from '@/components/ui/NexusIcon'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell, Line, LineChart, ReferenceLine } from 'recharts'
 import { useEffectiveSymbol, isIndianSymbol } from '@/store/symbol'
 import { ComingSoon } from '@/components/ui/PanelStates'
@@ -572,7 +573,7 @@ export default function EquityResearchPanel() {
             fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
             lineHeight: 1.7,
           }}>
-            <div style={{ fontSize: 28, marginBottom: 12, opacity: 0.4 }}>📈</div>
+            <div style={{ marginBottom: 12, opacity: 0.45, display: 'flex', justifyContent: 'center' }}><NexusIcon name="research-lens" size={28} /></div>
             Click any ticker anywhere in the app<br/>
             to see 5 years of SEC fundamentals.
           </div>

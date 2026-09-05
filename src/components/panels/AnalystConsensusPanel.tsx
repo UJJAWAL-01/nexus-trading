@@ -20,6 +20,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
+import { NexusIcon } from '@/components/ui/NexusIcon'
 import { ComingSoon } from '@/components/ui/PanelStates'
 
 interface RecommendationPeriod {
@@ -164,7 +165,7 @@ export default function AnalystConsensusPanel() {
             fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
             lineHeight: 1.7,
           }}>
-            <div style={{ fontSize: 28, marginBottom: 12, opacity: 0.4 }}>📊</div>
+            <div style={{ marginBottom: 12, opacity: 0.45, display: 'flex', justifyContent: 'center' }}><NexusIcon name="research-lens" size={28} /></div>
             Click any ticker anywhere in the app<br/>
             to see analyst consensus here.
           </div>

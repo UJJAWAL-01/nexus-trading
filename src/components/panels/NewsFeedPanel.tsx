@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useWatchlist } from '@/store/watchlist'
 import { useEffectiveSymbol, useActiveSymbol } from '@/store/symbol'
 import type { FeedCategory, FeedItem } from '@/app/api/news-feed/route'
+import { NexusIcon, type NexusIconName } from '@/components/ui/NexusIcon'
 
 // ── Re-export types locally to avoid import issues ────────────────────────────
 type SentimentType = 'bullish' | 'bearish' | 'neutral'
@@ -29,17 +30,16 @@ type TabId = 'relevant' | 'markets' | 'macro' | 'india'
 interface TabDef {
   id:     TabId
   label:  string
-  icon:   string
+  icon:   NexusIconName
   color:  string
   desc:   string
 }
 
 const TABS: TabDef[] = [
-  { id:'relevant',    label:'RELEVANT',    icon:'★', color:'var(--amber)',   desc:'Watchlist-matched news' },
-  { id:'markets',     label:'MARKETS',     icon:'', color:'var(--teal)',   desc:'US & global markets' },
-  { id:'macro',       label:'MACRO',       icon:'🏦', color:'#a78bfa',      desc:'Fed, RBI, economy, rates' },
-  // { id:'geopolitics', label:'GEO',         icon:'🌐', color:'#1e90ff',      desc:'Geopolitics & global events' },
-  { id:'india',       label:'INDIA',       icon:'🇮🇳', color:'#f97316',    desc:'NSE, BSE, Indian economy' },
+  { id:'relevant',    label:'RELEVANT',    icon:'research-lens', color:'var(--amber)',   desc:'Watchlist-matched news' },
+  { id:'markets',     label:'MARKETS',     icon:'market-pulse', color:'var(--teal)',   desc:'US & global markets' },
+  { id:'macro',       label:'MACRO',       icon:'central-bank', color:'#a78bfa',      desc:'Fed, RBI, economy, rates' },
+  { id:'india',       label:'INDIA',       icon:'india-grid', color:'#f97316',    desc:'NSE, BSE, Indian economy' },
 ]
 
 // ── Score relevance client-side for legacy items ──────────────────────────────
@@ -399,7 +399,7 @@ export default function NewsFeedPanel() {
                 transition:'all 0.15s',
               }}
             >
-              <span style={{ fontSize:'11px' }}>{tab.icon}</span>
+              <span style={{ display:'inline-flex', color: isActive ? tab.color : 'var(--text-muted)' }}><NexusIcon name={tab.icon} size={13} /></span>
               <span style={{
                 fontSize:'11px', fontFamily:'JetBrains Mono,monospace', fontWeight: isActive ? 700 : 400,
                 letterSpacing:'0.06em', color: isActive ? tab.color : 'var(--text-muted)',
@@ -461,7 +461,7 @@ export default function NewsFeedPanel() {
         background:'rgba(0,0,0,0.08)',
         display:'flex', justifyContent:'space-between', alignItems:'center',
       }}>
-        <span style={{ color: tabDef.color }}>{tabDef.icon} {tabDef.desc}</span>
+        <span style={{ color: tabDef.color, display:'inline-flex', alignItems:'center', gap:5 }}><NexusIcon name={tabDef.icon} size={12} /> {tabDef.desc}</span>
         {!isLoading && currentItems.length > 0 && (
           <span>{currentItems.length} stories · {timeAgo(currentItems[0]?.datetime ?? 0)}</span>
         )}

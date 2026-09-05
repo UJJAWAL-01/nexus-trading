@@ -13,11 +13,8 @@
 //        click-to-select, endpoint drag, and Delete/Esc.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect, useRef, useState, useCallback, type ComponentType, type CSSProperties } from 'react'
-import {
-  Hand, MousePointer2, PenLine, ArrowUpRight, Minus, Square,
-  Ruler, AlignJustify, TrendingUp, TrendingDown, Trash2,
-} from 'lucide-react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { NexusIcon, type NexusIconName } from '@/components/ui/NexusIcon'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -25,19 +22,18 @@ type Tool = 'pan' | 'select' | 'trend' | 'ray' | 'hline' | 'vline' | 'rect' | 'm
 interface Pt { time: number; price: number }
 interface Drawing { id: string; type: Exclude<Tool, 'pan' | 'select'>; pts: Pt[]; color: string }
 
-type IconCmp = ComponentType<{ size?: number; style?: CSSProperties }>
-const TOOLS: Array<{ id: Tool; Icon: IconCmp; title: string; sep?: boolean; color?: string; rotate?: number }> = [
-  { id: 'pan',     Icon: Hand,          title: 'Pan / interact' },
-  { id: 'select',  Icon: MousePointer2, title: 'Select & edit' },
-  { id: 'trend',   Icon: PenLine,       title: 'Trend line', sep: true },
-  { id: 'ray',     Icon: ArrowUpRight,  title: 'Ray' },
-  { id: 'hline',   Icon: Minus,         title: 'Horizontal line' },
-  { id: 'vline',   Icon: Minus,         title: 'Vertical line', rotate: 90 },
-  { id: 'rect',    Icon: Square,        title: 'Rectangle' },
-  { id: 'measure', Icon: Ruler,         title: 'Measure (price / % / time)' },
-  { id: 'fib',     Icon: AlignJustify,  title: 'Fib retracement' },
-  { id: 'long',    Icon: TrendingUp,    title: 'Long position (R:R)', sep: true, color: '#00c97a' },
-  { id: 'short',   Icon: TrendingDown,  title: 'Short position (R:R)', color: '#ff4560' },
+const TOOLS: Array<{ id: Tool; icon: NexusIconName; title: string; sep?: boolean; color?: string }> = [
+  { id: 'pan',     icon: 'pan',        title: 'Pan / interact' },
+  { id: 'select',  icon: 'select',     title: 'Select & edit' },
+  { id: 'trend',   icon: 'trendline',  title: 'Trend line', sep: true },
+  { id: 'ray',     icon: 'ray',        title: 'Ray' },
+  { id: 'hline',   icon: 'horizontal', title: 'Horizontal line' },
+  { id: 'vline',   icon: 'vertical',   title: 'Vertical line' },
+  { id: 'rect',    icon: 'rectangle',  title: 'Rectangle' },
+  { id: 'measure', icon: 'measure',    title: 'Measure (price / % / time)' },
+  { id: 'fib',     icon: 'fibonacci',  title: 'Fib retracement' },
+  { id: 'long',    icon: 'long',       title: 'Long position (R:R)', sep: true, color: '#00c97a' },
+  { id: 'short',   icon: 'short',      title: 'Short position (R:R)', color: '#ff4560' },
 ]
 
 const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1]
@@ -253,7 +249,7 @@ export default function DrawingLayer({ chart, series, symbol, ready }: DrawingLa
               border: `1px solid ${tool === tl.id ? 'var(--teal)' : 'transparent'}`,
               background: tool === tl.id ? 'rgba(0,229,192,0.14)' : 'transparent',
               color: tool === tl.id ? 'var(--teal)' : (tl.color ?? 'var(--text-2)'),
-            }}>{(() => { const I = tl.Icon; return <I size={15} style={tl.rotate ? { transform: `rotate(${tl.rotate}deg)` } : undefined} /> })()}</button>
+            }}><NexusIcon name={tl.icon} size={15} strokeWidth={1.65} /></button>
             {hovered === tl.id && (
               <div style={{ position: 'absolute', left: 'calc(100% + 7px)', top: tl.sep ? 'calc(50% + 3px)' : '50%', transform: 'translateY(-50%)', whiteSpace: 'nowrap', background: 'rgba(9,12,16,0.96)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 9px', fontSize: 10, color: '#dfe8f0', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', zIndex: 12 }}>{tl.title}</div>
             )}
@@ -262,7 +258,7 @@ export default function DrawingLayer({ chart, series, symbol, ready }: DrawingLa
         {drawings.length > 0 && (
           <div style={{ position: 'relative' }} onMouseEnter={() => setHovered('clear')} onMouseLeave={() => setHovered(null)}>
             <div style={{ height: 1, background: 'var(--border)', margin: '3px 2px' }} />
-            <button onClick={() => persist([])} style={{ width: 26, height: 26, borderRadius: 4, cursor: 'pointer', border: '1px solid transparent', background: 'transparent', color: 'var(--negative)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14} /></button>
+            <button onClick={() => persist([])} style={{ width: 26, height: 26, borderRadius: 4, cursor: 'pointer', border: '1px solid transparent', background: 'transparent', color: 'var(--negative)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><NexusIcon name="trash" size={14} /></button>
             {hovered === 'clear' && (
               <div style={{ position: 'absolute', left: 'calc(100% + 7px)', top: 'calc(50% + 3px)', transform: 'translateY(-50%)', whiteSpace: 'nowrap', background: 'rgba(9,12,16,0.96)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 9px', fontSize: 10, color: '#dfe8f0', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', zIndex: 12 }}>Clear all drawings</div>
             )}

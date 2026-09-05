@@ -15,7 +15,7 @@
 // Keyboard: Esc clears the symbol when the pill is focused.
 
 import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { NexusIcon } from '@/components/ui/NexusIcon'
 import { useActiveSymbol } from '@/store/symbol'
 
 export default function ActiveSymbolPill() {
@@ -83,7 +83,7 @@ export default function ActiveSymbolPill() {
         className="active-symbol-pill-clear"
         aria-label="Clear active symbol"
       >
-        <X size={12} strokeWidth={2.4} />
+        <NexusIcon name="close" size={12} strokeWidth={2} />
       </button>
 
       <style>{`

@@ -7,6 +7,7 @@ import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { TTL } from '@/lib/data-hooks'
 import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
+import { NexusIcon, type NexusIconName } from '@/components/ui/NexusIcon'
 
 interface CalEvent {
   id:       string
@@ -101,9 +102,9 @@ function getEmbedded(): CalEvent[] {
 // ── Impact styles ─────────────────────────────────────────────────────────────
 const IMPACT_COLOR: Record<string, string> = { high:'var(--negative)', medium:'var(--amber)', low:'var(--text-muted)' }
 const IMPACT_BG:    Record<string, string> = { high:'rgba(255,69,96,0.12)', medium:'rgba(240,165,0,0.10)', low:'rgba(74,96,112,0.08)' }
-const CAT_ICON: Record<string, string> = {
-  inflation:'📈', growth:'📊', employment:'👷', central_bank:'🏦',
-  trade:'🌐', manufacturing:'🏭', consumer:'🛒', other:'📋',
+const CAT_ICON: Record<string, NexusIconName> = {
+  inflation:'inflation', growth:'growth', employment:'employment', central_bank:'central-bank',
+  trade:'trade', manufacturing:'manufacturing', consumer:'consumer', other:'event',
 }
 
 function relDay(iso: string): string {
@@ -230,7 +231,7 @@ export default function EconomicCalendarPanel() {
           const rel    = relDay(ev.date)
           const ic     = IMPACT_COLOR[ev.impact] ?? 'var(--text-muted)'
           const ib     = IMPACT_BG[ev.impact]    ?? 'transparent'
-          const icon   = CAT_ICON[ev.category]   ?? '📋'
+          const icon   = CAT_ICON[ev.category]   ?? 'event'
           const isPast = new Date(ev.date).getTime() < Date.now() - 3600_000
 
           return (
@@ -250,17 +251,13 @@ export default function EconomicCalendarPanel() {
                 <div style={{ fontSize:'10px', color: today?'var(--negative)':'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', marginBottom:'4px', fontWeight: today?700:400 }}>
                   {rel}
                 </div>
-                <div style={{
-                  width:'8px', height:'8px', borderRadius:'50%',
-                  background: ic, margin:'0 auto',
-                  boxShadow: ev.impact==='high' ? `0 0 6px ${ic}` : 'none',
-                }} />
+                <div className={`nx-beacon nx-beacon--${ev.impact === 'high' ? 'delayed' : 'live'}`} style={{ color: ic, background: ic, margin:'0 auto' }} />
               </div>
 
               {/* Event info */}
               <div>
                 <div style={{ display:'flex', alignItems:'center', gap:'5px', marginBottom:'3px', flexWrap:'wrap' }}>
-                  <span style={{ fontSize:'11px' }}>{icon}</span>
+                  <span style={{ color:ic, display:'inline-flex' }}><NexusIcon name={icon} size={14} /></span>
                   <span style={{ fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'11px', color:'#fff', lineHeight:1.3 }}>
                     {ev.title}
                   </span>

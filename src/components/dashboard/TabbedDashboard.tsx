@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState, type ComponentType } from 'react'
-import { Activity, Newspaper, Briefcase, Globe, BarChart2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import GridLayoutBase, { WidthProvider, type LayoutItem } from 'react-grid-layout/legacy'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import { NexusIcon, type NexusIconName } from '@/components/ui/NexusIcon'
 
 import { PANEL_META, EAGER_MOUNT, type PanelId } from './panelRegistry'
 import LazyMount         from './LazyMount'
@@ -22,16 +22,16 @@ interface Tab {
   id:     TabId
   label:  string
   hint:   string
-  icon:   ComponentType<{ size?: number; strokeWidth?: number }>
+  icon:   NexusIconName
   panels: PanelId[]
 }
 
 const TABS: Tab[] = [
-  { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: Activity,  panels: ['indices', 'heatmap', 'commodities', 'sentiment', 'mktclock'] },
-  { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: Newspaper, panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
-  { id: 'smartmoney', label: 'Research',    hint: 'Per-stock deep dive + smart money flow', icon: Briefcase, panels: ['equityresearch', 'screener', 'stockprofile', 'analystconsensus', 'smartmoney', 'insiderdeals', 'secfilings', 'supplychain', 'altdata'] },
-  { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: Globe,     panels: ['indiamarkets', 'fixedincome'] },
-  { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: BarChart2, panels: ['options', 'macrorates'] },
+  { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'commodities', 'sentiment', 'mktclock'] },
+  { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
+  { id: 'smartmoney', label: 'Research',    hint: 'Per-stock deep dive + smart money flow', icon: 'research-lens', panels: ['equityresearch', 'screener', 'stockprofile', 'analystconsensus', 'smartmoney', 'insiderdeals', 'secfilings', 'supplychain', 'altdata'] },
+  { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
+  { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'macrorates'] },
 ]
 
 const TAB_LS_KEY            = 'nexus-active-tab'
@@ -289,7 +289,6 @@ export default function TabbedDashboard() {
       <div className="tabbed-tabbar" role="tablist" aria-label="Pro dashboard sections">
         {TABS.map((t, i) => {
           const active = t.id === activeTab
-          const Icon = t.icon
           return (
             <button
               key={t.id}
@@ -300,7 +299,7 @@ export default function TabbedDashboard() {
               title={`${t.hint}  ·  press ${i + 1}`}
             >
               <span className="tab-icon" aria-hidden="true">
-                <Icon size={16} strokeWidth={active ? 2.5 : 2} />
+                <NexusIcon name={t.icon} size={16} strokeWidth={active ? 2.2 : 1.6} />
               </span>
               <span className="tab-label">{t.label}</span>
               <span className="tab-key" aria-hidden="true">{i + 1}</span>
@@ -356,7 +355,6 @@ export default function TabbedDashboard() {
       <nav className="tabbed-bottom-nav" role="tablist" aria-label="Main sections">
         {TABS.map(t => {
           const active = t.id === activeTab
-          const Icon = t.icon
           return (
             <button
               key={t.id}
@@ -366,7 +364,7 @@ export default function TabbedDashboard() {
               role="tab"
               title={t.label}
             >
-              <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
+              <NexusIcon name={t.icon} size={18} strokeWidth={active ? 2.2 : 1.6} />
               <span>{t.label}</span>
             </button>
           )

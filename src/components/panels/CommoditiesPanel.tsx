@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
 import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
+import { NexusIcon, type NexusIconName } from '@/components/ui/NexusIcon'
 
 // ── Commodity definitions ─────────────────────────────────────────────────────
 
@@ -11,7 +12,7 @@ interface CommodityDef {
   name:     string
   unit:     string
   category: 'Energy' | 'Metals' | 'Agriculture' | 'Crypto'
-  flag:     string
+  icon:     NexusIconName
   digits:   number
   // How this commodity impacts India vs US (for news context)
   usImpact:  string
@@ -20,29 +21,29 @@ interface CommodityDef {
 
 const COMMODITIES: CommodityDef[] = [
   // Energy
-  { symbol: 'CL=F',  name: 'Crude Oil (WTI)',  unit: '$/bbl',  category: 'Energy',      flag: '🛢️', digits: 2, usImpact: 'Gasoline, jet fuel, energy costs', indImpact: 'Petrol/diesel prices, INR pressure, fuel subsidy burden' },
-  { symbol: 'BZ=F',  name: 'Brent Crude',      unit: '$/bbl',  category: 'Energy',      flag: '🛢️', digits: 2, usImpact: 'Global oil benchmark, exports',    indImpact: 'India imports ~85% of oil at Brent prices, forex drain' },
-  { symbol: 'NG=F',  name: 'Natural Gas',       unit: '$/MMBtu',category: 'Energy',      flag: '🔥', digits: 3, usImpact: 'Heating, power generation, LNG',   indImpact: 'GAIL, city gas distribution, fertilizer production' },
-  { symbol: 'RB=F',  name: 'Gasoline (RBOB)',   unit: '$/gal',  category: 'Energy',      flag: '⛽', digits: 4, usImpact: 'Consumer fuel prices, inflation',  indImpact: 'Indirect via crude pricing' },
+  { symbol: 'CL=F',  name: 'Crude Oil (WTI)',  unit: '$/bbl',  category: 'Energy',      icon: 'oil', digits: 2, usImpact: 'Gasoline, jet fuel, energy costs', indImpact: 'Petrol/diesel prices, INR pressure, fuel subsidy burden' },
+  { symbol: 'BZ=F',  name: 'Brent Crude',      unit: '$/bbl',  category: 'Energy',      icon: 'oil', digits: 2, usImpact: 'Global oil benchmark, exports',    indImpact: 'India imports ~85% of oil at Brent prices, forex drain' },
+  { symbol: 'NG=F',  name: 'Natural Gas',       unit: '$/MMBtu',category: 'Energy',      icon: 'gas', digits: 3, usImpact: 'Heating, power generation, LNG',   indImpact: 'GAIL, city gas distribution, fertilizer production' },
+  { symbol: 'RB=F',  name: 'Gasoline (RBOB)',   unit: '$/gal',  category: 'Energy',      icon: 'fuel', digits: 4, usImpact: 'Consumer fuel prices, inflation',  indImpact: 'Indirect via crude pricing' },
 
   // Metals
-  { symbol: 'GC=F',  name: 'Gold',              unit: '$/oz',   category: 'Metals',      flag: '🥇', digits: 0, usImpact: 'Safe haven, dollar inverse',      indImpact: 'World\'s 2nd largest consumer, jewellery demand, weddings' },
-  { symbol: 'SI=F',  name: 'Silver',             unit: '$/oz',   category: 'Metals',      flag: '🥈', digits: 2, usImpact: 'Industrial + safe haven',         indImpact: 'Solar panels, electronics, jewellery' },
-  { symbol: 'HG=F',  name: 'Copper',             unit: '$/lb',   category: 'Metals',      flag: '🔴', digits: 4, usImpact: 'Construction, EV infrastructure', indImpact: 'Hindalco, Hindustan Copper, infra projects, EVs' },
-  { symbol: 'ALI=F', name: 'Aluminum',           unit: '$/lb',   category: 'Metals',      flag: '🪙', digits: 4, usImpact: 'Aerospace, automotive, packaging', indImpact: 'NALCO, Vedanta, auto & packaging sectors' },
-  { symbol: 'PL=F',  name: 'Platinum',           unit: '$/oz',   category: 'Metals',      flag: '⚪', digits: 0, usImpact: 'Catalytic converters, jewelry',   indImpact: 'Auto emissions control, industrial uses' },
+  { symbol: 'GC=F',  name: 'Gold',              unit: '$/oz',   category: 'Metals',      icon: 'gold', digits: 0, usImpact: 'Safe haven, dollar inverse',      indImpact: 'World\'s 2nd largest consumer, jewellery demand, weddings' },
+  { symbol: 'SI=F',  name: 'Silver',             unit: '$/oz',   category: 'Metals',      icon: 'silver', digits: 2, usImpact: 'Industrial + safe haven',         indImpact: 'Solar panels, electronics, jewellery' },
+  { symbol: 'HG=F',  name: 'Copper',             unit: '$/lb',   category: 'Metals',      icon: 'copper', digits: 4, usImpact: 'Construction, EV infrastructure', indImpact: 'Hindalco, Hindustan Copper, infra projects, EVs' },
+  { symbol: 'ALI=F', name: 'Aluminum',           unit: '$/lb',   category: 'Metals',      icon: 'aluminum', digits: 4, usImpact: 'Aerospace, automotive, packaging', indImpact: 'NALCO, Vedanta, auto & packaging sectors' },
+  { symbol: 'PL=F',  name: 'Platinum',           unit: '$/oz',   category: 'Metals',      icon: 'platinum', digits: 0, usImpact: 'Catalytic converters, jewelry',   indImpact: 'Auto emissions control, industrial uses' },
 
   // Agriculture
-  { symbol: 'ZW=F',  name: 'Wheat',              unit: '¢/bu',   category: 'Agriculture', flag: '🌾', digits: 2, usImpact: 'Food prices, farmer income',      indImpact: 'Atta/flour prices, MSP policy, food inflation (WPI)' },
-  { symbol: 'ZC=F',  name: 'Corn',               unit: '¢/bu',   category: 'Agriculture', flag: '🌽', digits: 2, usImpact: 'Ethanol, livestock feed, exports', indImpact: 'Poultry feed, starch industry, ethanol blending target' },
-  { symbol: 'ZS=F',  name: 'Soybeans',           unit: '¢/bu',   category: 'Agriculture', flag: '🫘', digits: 2, usImpact: 'Cooking oil, protein exports',     indImpact: 'Edible oil import costs, ITC, Ruchi Soya exposure' },
-  { symbol: 'SB=F',  name: 'Sugar',              unit: '¢/lb',   category: 'Agriculture', flag: '🍬', digits: 2, usImpact: 'Food processing, biofuel',         indImpact: 'India is world\'s top producer — Balrampur, Shree Renuka' },
-  { symbol: 'KC=F',  name: 'Coffee (Arabica)',   unit: '¢/lb',   category: 'Agriculture', flag: '☕', digits: 2, usImpact: 'Consumer staples, cafe chains',    indImpact: 'Karnataka/Kerala growers, Tata Coffee, Nestle India' },
-  { symbol: 'CT=F',  name: 'Cotton',             unit: '¢/lb',   category: 'Agriculture', flag: '🫙', digits: 2, usImpact: 'Apparel, textile exports',         indImpact: 'India 2nd largest producer — Welspun, textile mills, yarn exports' },
+  { symbol: 'ZW=F',  name: 'Wheat',              unit: '¢/bu',   category: 'Agriculture', icon: 'wheat', digits: 2, usImpact: 'Food prices, farmer income',      indImpact: 'Atta/flour prices, MSP policy, food inflation (WPI)' },
+  { symbol: 'ZC=F',  name: 'Corn',               unit: '¢/bu',   category: 'Agriculture', icon: 'corn', digits: 2, usImpact: 'Ethanol, livestock feed, exports', indImpact: 'Poultry feed, starch industry, ethanol blending target' },
+  { symbol: 'ZS=F',  name: 'Soybeans',           unit: '¢/bu',   category: 'Agriculture', icon: 'soy', digits: 2, usImpact: 'Cooking oil, protein exports',     indImpact: 'Edible oil import costs, ITC, Ruchi Soya exposure' },
+  { symbol: 'SB=F',  name: 'Sugar',              unit: '¢/lb',   category: 'Agriculture', icon: 'sugar', digits: 2, usImpact: 'Food processing, biofuel',         indImpact: 'India is world\'s top producer — Balrampur, Shree Renuka' },
+  { symbol: 'KC=F',  name: 'Coffee (Arabica)',   unit: '¢/lb',   category: 'Agriculture', icon: 'coffee', digits: 2, usImpact: 'Consumer staples, cafe chains',    indImpact: 'Karnataka/Kerala growers, Tata Coffee, Nestle India' },
+  { symbol: 'CT=F',  name: 'Cotton',             unit: '¢/lb',   category: 'Agriculture', icon: 'cotton', digits: 2, usImpact: 'Apparel, textile exports',         indImpact: 'India 2nd largest producer — Welspun, textile mills, yarn exports' },
 
   // Crypto (via Yahoo Finance)
-  { symbol: 'BTC-USD', name: 'Bitcoin',          unit: '$/BTC',  category: 'Crypto',     flag: '₿',  digits: 0, usImpact: 'Institutional crypto, ETF flows',  indImpact: 'WazirX exposure, crypto regulation, fintech sector' },
-  { symbol: 'ETH-USD', name: 'Ethereum',         unit: '$/ETH',  category: 'Crypto',     flag: '⧫',  digits: 2, usImpact: 'DeFi, Web3 platform risk proxy',  indImpact: 'NFT/DeFi projects, blockchain startups in India' },
+  { symbol: 'BTC-USD', name: 'Bitcoin',          unit: '$/BTC',  category: 'Crypto',     icon: 'bitcoin',  digits: 0, usImpact: 'Institutional crypto, ETF flows',  indImpact: 'WazirX exposure, crypto regulation, fintech sector' },
+  { symbol: 'ETH-USD', name: 'Ethereum',         unit: '$/ETH',  category: 'Crypto',     icon: 'ethereum',  digits: 2, usImpact: 'DeFi, Web3 platform risk proxy',  indImpact: 'NFT/DeFi projects, blockchain startups in India' },
 ]
 
 interface CommodityPrice {
@@ -371,7 +372,7 @@ export default function CommoditiesPanel() {
                     transition: 'background 0.15s',
                   }}
                 >
-                  <div style={{ fontSize: '16px', textAlign: 'center' }}>{def.flag}</div>
+                  <div style={{ color: catColor, display: 'flex', justifyContent: 'center' }}><NexusIcon name={def.icon} size={17} /></div>
 
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

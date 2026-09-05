@@ -6,6 +6,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
+import { NexusIcon } from '@/components/ui/NexusIcon'
 
 // ── Client-side BSM + Newton-Raphson IV ───────────────────────────────────────
 function normcdf(x: number): number {
@@ -780,7 +781,7 @@ export default function OptionsPanel() {
             padding:'24px', textAlign:'center',
             color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace', fontSize:'10px', lineHeight:1.8,
           }}>
-            <div style={{ fontSize:'20px', marginBottom:'8px' }}>📊</div>
+            <div style={{ marginBottom:'8px', display:'flex', justifyContent:'center', opacity:0.5 }}><NexusIcon name="options-curve" size={20} /></div>
             <div>Got {data.expiries.length} expiries but 0 strikes for <b style={{color:'#fff'}}>{fmtExpiry(expiry)}</b></div>
             {data.expiries.length > 1 && (
               <div style={{ color:'var(--text-muted)', marginTop:'4px' }}>

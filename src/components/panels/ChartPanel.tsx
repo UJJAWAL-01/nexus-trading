@@ -11,12 +11,7 @@ import AnalysisDrawer from './chart/AnalysisDrawer'
 import DrawingLayer from './chart/DrawingLayer'
 import { fetchChartAnalysis } from './chart/aiNote'
 import type { AiNote } from './chart/aiNote'
-import {
-  CandlestickChart, BarChart3, LineChart as LineChartIcon, AreaChart, LayoutGrid,
-  Clock, ChevronDown, GitCompareArrows, Layers, RotateCcw, Camera,
-  Maximize2, Minimize2, Activity, Bell, Search as SearchIcon, X as XIcon, SlidersHorizontal,
-} from 'lucide-react'
-import type { ComponentType } from 'react'
+import { NexusIcon, type NexusIconName } from '@/components/ui/NexusIcon'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -293,14 +288,13 @@ function renderPnF(canvas: HTMLCanvasElement, columns: PnFColumn[], containerH: 
 
 type ChartType = 'Candle' | 'Heikin Ashi' | 'Bar' | 'Line' | 'Area' | 'P&F'
 const CHART_TYPES: ChartType[] = ['Candle', 'Heikin Ashi', 'Bar', 'Line', 'Area', 'P&F']
-// Clean lucide icons so the chart-type dropdown reads at a glance.
-const CHART_TYPE_META: Record<ChartType, { Icon: ComponentType<{ size?: number }>; hint: string }> = {
-  'Candle':      { Icon: CandlestickChart, hint: 'Japanese candlesticks' },
-  'Heikin Ashi': { Icon: CandlestickChart, hint: 'Smoothed trend candles' },
-  'Bar':         { Icon: BarChart3,        hint: 'OHLC bars' },
-  'Line':        { Icon: LineChartIcon,    hint: 'Close line' },
-  'Area':        { Icon: AreaChart,        hint: 'Filled area' },
-  'P&F':         { Icon: LayoutGrid,       hint: 'Point & Figure' },
+const CHART_TYPE_META: Record<ChartType, { icon: NexusIconName; hint: string }> = {
+  'Candle':      { icon: 'candle',        hint: 'Japanese candlesticks' },
+  'Heikin Ashi': { icon: 'candle',        hint: 'Smoothed trend candles' },
+  'Bar':         { icon: 'bars',          hint: 'OHLC bars' },
+  'Line':        { icon: 'line-chart',    hint: 'Close line' },
+  'Area':        { icon: 'area-chart',    hint: 'Filled area' },
+  'P&F':         { icon: 'point-figure',  hint: 'Point & Figure' },
 }
 const RATING_DISPLAY: Record<string, { text: string; color: string }> = {
   strong_buy:  { text: 'Strong Buy',  color: '#00c97a' },
@@ -1309,7 +1303,7 @@ export default function ChartPanel() {
             border: `1px solid ${searchOpen || searchSym ? 'var(--teal)' : 'var(--border)'}`,
             borderRadius: '4px', overflow: 'visible', transition: 'border-color 0.15s',
           }}>
-            <span style={{ padding: '0 4px 0 7px', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', pointerEvents: 'none', userSelect: 'none' }}><SearchIcon size={13} /></span>
+            <span style={{ padding: '0 4px 0 7px', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', pointerEvents: 'none', userSelect: 'none' }}><NexusIcon name="search" size={13} /></span>
             <input
               value={searchInput}
               onChange={e => handleSearchInput(e.target.value.toUpperCase())}
@@ -1323,7 +1317,7 @@ export default function ChartPanel() {
               }}
             />
             {(searchInput || searchSym) && (
-              <button onClick={clearSearch} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 7px', display: 'inline-flex', alignItems: 'center' }}><XIcon size={13} /></button>
+              <button onClick={clearSearch} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 7px', display: 'inline-flex', alignItems: 'center' }}><NexusIcon name="close" size={13} /></button>
             )}
           </div>
 
@@ -1369,18 +1363,17 @@ export default function ChartPanel() {
         {/* Chart-type dropdown */}
         <div ref={typeDropRef} style={{ position: 'relative', flexShrink: 0 }}>
           <button onClick={() => setTypeOpen(v => !v)} title="Chart type" style={ddBtn(typeOpen, 'var(--amber)')}>
-            {(() => { const I = CHART_TYPE_META[chartType].Icon; return <I size={15} /> })()}
+            <NexusIcon name={CHART_TYPE_META[chartType].icon} size={15} />
             <span>{chartType}</span>
-            <ChevronDown size={12} style={{ opacity: 0.6 }} />
+            <NexusIcon name="chevron-down" size={12} style={{ opacity: 0.6 }} />
           </button>
           {typeOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 196, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden' }}>
               <div style={{ padding: '5px 10px 3px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)' }}>CHART TYPE</div>
               {CHART_TYPES.map(ct => {
-                const I = CHART_TYPE_META[ct].Icon
                 return (
                   <div key={ct} onMouseDown={() => { setChartType(ct); setTypeOpen(false) }} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 10px', cursor: 'pointer', background: chartType === ct ? 'rgba(240,165,0,0.08)' : 'transparent' }}>
-                    <span style={{ width: 18, display: 'flex', justifyContent: 'center', color: chartType === ct ? 'var(--amber)' : 'var(--text-2)' }}><I size={15} /></span>
+                    <span style={{ width: 18, display: 'flex', justifyContent: 'center', color: chartType === ct ? 'var(--amber)' : 'var(--text-2)' }}><NexusIcon name={CHART_TYPE_META[ct].icon} size={15} /></span>
                     <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
                       <span style={{ fontSize: 11, fontWeight: 600, color: chartType === ct ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{ct}</span>
                       <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{CHART_TYPE_META[ct].hint}</span>
@@ -1407,12 +1400,12 @@ export default function ChartPanel() {
               transition: 'all 0.12s',
             }}
           >
-            <SlidersHorizontal size={13} />
+            <NexusIcon name="indicators" size={13} />
             INDICATORS
             {activeInds.size > 0 && (
               <span style={{ background: 'var(--teal)', color: '#000', borderRadius: '8px', padding: '0 5px', fontSize: '10px', fontWeight: 700, lineHeight: '14px' }}>{activeInds.size}</span>
             )}
-            <ChevronDown size={12} style={{ opacity: 0.7 }} />
+            <NexusIcon name="chevron-down" size={12} style={{ opacity: 0.7 }} />
           </button>
 
           {indOpen && (
@@ -1481,7 +1474,7 @@ export default function ChartPanel() {
         {/* Compare symbols */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <button onClick={() => setCompareOpen(v => !v)} title="Compare symbols (% normalized)" style={miniBtn(compareSyms.length > 0 || compareOpen)}>
-            <GitCompareArrows size={13} /><span>COMPARE{compareSyms.length > 0 ? ` ${compareSyms.length}` : ''}</span>
+            <NexusIcon name="compare" size={13} /><span>COMPARE{compareSyms.length > 0 ? ` ${compareSyms.length}` : ''}</span>
           </button>
           {compareOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 200, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 5, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', padding: 8 }}>
@@ -1502,7 +1495,7 @@ export default function ChartPanel() {
         {/* Templates */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <button onClick={() => setTplOpen(v => !v)} title="Saved chart layouts" style={miniBtn(tplOpen)}>
-            <Layers size={13} /><span>LAYOUTS</span>
+            <NexusIcon name="layouts" size={13} /><span>LAYOUTS</span>
           </button>
           {tplOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 180, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 5, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden' }}>
@@ -1551,9 +1544,9 @@ export default function ChartPanel() {
         {/* Interval / timeframe dropdown */}
         <div ref={intervalDropRef} style={{ position: 'relative', flexShrink: 0 }}>
           <button onClick={() => setIntervalOpen(v => !v)} title="Timeframe / interval" style={ddBtn(intervalOpen)}>
-            <Clock size={13} />
+            <NexusIcon name="timeframe" size={13} />
             <span>{tf}</span>
-            <ChevronDown size={12} style={{ opacity: 0.6 }} />
+            <NexusIcon name="chevron-down" size={12} style={{ opacity: 0.6 }} />
           </button>
           {intervalOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 168, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden', paddingBottom: 4 }}>
@@ -1589,11 +1582,11 @@ export default function ChartPanel() {
                   }}>{m === 'normal' ? 'Lin' : m === 'log' ? 'Log' : '%'}</button>
                 ))}
               </div>
-              <button onClick={resetView} title="Reset view / auto-scale" style={miniBtn(false)}><RotateCcw size={14} /></button>
-              <button onClick={screenshot} title="Save chart image (S)" style={miniBtn(false)}><Camera size={14} /></button>
+              <button onClick={resetView} title="Reset view / auto-scale" style={miniBtn(false)}><NexusIcon name="reset" size={14} /></button>
+              <button onClick={screenshot} title="Save chart image (S)" style={miniBtn(false)}><NexusIcon name="capture" size={14} /></button>
             </>
           )}
-          <button onClick={toggleMaximize} title={maximized ? 'Exit full-screen chart (Esc)' : 'Full-screen chart (F)'} style={miniBtn(maximized)}>{maximized ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
+          <button onClick={toggleMaximize} title={maximized ? 'Exit full-screen chart (Esc)' : 'Full-screen chart (F)'} style={miniBtn(maximized)}>{maximized ? <NexusIcon name="collapse" size={14} /> : <NexusIcon name="expand" size={14} />}</button>
 
           {/* ANALYSIS — click opens the panel, hover previews what's on the chart */}
           <div style={{ position: 'relative' }} onMouseEnter={() => setAnalysisHover(true)} onMouseLeave={() => setAnalysisHover(false)}>
@@ -1604,11 +1597,11 @@ export default function ChartPanel() {
               background: analysisOpen ? 'rgba(0,229,192,0.16)' : 'rgba(0,229,192,0.04)',
               color: analysisOpen || analysisHover ? 'var(--teal)' : '#dfe8f0', transition: 'all 0.12s',
             }}>
-              <Activity size={14} /> ANALYSIS
+              <NexusIcon name="analysis" size={14} /> ANALYSIS
               {analysis && (analysis.geometric.length + analysis.candlestick.length) > 0 && (
                 <span style={{ background: 'var(--teal)', color: '#000', borderRadius: 8, padding: '0 5px', fontSize: 9, fontWeight: 800, lineHeight: '14px' }}>{analysis.geometric.length + analysis.candlestick.length}</span>
               )}
-              <ChevronDown size={12} style={{ opacity: 0.6 }} />
+              <NexusIcon name="chevron-down" size={12} style={{ opacity: 0.6 }} />
             </button>
             {analysisHover && analysis && (() => {
               const rd = RATING_DISPLAY[analysis.rating.overall.label] ?? RATING_DISPLAY.neutral
@@ -1670,7 +1663,7 @@ export default function ChartPanel() {
               {[hasRsi && 'RSI', hasMacd && 'MACD'].filter(Boolean).join(' · ')}
             </span>
           )}
-          <button onClick={addAlert} title="Set a price alert (fires while this tab is open)" style={{ ...miniBtn(false), marginLeft: 'auto', width: 'auto', padding: '0 9px' }}><Bell size={13} /> Alert</button>
+          <button onClick={addAlert} title="Set a price alert (fires while this tab is open)" style={{ ...miniBtn(false), marginLeft: 'auto', width: 'auto', padding: '0 9px' }}><NexusIcon name="alert" size={13} /> Alert</button>
           <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>scroll=zoom · drag=pan</span>
         </div>
       )}
@@ -1687,7 +1680,7 @@ export default function ChartPanel() {
         {/* alert toast */}
         {alertToast && (
           <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(9,12,16,0.94)', border: '1px solid var(--teal)', borderRadius: 5, padding: '6px 12px', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--teal)', boxShadow: '0 8px 30px rgba(0,0,0,0.6)', maxWidth: '90%' }}>
-            <Bell size={13} /> {alertToast}
+            <NexusIcon name="alert" size={13} /> {alertToast}
           </div>
         )}
         {loading && (
