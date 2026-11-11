@@ -19,6 +19,9 @@ export interface NexusIconProps {
   strokeWidth?: number
   className?: string
   style?: CSSProperties
+
+
+
   title?: string
 }
 
