@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
 import { rateLimit } from '@/lib/ratelimiter'
+import { clientIp } from '@/lib/api-guard'
 import {
   getScanStore, isStale, runSweep, type ScanTf, type SymbolScan, type ScanDetection,
 } from '@/lib/patternScan'
@@ -20,7 +21,7 @@ import { UNIVERSE_BY_SYMBOL } from '@/data/universe'
 const csv = (s: string | null) => (s ? s.split(',').map(x => x.trim()).filter(Boolean) : [])
 
 export async function GET(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const ip = clientIp(request.headers)
   const rl = rateLimit(`pattern-scan:${ip}`, 30, 60_000)
   if (!rl.allowed) return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
 

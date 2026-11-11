@@ -81,15 +81,44 @@ function createClient(): { pg: ReturnType<typeof postgres>; db: DB } {
   return { pg, db }
 }
 
-// Use globalThis caching to survive Next.js HMR cycles in dev
-if (!globalThis.__nexusDb) {
-  const { pg, db } = createClient()
-  globalThis.__nexusPg = pg
-  globalThis.__nexusDb = db
+// Lazy, globalThis-cached client.
+//
+// Nothing connects (or throws) at import time. The connection is created on
+// first actual use, so the app builds and runs without a database; only the
+// features that need Postgres report that it is not configured. globalThis
+// caching survives Next.js HMR cycles in dev.
+function ensure(): { pg: ReturnType<typeof postgres>; db: DB } {
+  if (!globalThis.__nexusDb || !globalThis.__nexusPg) {
+    const { pg, db } = createClient()
+    globalThis.__nexusPg = pg
+    globalThis.__nexusDb = db
+  }
+  return { pg: globalThis.__nexusPg, db: globalThis.__nexusDb }
 }
 
-export const db: DB = globalThis.__nexusDb!
-export const sql_client = globalThis.__nexusPg!  // raw client for ad-hoc queries
+/** True when DATABASE_URL is set. Routes use this to answer 503 instead of throwing. */
+export function isDbConfigured(): boolean {
+  return !!process.env.DATABASE_URL
+}
+
+function lazy<T extends object>(resolve: () => T, shell: object): T {
+  return new Proxy(shell, {
+    get(_t, prop) {
+      const real = resolve() as Record<PropertyKey, unknown>
+      const value = real[prop]
+      return typeof value === 'function' ? (value as (...a: unknown[]) => unknown).bind(real) : value
+    },
+    has(_t, prop) { return prop in (resolve() as object) },
+    apply(_t, _thisArg, args) {
+      return (resolve() as unknown as (...a: unknown[]) => unknown)(...args)
+    },
+  }) as T
+}
+
+export const db: DB = lazy<DB>(() => ensure().db, {})
+// Raw client for ad-hoc queries. It is a tagged-template function, so the
+// proxy shell must be callable.
+export const sql_client = lazy<ReturnType<typeof postgres>>(() => ensure().pg, function () {})
 
 // Re-export schema for ergonomic usage:
 //   import { db, companies, eq } from '@/db/client'

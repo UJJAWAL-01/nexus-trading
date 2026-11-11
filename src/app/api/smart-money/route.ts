@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ interface ConsensusItem {
 
 // ── Cache ──────────────────────────────────────────────────────────────────────
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 const TTL_24H = 24 * 60 * 60 * 1000
 
 // ── US Hedge Funds — 7 verified SEC CIKs ──────────────────────────────────────
@@ -61,7 +62,7 @@ const IN_FUNDS = [
 // CUSIPs are permanent (don't change for a security's lifetime), so caching the
 // resolution forever is safe. Cache is module-level, persists for the process.
 
-const cusipCache = new Map<string, string>()
+const cusipCache = new BoundedMap<string, string>(2000)
 
 async function resolveTickers(holdings: Holding[]): Promise<void> {
   // Pull CUSIPs we haven't cached yet
@@ -383,6 +384,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data)
   } catch (err) {
     if (cached) return NextResponse.json({ ...cached.data as object, stale: true })
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: 'Data unavailable' }, { status: 500 })
   }
 }

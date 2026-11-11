@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/ratelimiter'
+import { clientIp } from '@/lib/api-guard'
 import { callAI, parseAIJson, type AIMessage } from '@/lib/ai-provider'
 import { redis } from '@db/redis'
 
@@ -88,7 +89,7 @@ function normalize(n: Partial<AiNote> | null): AiNote | null {
 }
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const ip = clientIp(request.headers)
   const rl = rateLimit(`chart-analysis:${ip}`, 12, 60_000)  // 12 req/min per IP — expensive
   if (!rl.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded — try again shortly.' }, { status: 429 })

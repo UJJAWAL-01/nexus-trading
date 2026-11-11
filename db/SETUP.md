@@ -67,6 +67,8 @@ Opens [local.drizzle.studio](https://local.drizzle.studio) in your browser — s
 
 ## 2. Cloudflare R2 (OHLCV warehouse)
 
+> **Not currently used.** The R2 client (`db/r2.ts`) and its S3 dependency were removed because nothing in the app imported them. Skip this section. If an OHLCV warehouse is built later, restore the client from git history (`git log -- db/r2.ts`).
+
 ### 2.1 Create the bucket
 1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **R2 Object Storage**
 2. If first time: enable R2 (no credit card required for the free tier, but they'll ask you to add billing info as a security measure — you won't be charged)

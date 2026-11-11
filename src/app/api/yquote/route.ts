@@ -2,12 +2,14 @@
 // Handles: stocks, indices (^VIX, ^NSEI), crypto (BTC-USD), futures (CL=F), FX (USDINR=X)
 
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
+import { finnhub, hasKey } from '@/lib/providers/keys'
 
 // 30s shared edge cache — all users reading the same symbol share one Yahoo hit
 export const revalidate = 30
 
-const liveCache  = new Map<string, { data: QuoteData; expires: number }>()
-const staleCache = new Map<string, QuoteData>()
+const liveCache  = new BoundedMap<string, { data: QuoteData; expires: number }>(2000)
+const staleCache = new BoundedMap<string, QuoteData>(2000)
 
 interface QuoteData {
   symbol:      string
@@ -97,13 +99,10 @@ async function fetchFromYahoo(symbol: string): Promise<QuoteData | null> {
 
 async function fetchFromFinnhubCrypto(symbol: string): Promise<QuoteData | null> {
   const finnhubSym = FINNHUB_CRYPTO[symbol]
-  if (!finnhubSym || !process.env.FINNHUB_API_KEY) return null
+  if (!finnhubSym || !hasKey('finnhub')) return null
 
   try {
-    const res = await fetch(
-      `https://finnhub.io/api/v1/quote?symbol=${finnhubSym}&token=${process.env.FINNHUB_API_KEY}`,
-      { signal: AbortSignal.timeout(5000) }
-    )
+    const res = await finnhub('quote', { symbol: finnhubSym }, { timeoutMs: 5000 })
     if (!res.ok) return null
     const data = await res.json()
 

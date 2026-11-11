@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import WorkspaceBackup from '@/components/ui/WorkspaceBackup'
 
 const MOBILE_BREAKPOINT = 768
 
@@ -207,9 +208,14 @@ export default function Footer() {
           <div style={{ color: 'var(--text-muted)' }}>
             <div>© {currentYear} <strong style={{ color: '#fff' }}>UJJAWAL (UJ) PATEL</strong></div>
             <div style={{ fontSize: '10px' }}>
-              All Rights Reserved. Patents Pending.
+              Open source · GNU AGPL-3.0 · Data should not be gatekept.
             </div>
           </div>
+        </div>
+
+        {/* WORKSPACE BACKUP — client-side only */}
+        <div style={{ marginTop: '16px' }}>
+          <WorkspaceBackup />
         </div>
 
         {/* FOOTNOTE */}

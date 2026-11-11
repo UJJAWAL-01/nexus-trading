@@ -1,0 +1,28 @@
+# Keep secrets and local state out of the build context (and so out of the image).
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+.git
+.github
+.claude
+.agents
+.vercel
+.next
+node_modules
+coverage
+out
+build
+*.tsbuildinfo
+npm-debug.log*
+.DS_Store
+
+# Not needed to build or run the app
+docs
+*.md
+!README.md
+Dockerfile
+docker-compose.yml
+.dockerignore

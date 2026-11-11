@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/ratelimiter'
+import { clientIp } from '@/lib/api-guard'
+import { gemini, groq, hasKey } from '@/lib/providers/keys'
+
+// One-line AI context for a news headline.
+//
+// Provider order is Groq → Gemini (both free tiers). This route fires once per
+// headline, so it deliberately does not use the paid providers in callAI().
+// Keys are attached by lib/providers/keys.ts and never appear in a URL.
+
+// Groq retires models regularly; override with GROQ_MODEL without a code change.
+const GROQ_MODEL   = process.env.GROQ_MODEL   || 'openai/gpt-oss-20b'
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+
+// Strip anything that could break out of the prompt's data section.
+const clean = (s: string) => s.replace(/[\u0000-\u001f\u007f]/g, ' ').trim()
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const ip = clientIp(request.headers)
   const rl = rateLimit(`ai-context:${ip}`, 30, 60_000)  // 30 req/min per IP
   if (!rl.allowed) {
     return NextResponse.json({ context: null, error: 'Rate limit exceeded' }, { status: 429 })
@@ -10,58 +25,47 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const headline  = typeof body.headline  === 'string' ? body.headline.slice(0, 300)  : ''
-    const summary   = typeof body.summary   === 'string' ? body.summary.slice(0, 500)   : ''
+    const headline  = typeof body.headline  === 'string' ? clean(body.headline).slice(0, 300) : ''
+    const summary   = typeof body.summary   === 'string' ? clean(body.summary).slice(0, 200)  : ''
     const watchlist = Array.isArray(body.watchlist)
-      ? (body.watchlist as unknown[]).filter((s): s is string => typeof s === 'string').slice(0, 20)
+      ? (body.watchlist as unknown[])
+          .filter((s): s is string => typeof s === 'string' && /^[A-Za-z0-9^.\-=&]{1,20}$/.test(s))
+          .slice(0, 20)
       : []
+
+    if (!headline) return NextResponse.json({ context: null })
 
     const prompt = `You are a concise trading analyst. Given this financial news headline and the trader's watchlist, explain in ONE sentence (max 20 words) what this means for their positions. Be direct and specific.
 
 Headline: ${headline}
-Summary: ${summary?.slice(0, 200) || ''}
-Trader's watchlist: ${watchlist?.join(', ') || 'SPY, QQQ'}
+Summary: ${summary}
+Trader's watchlist: ${watchlist.join(', ') || 'SPY, QQQ'}
 
 Respond with ONLY the one-sentence insight. No preamble.`
 
-    // Try Groq first
-    if (process.env.GROQ_API_KEY) try {
-      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama3-8b-8192',
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: 60,
-          temperature: 0.3,
-        }),
+    if (hasKey('groq')) try {
+      const res = await groq({
+        model: GROQ_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        // Reasoning models spend output tokens thinking before they answer.
+        max_tokens: 300,
+        temperature: 0.3,
+        ...(GROQ_MODEL.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
       })
-
-      if (groqRes.ok) {
-        const data = await groqRes.json()
+      if (res.ok) {
+        const data = await res.json()
         const context = data.choices?.[0]?.message?.content?.trim()
-        if (context) return NextResponse.json({ context })
+        if (context) return NextResponse.json({ context: context.slice(0, 240) })
       }
     } catch {}
 
-    // Fallback: Gemini
-    if (process.env.GEMINI_API_KEY) try {
-      const gemRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 60, temperature: 0.3 },
-          }),
-        }
-      )
-      if (gemRes.ok) {
-        const data = await gemRes.json()
+    if (hasKey('gemini')) try {
+      const res = await gemini(GEMINI_MODEL, {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 60, temperature: 0.3 },
+      })
+      if (res.ok) {
+        const data = await res.json()
         const context = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
         if (context) return NextResponse.json({ context })
       }

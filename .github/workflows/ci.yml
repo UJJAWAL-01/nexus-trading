@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, lint, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # No secrets are exposed to this job. The app builds and its tests run
+    # without any provider API key; never add real keys here, because pull
+    # requests from forks must be able to run it safely.
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Refuse committed env files and key-shaped strings
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -E '(^|/)\.env(\.[^/]*)?$' | grep -v -E '\.env\.example$'; then
+            echo "::error::An .env file is tracked. Remove it and rotate any keys it contained."
+            exit 1
+          fi
+          # Provider key shapes: Anthropic, xAI, Google, Groq, generic postgres URL with password.
+          if git grep -n -I -E '(sk-ant-[A-Za-z0-9_-]{20,}|xai-[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gsk_[A-Za-z0-9]{30,}|postgres(ql)?://[^:@/ ]+:[^@/ ]{6,}@)' -- . ':!package-lock.json' ':!db/SETUP.md' ':!.env.example'; then
+            echo "::error::A string shaped like a real credential is committed. Remove it and rotate the key."
+            exit 1
+          fi
+          echo "No tracked env files or key-shaped strings found."

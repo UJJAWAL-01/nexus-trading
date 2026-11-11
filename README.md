@@ -1,253 +1,154 @@
 # NEXUS Trading Intelligence
 
-> ** Terminal-style market research dashboard for retail and semi-professional traders.** Real-time data, AI-driven analysis, dual US & Indian market support — all in one interface.
+**An open-source market terminal for US and Indian markets.** Charts, quotes, news, options, fundamentals, filings, macro and a portfolio tracker in one multi-panel dashboard. No account, no subscription.
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black) ![React](https://img.shields.io/badge/React-19-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![status](https://img.shields.io/badge/status-production-brightgreen)
+Market data should not be gatekept. NEXUS is licensed under the [GNU AGPL-3.0](LICENSE): you can run it, study it, change it and share it, and anyone who runs a modified version as a service has to share their changes too.
 
----
+![CI](https://github.com/UJJAWAL-01/nexus-trading/actions/workflows/ci.yml/badge.svg) ![License](https://img.shields.io/badge/license-AGPL--3.0-blue) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 
-## What is NEXUS?
-
-NEXUS is a **free, open-access** trading intelligence platform designed to give retail traders the kind of multi-panel market overview previously only available on expensive institutional terminals. It aggregates live prices, AI-generated insights, options chains, earnings data, sector flows, macro rates, news sentiment, and more — across both **US and Indian markets**.
-
-No account required. No subscription. Open the app and start trading smarter.
+> NEXUS is for information and education only. It is not financial advice. Data can be delayed, incomplete or wrong. See [Limitations](#limitations).
 
 ---
 
-## Feature Overview
+## Quick start
 
-### 18 Specialized Dashboard Panels
-
-| Panel | What It Shows |
-|-------|--------------|
-| **Chart** | Candlestick chart (15-min), Heikin Ashi, Fibonacci, Pivot Points, Donchian, Ichimoku |
-| **Watchlist** | Your tickers with live prices, % change, and flash-on-update |
-| **Global Indices** | SPX, DJI, Nasdaq, Nifty 50, Sensex, Nikkei, Hang Seng, USD/INR, EUR/USD |
-| **Market Clock** | Real-time clocks: New York · London · Mumbai with open/closed status |
-| **News Feed** | AI-tagged news (Bullish/Bearish/Neutral) filtered to your watchlist. Tabs: Relevant · Markets · Macro · India |
-| **Sentiment** | Fear & Greed Index, VIX, SPY RSI, distance from 50-day MA |
-| **Sector Heatmap** | All 11 S&P 500 sectors color-graded; hover for top 8 component movers |
-| **India Markets** | NSE/BSE indices, FII/DII flow data, top movers |
-| **Earnings** | Upcoming + recent earnings, EPS estimate vs. actual, AI one-line insights |
-| **Economic Calendar** | FOMC, CPI, NFP, RBI policy events with impact levels |
-| **Options Chain** | Full chain for US (Yahoo/CBOE) and India (NSE). OI chart, Greeks, Max Pain |
-| **Correlation** | AI picks 18–22 related instruments; runs Pearson/Spearman/rolling correlation + lead-lag |
-| **Macro Rates** | US Treasury yields (2Y–30Y), Fed Funds rate, RBI Repo, World Bank rates |
-| **Commodities** | WTI Oil, Gold, Natural Gas, Copper with trend signals |
-| **Insider Deals** | SEC Form 4 filings (US) + NSE insider transactions (India) |
-| **IPO Screener** | Recent and upcoming IPOs with sector filters and sentiment |
-| **Alternative Signals** | Seasonality, day-of-week patterns, lunar cycle indicators |
-| **Live Finance TV** | 24/7 embedded streams: CNBC, Reuters, Yahoo Finance, CNBC TV18, NDTV Profit, ET Now, Zee Business |
-
----
-
-## User Manual
-
-### Getting Started in 3 Steps
-
-1. **Open the app** — dashboard loads instantly, no login needed
-2. **Add your tickers** — click **+** in the Watchlist panel:
-   - US stocks: `AAPL`, `NVDA`, `TSLA`, `SPY`, `QQQ`
-   - Indian stocks: `RELIANCE.NS`, `TCS.NS`, `HDFCBANK.NS`
-   - Indices: `^NSEI`, `^BSESN`, `^GSPC`, `^VIX`
-3. **The chart and news automatically sync** to whichever ticker you click
-
-### Customizing Your Layout (Desktop)
-
-1. Click **Edit Layout** (pencil icon, top-right)
-2. **Drag panels** by their header to rearrange
-3. **Resize panels** by dragging the bottom-right corner handle
-4. Click **Save Layout** — persists in your browser across sessions
-5. Click **Reset Layout** to restore defaults
-
-On **mobile** (< 768px): panels stack in a single column. Drag-and-drop is disabled.
-
----
-
-### Chart Panel
-
-- Click tickers in the **symbol bar** at the top to switch charts
-- **Search** any symbol not in your watchlist via the search box
-- Toggle **overlays**: Fibonacci · Pivot Points · Donchian · Ichimoku
-- Toggle **Heikin Ashi** to smooth candles and make trends clearer
-- Resize or collapse the **volume pane** from the toolbar
-
-### Options Chain
-
-1. Select **US** or **IN** market
-2. Enter or click a ticker to load the chain
-3. Pick an **expiry date** from the selector
-4. **Chain view**: Calls (left) and Puts (right) per strike
-5. **OI Chart** tab: Open Interest bar chart, useful for finding Max Pain
-6. **Greeks** toggle: Delta, Gamma, Theta, Vega computed client-side via Black-Scholes-Merton
-
-> Greeks are approximate — computed in your browser from the live chain data.
-
-### Correlation Panel
-
-1. Click a ticker in your watchlist or type one in the Correlation panel
-2. AI analyzes the company and identifies 18–22 related instruments:
-   - **Upstream** (suppliers) · **Downstream** (customers) · **Competitors** · **ETFs** · **Macro** (commodities, FX, yields) · **Peers**
-3. 90 days of price history is fetched and correlations are computed
-4. Results show coefficient, relationship type, and regime-shift detection
-
-> First load: 15–30 seconds (AI + ~20 price fetches). Results cached 2 hours.
-
-### News Feed
-
-- **Relevant tab**: stories about your watchlist tickers
-- Each headline has an **AI sentiment badge** (Bullish / Bearish / Neutral)
-- **AI context line**: one sentence on what the news means for your positions
-- Click any headline to open the full article
-- Auto-refreshes every 60 seconds during market hours
-
-### Paper Trading (`/trading`)
-
-- Set your **starting balance** in Settings
-- **Log trades** with entry/exit, size, and notes
-- View **P&L**, win rate, and full trade journal
-- Everything stays in your browser — nothing sent to servers
-
----
-
-### Supported Symbols
-
-| Type | Examples |
-|------|---------|
-| US Stocks | `AAPL`, `MSFT`, `NVDA`, `TSLA`, `AMZN`, `META` |
-| US ETFs | `SPY`, `QQQ`, `IWM`, `XLK`, `XLF` |
-| US Indices | `^GSPC`, `^DJI`, `^IXIC`, `^VIX`, `^TNX` |
-| Indian Stocks (NSE) | `RELIANCE.NS`, `TCS.NS`, `INFY.NS`, `HDFCBANK.NS` |
-| Indian Stocks (BSE) | `RELIANCE.BO`, `TCS.BO` |
-| Indian Indices | `^NSEI`, `^BSESN`, `^NSEBANK` |
-| Commodities | `CL=F`, `GC=F`, `NG=F`, `HG=F` |
-| FX | `EURUSD=X`, `GBPUSD=X`, `USDINR=X` |
-
----
-
-### Data Freshness
-
-| Data | Source | Refresh |
-|------|--------|---------|
-| Live quotes | Yahoo Finance | 5–8 seconds |
-| Chart candles | Yahoo Finance | 10 seconds |
-| Global indices | Finnhub + Yahoo | 30 seconds |
-| News | Finnhub + NewsAPI | 60 seconds |
-| Options chains | Yahoo / CBOE / NSE | 2 minutes |
-| Earnings | Yahoo + SEC EDGAR | 5 minutes |
-| Macro rates | FRED | 30 minutes |
-| Correlation analysis | AI + Yahoo | Cached 2 hours |
-
-> Polling pauses automatically when markets are closed.
-
----
-
-## Developer Setup
-
-### Prerequisites
-
-- Node.js 18+, npm
-
-### Install & Run
+Requires Node.js 20.9 or newer.
 
 ```bash
-git clone https://github.com/ujjawal-patel/nexus-trading.git
+git clone https://github.com/UJJAWAL-01/nexus-trading.git
 cd nexus-trading
-npm install
-npm run dev          # http://localhost:3000
+npm ci
+cp .env.example .env.local     # optional: add the keys you have
+npm run dev                    # http://localhost:3000
+```
+
+The app starts with no API keys. Charts, quotes and the pattern scanner work immediately; each key you add in `.env.local` unlocks more panels. Every provider has a free tier.
+
+With Docker:
+
+```bash
+cp .env.example .env.local
+docker compose up -d --build   # http://localhost:3000
+```
+
+Full instructions, reverse-proxy setup and the optional Postgres database are in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
+
+---
+
+## What's in it
+
+27 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+
+| Area | Panels |
+|---|---|
+| **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Commodities · Sentiment · World Clock |
+| **Your data** | Portfolio (positions, live P&L, CSV import/export) |
+| **News and events** | Intel Feed (AI-tagged news) · Economic Calendar · Earnings · IPO · Live TV |
+| **Research** | Equity Research (5y SEC fundamentals) · Screener (7,600+ US filers) · Pattern Scanner · Stock Profile · Analyst Consensus |
+| **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain · Alt Data |
+| **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Fixed Income · Macro Rates |
+| **India** | India Markets (Nifty, Sensex, FII/DII) and `.NS` / `.BO` symbols across most panels |
+
+Highlights:
+
+- **Chart** with 1-minute to monthly timeframes, indicators, drawing tools, and a deterministic pattern engine (chart and candlestick patterns, composite technical rating). AI writes a note about what the engine found; it does not invent the patterns.
+- **Portfolio** with live P&L pushed over a single streaming connection. Totals are kept per currency.
+- **Export everything you own.** Watchlist and portfolio export to CSV. One file backs up and restores your whole workspace (watchlist, portfolio, layouts, chart drawings).
+- **Your data stays in your browser.** There are no accounts. Watchlists, positions and layouts are stored in `localStorage` and are never uploaded.
+- **Honest labels.** Panels mark data as live, official, modelled or synthetic rather than passing estimates off as real.
+
+Symbol format follows Yahoo conventions: `AAPL`, `BRK-B`, `RELIANCE.NS`, `TCS.BO`, `^NSEI`, `^GSPC`, `CL=F`, `EURUSD=X`, `BTC-USD`.
+
+---
+
+## Data sources
+
+NEXUS aggregates public and free-tier sources. The license covers the NEXUS code, **not the data**: every provider has its own terms, and you are responsible for following them on your deployment.
+
+| Source | Used for | Key |
+|---|---|---|
+| Yahoo Finance (unofficial endpoints) | Charts, quotes, search, India fundamentals | none |
+| SEC EDGAR | US fundamentals, filings, 13F holdings | none |
+| NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |
+| CBOE | US options chains | none |
+| Wikipedia, Reddit, Hacker News | Alt-data attention signals | none |
+| Finnhub | Quote fallback, news, earnings, IPOs, analyst data | `FINNHUB_API_KEY` |
+| FRED | Macro rates, yields, CPI | `FRED_API_KEY` |
+| NewsAPI | Extra news coverage | `NEWS_API_KEY` |
+| Alpha Vantage | News sentiment | `ALPHA_VANTAGE_KEY` |
+| YouTube Data API | Live TV stream lookup | `YOUTUBE_API_KEY` |
+| xAI, Anthropic, Google, Groq | AI summaries and notes (optional) | see `.env.example` |
+
+Yahoo and NSE are unofficial integrations. They can change or rate-limit without notice; when that happens the affected panels show stale or unavailable data. Adding more providers is the most valuable contribution you can make, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Security
+
+The server holds the provider keys, and the design keeps them there:
+
+- Keys are read only on the server and attached to requests in one module (`src/lib/providers/keys.ts`). They are sent as headers wherever the provider allows, so they stay out of URLs and logs.
+- Keyed requests can only go to an allowlist of HTTPS hosts, with timeouts and redacted errors.
+- Every `/api` route sits behind one guard (`src/proxy.ts`): input validation, a block on other websites calling your API from a browser, and per-IP rate limits.
+- CI scans every pull request for committed secrets and uses none itself.
+
+Details, limits of these measures, and how to report a vulnerability: [SECURITY.md](SECURITY.md).
+
+---
+
+## Development
+
+```bash
+npm run dev          # start the dev server
+npm run typecheck    # TypeScript
+npm run lint         # ESLint
+npm test             # unit tests (Vitest)
 npm run build        # production build
 ```
 
-### Environment Variables
-
-Create `.env.local` in the project root:
-
-```env
-# Market Data
-FINNHUB_API_KEY=        # Free: finnhub.io (60 calls/min)
-NEWS_API_KEY=           # Free: newsapi.org (100 req/day)
-FRED_API_KEY=           # Free: fred.stlouisfed.org
-YOUTUBE_API_KEY=        # Google Cloud Console
-
-# AI Providers (at least one required)
-GROK_API_KEY=           # Free ~$25/mo: console.x.ai  ← recommended
-GEMINI_API_KEY=         # Free 15 RPM: aistudio.google.com
-ANTHROPIC_API_KEY=      # Paid: anthropic.com
-GROQ_API_KEY=           # Free tier: console.groq.com
-```
-
-**AI Priority order**: Grok → Claude → Gemini. The system automatically uses whichever keys are present.
-
----
-
-## Deployment (AWS Amplify)
-
-1. Push repo to GitHub
-2. [AWS Amplify Console](https://console.aws.amazon.com/amplify/) → **New App → Host Web App → GitHub**
-3. Select repository and `main` branch
-4. Amplify auto-detects Next.js — confirm build settings
-5. Add environment variables under **App Settings → Environment Variables**
-6. Deploy
-
-**Build command**: `npm run build`  
-**Node.js**: 18+
-
-CloudFront (built into Amplify) respects the `s-maxage` Cache-Control headers set in all API routes — concurrent users hitting the same ticker will share a cached response, keeping Lambda invocations low.
-
----
-
-## Architecture Overview
-
 ```
 src/
+├── proxy.ts                  Guard in front of every /api route
 ├── app/
-│   ├── page.tsx                  # Main dashboard
-│   ├── trading/page.tsx          # Paper trading
-│   ├── terms | privacy | legal   # Legal pages
-│   ├── contact | accessibility   # Info pages
-│   └── api/                      # 22 server-side API routes
-│       ├── globalquote/          # Live quotes
-│       ├── finnhub/              # News + quotes
-│       ├── options/              # Options chains
-│       ├── correlation/          # AI correlation
-│       ├── ai-context/           # AI news context
-│       ├── edgar/                # SEC filings
-│       ├── fixed-income/         # Yield curves
-│       └── ...                   # 15 more routes
+│   ├── page.tsx              Dashboard
+│   └── api/                  Server routes (the only code that talks to providers)
 ├── components/
-│   ├── dashboard/GridLayout.tsx  # Draggable grid
-│   └── panels/                   # 18 panel components
+│   ├── dashboard/            Grid, tabs, panel registry
+│   └── panels/               One file per panel
 ├── lib/
-│   ├── ai-provider.ts            # AI fallback chain
-│   └── ratelimiter.ts            # Per-IP rate limiting
-└── store/watchlist.ts            # Zustand watchlist state
+│   ├── providers/            Key vault, guarded HTTP, shared cache, provider chain
+│   ├── patterns/             Deterministic pattern + rating engine (tested)
+│   ├── api-guard.ts          Client IP, cross-site check, parameter validation
+│   └── export.ts             CSV export and workspace backup
+└── store/                    Client state (watchlist, portfolio, layout)
+db/                           Postgres schema for the Screener and Equity Research
+scripts/                      Data ingestion (SEC fundamentals, company universe)
 ```
 
-### AI Provider Chain (`lib/ai-provider.ts`)
+Stack: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Zustand, SWR, lightweight-charts, Drizzle ORM.
 
-```
-Request → Grok (xAI, free) → Claude (Anthropic, paid) → Gemini Flash (Google, free) → "unavailable"
-```
-
-All AI calls go through `callAI()` — never add provider-specific code paths in components.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. It is short, and it lists the rules that keep keys safe.
 
 ---
 
-## Known Limitations
+## Limitations
 
-- **Options data**: Yahoo Finance has ~15-min delay. Real-time options requires a paid data feed.
-- **India options**: NSE API is session-based; may be rate-limited during high traffic.
-- **NewsAPI**: Free tier limited to 100 req/day and developer-plan restrictions outside localhost.
-- **AI analysis**: Free-tier rate limits apply. During peak usage, AI responses may take 15–30 seconds.
-- **Charts**: 1-day history only (15-min intervals). Extended history requires Yahoo Premium.
-- **Mobile**: Full feature set on desktop. Mobile shows read-only stacked layout.
+- **Not real time.** Quotes come from free sources and can be delayed by 15 minutes or more. The quote stream pushes updates as the server sees them, roughly every 5 to 10 seconds; it is not a tick feed.
+- **Unofficial sources can break.** See [Data sources](#data-sources).
+- **India coverage is partial.** Equity Research and the Screener are built on SEC filings and are US-only today.
+- **Screener and Equity Research need a database.** They require Postgres and an ingestion run ([db/SETUP.md](db/SETUP.md)). Without it they report "not configured" and the rest of the app works.
+- **No accounts or sync.** Data is per browser. Use workspace backup to move it.
+- **Portfolio P&L is unrealized only** and ignores fees, dividends, splits and FX.
+- **AI output can be wrong.** It is generated text about the data shown, not advice.
 
 ---
 
-## Legal
+## License
 
-NEXUS is for **informational and educational purposes only**. Not financial advice. Trading involves risk. See [Terms of Service](/terms) and [Legal Disclaimer](/legal).
+Copyright © 2025–2026 Ujjawal Patel and contributors.
 
-**Contact**: [nexus.trading.dev@gmail.com](mailto:nexus.trading.dev@gmail.com)  
-**Built by**: Ujjawal (UJ) Patel  
-**© 2025 Ujjawal Patel. All rights reserved.**
+NEXUS is free software under the [GNU Affero General Public License v3.0](LICENSE). In short: you may use, modify and redistribute it, and if you let others use a modified version over a network you must offer them its source code. See [NOTICE](NOTICE).
+
+Third-party market data, logos and trademarks belong to their owners and are not covered by this license.
+
+Contact: [nexus.trading.dev@gmail.com](mailto:nexus.trading.dev@gmail.com)

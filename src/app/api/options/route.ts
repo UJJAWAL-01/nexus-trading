@@ -4,12 +4,13 @@
 // All Greeks computed CLIENT-SIDE — zero server CPU
 
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
 
 const dev = process.env.NODE_ENV !== 'production'
 
 // ── In-memory caches ───────────────────────────────────────────────────────────
-const liveCache  = new Map<string, { data: unknown; exp: number; fetchedAt: number }>()
-const staleStore = new Map<string, { data: unknown; fetchedAt: number }>()  // never expires
+const liveCache  = new BoundedMap<string, { data: unknown; exp: number; fetchedAt: number }>(2000)
+const staleStore = new BoundedMap<string, { data: unknown; fetchedAt: number }>(2000)  // never expires
 
 // ── Yahoo Finance crumb session (4h lifetime) ─────────────────────────────────
 const yfSession = { crumb: '', cookie: '', exp: 0 }

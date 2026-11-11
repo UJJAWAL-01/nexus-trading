@@ -1,7 +1,8 @@
 // src/app/api/globalquote/route.ts
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
 
-const cache = new Map<string, { data: unknown; stale: unknown; expires: number }>()
+const cache = new BoundedMap<string, { data: unknown; stale: unknown; expires: number }>(2000)
 
 export interface GlobalQuote {
   symbol:        string

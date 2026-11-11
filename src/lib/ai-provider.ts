@@ -22,6 +22,9 @@
   GEMINI_API_KEY=AIza...        ← tertiary fallback
 */
 
+import { anthropic, gemini, hasAIKey, hasKey, xai } from './providers/keys'
+import { redact } from './providers/http'
+
 export interface AIMessage {
   role:    'user' | 'assistant' | 'system'
   content: string
@@ -36,34 +39,26 @@ export interface AIResponse {
 // ── Grok (xAI) ────────────────────────────────────────────────────────────────
 // OpenAI-compatible API, free tier available at console.x.ai
 async function callGrok(messages: AIMessage[], maxTokens = 1500): Promise<string | null> {
-  if (!process.env.GROK_API_KEY) return null
+  if (!hasAIKey('xai')) return null
 
   try {
-    const res = await fetch('https://api.x.ai/v1/chat/completions', {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${process.env.GROK_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model:       'grok-3-mini',   // fastest, cheapest, free tier
-        messages,
-        max_tokens:  maxTokens,
-        temperature: 0.2,             // low temp for factual analysis
-      }),
-      signal: AbortSignal.timeout(25_000),
-    })
+    const res = await xai({
+      model:       'grok-3-mini',   // fastest, cheapest, free tier
+      messages,
+      max_tokens:  maxTokens,
+      temperature: 0.2,             // low temp for factual analysis
+    }, { timeoutMs: 25_000 })
 
     if (!res.ok) {
       const err = await res.text()
-      console.error(`[AI] Grok ${res.status}:`, err.slice(0, 200))
+      console.error(`[AI] Grok ${res.status}:`, redact(err.slice(0, 200)))
       return null
     }
 
     const data = await res.json()
     return data.choices?.[0]?.message?.content?.trim() ?? null
   } catch (err) {
-    console.error('[AI] Grok error:', err)
+    console.error('[AI] Grok error:', redact(err))
     return null
   }
 }
@@ -71,7 +66,7 @@ async function callGrok(messages: AIMessage[], maxTokens = 1500): Promise<string
 // ── Claude (Anthropic) ────────────────────────────────────────────────────────
 // Paid — best quality. Auto-activates when ANTHROPIC_API_KEY is set.
 async function callClaude(messages: AIMessage[], maxTokens = 1500): Promise<string | null> {
-  if (!process.env.ANTHROPIC_API_KEY) return null
+  if (!hasAIKey('anthropic')) return null
 
   // Convert messages to Claude format (system messages go to system param)
   const systemMsg = messages.find(m => m.role === 'system')?.content
@@ -85,16 +80,7 @@ async function callClaude(messages: AIMessage[], maxTokens = 1500): Promise<stri
     }
     if (systemMsg) body.system = systemMsg
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:  'POST',
-      headers: {
-        'Content-Type':      'application/json',
-        'x-api-key':         process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body:    JSON.stringify(body),
-      signal:  AbortSignal.timeout(30_000),
-    })
+    const res = await anthropic(body, { timeoutMs: 30_000 })
 
     if (!res.ok) {
       console.error(`[AI] Claude ${res.status}`)
@@ -104,7 +90,7 @@ async function callClaude(messages: AIMessage[], maxTokens = 1500): Promise<stri
     const data = await res.json()
     return data.content?.[0]?.text?.trim() ?? null
   } catch (err) {
-    console.error('[AI] Claude error:', err)
+    console.error('[AI] Claude error:', redact(err))
     return null
   }
 }
@@ -113,7 +99,7 @@ async function callClaude(messages: AIMessage[], maxTokens = 1500): Promise<stri
 // Free tier: 15 RPM, 1M tokens/day (generous)
 // Get key: aistudio.google.com
 async function callGemini(messages: AIMessage[], maxTokens = 1500): Promise<string | null> {
-  if (!process.env.GEMINI_API_KEY) return null
+  if (!hasKey('gemini')) return null
 
   try {
     // Convert to Gemini format
@@ -134,15 +120,8 @@ async function callGemini(messages: AIMessage[], maxTokens = 1500): Promise<stri
       body.systemInstruction = { parts: [{ text: systemInstruction }] }
     }
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(body),
-        signal:  AbortSignal.timeout(20_000),
-      }
-    )
+    // Key travels in the X-Goog-Api-Key header, never in the URL.
+    const res = await gemini('gemini-2.0-flash', body, { timeoutMs: 20_000 })
 
     if (!res.ok) {
       console.error(`[AI] Gemini ${res.status}`)
@@ -152,7 +131,7 @@ async function callGemini(messages: AIMessage[], maxTokens = 1500): Promise<stri
     const data = await res.json()
     return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? null
   } catch (err) {
-    console.error('[AI] Gemini error:', err)
+    console.error('[AI] Gemini error:', redact(err))
     return null
   }
 }

@@ -1,28 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { hasKey, youtube } from '@/lib/providers/keys'
+import { createCache } from '@/lib/providers/cache'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+const cache = createCache<unknown>({ name: 'youtube', max: 10, staleMs: 6 * 3600_000 })
 
 const FINANCIAL_CHANNELS = [
   'UCrM7B7SL_g1edFOnmj-SDKg', // CNBC
 ]
 
-export async function GET(request: NextRequest) {
-  const cacheKey = 'youtube:financial'
-  const cached = cache.get(cacheKey)
-  if (cached && cached.expires > Date.now()) {
-    return NextResponse.json(cached.data)
-  }
+class QuotaExceeded extends Error {}
+
+export async function GET() {
+  if (!hasKey('youtube')) return NextResponse.json({ error: 'fetch failed', items: [] })
 
   try {
-    const channelId = FINANCIAL_CHANNELS[0]
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=5&order=date&type=video&key=${process.env.YOUTUBE_API_KEY}`
-    )
-    if (res.status === 403) return NextResponse.json({ rateLimited: true, items: [] })
-    const data = await res.json()
-    cache.set(cacheKey, { data, expires: Date.now() + 600_000 })
+    const data = await cache.wrap('financial', 600_000, async () => {
+      const res = await youtube('search', {
+        part: 'snippet', channelId: FINANCIAL_CHANNELS[0], maxResults: 5, order: 'date', type: 'video',
+      })
+      if (res.status === 403) throw new QuotaExceeded()
+      if (!res.ok) throw new Error('upstream error')
+      return (await res.json()) as unknown
+    })
     return NextResponse.json(data)
-  } catch {
+  } catch (err) {
+    if (err instanceof QuotaExceeded) return NextResponse.json({ rateLimited: true, items: [] })
     return NextResponse.json({ error: 'fetch failed', items: [] })
   }
 }

@@ -1,0 +1,56 @@
+# NEXUS Trading Intelligence — self-hosting.
+#
+#   cp .env.example .env.local      # then fill in your own keys
+#   docker compose up -d --build    # app only            → http://localhost:3000
+#   docker compose --profile db up -d --build   # app + Postgres (Screener / Equity Research)
+#
+# Secrets are read from .env.local at RUN time. They are not part of the image.
+# See docs/SELF_HOSTING.md before exposing this to the internet.
+
+services:
+  app:
+    build: .
+    image: nexus-trading:local
+    restart: unless-stopped
+    env_file:
+      - path: .env.local
+        required: false
+    environment:
+      NODE_ENV: production
+      # One reverse proxy / load balancer in front of the app. Raise this if
+      # you chain more (e.g. CDN → nginx → app = 2). See docs/SELF_HOSTING.md.
+      TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-1}
+    ports:
+      # Bound to localhost on purpose: put a TLS-terminating reverse proxy in
+      # front instead of publishing the app port directly.
+      - "127.0.0.1:${NEXUS_PORT:-3000}:3000"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  # Optional: local Postgres for the Screener and Equity Research panels.
+  # When you use it, set in .env.local:
+  #   DATABASE_URL=postgresql://nexus:<POSTGRES_PASSWORD>@db:5432/nexus
+  db:
+    profiles: ["db"]
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexus
+      POSTGRES_DB: nexus
+      # Required, no default: compose refuses to start the db without it.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your shell or a .env file before using the db profile}
+    volumes:
+      - nexus-pgdata:/var/lib/postgresql/data
+    # Not published to the host: only the app container can reach it.
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexus -d nexus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nexus-pgdata:

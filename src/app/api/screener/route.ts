@@ -21,8 +21,9 @@
 // (`1e9`, `5e8`) for ergonomics in the slider UI.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { db, sql } from '@db/client'
+import { db, isDbConfigured, sql } from '@db/client'
 import { redis } from '@db/redis'
+import { redact } from '@/lib/providers/http'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -114,7 +115,10 @@ function cacheKey(f: Filters): string {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+async function handle(req: NextRequest): Promise<NextResponse> {
+  if (!isDbConfigured()) {
+    return NextResponse.json({ error: 'Database not configured. See db/SETUP.md.', configured: false }, { status: 503 })
+  }
   const startedAt = Date.now()
   const url = new URL(req.url)
   const filters = parseFilters(url.searchParams)
@@ -293,4 +297,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   return NextResponse.json(response, {
     headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600' },
   })
+}
+
+// Database failures (unreachable, paused project, bad credentials) must not
+// surface as a bare 500: answer with a clean, secret-free 503 the panel can show.
+export async function GET(req: NextRequest) {
+  try {
+    return await handle(req)
+  } catch (err) {
+    const reason = err instanceof Error ? err.message.split(/\r?\n/)[0].slice(0, 120) : 'unknown error'
+    console.error('[screener] database query failed:', redact(reason))
+    return NextResponse.json({ error: 'Database unavailable. Check DATABASE_URL (see db/SETUP.md).', configured: true }, { status: 503 })
+  }
 }

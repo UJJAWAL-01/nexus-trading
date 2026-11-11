@@ -58,3 +58,6 @@ next-env.d.ts
 # Node modules
 node_modules/
 .next/
+# local Claude Code state — never commit
+/.claude/settings.local.json
+/.claude/scheduled_tasks.lock

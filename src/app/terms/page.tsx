@@ -74,7 +74,7 @@ export default function TermsPage() {
           heading: '8. Intellectual Property',
           body: (
             <p>
-              The NEXUS platform, branding, UI design, and proprietary algorithms are owned by Ujjawal Patel. Third-party data, logos, and trademarks remain the property of their respective owners. You may not reproduce, distribute, or commercially exploit NEXUS content without written permission.
+              The NEXUS source code is open source, copyright Ujjawal Patel and contributors, and licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). You may use, study, modify, and redistribute it under the terms of that license; if you run a modified version as a network service, the AGPL requires you to offer its source code to your users. The NEXUS name and logo are not licensed for use in a way that suggests endorsement. Third-party data, logos, and trademarks remain the property of their respective owners and are subject to their own terms, which the software license does not override.
             </p>
           ),
         },

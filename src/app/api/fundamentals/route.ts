@@ -31,8 +31,9 @@
 //   • CDN headers — s-maxage=21600 stale-while-revalidate=43200.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { db, companies, eq, sql } from '@db/client'
+import { db, isDbConfigured, companies, eq, sql } from '@db/client'
 import { redis } from '@db/redis'
+import { redact } from '@/lib/providers/http'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -185,7 +186,10 @@ function pivotToPeriods(rows: RawRow[]): Period[] {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+async function handle(req: NextRequest): Promise<NextResponse> {
+  if (!isDbConfigured()) {
+    return NextResponse.json({ error: 'Database not configured. See db/SETUP.md.', configured: false }, { status: 503 })
+  }
   const { searchParams } = new URL(req.url)
   const tickerParam = searchParams.get('ticker')?.trim().toUpperCase()
   if (!tickerParam) {
@@ -323,4 +327,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   return NextResponse.json(response, {
     headers: { 'Cache-Control': 'public, s-maxage=21600, stale-while-revalidate=43200' },
   })
+}
+
+// Database failures (unreachable, paused project, bad credentials) must not
+// surface as a bare 500: answer with a clean, secret-free 503 the panel can show.
+export async function GET(req: NextRequest) {
+  try {
+    return await handle(req)
+  } catch (err) {
+    const reason = err instanceof Error ? err.message.split(/\r?\n/)[0].slice(0, 120) : 'unknown error'
+    console.error('[fundamentals] database query failed:', redact(reason))
+    return NextResponse.json({ error: 'Database unavailable. Check DATABASE_URL (see db/SETUP.md).', configured: true }, { status: 503 })
+  }
 }

@@ -13,6 +13,7 @@
 //   3. No module-level Map caches — those don't survive cold starts in prod.
 
 import { NextRequest, NextResponse } from 'next/server'
+import { finnhubJSON, hasKey } from '@/lib/providers/keys'
 import { cachedJSON, cachedFetch } from '@/lib/cache'
 
 // Cache the full JSON response per URL for 15 min. Vercel serves this to all
@@ -253,7 +254,7 @@ function buildClusters(deals: InsiderDeal[]): ClusterSignal[] {
 //   - All subsequent requests within 15 min read from the Data Cache — 0 Finnhub calls
 //   - Finnhub free tier 60 req/min is never at risk once warm
 async function fetchFinnhubInsiders(symbol?: string): Promise<{ deals: InsiderDeal[]; source: string }> {
-  if (!process.env.FINNHUB_API_KEY) return { deals: [], source: '' }
+  if (!hasKey('finnhub')) return { deals: [], source: '' }
   const from = daysBack(60), to = today()
 
   let symsToFetch: string[]
@@ -278,8 +279,7 @@ async function fetchFinnhubInsiders(symbol?: string): Promise<{ deals: InsiderDe
   for (let i = 0; i < symsToFetch.length; i += BATCH) {
     const batch = symsToFetch.slice(i, i + BATCH)
     await Promise.all(batch.map(async sym => {
-      const url = `https://finnhub.io/api/v1/stock/insider-transactions?symbol=${sym}&from=${from}&to=${to}&token=${process.env.FINNHUB_API_KEY}`
-      const d = await cachedJSON<{ data?: any[] }>(url, { revalidate: 900, timeoutMs: 7000, tags: ['insider-us'] })
+      const d = await finnhubJSON<{ data?: any[] }>('stock/insider-transactions', { symbol: sym, from, to }, { revalidate: 900, timeoutMs: 7000, tags: ['insider-us'] })
       if (!d?.data) return
 
       for (const t of d.data) {

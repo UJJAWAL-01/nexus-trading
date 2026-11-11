@@ -11,16 +11,17 @@
 // tickers, honest "low activity" signal for non-tech.
 
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
 
 const dev = process.env.NODE_ENV !== 'production'
 const SIX_HOURS = 6 * 3600_000
 const UA = 'NEXUS-Trading/1.0 (contact@nexustrading.app)'
 
 // ── Caches ────────────────────────────────────────────────────────────────────
-const wikiCache    = new Map<string, { data: WikiSeries  | null; expires: number }>()
-const redditCache  = new Map<string, { data: RedditSeries | null; expires: number }>()
-const hnCache      = new Map<string, { data: HNSeries    | null;  expires: number }>()
-const tickerNames  = new Map<string, { name: string;              expires: number }>()
+const wikiCache    = new BoundedMap<string, { data: WikiSeries  | null; expires: number }>(2000)
+const redditCache  = new BoundedMap<string, { data: RedditSeries | null; expires: number }>(2000)
+const hnCache      = new BoundedMap<string, { data: HNSeries    | null;  expires: number }>(2000)
+const tickerNames  = new BoundedMap<string, { name: string;              expires: number }>(2000)
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface WikiSeries   { dates: string[]; views: number[]; article: string }

@@ -1,7 +1,9 @@
 // src/app/api/search/route.ts
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
+import { finnhub, hasKey } from '@/lib/providers/keys'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
 export interface SearchResult {
   symbol:   string
@@ -85,12 +87,9 @@ export async function GET(request: NextRequest) {
   }
 
   // ── Fallback: Finnhub (supplements when Yahoo results are sparse) ─────────
-  if (results.length < 4 && process.env.FINNHUB_API_KEY) {
+  if (results.length < 4 && hasKey('finnhub')) {
     try {
-      const fhRes = await fetch(
-        `https://finnhub.io/api/v1/search?q=${encodeURIComponent(q)}&token=${process.env.FINNHUB_API_KEY}`,
-        { next: { revalidate: 0 } },
-      )
+      const fhRes = await finnhub('search', { q }, { cache: 'no-store' })
       if (fhRes.ok) {
         const fh = await fhRes.json()
         for (const r of (fh.result ?? []).slice(0, 8) as any[]) {

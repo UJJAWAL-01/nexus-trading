@@ -2,6 +2,7 @@
   "name": "nexus-trading",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,22 +17,15 @@
     "ingest:companies": "tsx scripts/ingest-companies.ts",
     "ingest:sec": "tsx scripts/ingest-sec-fundamentals.ts",
     "ingest:sectors": "tsx scripts/ingest-sec-sectors.ts",
-    "db:cleanup": "tsx scripts/cleanup-fundamentals.ts"
+    "db:cleanup": "tsx scripts/cleanup-fundamentals.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1061.0",
-    "@google/generative-ai": "^0.24.1",
-    "@tanstack/react-query": "^5.95.2",
     "@upstash/redis": "^1.38.0",
-    "axios": "^1.13.6",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.2",
-    "framer-motion": "^12.38.0",
-    "groq-sdk": "^1.1.1",
     "lightweight-charts": "^4.2.0",
     "lucide-react": "^1.8.0",
-    "next": "^16.2.3",
+    "next": "^16.4.6",
     "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -44,17 +38,19 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.2.1",
+    "eslint-config-next": "^16.4.6",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^5",
     "vitest": "^2.1.9"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }

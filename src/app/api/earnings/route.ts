@@ -2,6 +2,7 @@
 // US: Finnhub calendar + historical actuals
 // India: Yahoo Finance quoteSummary + earningsHistory for past results
 import { NextRequest, NextResponse } from 'next/server'
+import { finnhub } from '@/lib/providers/keys'
 
 // 1h cache — earnings calendars update at most a few times per day
 export const revalidate = 3600
@@ -64,10 +65,7 @@ async function fetchUSEarnings(): Promise<EarningItem[]> {
   const to       = toDate.toISOString().split('T')[0]
   const todayStr = today.toISOString().split('T')[0]
 
-  const res  = await fetch(
-    `https://finnhub.io/api/v1/calendar/earnings?from=${from}&to=${to}&token=${process.env.FINNHUB_API_KEY}`,
-    { next: { revalidate: 3600 } }
-  )
+  const res  = await finnhub('calendar/earnings', { from, to }, { next: { revalidate: 3600 }, timeoutMs: 10_000 })
   if (!res.ok) throw new Error(`Finnhub ${res.status}`)
   const data = await res.json()
 

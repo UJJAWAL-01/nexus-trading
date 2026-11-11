@@ -1,0 +1,15 @@
+NEXUS Trading Intelligence
+Copyright (C) 2025-2026 Ujjawal Patel and contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License (LICENSE) for
+more details.
+
+Market data shown by NEXUS comes from third-party providers. That data is NOT
+covered by this license; each provider's own terms apply. See README.md
+("Data sources") for the list.

@@ -113,10 +113,12 @@ async function callGrok(systemPrompt: string, userPrompt: string): Promise<strin
 async function callGemini(systemPrompt: string, userPrompt: string): Promise<string | null> {
   if (!GEMINI_KEY) return null
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
+    // Key goes in a header, never in the URL (URLs end up in logs and error output).
+    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
     const res = await fetch(url, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': GEMINI_KEY },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }],
         generationConfig: { temperature: 0.1, maxOutputTokens: 4000 },

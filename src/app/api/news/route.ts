@@ -1,57 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { hasKey, newsapi } from '@/lib/providers/keys'
+import { createCache } from '@/lib/providers/cache'
+import { cleanQuery } from '@/lib/providers/symbols'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+// NewsAPI search. Response shape is the NewsAPI payload ({ status, articles }).
+// The key is sent as a header by lib/providers/keys.ts and upstream error
+// bodies are never forwarded to the client.
+
+type NewsPayload = { status: string; totalResults?: number; articles: unknown[]; message?: string }
+
+const cache = createCache<NewsPayload>({ name: 'news', max: 200, staleMs: 30 * 60_000 })
+
+const GENERIC_QUERY = 'stock market finance business'
+const UNAVAILABLE: NewsPayload = { articles: [], status: 'error', message: 'News temporarily unavailable' }
+
+async function search(q: string, from?: string): Promise<NewsPayload | null> {
+  const res = await newsapi('everything', { q, language: 'en', sortBy: 'publishedAt', pageSize: 30, from })
+  if (!res.ok) return null
+  const data = (await res.json()) as { status?: string; totalResults?: number; articles?: unknown[] }
+  if (!Array.isArray(data.articles)) return null
+  return { status: data.status ?? 'ok', totalResults: data.totalResults, articles: data.articles }
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const q = searchParams.get('q') || 'stock market finance'
+  const q = cleanQuery(searchParams.get('q'), 120) ?? 'stock market finance'
 
-  const cacheKey = `news:${q}`
-  const cached   = cache.get(cacheKey)
-  if (cached && cached.expires > Date.now()) {
-    return NextResponse.json(cached.data)
-  }
+  if (!hasKey('newsapi')) return NextResponse.json(UNAVAILABLE)
 
   try {
-    // Use 'everything' endpoint with very recent time filter
-    const from = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() // last 6 hours
-    const url  = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&sortBy=publishedAt&pageSize=30&from=${from}&apiKey=${process.env.NEWS_API_KEY}`
+    const data = await cache.wrap(q, 60_000, async () => {
+      // Last 6 hours first, then any time, then a generic market query.
+      const from   = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+      const recent = await search(q, from)
+      if (recent?.articles.length) return recent
 
-    const res  = await fetch(url)
-    const data = await res.json()
+      const anytime = await search(q)
+      if (anytime?.articles.length) return anytime
 
-    // Fallback 1: if no recent results, try without time filter
-    if (!data.articles?.length) {
-      const fallback = await fetch(
-        `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&sortBy=publishedAt&pageSize=30&apiKey=${process.env.NEWS_API_KEY}`
-      )
-      const fallbackData = await fallback.json()
-      
-      // Fallback 2: if still empty, use generic financal search
-      if (!fallbackData.articles?.length) {
-        const genericFallback = await fetch(
-          `https://newsapi.org/v2/everything?q=stock market finance business&language=en&sortBy=publishedAt&pageSize=30&apiKey=${process.env.NEWS_API_KEY}`
-        )
-        const genericData = await genericFallback.json()
-        cache.set(cacheKey, { data: genericData, expires: Date.now() + 60_000 })
-        return NextResponse.json(genericData)
-      }
-      
-      cache.set(cacheKey, { data: fallbackData, expires: Date.now() + 60_000 })
-      return NextResponse.json(fallbackData)
-    }
-
-    cache.set(cacheKey, { data, expires: Date.now() + 60_000 })
+      const generic = await search(GENERIC_QUERY)
+      if (generic) return generic
+      throw new Error('news unavailable')
+    })
     return NextResponse.json(data)
   } catch {
-    const stale = cache.get(cacheKey)
-    if (stale) return NextResponse.json(stale.data)
-    
-    // Final fallback: return generic market news structure
-    return NextResponse.json({
-      articles: [],
-      status: 'error',
-      message: 'News temporarily unavailable'
-    })
+    return NextResponse.json(cache.getStale(q) ?? UNAVAILABLE)
   }
 }

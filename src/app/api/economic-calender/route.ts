@@ -2,6 +2,7 @@
 // ALWAYS returns data — hardcoded FOMC/RBI/ECB events are embedded
 // Finnhub supplements with live economic data when key is present
 import { NextRequest, NextResponse } from 'next/server'
+import { finnhub, hasKey } from '@/lib/providers/keys'
 
 // 30-min shared edge cache — calendar events change at most daily
 export const revalidate = 1800
@@ -169,14 +170,10 @@ function getScheduled(): CalEvent[] {
 
 // ── Finnhub supplement ────────────────────────────────────────────────────────
 async function fetchFinnhub(from: string, to: string): Promise<CalEvent[]> {
-  const key = process.env.FINNHUB_API_KEY
-  if (!key) return []
+  if (!hasKey('finnhub')) return []
 
   try {
-    const res = await fetch(
-      `https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${key}`,
-      { headers: { 'User-Agent': 'NEXUS/1.0' }, signal: AbortSignal.timeout(10000) }
-    )
+    const res = await finnhub('calendar/economic', { from, to }, { timeoutMs: 10_000 })
     if (!res.ok) return []
     const json = await res.json()
     const events: any[] = json.economicCalendar ?? []

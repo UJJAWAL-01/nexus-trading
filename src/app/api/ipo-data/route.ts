@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
+import { finnhub, hasKey } from '@/lib/providers/keys'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
 // ✅ Matches the existing IpoScreenerPanel interface exactly
 export interface IPOData {
@@ -34,12 +36,10 @@ function deriveRating(e: any): 'bullish' | 'neutral' | 'bearish' {
 }
 
 async function finnhubIPOs(from: string, to: string): Promise<IPOData[]> {
-  const key = process.env.FINNHUB_API_KEY
-  if (!key) return []
+  if (!hasKey('finnhub')) return []
 
   try {
-    const url = `https://finnhub.io/api/v1/calendar/ipo?from=${from}&to=${to}&token=${key}`
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    const res = await finnhub('calendar/ipo', { from, to }, { timeoutMs: 8000 })
     if (!res.ok) return []
     const j = await res.json()
 

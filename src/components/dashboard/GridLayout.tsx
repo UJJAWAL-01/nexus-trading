@@ -81,12 +81,15 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // ══ ROW 10 (y:152→176) — Cross-universe screener ════════════════════════
   // Full-width because the table needs room for 12 columns of metrics.
   // { i: 'screener',      x: 0,  y: 152, w: 12, h: 24, minW: 6, minH: 18 },
+
+  // ══ ROW 11 (y:176→192) — Portfolio (positions + live P&L) ═══════════════
+  { i: 'portfolio',     x: 0,  y: 176, w: 6,  h: 16, minW: 4, minH: 10 },
 ]
 
 // ── MOBILE panel order (priority-first: live data → analytics → research) ─────
 const MOBILE_ORDER: PanelId[] = [
   // Tier 1: Always-on essentials
-  'watchlist', 'chart', 'news',
+  'watchlist', 'portfolio', 'chart', 'news',
   // Tier 2: Market pulse
   'indices', 'indiamarkets', 'commodities',
   // Tier 3: Time-critical signals
@@ -270,7 +273,7 @@ function packLayout(visibleIds: readonly PanelId[]): DashboardLayout {
 // ── Panel group definitions for visibility menu ────────────────────────────────
 
 const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
-  { label: 'Live Feed',    ids: ['livevideo', 'news', 'watchlist']                                          },
+  { label: 'Live Feed',    ids: ['livevideo', 'news', 'watchlist', 'portfolio']                             },
   { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities']  },
   { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                       },
   { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'supplychain']                     },

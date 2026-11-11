@@ -4,6 +4,8 @@
 // Company names resolved dynamically from Yahoo Finance — no hardcoded symbol maps
 
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
+import { alphaVantage, finnhub, hasKey, newsapi } from '@/lib/providers/keys'
 
 // djb2 hash — gives a stable numeric ID from any string (URL, headline)
 function hashStr(s: string): number {
@@ -35,7 +37,7 @@ export interface FeedItem {
 
 // Symbol name resolution: in-memory only — these are resolved per cold-start
 // and stay warm within one instance. Names don't change so 24h is safe.
-const symbolNameCache = new Map<string, { name: string; expires: number }>()
+const symbolNameCache = new BoundedMap<string, { name: string; expires: number }>(2000)
 const NAME_TTL = 24 * 60 * 60 * 1000
 
 function stripMarketSuffix(sym: string): string {
@@ -258,12 +260,9 @@ const RSS_SOURCES: Record<string, { url: string; label: string; categories: Feed
 
 // ── Finnhub news ──────────────────────────────────────────────────────────────
 async function fetchFinnhubCategory(category: string): Promise<FeedItem[]> {
-  if (!process.env.FINNHUB_API_KEY) return []
+  if (!hasKey('finnhub')) return []
   try {
-    const res = await fetch(
-      `https://finnhub.io/api/v1/news?category=${category}&token=${process.env.FINNHUB_API_KEY}`,
-      { signal: AbortSignal.timeout(8000), next: { revalidate: 60 } },
-    )
+    const res = await finnhub('news', { category }, { timeoutMs: 8000, next: { revalidate: 60 } })
     if (!res.ok) return []
     const data = await res.json()
     return (Array.isArray(data) ? data : []).slice(0, 40).map((item: any, i: number): FeedItem => ({
@@ -304,11 +303,10 @@ async function fetchYahooFinanceNews(symbol: string, category: FeedCategory = 'r
 
 // ── NewsAPI ───────────────────────────────────────────────────────────────────
 async function fetchNewsAPI(query: string, category: FeedCategory, watchlist: string[]): Promise<FeedItem[]> {
-  if (!process.env.NEWS_API_KEY) return []
+  if (!hasKey('newsapi')) return []
   try {
     const from = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-    const url  = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&language=en&sortBy=publishedAt&pageSize=30&from=${from}&apiKey=${process.env.NEWS_API_KEY}`
-    const res  = await fetch(url, { signal: AbortSignal.timeout(8000), next: { revalidate: 60 } })
+    const res  = await newsapi('everything', { q: query, language: 'en', sortBy: 'publishedAt', pageSize: 30, from }, { timeoutMs: 8000, next: { revalidate: 60 } })
     if (!res.ok) return []
     const data = await res.json()
     return (data.articles ?? [])
@@ -337,10 +335,9 @@ async function fetchNewsAPI(query: string, category: FeedCategory, watchlist: st
 
 // ── Alpha Vantage market news ─────────────────────────────────────────────────
 async function fetchAlphaVantageNews(topic: string, watchlist: string[]): Promise<FeedItem[]> {
-  if (!process.env.ALPHA_VANTAGE_KEY) return []
+  if (!hasKey('alphavantage')) return []
   try {
-    const url = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&topics=${topic}&sort=LATEST&limit=20&apikey=${process.env.ALPHA_VANTAGE_KEY}`
-    const res = await fetch(url, { signal: AbortSignal.timeout(10000), next: { revalidate: 60 } })
+    const res = await alphaVantage({ function: 'NEWS_SENTIMENT', topics: topic, sort: 'LATEST', limit: 20 }, { timeoutMs: 10000, next: { revalidate: 60 } })
     if (!res.ok) return []
     const data = await res.json()
     const feed: any[] = data.feed ?? []

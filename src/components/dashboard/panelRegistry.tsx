@@ -29,6 +29,7 @@ import AnalystConsensusPanel    from '@/components/panels/AnalystConsensusPanel'
 import EquityResearchPanel      from '@/components/panels/EquityResearchPanel'
 import ScreenerPanel            from '@/components/panels/ScreenerPanel'
 import PatternScreenerPanel     from '@/components/panels/PatternScreenerPanel'
+import PortfolioPanel           from '@/components/panels/PortfolioPanel'
 
 // ── Panel id list ─────────────────────────────────────────────────────────────
 
@@ -44,6 +45,8 @@ export const PANEL_IDS = [
   'stockprofile', 'analystconsensus', 'equityresearch',
   // Cross-universe screening (independent of active symbol)
   'screener', 'patternscanner',
+  // User data (stored in this browser only)
+  'portfolio',
 ] as const
 
 export type PanelId = (typeof PANEL_IDS)[number]
@@ -82,6 +85,7 @@ export const PANEL_META: Record<PanelId, PanelMeta> = {
   analystconsensus: { component: <AnalystConsensusPanel />, label: 'ANALYST CONSENSUS', color: 'var(--teal)', mobileH: 540, description: 'Buy/Sell/Hold breakdown · score trend · live coverage' },
   equityresearch:   { component: <EquityResearchPanel />,    label: 'EQUITY RESEARCH',   color: '#a78bfa',     mobileH: 720, description: '5y SEC fundamentals · revenue · margins · EPS · FCF time-series' },
   screener:         { component: <ScreenerPanel />,          label: 'SCREENER',          color: '#22d3ee',     mobileH: 720, description: '7,600+ US filers · filter by sector / margin / ROE · click to focus' },
+  portfolio:        { component: <PortfolioPanel />,         label: 'PORTFOLIO',         color: 'var(--amber)', mobileH: 520, description: 'Positions · live P&L · CSV import/export · stored in your browser' },
   patternscanner:   { component: <PatternScreenerPanel />,   label: 'PATTERN SCANNER',   color: '#00e5c0',     mobileH: 720, description: 'Scan US + India for chart & candlestick patterns · click to chart' },
 }
 

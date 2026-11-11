@@ -11,6 +11,7 @@
 //   10-K/Q → section headings + key financials line from doc header
 
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
 
 const dev = process.env.NODE_ENV !== 'production'
 const SEC_UA = 'NEXUS Trading Intelligence nexus-app/1.0 contact@nexustrading.app'
@@ -18,9 +19,9 @@ const ONE_HOUR   = 3_600_000
 const FILING_TTL = 24 * ONE_HOUR
 
 // ── Caches ────────────────────────────────────────────────────────────────────
-const submissionsCache = new Map<string, { rows: SubmissionRow[]; expires: number }>()
-const parsedCache      = new Map<string, { data: ParsedFiling;    expires: number }>()
-const responseCache    = new Map<string, { data: SecFilingsResponse; expires: number }>()
+const submissionsCache = new BoundedMap<string, { rows: SubmissionRow[]; expires: number }>(2000)
+const parsedCache      = new BoundedMap<string, { data: ParsedFiling;    expires: number }>(2000)
+const responseCache    = new BoundedMap<string, { data: SecFilingsResponse; expires: number }>(2000)
 
 // ── 8-K item registry ─────────────────────────────────────────────────────────
 // Importance: 'high' items bubble to the top of the badge list

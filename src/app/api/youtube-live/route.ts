@@ -1,7 +1,9 @@
 // src/app/api/youtube-live/route.ts
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
+import { hasKey, youtube } from '@/lib/providers/keys'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
 /*
   PERMANENT 24/7 LIVE STREAM IDs — HOW TO MAINTAIN THIS FILE
@@ -140,15 +142,9 @@ async function checkVideoOEmbed(videoId: string): Promise<string | null> {
   Try to find a live video from the channel via YouTube API
 */
 async function findLiveViaApi(channelId: string): Promise<string | null> {
-  if (!process.env.YOUTUBE_API_KEY) return null
+  if (!hasKey('youtube')) return null
   try {
-    const url = [
-      'https://www.googleapis.com/youtube/v3/search',
-      `?part=id,snippet&channelId=${channelId}`,
-      `&eventType=live&type=video&maxResults=1`,
-      `&key=${process.env.YOUTUBE_API_KEY}`,
-    ].join('')
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
+    const res = await youtube('search', { part: 'id,snippet', channelId, eventType: 'live', type: 'video', maxResults: 1 }, { timeoutMs: 5000 })
     if (!res.ok) return null
     const data = await res.json()
     return data.items?.[0]?.id?.videoId ?? null

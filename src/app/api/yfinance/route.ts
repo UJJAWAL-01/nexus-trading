@@ -1,37 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getChart } from '@/lib/providers/market'
+import { cleanSymbolList, YAHOO_INTERVALS, YAHOO_RANGES } from '@/lib/providers/symbols'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+// Chart candles. Response shape is unchanged: { results: [{ symbol, data }] }
+// where `data` is the raw Yahoo chart payload the panels already parse.
+//
+// Input is validated before anything leaves the server: symbols must match the
+// symbol grammar, range/interval must be known values, and at most
+// MAX_SYMBOLS are fetched per request (each one is an upstream call).
+
+const MAX_SYMBOLS = 10
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const symbols  = searchParams.get('symbols') || 'SPY'
   const range    = searchParams.get('range')    || '1mo'
   const interval = searchParams.get('interval') || '1d'
+  const symbols  = cleanSymbolList(searchParams.get('symbols') || 'SPY', MAX_SYMBOLS)
 
-  const cacheKey = `yfinance:${symbols}:${range}:${interval}`
-  const cached   = cache.get(cacheKey)
-  if (cached && cached.expires > Date.now()) {
-    return NextResponse.json(cached.data)
+  if (!symbols.length) {
+    return NextResponse.json({ error: 'invalid symbols', results: [] }, { status: 400 })
+  }
+  if (!YAHOO_RANGES.has(range) || !YAHOO_INTERVALS.has(interval)) {
+    return NextResponse.json({ error: 'invalid range or interval', results: [] }, { status: 400 })
   }
 
-  try {
-    const symbolList = symbols.split(',')
-    const results = await Promise.all(
-      symbolList.map(async (symbol) => {
-        const res = await fetch(
-          `https://query1.finance.yahoo.com/v8/finance/chart/${symbol.trim()}?interval=${interval}&range=${range}`,
-          { headers: { 'User-Agent': 'Mozilla/5.0' } }
-        )
-        const data = await res.json()
-        return { symbol: symbol.trim(), data }
-      })
-    )
-
-    const ttl = range === '1d' ? 30_000 : 300_000
-    const payload = { results }
-    cache.set(cacheKey, { data: payload, expires: Date.now() + ttl })
-    return NextResponse.json(payload)
-  } catch {
-    return NextResponse.json({ error: 'fetch failed', results: [] })
-  }
+  const results = await Promise.all(
+    symbols.map(async symbol => ({ symbol, data: await getChart(symbol, range, interval) })),
+  )
+  return NextResponse.json({ results })
 }

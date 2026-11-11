@@ -22,9 +22,11 @@
 // NO HARDCODED SPREADS. NO SILENT SYNTHETIC CURVES.
 // ─────────────────────────────────────────────────────────────────────────────
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
+import { fred } from '@/lib/providers/keys'
 import { callAI } from '@/lib/ai-provider'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DATA INTEGRITY TYPES
@@ -239,8 +241,7 @@ async function fredFetch(series: string): Promise<{ value: number; date: string 
   const hit = cache.get(ck)
   if (hit && hit.expires > Date.now()) return hit.data as { value: number; date: string }
   try {
-    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${process.env.FRED_API_KEY}&file_type=json&sort_order=desc&limit=3`
-    const res = await fetch(url, { signal: AbortSignal.timeout(7000) })
+    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit: 3 }, { timeoutMs: 7000 })
     if (!res.ok) return null
     const j   = await res.json()
     const obs = (j.observations ?? []).find((o: any) => o.value !== '.' && parseFloat(o.value) > 0)
@@ -258,8 +259,7 @@ async function fredYoY(series: string): Promise<{ value: number; date: string } 
   const hit = cache.get(ck)
   if (hit && hit.expires > Date.now()) return hit.data as { value: number; date: string }
   try {
-    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${process.env.FRED_API_KEY}&file_type=json&sort_order=desc&limit=14`
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit: 14 }, { timeoutMs: 8000 })
     if (!res.ok) return null
     const j = await res.json()
     const obs = (j.observations ?? [])

@@ -6,8 +6,10 @@
 //   3. RBI rate freshness-validated — stale FRED falls back to last-known official decision
 //   4. Rate tables aligned between macro-rates and fixed-income endpoints
 import { NextRequest, NextResponse } from 'next/server'
+import { BoundedMap } from '@/lib/providers/cache'
+import { fred, hasKey } from '@/lib/providers/keys'
 
-const cache = new Map<string, { data: unknown; expires: number }>()
+const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
 // ── 2026 Meeting Schedules — NO hardcoded done flags ─────────────────────────
 // done is always computed dynamically from today's date in the route handler.
@@ -54,11 +56,9 @@ const FED_RATE_KNOWN = [
 
 // ── Core FRED fetcher — single most recent observation ───────────────────────
 async function fredObs(series: string, limit = 3): Promise<{ value: number; date: string } | null> {
-  const key = process.env.FRED_API_KEY
-  if (!key) return null
+  if (!hasKey('fred')) return null
   try {
-    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`
-    const res = await fetch(url, { signal: AbortSignal.timeout(6000) })
+    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit }, { timeoutMs: 6000 })
     if (!res.ok) return null
     const j = await res.json()
     const obs = (j.observations ?? []).find((o: any) => o.value !== '.')
@@ -69,11 +69,9 @@ async function fredObs(series: string, limit = 3): Promise<{ value: number; date
 
 // ── YoY % calculator from FRED index series ───────────────────────────────────
 async function fredYoY(series: string): Promise<{ value: number; date: string } | null> {
-  const key = process.env.FRED_API_KEY
-  if (!key) return null
+  if (!hasKey('fred')) return null
   try {
-    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${series}&api_key=${key}&file_type=json&sort_order=desc&limit=14`
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit: 14 }, { timeoutMs: 8000 })
     if (!res.ok) return null
     const j = await res.json()
     const obs = (j.observations ?? [])

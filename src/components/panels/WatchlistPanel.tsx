@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useWatchlist } from '@/store/watchlist'
 import { useActiveSymbol } from '@/store/symbol'
+import { downloadCsv } from '@/lib/export'
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: '$', EUR: '€', GBP: '£', JPY: '¥', INR: '₹', CNY: '¥', CAD: 'C$', AUD: 'A$',
@@ -226,19 +227,38 @@ export default function WatchlistPanel() {
             {symbols.length}/20
           </span>
         </div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+        <button
+          type="button"
+          title="Download the watchlist with current prices as CSV"
+          aria-label="Export watchlist as CSV"
+          onClick={() => downloadCsv(
+            'nexus-watchlist',
+            ['symbol', 'name', 'exchange', 'currency', 'price', 'change_pct'],
+            rows.map(r => [r.symbol, r.longName, r.exchange, r.currency, r.price, r.changePercent]),
+          )}
+          style={{
+            background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-2)',
+            borderRadius: '3px', padding: '4px 6px', fontSize: '10px', cursor: 'pointer', whiteSpace: 'nowrap',
+            fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+          }}
+        >
+          CSV
+        </button>
         <button
           onClick={() => { setAdding(!adding); setTimeout(() => inputRef.current?.focus(), 50) }}
           style={{
             background: adding ? 'var(--amber)' : 'transparent',
             border: `1px solid ${adding ? 'var(--amber)' : 'var(--border)'}`,
             color: adding ? '#000' : 'var(--text-2)',
-            borderRadius: '3px', padding: '4px 12px',
+            borderRadius: '3px', padding: '4px 8px', whiteSpace: 'nowrap',
             fontSize: '11px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace',
             fontWeight: 700,
           }}
         >
           {adding ? '✕ CLOSE' : '+ ADD'}
         </button>
+        </div>
       </div>
 
       {/* Search input */}

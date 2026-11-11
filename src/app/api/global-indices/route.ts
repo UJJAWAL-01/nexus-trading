@@ -6,6 +6,7 @@
 // ALL users share one backend compute per 30s window.
 
 import { NextResponse } from 'next/server'
+import { finnhubJSON, hasKey } from '@/lib/providers/keys'
 import { cachedJSON } from '@/lib/cache'
 
 export const revalidate = 30
@@ -68,9 +69,8 @@ async function fetchYahooBatch(): Promise<Map<string, { price: number | null; ch
 
 // Finnhub quotes — still per-symbol but cached individually for 30s
 async function fetchFinnhubQuote(symbol: string): Promise<{ price: number | null; change: number | null }> {
-  if (!process.env.FINNHUB_API_KEY) return { price: null, change: null }
-  const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${process.env.FINNHUB_API_KEY}`
-  const d = await cachedJSON<any>(url, { revalidate: 30, tags: ['global-indices'], timeoutMs: 5000 })
+  if (!hasKey('finnhub')) return { price: null, change: null }
+  const d = await finnhubJSON<any>('quote', { symbol }, { revalidate: 30, tags: ['global-indices'], timeoutMs: 5000 })
   if (!d || d.rateLimited || !d.c || d.c <= 0) return { price: null, change: null }
   return { price: d.c, change: d.dp ?? null }
 }
