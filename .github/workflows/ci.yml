@@ -66,7 +66,7 @@ jobs:
             echo "::error::An .env file is tracked. Remove it and rotate any keys it contained."
             exit 1
           fi
-          # Provider key shapes: Anthropic, xAI, Google, Groq, generic postgres URL with password.
+          # Key shapes for common providers (including ones NEXUS does not support, in case one is pasted by mistake) and database URLs with a password.
           if git grep -n -I -E '(sk-ant-[A-Za-z0-9_-]{20,}|xai-[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|gsk_[A-Za-z0-9]{30,}|postgres(ql)?://[^:@/ ]+:[^@/ ]{6,}@)' -- . ':!package-lock.json' ':!db/SETUP.md' ':!.env.example'; then
             echo "::error::A string shaped like a real credential is committed. Remove it and rotate the key."
             exit 1

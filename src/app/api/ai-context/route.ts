@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/ratelimiter'
 import { clientIp } from '@/lib/api-guard'
-import { gemini, groq, hasKey } from '@/lib/providers/keys'
+import { groq, hasKey } from '@/lib/providers/keys'
+import { GROQ_MODEL } from '@/lib/ai-provider'
 
 // One-line AI context for a news headline.
 //
-// Provider order is Groq → Gemini (both free tiers). This route fires once per
-// headline, so it deliberately does not use the paid providers in callAI().
+// Optional. Uses only Groq's free tier (no payment method, cannot bill). With
+// no GROQ_API_KEY this returns { context: null } and the feed shows no AI line.
 // Keys are attached by lib/providers/keys.ts and never appear in a URL.
-
-// Groq retires models regularly; override with GROQ_MODEL without a code change.
-const GROQ_MODEL   = process.env.GROQ_MODEL   || 'openai/gpt-oss-20b'
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
 
 // Strip anything that could break out of the prompt's data section.
 const clean = (s: string) => s.replace(/[\u0000-\u001f\u007f]/g, ' ').trim()
@@ -59,19 +56,7 @@ Respond with ONLY the one-sentence insight. No preamble.`
       }
     } catch {}
 
-    if (hasKey('gemini')) try {
-      const res = await gemini(GEMINI_MODEL, {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 60, temperature: 0.3 },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const context = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
-        if (context) return NextResponse.json({ context })
-      }
-    } catch {}
-
-    // Both failed — return null silently
+    // No AI configured or it failed: the feed simply shows no AI line.
     return NextResponse.json({ context: null })
   } catch {
     return NextResponse.json({ context: null })

@@ -1,7 +1,6 @@
 // src/app/api/youtube-live/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { BoundedMap } from '@/lib/providers/cache'
-import { hasKey, youtube } from '@/lib/providers/keys'
 
 const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
@@ -138,21 +137,6 @@ async function checkVideoOEmbed(videoId: string): Promise<string | null> {
   }
 }
 
-/*
-  Try to find a live video from the channel via YouTube API
-*/
-async function findLiveViaApi(channelId: string): Promise<string | null> {
-  if (!hasKey('youtube')) return null
-  try {
-    const res = await youtube('search', { part: 'id,snippet', channelId, eventType: 'live', type: 'video', maxResults: 1 }, { timeoutMs: 5000 })
-    if (!res.ok) return null
-    const data = await res.json()
-    return data.items?.[0]?.id?.videoId ?? null
-  } catch {
-    return null
-  }
-}
-
 interface StreamResult {
   channelId:    string
   channelName:  string
@@ -187,28 +171,8 @@ export async function GET(request: NextRequest) {
   const streams: StreamResult[] = await Promise.all(
     channels.map(async (ch): Promise<StreamResult> => {
 
-      // Priority 1: Try to find a fresh live video via API key
-      const apiLiveId = await findLiveViaApi(ch.channelId)
-
-      if (apiLiveId && apiLiveId !== ch.videoId) {
-        return {
-          channelId:   ch.channelId,
-          channelName: ch.channelName,
-          shortName:   ch.shortName,
-          region:      ch.region,
-          accent:      ch.accent,
-          videoId:     apiLiveId,
-          embedUrl:    `https://www.youtube.com/embed/${apiLiveId}?autoplay=1&mute=1&rel=0&modestbranding=1`,
-          watchUrl:    `https://www.youtube.com/watch?v=${apiLiveId}`,
-          description: ch.description,
-          isVerified:  true,
-          isLive:      true,
-          title:       `${ch.channelName} — Live Now`,
-          status:      'live',
-        }
-      }
-
-      // Priority 2: Verify the stored permanent video ID via oEmbed
+      // Keyless: verify the stored permanent video ID via oEmbed; otherwise use the
+      // channel live-stream embed, which needs no API key.
       const oembedTitle = await checkVideoOEmbed(ch.videoId)
 
       return {
@@ -233,7 +197,7 @@ export async function GET(request: NextRequest) {
 
   const data = {
     channels:   streams,
-    hasApiKey:  !!process.env.YOUTUBE_API_KEY,
+    hasApiKey:  false,   // kept for response compatibility; no API key is used
     fetchedAt:  new Date().toISOString(),
     liveCount:  streams.filter(s => s.isLive).length,
   }

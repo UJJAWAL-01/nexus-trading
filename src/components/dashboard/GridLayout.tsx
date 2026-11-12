@@ -70,8 +70,7 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // { i: 'equityresearch',   x: 0, y: 90, w: 12, h: 24, minW: 6, minH: 20 },
 
   // ══ ROW 8 (y:114→134) — Per-stock company snapshot panels ═══════════════
-  { i: 'stockprofile',     x: 0, y: 114, w: 6, h: 20, minW: 4, minH: 16 },
-  { i: 'analystconsensus', x: 6, y: 114, w: 6, h: 20, minW: 4, minH: 16 },
+  { i: 'stockprofile',     x: 0, y: 114, w: 12, h: 20, minW: 4, minH: 16 },
 
   // ══ ROW 9 (y:134→152) — Smart money + filings + alt data ═══════════════
   { i: 'secfilings',    x: 0,  y: 134, w: 4,  h: 18, minW: 3, minH: 14 },
@@ -97,9 +96,8 @@ const MOBILE_ORDER: PanelId[] = [
   // Tier 4: Deep analytics
   'options', 'macrorates', 'heatmap', 'fixedincome',
   // Tier 5: Equity research (per-stock deep dive, driven by active symbol)
-  'equityresearch', 'stockprofile', 'analystconsensus',
+  'equityresearch', 'stockprofile',
   // Tier 5.5: Cross-universe screener
-  'screener',
   // Tier 6: Smart money / filings / alt
   'smartmoney', 'secfilings', 'altdata', 'supplychain', 'ipo',
   // Tier 6: Alt + media
@@ -277,7 +275,7 @@ const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
   { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities']  },
   { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                       },
   { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'supplychain']                     },
-  { label: 'Research',     ids: ['equityresearch', 'screener', 'stockprofile', 'analystconsensus', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
+  { label: 'Research',     ids: ['equityresearch', 'stockprofile', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────

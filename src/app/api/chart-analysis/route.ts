@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/ratelimiter'
 import { clientIp } from '@/lib/api-guard'
 import { callAI, parseAIJson, type AIMessage } from '@/lib/ai-provider'
+import { buildRuleNote, type NoteDigest } from '@/lib/rule-notes'
 import { redis } from '@db/redis'
 
 interface AiNote {
@@ -116,17 +117,15 @@ export async function POST(request: NextRequest) {
     { role: 'user', content: buildUserDigest(body) },
   ]
 
+  // AI is optional. With no provider (the default) or an unusable reply, the
+  // note is written by deterministic rules from the same digest: no cost, no key.
   const ai = await callAI(messages, 700)
-  if (!ai.text) {
-    return NextResponse.json({ error: 'No AI provider configured or all providers failed.' }, { status: 503 })
-  }
-  const note = normalize(parseAIJson<AiNote>(ai.text))
-  if (!note || !note.headline) {
-    return NextResponse.json({ error: 'AI returned an unparseable response.' }, { status: 502 })
-  }
+  const fromAI = ai.text ? normalize(parseAIJson<AiNote>(ai.text)) : null
+  const usedAI = !!fromAI?.headline
+  const note = usedAI ? fromAI! : buildRuleNote(body as unknown as NoteDigest)
 
   try { await redis.set(key, note, { ex: CACHE_TTL }) } catch { /* non-fatal */ }
-  return NextResponse.json(note, { headers: { 'x-cache': 'miss', 'x-ai-provider': ai.provider } })
+  return NextResponse.json(note, { headers: { 'x-cache': 'miss', 'x-ai-provider': usedAI ? ai.provider : 'rules' } })
 }
 
 export async function GET() {

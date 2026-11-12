@@ -5,7 +5,7 @@
 //
 // Rules enforced here:
 //   • Keys travel in request headers wherever the provider supports it
-//     (Finnhub, NewsAPI, Google). They then never appear in URLs, which is
+//     (Finnhub, NewsAPI, Groq). They then never appear in URLs, which is
 //     where keys leak into logs, error messages and caches.
 //   • FRED and Alpha Vantage only accept the key as a query parameter. For
 //     those, the URL is built here and never leaves this module; failures are
@@ -19,15 +19,15 @@
 
 import { upstreamFetch, UpstreamError, type UpstreamInit } from './http'
 
-export type Provider = 'finnhub' | 'fred' | 'newsapi' | 'alphavantage' | 'youtube' | 'gemini' | 'groq'
+// Every provider here is a free tier that needs no payment method. Providers
+// that can bill per use must not be added (see the zero-cost rule in http.ts).
+export type Provider = 'finnhub' | 'fred' | 'newsapi' | 'alphavantage' | 'groq'
 
 const ENV_NAME: Record<Provider, string> = {
   finnhub:      'FINNHUB_API_KEY',
   fred:         'FRED_API_KEY',
   newsapi:      'NEWS_API_KEY',
   alphavantage: 'ALPHA_VANTAGE_KEY',
-  youtube:      'YOUTUBE_API_KEY',
-  gemini:       'GEMINI_API_KEY',
   groq:         'GROQ_API_KEY',
 }
 
@@ -120,36 +120,6 @@ export function alphaVantage(params: Params = {}, init: CallInit = {}): Promise<
   return upstreamFetch(url, { timeoutMs: 10_000, ...init, provider: 'alphavantage' })
 }
 
-// ── YouTube Data API — key in X-Goog-Api-Key header ──────────────────────────
-
-export function youtube(path: string, params: Params = {}, init: CallInit = {}): Promise<Response> {
-  const url = withParams(new URL(`https://www.googleapis.com/youtube/v3/${safePath('youtube', path)}`), params)
-  url.searchParams.delete('key')
-  return upstreamFetch(url, {
-    timeoutMs: 6_000,
-    ...init,
-    provider: 'youtube',
-    headers:  { 'X-Goog-Api-Key': keyFor('youtube'), Accept: 'application/json' },
-  })
-}
-
-// ── Gemini — key in X-Goog-Api-Key header ────────────────────────────────────
-
-const GEMINI_MODEL = /^gemini-[a-z0-9.-]+$/
-
-export function gemini(model: string, body: unknown, init: CallInit = {}): Promise<Response> {
-  if (!GEMINI_MODEL.test(model)) throw new UpstreamError('gemini', 0, 'refused: invalid model')
-  const url = new URL(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`)
-  return upstreamFetch(url, {
-    timeoutMs: 20_000,
-    ...init,
-    provider: 'gemini',
-    method:   'POST',
-    headers:  { 'X-Goog-Api-Key': keyFor('gemini'), 'Content-Type': 'application/json' },
-    body:     JSON.stringify(body),
-  })
-}
-
 // ── Groq — bearer token ──────────────────────────────────────────────────────
 
 export function groq(body: unknown, init: CallInit = {}): Promise<Response> {
@@ -161,39 +131,4 @@ export function groq(body: unknown, init: CallInit = {}): Promise<Response> {
     headers:  { Authorization: `Bearer ${keyFor('groq')}`, 'Content-Type': 'application/json' },
     body:     JSON.stringify(body),
   })
-}
-
-// ── xAI (Grok) — bearer token ────────────────────────────────────────────────
-
-export function xai(body: unknown, init: CallInit = {}): Promise<Response> {
-  const key = process.env.GROK_API_KEY?.trim()
-  if (!key) throw new UpstreamError('xai', 0, 'not configured')
-  return upstreamFetch(new URL('https://api.x.ai/v1/chat/completions'), {
-    timeoutMs: 25_000,
-    ...init,
-    provider: 'xai',
-    method:   'POST',
-    headers:  { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body:     JSON.stringify(body),
-  })
-}
-
-// ── Anthropic (Claude) — x-api-key header ────────────────────────────────────
-
-export function anthropic(body: unknown, init: CallInit = {}): Promise<Response> {
-  const key = process.env.ANTHROPIC_API_KEY?.trim()
-  if (!key) throw new UpstreamError('anthropic', 0, 'not configured')
-  return upstreamFetch(new URL('https://api.anthropic.com/v1/messages'), {
-    timeoutMs: 30_000,
-    ...init,
-    provider: 'anthropic',
-    method:   'POST',
-    headers:  { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-    body:     JSON.stringify(body),
-  })
-}
-
-/** Which AI providers are configured. Never returns key values. */
-export function hasAIKey(provider: 'xai' | 'anthropic'): boolean {
-  return !!(provider === 'xai' ? process.env.GROK_API_KEY : process.env.ANTHROPIC_API_KEY)?.trim()
 }

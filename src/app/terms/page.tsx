@@ -58,7 +58,7 @@ export default function TermsPage() {
           heading: '6. AI-Generated Content',
           body: (
             <p>
-              NEXUS uses AI language models (including Grok, Claude, and Gemini) to generate market commentary, sentiment analysis, and correlation insights. AI-generated content may be inaccurate, outdated, or incomplete. It is produced algorithmically and does not reflect the views of a human financial analyst. Treat all AI-generated content as experimental and unverified.
+              NEXUS generates market commentary with deterministic rules applied to the data shown. A deployment may optionally enable a third-party AI language model (Groq) for short news context. Generated content, rule-based or AI, may be inaccurate, outdated, or incomplete, does not reflect the views of a human financial analyst, and should be treated as experimental and unverified.
             </p>
           ),
         },

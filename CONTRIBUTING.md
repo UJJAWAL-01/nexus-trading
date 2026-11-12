@@ -39,6 +39,23 @@ Lint currently reports a few hundred *warnings* from older code. That is known
 debt. Do not add new ones, and fixing existing ones in files you touch is
 appreciated.
 
+## The zero-cost rule
+
+NEXUS must never be able to spend money on API usage or AI tokens, for the
+maintainers or for anyone who self-hosts it. This is not negotiable.
+
+- New data sources must be **keyless**, or a free tier that works **without a
+  payment method** and stops serving at its limit instead of billing.
+- **No pay-per-use providers**: no paid AI APIs (Anthropic, OpenAI, xAI, Gemini,
+  and similar), no paid market-data vendors, no metered cloud services.
+- Every feature must **work with no keys at all**. A key may add coverage; it
+  may never be required.
+- AI is optional garnish. Anything a user relies on must be computed by
+  deterministic, tested code.
+
+`src/lib/__tests__/zero-cost.test.ts` enforces this. If it fails on your pull
+request, remove the provider; do not edit the test.
+
 ## Rules that keep the project safe
 
 These are checked in review. A pull request that breaks one will not be merged.
@@ -86,7 +103,7 @@ These are checked in review. A pull request that breaks one will not be merged.
 3. Implement the provider interface in `src/lib/providers/market.ts` and add it
    to the fallback chain.
 4. Add tests. Tests must not call the network or need a real key.
-5. Note the provider's licence and rate limits in the README's data-source table.
+5. Confirm it satisfies the zero-cost rule above, and note the provider's licence and rate limits in the README's data-source table.
 
 ## Adding a panel
 

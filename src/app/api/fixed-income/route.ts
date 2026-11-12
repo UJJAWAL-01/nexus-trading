@@ -25,6 +25,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { BoundedMap } from '@/lib/providers/cache'
 import { fred } from '@/lib/providers/keys'
 import { callAI } from '@/lib/ai-provider'
+import { fixedIncomeRuleInsights } from '@/lib/rule-notes'
 
 const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
@@ -834,6 +835,21 @@ async function generateInsights(market: 'US' | 'IN', resp: FixedIncomeResponse):
   const dataQuality = liveCount > 5 ? 'Live' : liveCount > 0 ? 'Partial live' : 'Official/Modeled'
   const dataWarning = systemMessages.filter(m => m.startsWith('⚠') || m.startsWith('❌')).join(' ')
 
+  // Deterministic fallback, used whenever AI is not configured (the default).
+  const rules = () => fixedIncomeRuleInsights({
+    market,
+    policyRate: macro.policyRate.value ?? null,
+    cpi:        macro.cpi.value ?? null,
+    stance:     String(macro.stance ?? ''),
+    twoY:       twoY?.yieldData.value ?? null,
+    fiveY:      fiveY?.yieldData.value ?? null,
+    tenY:       tenY?.yieldData.value ?? null,
+    curveShape: String(curveShape ?? ''),
+    igOAS:      sp?.igOAS.value ?? null,
+    hyOAS:      sp?.hyOAS.value ?? null,
+    dataQuality,
+  })
+
   const prompt = market === 'US'
     ? `You are a US fixed income strategist writing 4 bullet points for a trading terminal.
 Each bullet: under 25 words, references exact figures, trading-actionable. Use • prefix.
@@ -861,13 +877,11 @@ Output ONLY 4 bullet points. No preamble.`
 
   try {
     const { text, provider } = await callAI([{ role: 'user', content: prompt }], 350)
-    if (!text || text.length < 10) {
-      return { text: 'AI analysis temporarily unavailable.', provider: 'none', error: 'empty_response' }
-    }
+    if (!text || text.length < 10) return { text: rules(), provider: 'rules' }
     return { text: text.trim(), provider }
   } catch (err) {
     if (process.env.NODE_ENV !== 'production') console.error('[fixed-income] AI error:', err)
-    return { text: 'AI analysis temporarily unavailable.', provider: 'none', error: 'ai_failed' }
+    return { text: rules(), provider: 'rules' }
   }
 }
 

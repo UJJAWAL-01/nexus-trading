@@ -4,21 +4,12 @@ Builds the verified supply-chain dataset shipped at `public/data/supply-chain.js
 
 ## Cost
 
-**Zero.** The extractor only calls free-tier APIs:
-
-| Provider | Where to get a key | Free tier |
-|---|---|---|
-| Grok (xAI) | https://console.x.ai | $25/mo credits (resets monthly) |
-| Gemini Flash | https://aistudio.google.com | 15 req/min |
-
-Set either one — Grok is tried first, Gemini falls back. ~550 tickers ≈ 600 calls, well within either tier's monthly free quota.
+**Zero.** The extractor only uses Groq's free tier, which needs no payment method and cannot bill. Pay-per-use AI providers are not supported, by project rule.
 
 ## Setup
 
 ```bash
-export GROK_API_KEY=xai-...
-# or
-export GEMINI_API_KEY=AIza...
+export GROQ_API_KEY=gsk_...          # free: https://console.groq.com
 
 # SEC EDGAR requires a contact in User-Agent
 export CONTACT_EMAIL=you@example.com
@@ -60,7 +51,7 @@ npx tsx scripts/extract-supply-chain.ts --us-all --in-all --write
 
 ## Honest limits
 
-- **Free models drift.** Grok-3-mini and Gemini-Flash are good but ~5–15% of edges will be wrong. The AI is told to refuse to guess and to cite verbatim quotes — but it still slips. Spot-check before merging large batches by running `--dry` and reading the output.
+- **Free models drift.** Free open-weight models are good but ~5–15% of edges will be wrong. The AI is told to refuse to guess and to cite verbatim quotes — but it still slips. Spot-check before merging large batches by running `--dry` and reading the output.
 - **Wikipedia coverage of supply chains varies.** Large Indian companies (RELIANCE, TCS, MARUTI, TATAMOTORS) have substantial Wikipedia articles with named partners; smaller ones may yield few or zero edges. That's a Wikipedia coverage limit, not a script bug. For thinner companies, hand-add edges to the JSON from the company's annual report (PDF) directly.
 - **10-K disclosures are limited.** US companies must name customers >10% of revenue (FASB ASC 280); below that they disclose nothing. Diversified companies (WMT, KO) often have zero named customers. Suppliers are even less commonly named. Many S&P 500 tickers will return zero edges — that's the disclosure regime, not a bug.
 - **No NSE annual report parser.** Indian annual reports are PDFs on inconsistent BSE/NSE URLs. Adding a real PDF parser is a separate effort. Wikipedia is the most reliable free fallback for now.

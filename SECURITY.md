@@ -21,7 +21,7 @@ server, for the specific requests the app needs.
 |---|---|---|
 | Server-only keys | Keys are read from environment variables on the server. No key is ever sent to the browser. Never use a `NEXT_PUBLIC_` variable for a secret. | `.env.local` |
 | Key vault | One module attaches keys to outbound requests. Routes never handle a key value. | `src/lib/providers/keys.ts` |
-| Keys in headers | Finnhub, NewsAPI, Google (Gemini, YouTube), Groq, xAI and Anthropic keys are sent as request headers, so they never appear in URLs, logs or caches. FRED and Alpha Vantage only accept query-string keys; those URLs never leave the vault module. | `src/lib/providers/keys.ts` |
+| Keys in headers | Finnhub, NewsAPI and Groq keys are sent as request headers, so they never appear in URLs, logs or caches. FRED and Alpha Vantage only accept query-string keys; those URLs never leave the vault module. | `src/lib/providers/keys.ts` |
 | Host allowlist | Keyed requests can only go to a fixed list of HTTPS hosts. User input cannot redirect a request elsewhere. | `src/lib/providers/http.ts` |
 | Redacted errors | Upstream failures surface as errors that carry no URL or header. AI-provider errors are logged through `redact()`. | `src/lib/providers/http.ts` |
 | No open proxy | `/api/finnhub` serves a fixed list of endpoints with validated parameters. | `src/app/api/finnhub/route.ts` |
@@ -29,6 +29,7 @@ server, for the specific requests the app needs.
 | Cross-site block | Browsers on other websites cannot call this deployment's API. | `src/proxy.ts` |
 | Rate limiting | Per-IP limits on every API route, tighter on expensive ones. | `src/proxy.ts` |
 | Bounded caches | API route caches have a size cap, and concurrent identical requests share one upstream call. | `src/lib/providers/cache.ts` |
+| Zero-cost guard | Only keyless sources and no-card free tiers are allowed. A CI test fails the build if a billable provider host, key or SDK is added. | `src/lib/__tests__/zero-cost.test.ts` |
 | CI | Every pull request is scanned for committed env files and key-shaped strings. CI uses no secrets. | `.github/workflows/ci.yml` |
 
 ## What these measures do not do

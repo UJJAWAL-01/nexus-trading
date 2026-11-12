@@ -9,12 +9,14 @@ or on a platform such as Vercel or AWS Amplify.
 cp .env.example .env.local
 ```
 
-Open `.env.local` and add the keys you have. All of them are optional: the app
-starts without any, and each key unlocks more panels. The file is gitignored
+This step is optional. NEXUS runs fully on keyless public data, so you can skip
+it. The few keys in the template are free tiers that need no payment method and
+only add extra news and macro coverage. The file is gitignored
 and is never copied into a Docker image.
 
-Use your **own** keys. Create a fresh key per deployment so that you can revoke
-one without affecting another.
+If you do add keys, use your **own** and create a fresh one per deployment so
+you can revoke it without affecting another. Never add a key for a provider
+that can bill you; NEXUS does not support any.
 
 ## 2. Run
 
@@ -25,23 +27,6 @@ Requires Docker Compose v2.24 or newer.
 ```bash
 docker compose up -d --build
 # → http://localhost:3000
-```
-
-With a local Postgres for the Screener and Equity Research panels:
-
-```bash
-export POSTGRES_PASSWORD='choose-a-long-random-password'
-# in .env.local:
-#   DATABASE_URL=postgresql://nexus:<the same password>@db:5432/nexus
-docker compose --profile db up -d --build
-```
-
-Then create the tables and load data from your machine (see `db/SETUP.md`):
-
-```bash
-npm ci
-npm run db:push
-npm run ingest:companies && npm run ingest:sec
 ```
 
 ### Plain Node

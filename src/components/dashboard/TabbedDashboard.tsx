@@ -29,7 +29,7 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'commodities', 'sentiment', 'mktclock'] },
   { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
-  { id: 'smartmoney', label: 'Research',    hint: 'Per-stock deep dive + smart money flow', icon: 'research-lens', panels: ['equityresearch', 'screener', 'stockprofile', 'analystconsensus', 'smartmoney', 'insiderdeals', 'secfilings', 'supplychain', 'altdata'] },
+  { id: 'smartmoney', label: 'Research',    hint: 'Per-stock deep dive + smart money flow', icon: 'research-lens', panels: ['equityresearch', 'stockprofile', 'smartmoney', 'insiderdeals', 'secfilings', 'supplychain', 'altdata'] },
   { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
   { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'macrorates'] },
   { id: 'portfolio',  label: 'Portfolio',   hint: 'Positions + live P&L',      icon: 'risk-shield',   panels: ['portfolio'] },
@@ -74,9 +74,7 @@ const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   ipo:             { w: 6, h: 12, minW: 3, minH: 10 },
   // Research — everything 2-up, max half-width per user spec.
   equityresearch:  { w: 6, h: 18, minW: 4, minH: 14 },
-  screener:        { w: 6, h: 16, minW: 4, minH: 12 },
   stockprofile:    { w: 6, h: 14, minW: 4, minH: 10 },
-  analystconsensus:{ w: 6, h: 14, minW: 4, minH: 10 },
   smartmoney:      { w: 6, h: 14, minW: 3, minH: 10 },
   insiderdeals:    { w: 6, h: 12, minW: 3, minH: 10 },
   secfilings:      { w: 6, h: 14, minW: 3, minH: 10 },

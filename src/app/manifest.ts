@@ -26,7 +26,6 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       { name: 'Open Pro Layout',    short_name: 'Pro',     url: '/?layout=tabs',    description: 'Tabbed view with chart hero' },
       { name: 'Open Classic Grid',  short_name: 'Classic', url: '/?layout=classic', description: 'Draggable 19-panel grid'     },
-      { name: 'Forex / Crypto',     short_name: 'FX',      url: '/trading',         description: 'Forex & crypto trading suite' },
     ],
   }
 }

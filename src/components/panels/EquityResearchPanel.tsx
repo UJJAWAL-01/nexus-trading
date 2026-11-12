@@ -3,7 +3,7 @@
 // ─── EQUITY RESEARCH ──────────────────────────────────────────────────────────
 //
 // Real per-stock fundamentals deep dive backed by 5 years of SEC EDGAR XBRL
-// data we ingested into Postgres.  This is the Koyfin-killer panel.
+// data read live from the keyless SEC EDGAR API (no database).
 //
 // Pipeline:
 //   useEffectiveSymbol('equityresearch')  →  fetch /api/fundamentals?ticker=X

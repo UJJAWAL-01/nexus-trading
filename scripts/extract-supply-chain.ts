@@ -3,13 +3,13 @@
 // FREE-PROVIDER supply-chain extractor.
 // US tickers   → SEC EDGAR 10-K Item 1/1A
 // IN tickers   → Wikipedia article (NSE/BSE annual reports are PDFs on inconsistent URLs)
-// AI provider  → Grok (xAI free tier) primary, Gemini Flash (free tier) fallback.
+// AI provider  → Groq free tier only (no payment method, cannot bill).
 //                NEVER calls a paid API. End-users never run this — output is committed
 //                to public/data/supply-chain.json and refreshed by maintainer quarterly.
 //
 // USAGE:
-//   GROK_API_KEY=xai-... npx tsx scripts/extract-supply-chain.ts --us-all --write
-//   GEMINI_API_KEY=AIza... npx tsx scripts/extract-supply-chain.ts --in-all --write
+//   GROQ_API_KEY=gsk_... npx tsx scripts/extract-supply-chain.ts --us-all --write
+//   GROQ_API_KEY=gsk_... npx tsx scripts/extract-supply-chain.ts --in-all --write
 //   npx tsx scripts/extract-supply-chain.ts AAPL NVDA RELIANCE.NS --write --dry
 //
 // FLAGS:
@@ -18,12 +18,11 @@
 //   --write       Merge results into public/data/supply-chain.json
 //   --dry         Print what would be sent to AI; do not call the API
 //
-// FREE TIERS:
-//   Grok:   $25/mo credits at console.x.ai (more than enough for ~550 companies)
-//   Gemini: 15 req/min free at aistudio.google.com
+// FREE TIER:
+//   Groq: free key at console.groq.com (rate-limited, never billed)
 //
 // HONEST LIMITS:
-//   * Free models (Grok-3-mini, Gemini-Flash) are less accurate than paid frontier
+//   * Free open-weight models are less accurate than paid frontier
 //     models. Each edge ships with sourceUrl — spot-check before merging large batches.
 //   * Wikipedia coverage of supply chains varies — some Indian companies will yield
 //     few or no edges. That's a data-quality limit, not a script bug.
@@ -80,59 +79,35 @@ if (dedup.length === 0) {
 console.error(`Queued ${dedup.length} tickers (${dedup.filter(d => d.region === 'us').length} US · ${dedup.filter(d => d.region === 'in').length} IN)`)
 
 // ── AI provider chain (free only) ────────────────────────────────────────────
-const GROK_KEY   = process.env.GROK_API_KEY
-const GEMINI_KEY = process.env.GEMINI_API_KEY
+const GROQ_KEY = process.env.GROQ_API_KEY
 
-if (!dryRun && !GROK_KEY && !GEMINI_KEY) {
-  console.error('ERROR: set GROK_API_KEY or GEMINI_API_KEY (both are free-tier).')
-  console.error('  Grok:   https://console.x.ai     ($25/mo free credits)')
-  console.error('  Gemini: https://aistudio.google.com   (15 req/min free)')
+if (!dryRun && !GROQ_KEY) {
+  console.error('ERROR: set GROQ_API_KEY (free tier, no payment method needed): https://console.groq.com')
   process.exit(1)
 }
 
-async function callGrok(systemPrompt: string, userPrompt: string): Promise<string | null> {
-  if (!GROK_KEY) return null
+// ZERO-COST RULE: this script may only use Groq's free tier (no payment method,
+// cannot bill). Pay-per-use AI providers must not be added.
+async function callAI(systemPrompt: string, userPrompt: string): Promise<string | null> {
+  if (!GROQ_KEY) return null
+  const model = process.env.GROQ_MODEL || 'openai/gpt-oss-20b'
   try {
-    const res = await fetch('https://api.x.ai/v1/chat/completions', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROK_KEY}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
       body: JSON.stringify({
-        model:       'grok-3-mini',
+        model,
         messages:    [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-        max_tokens:  4000,
+        max_tokens:  4500,
         temperature: 0.1,
+        ...(model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
       }),
       signal: AbortSignal.timeout(60_000),
     })
-    if (!res.ok) { console.error(`  Grok ${res.status}: ${(await res.text()).slice(0, 200)}`); return null }
+    if (!res.ok) { console.error(`  Groq ${res.status}`); return null }
     const j = await res.json() as { choices: { message: { content: string } }[] }
     return j.choices?.[0]?.message?.content ?? null
-  } catch (e) { console.error('  Grok error:', e); return null }
-}
-
-async function callGemini(systemPrompt: string, userPrompt: string): Promise<string | null> {
-  if (!GEMINI_KEY) return null
-  try {
-    // Key goes in a header, never in the URL (URLs end up in logs and error output).
-    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
-    const res = await fetch(url, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': GEMINI_KEY },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 4000 },
-      }),
-      signal: AbortSignal.timeout(60_000),
-    })
-    if (!res.ok) { console.error(`  Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`); return null }
-    const j = await res.json() as { candidates: { content: { parts: { text: string }[] } }[] }
-    return j.candidates?.[0]?.content?.parts?.[0]?.text ?? null
-  } catch (e) { console.error('  Gemini error:', e); return null }
-}
-
-async function callAI(systemPrompt: string, userPrompt: string): Promise<string | null> {
-  return (await callGrok(systemPrompt, userPrompt)) ?? (await callGemini(systemPrompt, userPrompt))
+  } catch { console.error('  Groq request failed'); return null }
 }
 
 // ── SEC EDGAR (US tickers) ───────────────────────────────────────────────────
@@ -390,7 +365,7 @@ function mergeEdges(newEdges: CanonicalEdge[], processed: Job[]): void {
         : await processIN(job.ticker, job.wikiTitle!)
       if (edges.length > 0 || dryRun) processed.push(job)
       all.push(...edges)
-      // Polite pacing — SEC asks <=10 rps, Gemini free is 15 rpm
+      // Polite pacing — SEC asks <=10 rps; the free AI tier is rate-limited too
       await new Promise(r => setTimeout(r, 800))
     } catch (e) { console.error(`[${job.ticker}] ERROR:`, e) }
   }

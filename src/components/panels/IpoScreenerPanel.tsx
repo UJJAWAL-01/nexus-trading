@@ -9,21 +9,16 @@ interface IPOData {
   ipoDate: string
   priceRange: string
   shares: string
-  rating: 'bullish' | 'neutral' | 'bearish'
   status: 'upcoming' | 'recent'
   underwriter?: string
   marketCap?: string
 }
-
-const ratingColor = (r: string) => r === 'bullish' ? 'var(--positive)' : r === 'bearish' ? 'var(--negative)' : 'var(--text-muted)'
-const ratingBg = (r: string) => r === 'bullish' ? 'rgba(0,201,122,0.12)' : r === 'bearish' ? 'rgba(255,69,96,0.12)' : 'rgba(74,96,112,0.12)'
 
 export default function IpoScreenerPanel() {
   const [ipos, setIpos]       = useState<IPOData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState<string | null>(null)
   const [filter, setFilter]   = useState<'all' | 'upcoming' | 'recent'>('all')
-  const [ratingFilter, setRatingFilter] = useState<'all' | 'bullish' | 'neutral' | 'bearish'>('all')
   const abortRef = useRef<AbortController | null>(null)
 
   const fetchIPOs = useCallback(async (signal: AbortSignal) => {
@@ -32,7 +27,6 @@ export default function IpoScreenerPanel() {
     let url = '/api/ipo-data'
     const params: string[] = []
     if (filter !== 'all')       params.push(`status=${filter}`)
-    if (ratingFilter !== 'all') params.push(`rating=${ratingFilter}`)
     if (params.length) url += `?${params.join('&')}`
 
     try {
@@ -50,7 +44,7 @@ export default function IpoScreenerPanel() {
       setError(e instanceof Error ? e.message : 'Network error')
       setLoading(false)
     }
-  }, [filter, ratingFilter])
+  }, [filter])
 
   useEffect(() => {
     abortRef.current?.abort()
@@ -98,19 +92,6 @@ export default function IpoScreenerPanel() {
           }}>{f}</button>
         ))}
 
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>RATING</span>
-          {(['all', 'bullish', 'neutral', 'bearish'] as const).map(r => (
-            <button key={r} onClick={() => setRatingFilter(r)} style={{
-              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
-              border: `1px solid ${ratingFilter === r ? ratingColor(r) : 'var(--border)'}`,
-              background: ratingFilter === r ? ratingBg(r) : 'transparent',
-              color: ratingFilter === r ? ratingColor(r) : 'var(--text-muted)',
-              textTransform: 'capitalize',
-            }}>{r}</button>
-          ))}
-        </div>
       </div>
 
       {/* Content */}
@@ -153,7 +134,6 @@ export default function IpoScreenerPanel() {
                 <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>INDUSTRY</th>
                 <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>IPO DATE</th>
                 <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>PRICE RANGE</th>
-                <th style={{ padding: '6px 8px', textAlign: 'center', color: 'var(--text-muted)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>RATING</th>
               </tr>
             </thead>
             <tbody>
@@ -168,17 +148,6 @@ export default function IpoScreenerPanel() {
                   <td style={{ padding: '8px', color: 'var(--text-muted)', fontSize: '10px' }}>{ipo.industry}</td>
                   <td style={{ padding: '8px', color: 'var(--text-muted)' }}>{new Date(ipo.ipoDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
                   <td style={{ padding: '8px', color: 'var(--text-2)', fontWeight: 500 }}>{ipo.priceRange}</td>
-                  <td style={{ padding: '8px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 8px', borderRadius: '2px', fontSize: '11px',
-                      background: ratingBg(ipo.rating), color: ratingColor(ipo.rating),
-                      border: `1px solid ${ratingColor(ipo.rating)}20`,
-                      textTransform: 'uppercase',
-                      fontWeight: 600,
-                    }}>
-                      {ipo.rating}
-                    </span>
-                  </td>
                 </tr>
               ))}
             </tbody>

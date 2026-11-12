@@ -12,7 +12,6 @@ export interface IPOData {
   ipoDate:       string   // ← was 'date' — now matches component
   priceRange:    string
   shares:        string
-  rating:        'bullish' | 'neutral' | 'bearish'
   status:        'upcoming' | 'recent'
   underwriter?:  string
   marketCap?:    string
@@ -26,13 +25,6 @@ function parseFinDate(raw: string | null | undefined): string {
     const d = new Date(raw + 'T12:00:00Z')   // noon UTC avoids timezone day-shift
     return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
   } catch { return '' }
-}
-
-function deriveRating(e: any): 'bullish' | 'neutral' | 'bearish' {
-  const name = ((e.name ?? '') + (e.description ?? '')).toLowerCase()
-  if (/technology|software|saas|ai|cloud|semiconductor/.test(name)) return 'bullish'
-  if (/biotech|pharma|clinical|drug|loss|deficit/.test(name))       return 'bearish'
-  return 'neutral'
 }
 
 async function finnhubIPOs(from: string, to: string): Promise<IPOData[]> {
@@ -67,7 +59,6 @@ async function finnhubIPOs(from: string, to: string): Promise<IPOData[]> {
           ipoDate,
           priceRange,
           shares,
-          rating:     deriveRating(e),
           status:     isUpcoming ? 'upcoming' : 'recent',
           underwriter: e.underwriter ?? undefined,
           marketCap:   undefined,
@@ -83,8 +74,7 @@ async function finnhubIPOs(from: string, to: string): Promise<IPOData[]> {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const status      = searchParams.get('status')   as 'upcoming' | 'recent' | null
-  const ratingParam = searchParams.get('rating')   as 'bullish' | 'neutral' | 'bearish' | null
-  const ck          = `ipo:${status}:${ratingParam}`
+  const ck          = `ipo:${status === 'upcoming' || status === 'recent' ? status : 'all'}`
   const cached      = cache.get(ck)
   if (cached && cached.expires > Date.now()) return NextResponse.json(cached.data)
 
@@ -95,7 +85,6 @@ export async function GET(request: NextRequest) {
   let ipos = await finnhubIPOs(from, to)
 
   if (status)      ipos = ipos.filter(i => i.status === status)
-  if (ratingParam) ipos = ipos.filter(i => i.rating === ratingParam)
 
   const payload = {
     ipos,

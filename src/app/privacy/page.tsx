@@ -68,7 +68,7 @@ export default function PrivacyPage() {
                 <li>SEC EDGAR (financial filings)</li>
                 <li>NSE India (Indian market data)</li>
                 <li>NewsAPI (financial news)</li>
-                <li>xAI / Grok, Anthropic / Claude, Google / Gemini (AI analysis — only ticker symbols and news headlines are sent, not personal data)</li>
+                <li>Groq (optional AI news context, only if the operator enables it — only ticker symbols and news headlines are sent, not personal data)</li>
                 <li>YouTube (embedded live financial news streams)</li>
               </ul>
             </>

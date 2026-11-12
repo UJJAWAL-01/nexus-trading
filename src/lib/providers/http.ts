@@ -17,17 +17,23 @@ if (typeof window !== 'undefined') {
   throw new Error('providers/http is server-only and must not be bundled for the browser')
 }
 
-/** Hosts NEXUS is allowed to call with credentials or on behalf of a user. */
+/**
+ * Hosts NEXUS is allowed to call with credentials or on behalf of a user.
+ *
+ * ZERO-COST RULE: every host here must be either keyless or a free tier that
+ * cannot bill (no payment method on file is required to use it). Pay-per-use
+ * APIs (Anthropic, OpenAI, xAI, Google Gemini, paid market-data vendors) must
+ * never be added. src/lib/__tests__/zero-cost.test.ts enforces this in CI.
+ */
 const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
   'finnhub.io',
   'api.stlouisfed.org',
   'newsapi.org',
   'www.alphavantage.co',
-  'www.googleapis.com',
-  'generativelanguage.googleapis.com',
   'api.groq.com',
-  'api.x.ai',
-  'api.anthropic.com',
+  // SEC EDGAR — public, keyless
+  'data.sec.gov',
+  'www.sec.gov',
   'query1.finance.yahoo.com',
   'query2.finance.yahoo.com',
 ])

@@ -25,9 +25,7 @@ import AlternativeDataPanel     from '@/components/panels/AlternativeDataPanel'
 import SecFilingsPanel          from '@/components/panels/SecFilingsPanel'
 import SmartMoneyPanel          from '@/components/panels/SmartMoneyPanel'
 import StockProfilePanel        from '@/components/panels/StockProfilePanel'
-import AnalystConsensusPanel    from '@/components/panels/AnalystConsensusPanel'
 import EquityResearchPanel      from '@/components/panels/EquityResearchPanel'
-import ScreenerPanel            from '@/components/panels/ScreenerPanel'
 import PatternScreenerPanel     from '@/components/panels/PatternScreenerPanel'
 import PortfolioPanel           from '@/components/panels/PortfolioPanel'
 
@@ -42,9 +40,9 @@ export const PANEL_IDS = [
   'options', 'ipo', 'fixedincome',
   'altdata', 'secfilings', 'smartmoney',
   // Equity research (per-stock deep dives, driven by global active symbol)
-  'stockprofile', 'analystconsensus', 'equityresearch',
+  'stockprofile', 'equityresearch',
   // Cross-universe screening (independent of active symbol)
-  'screener', 'patternscanner',
+  'patternscanner',
   // User data (stored in this browser only)
   'portfolio',
 ] as const
@@ -82,9 +80,7 @@ export const PANEL_META: Record<PanelId, PanelMeta> = {
   secfilings:   { component: <SecFilingsPanel />,          label: 'SEC FILINGS',   color: '#f97316',      mobileH: 540, description: '8-K · S-1 · 13D with AI summaries' },
   smartmoney:   { component: <SmartMoneyPanel />,          label: 'SMART MONEY',   color: '#a78bfa',      mobileH: 560, description: 'Top hedge funds · India MFs · consensus' },
   stockprofile: { component: <StockProfilePanel />,        label: 'STOCK PROFILE', color: '#a78bfa',      mobileH: 620, description: 'Active ticker · key stats · 52w range · margins' },
-  analystconsensus: { component: <AnalystConsensusPanel />, label: 'ANALYST CONSENSUS', color: 'var(--teal)', mobileH: 540, description: 'Buy/Sell/Hold breakdown · score trend · live coverage' },
   equityresearch:   { component: <EquityResearchPanel />,    label: 'EQUITY RESEARCH',   color: '#a78bfa',     mobileH: 720, description: '5y SEC fundamentals · revenue · margins · EPS · FCF time-series' },
-  screener:         { component: <ScreenerPanel />,          label: 'SCREENER',          color: '#22d3ee',     mobileH: 720, description: '7,600+ US filers · filter by sector / margin / ROE · click to focus' },
   portfolio:        { component: <PortfolioPanel />,         label: 'PORTFOLIO',         color: 'var(--amber)', mobileH: 520, description: 'Positions · live P&L · CSV import/export · stored in your browser' },
   patternscanner:   { component: <PatternScreenerPanel />,   label: 'PATTERN SCANNER',   color: '#00e5c0',     mobileH: 720, description: 'Scan US + India for chart & candlestick patterns · click to chart' },
 }

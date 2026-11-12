@@ -1,6 +1,6 @@
 # NEXUS Trading Intelligence
 
-**An open-source market terminal for US and Indian markets.** Charts, quotes, news, options, fundamentals, filings, macro and a portfolio tracker in one multi-panel dashboard. No account, no subscription.
+**An open-source market terminal for US and Indian markets.** Charts, quotes, news, options, fundamentals, filings, macro and a portfolio tracker in one multi-panel dashboard. No account, no subscription, no API keys, no database, and no running costs.
 
 Market data should not be gatekept. NEXUS is licensed under the [GNU AGPL-3.0](LICENSE): you can run it, study it, change it and share it, and anyone who runs a modified version as a service has to share their changes too.
 
@@ -22,7 +22,7 @@ cp .env.example .env.local     # optional: add the keys you have
 npm run dev                    # http://localhost:3000
 ```
 
-The app starts with no API keys. Charts, quotes and the pattern scanner work immediately; each key you add in `.env.local` unlocks more panels. Every provider has a free tier.
+That is the whole setup. NEXUS runs on public, keyless data sources, so there is nothing to sign up for and nothing to pay. A few optional free-tier keys in `.env.local` add extra news and macro coverage; none of them can bill you.
 
 With Docker:
 
@@ -31,27 +31,27 @@ cp .env.example .env.local
 docker compose up -d --build   # http://localhost:3000
 ```
 
-Full instructions, reverse-proxy setup and the optional Postgres database are in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
+Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 
 ---
 
 ## What's in it
 
-27 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+25 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
 
 | Area | Panels |
 |---|---|
 | **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Commodities · Sentiment · World Clock |
 | **Your data** | Portfolio (positions, live P&L, CSV import/export) |
 | **News and events** | Intel Feed (AI-tagged news) · Economic Calendar · Earnings · IPO · Live TV |
-| **Research** | Equity Research (5y SEC fundamentals) · Screener (7,600+ US filers) · Pattern Scanner · Stock Profile · Analyst Consensus |
+| **Research** | Equity Research (10+ years of SEC fundamentals) · Pattern Scanner · Stock Profile |
 | **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain · Alt Data |
 | **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Fixed Income · Macro Rates |
 | **India** | India Markets (Nifty, Sensex, FII/DII) and `.NS` / `.BO` symbols across most panels |
 
 Highlights:
 
-- **Chart** with 1-minute to monthly timeframes, indicators, drawing tools, and a deterministic pattern engine (chart and candlestick patterns, composite technical rating). AI writes a note about what the engine found; it does not invent the patterns.
+- **Chart** with 1-minute to monthly timeframes, indicators, drawing tools, and a deterministic pattern engine (chart and candlestick patterns, composite technical rating). The analyst note is written by rules from what the engine found, so it works offline of any AI and cannot invent a pattern or a price.
 - **Portfolio** with live P&L pushed over a single streaming connection. Totals are kept per currency.
 - **Export everything you own.** Watchlist and portfolio export to CSV. One file backs up and restores your whole workspace (watchlist, portfolio, layouts, chart drawings).
 - **Your data stays in your browser.** There are no accounts. Watchlists, positions and layouts are stored in `localStorage` and are never uploaded.
@@ -68,18 +68,31 @@ NEXUS aggregates public and free-tier sources. The license covers the NEXUS code
 | Source | Used for | Key |
 |---|---|---|
 | Yahoo Finance (unofficial endpoints) | Charts, quotes, search, India fundamentals | none |
-| SEC EDGAR | US fundamentals, filings, 13F holdings | none |
+| SEC EDGAR | US fundamentals (XBRL company facts), filings, 13F holdings | none |
 | NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |
 | CBOE | US options chains | none |
 | Wikipedia, Reddit, Hacker News | Alt-data attention signals | none |
-| Finnhub | Quote fallback, news, earnings, IPOs, analyst data | `FINNHUB_API_KEY` |
-| FRED | Macro rates, yields, CPI | `FRED_API_KEY` |
-| NewsAPI | Extra news coverage | `NEWS_API_KEY` |
-| Alpha Vantage | News sentiment | `ALPHA_VANTAGE_KEY` |
-| YouTube Data API | Live TV stream lookup | `YOUTUBE_API_KEY` |
-| xAI, Anthropic, Google, Groq | AI summaries and notes (optional) | see `.env.example` |
+| Finnhub (optional, free) | News, earnings and IPO calendars, company profile | `FINNHUB_API_KEY` |
+| FRED (optional, free) | Macro rates, yields, CPI | `FRED_API_KEY` |
+| NewsAPI (optional, free) | Extra news coverage | `NEWS_API_KEY` |
+| Alpha Vantage (optional, free) | News sentiment | `ALPHA_VANTAGE_KEY` |
+| YouTube embeds | Live TV | none |
+| Groq (optional, free) | One-line AI context on news headlines | `GROQ_API_KEY` |
 
 Yahoo and NSE are unofficial integrations. They can change or rate-limit without notice; when that happens the affected panels show stale or unavailable data. Adding more providers is the most valuable contribution you can make, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Zero cost, by rule
+
+NEXUS is built so that running it cannot cost money on API usage or AI tokens:
+
+- It works with **no keys**. The default experience uses only keyless public sources.
+- Every optional key is a **free tier that needs no payment method**. When a limit is reached the provider stops answering; it does not bill.
+- **Pay-per-use providers are not supported**, including paid AI APIs. Commentary is generated by deterministic rules; the only AI integration is Groq's free tier, and it is off unless you add a key.
+- A test in CI (`src/lib/__tests__/zero-cost.test.ts`) fails the build if a billable provider host, key name or SDK is added anywhere.
+
+The one cost NEXUS cannot control is where you host it. It runs on a laptop, a home server or a free hosting tier.
 
 ---
 
@@ -121,11 +134,11 @@ src/
 │   ├── api-guard.ts          Client IP, cross-site check, parameter validation
 │   └── export.ts             CSV export and workspace backup
 └── store/                    Client state (watchlist, portfolio, layout)
-db/                           Postgres schema for the Screener and Equity Research
-scripts/                      Data ingestion (SEC fundamentals, company universe)
+db/redis.ts                   Optional shared cache client (in-memory by default)
+scripts/                      Maintainer tooling for the static supply-chain dataset
 ```
 
-Stack: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Zustand, SWR, lightweight-charts, Drizzle ORM.
+Stack: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Zustand, SWR, lightweight-charts.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. It is short, and it lists the rules that keep keys safe.
 
@@ -135,11 +148,11 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. It is sho
 
 - **Not real time.** Quotes come from free sources and can be delayed by 15 minutes or more. The quote stream pushes updates as the server sees them, roughly every 5 to 10 seconds; it is not a tick feed.
 - **Unofficial sources can break.** See [Data sources](#data-sources).
-- **India coverage is partial.** Equity Research and the Screener are built on SEC filings and are US-only today.
-- **Screener and Equity Research need a database.** They require Postgres and an ingestion run ([db/SETUP.md](db/SETUP.md)). Without it they report "not configured" and the rest of the app works.
+- **India coverage is partial.** Equity Research is built on SEC filings and is US-only today.
+- **No cross-market stock screener yet.** The database-backed screener was removed; a keyless replacement built on SEC data is planned.
 - **No accounts or sync.** Data is per browser. Use workspace backup to move it.
 - **Portfolio P&L is unrealized only** and ignores fees, dividends, splits and FX.
-- **AI output can be wrong.** It is generated text about the data shown, not advice.
+- **Generated commentary can be wrong.** Rule-based notes and optional AI lines describe the data shown; they are not advice.
 
 ---
 
