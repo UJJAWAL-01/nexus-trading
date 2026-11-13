@@ -7,8 +7,8 @@
 //   • Keys travel in request headers wherever the provider supports it
 //     (Finnhub, NewsAPI, Groq). They then never appear in URLs, which is
 //     where keys leak into logs, error messages and caches.
-//   • FRED and Alpha Vantage only accept the key as a query parameter. For
-//     those, the URL is built here and never leaves this module; failures are
+//   • Alpha Vantage only accepts the key as a query parameter. For
+//     that one, the URL is built here and never leaves this module; failures are
 //     reported through UpstreamError, which carries no URL.
 //   • All user-influenced values are passed as URLSearchParams entries so they
 //     are always encoded and can never inject extra parameters.
@@ -21,11 +21,10 @@ import { upstreamFetch, UpstreamError, type UpstreamInit } from './http'
 
 // Every provider here is a free tier that needs no payment method. Providers
 // that can bill per use must not be added (see the zero-cost rule in http.ts).
-export type Provider = 'finnhub' | 'fred' | 'newsapi' | 'alphavantage' | 'groq'
+export type Provider = 'finnhub' | 'newsapi' | 'alphavantage' | 'groq'
 
 const ENV_NAME: Record<Provider, string> = {
   finnhub:      'FINNHUB_API_KEY',
-  fred:         'FRED_API_KEY',
   newsapi:      'NEWS_API_KEY',
   alphavantage: 'ALPHA_VANTAGE_KEY',
   groq:         'GROQ_API_KEY',
@@ -88,15 +87,6 @@ export async function finnhubJSON<T = unknown>(
     if (!res.ok) return null
     return (await res.json()) as T
   } catch { return null }
-}
-
-// ── FRED — key only accepted as a query parameter ────────────────────────────
-
-export function fred(path: string, params: Params = {}, init: CallInit = {}): Promise<Response> {
-  const url = withParams(new URL(`https://api.stlouisfed.org/fred/${safePath('fred', path)}`), params)
-  url.searchParams.set('file_type', 'json')
-  url.searchParams.set('api_key', keyFor('fred'))
-  return upstreamFetch(url, { timeoutMs: 8_000, ...init, provider: 'fred' })
 }
 
 // ── NewsAPI — key in X-Api-Key header ────────────────────────────────────────

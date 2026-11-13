@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "data:screener": "tsx scripts/build-screener.ts"
   },
   "dependencies": {
     "@upstash/redis": "^1.38.0",

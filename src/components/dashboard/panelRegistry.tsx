@@ -28,6 +28,8 @@ import StockProfilePanel        from '@/components/panels/StockProfilePanel'
 import EquityResearchPanel      from '@/components/panels/EquityResearchPanel'
 import PatternScreenerPanel     from '@/components/panels/PatternScreenerPanel'
 import PortfolioPanel           from '@/components/panels/PortfolioPanel'
+import ScreenerPanel            from '@/components/panels/ScreenerPanel'
+import BacktestPanel            from '@/components/panels/BacktestPanel'
 
 // ── Panel id list ─────────────────────────────────────────────────────────────
 
@@ -45,6 +47,8 @@ export const PANEL_IDS = [
   'patternscanner',
   // User data (stored in this browser only)
   'portfolio',
+  // Offline analytics (computed in the browser, no server or key)
+  'screener', 'backtest',
 ] as const
 
 export type PanelId = (typeof PANEL_IDS)[number]
@@ -82,6 +86,8 @@ export const PANEL_META: Record<PanelId, PanelMeta> = {
   stockprofile: { component: <StockProfilePanel />,        label: 'STOCK PROFILE', color: '#a78bfa',      mobileH: 620, description: 'Active ticker · key stats · 52w range · margins' },
   equityresearch:   { component: <EquityResearchPanel />,    label: 'EQUITY RESEARCH',   color: '#a78bfa',     mobileH: 720, description: '5y SEC fundamentals · revenue · margins · EPS · FCF time-series' },
   portfolio:        { component: <PortfolioPanel />,         label: 'PORTFOLIO',         color: 'var(--amber)', mobileH: 520, description: 'Positions · live P&L · CSV import/export · stored in your browser' },
+  screener:         { component: <ScreenerPanel />,          label: 'SCREENER',          color: 'var(--teal)',  mobileH: 640, description: 'Filter every SEC filer by revenue, margins, ROE, cash flow · runs in your browser' },
+  backtest:         { component: <BacktestPanel />,          label: 'BACKTEST',          color: 'var(--amber)', mobileH: 680, description: 'Test MA-cross, RSI and breakout strategies vs buy-and-hold · runs in your browser' },
   patternscanner:   { component: <PatternScreenerPanel />,   label: 'PATTERN SCANNER',   color: '#00e5c0',     mobileH: 720, description: 'Scan US + India for chart & candlestick patterns · click to chart' },
 }
 

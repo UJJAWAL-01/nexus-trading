@@ -23,7 +23,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { NextRequest, NextResponse } from 'next/server'
 import { BoundedMap } from '@/lib/providers/cache'
-import { fred } from '@/lib/providers/keys'
+import { fredObservations } from '@/lib/providers/public-data'
 import { callAI } from '@/lib/ai-provider'
 import { fixedIncomeRuleInsights } from '@/lib/rule-notes'
 
@@ -237,14 +237,12 @@ const US_TENORS = [
 ]
 
 async function fredFetch(series: string): Promise<{ value: number; date: string } | null> {
-  if (!process.env.FRED_API_KEY) return null
   const ck = `fred:${series}`
   const hit = cache.get(ck)
   if (hit && hit.expires > Date.now()) return hit.data as { value: number; date: string }
   try {
-    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit: 3 }, { timeoutMs: 7000 })
-    if (!res.ok) return null
-    const j   = await res.json()
+    const j = await fredObservations(series, 3)
+    if (!j) return null
     const obs = (j.observations ?? []).find((o: any) => o.value !== '.' && parseFloat(o.value) > 0)
     if (!obs) return null
     const result = { value: parseFloat(obs.value), date: obs.date }
@@ -255,14 +253,12 @@ async function fredFetch(series: string): Promise<{ value: number; date: string 
 
 // ── YoY % from FRED index series (computes 12-month change) ─────────────────
 async function fredYoY(series: string): Promise<{ value: number; date: string } | null> {
-  if (!process.env.FRED_API_KEY) return null
   const ck = `fredyoy:${series}`
   const hit = cache.get(ck)
   if (hit && hit.expires > Date.now()) return hit.data as { value: number; date: string }
   try {
-    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit: 14 }, { timeoutMs: 8000 })
-    if (!res.ok) return null
-    const j = await res.json()
+    const j = await fredObservations(series, 14)
+    if (!j) return null
     const obs = (j.observations ?? [])
       .filter((o: any) => o.value !== '.')
       .map((o: any) => ({ value: parseFloat(o.value), date: o.date }))
@@ -909,12 +905,6 @@ export async function GET(request: NextRequest) {
 
   // ── US ──────────────────────────────────────────────────────────────────────
   if (market === 'US') {
-    if (!process.env.FRED_API_KEY) {
-      return NextResponse.json({
-        error: 'FRED_API_KEY not configured. Get free key at https://fred.stlouisfed.org/docs/api/api_key.html',
-      }, { status: 503 })
-    }
-
     const [curve, rateObs, rateHi, usCpiLive, tips] = await Promise.all([
       fetchUSYieldCurve(),
       fredFetch('DFEDTARL'),

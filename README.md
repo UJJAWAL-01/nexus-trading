@@ -37,14 +37,14 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 
 ## What's in it
 
-25 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+27 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
 
 | Area | Panels |
 |---|---|
 | **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Commodities · Sentiment · World Clock |
 | **Your data** | Portfolio (positions, live P&L, CSV import/export) |
 | **News and events** | Intel Feed (AI-tagged news) · Economic Calendar · Earnings · IPO · Live TV |
-| **Research** | Equity Research (10+ years of SEC fundamentals) · Pattern Scanner · Stock Profile |
+| **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Pattern Scanner · Stock Profile |
 | **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain · Alt Data |
 | **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Fixed Income · Macro Rates |
 | **India** | India Markets (Nifty, Sensex, FII/DII) and `.NS` / `.BO` symbols across most panels |
@@ -52,6 +52,8 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 Highlights:
 
 - **Chart** with 1-minute to monthly timeframes, indicators, drawing tools, and a deterministic pattern engine (chart and candlestick patterns, composite technical rating). The analyst note is written by rules from what the engine found, so it works offline of any AI and cannot invent a pattern or a price.
+- **Backtester** that runs in your browser: moving-average, RSI and breakout strategies against buy-and-hold, with trading costs and no look-ahead.
+- **Screener** over every SEC filer with a ticker, filtered instantly in the browser from a static dataset rebuilt weekly from public SEC data.
 - **Portfolio** with live P&L pushed over a single streaming connection. Totals are kept per currency.
 - **Export everything you own.** Watchlist and portfolio export to CSV. One file backs up and restores your whole workspace (watchlist, portfolio, layouts, chart drawings).
 - **Your data stays in your browser.** There are no accounts. Watchlists, positions and layouts are stored in `localStorage` and are never uploaded.
@@ -68,12 +70,13 @@ NEXUS aggregates public and free-tier sources. The license covers the NEXUS code
 | Source | Used for | Key |
 |---|---|---|
 | Yahoo Finance (unofficial endpoints) | Charts, quotes, search, India fundamentals | none |
-| SEC EDGAR | US fundamentals (XBRL company facts), filings, 13F holdings | none |
+| SEC EDGAR | US fundamentals (XBRL company facts), screener dataset, filings, 13F holdings | none |
+| FRED (public CSV) | Macro rates, yields, CPI, credit spreads | none |
+| Nasdaq (public calendars) | Earnings and IPO calendars | none |
 | NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |
 | CBOE | US options chains | none |
 | Wikipedia, Reddit, Hacker News | Alt-data attention signals | none |
-| Finnhub (optional, free) | News, earnings and IPO calendars, company profile | `FINNHUB_API_KEY` |
-| FRED (optional, free) | Macro rates, yields, CPI | `FRED_API_KEY` |
+| Finnhub (optional, free) | Company profile panel, extra news | `FINNHUB_API_KEY` |
 | NewsAPI (optional, free) | Extra news coverage | `NEWS_API_KEY` |
 | Alpha Vantage (optional, free) | News sentiment | `ALPHA_VANTAGE_KEY` |
 | YouTube embeds | Live TV | none |
@@ -117,6 +120,7 @@ npm run typecheck    # TypeScript
 npm run lint         # ESLint
 npm test             # unit tests (Vitest)
 npm run build        # production build
+npm run data:screener  # rebuild the SEC screener dataset (free, ~10 min first time)
 ```
 
 ```
@@ -149,7 +153,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. It is sho
 - **Not real time.** Quotes come from free sources and can be delayed by 15 minutes or more. The quote stream pushes updates as the server sees them, roughly every 5 to 10 seconds; it is not a tick feed.
 - **Unofficial sources can break.** See [Data sources](#data-sources).
 - **India coverage is partial.** Equity Research is built on SEC filings and is US-only today.
-- **No cross-market stock screener yet.** The database-backed screener was removed; a keyless replacement built on SEC data is planned.
+- **Screener coverage has gaps.** It uses standard XBRL tags for one fiscal year; companies that report revenue or income under non-standard tags (some large ones included) are missing or partly blank. US filers only.
+- **Stock Profile needs a free Finnhub key.** It is the one panel without a keyless source yet.
 - **No accounts or sync.** Data is per browser. Use workspace backup to move it.
 - **Portfolio P&L is unrealized only** and ignores fees, dividends, splits and FX.
 - **Generated commentary can be wrong.** Rule-based notes and optional AI lines describe the data shown; they are not advice.

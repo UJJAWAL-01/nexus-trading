@@ -21,7 +21,7 @@ server, for the specific requests the app needs.
 |---|---|---|
 | Server-only keys | Keys are read from environment variables on the server. No key is ever sent to the browser. Never use a `NEXT_PUBLIC_` variable for a secret. | `.env.local` |
 | Key vault | One module attaches keys to outbound requests. Routes never handle a key value. | `src/lib/providers/keys.ts` |
-| Keys in headers | Finnhub, NewsAPI and Groq keys are sent as request headers, so they never appear in URLs, logs or caches. FRED and Alpha Vantage only accept query-string keys; those URLs never leave the vault module. | `src/lib/providers/keys.ts` |
+| Keys in headers | Finnhub, NewsAPI and Groq keys are sent as request headers, so they never appear in URLs, logs or caches. Alpha Vantage only accepts a query-string key; that URL never leaves the vault module. | `src/lib/providers/keys.ts` |
 | Host allowlist | Keyed requests can only go to a fixed list of HTTPS hosts. User input cannot redirect a request elsewhere. | `src/lib/providers/http.ts` |
 | Redacted errors | Upstream failures surface as errors that carry no URL or header. AI-provider errors are logged through `redact()`. | `src/lib/providers/http.ts` |
 | No open proxy | `/api/finnhub` serves a fixed list of endpoints with validated parameters. | `src/app/api/finnhub/route.ts` |

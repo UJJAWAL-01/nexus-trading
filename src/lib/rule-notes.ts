@@ -142,7 +142,7 @@ export function fixedIncomeRuleInsights(f: FixedIncomeFacts): string {
     let line = `${bank} rate is ${f.policyRate.toFixed(2)}%${f.stance ? ` (${f.stance})` : ''}`
     if (isNum(f.cpi)) {
       const real = f.policyRate - f.cpi
-      line += `; with CPI near ${f.cpi.toFixed(1)}% the real policy rate is ${real >= 0 ? '+' : ''}${real.toFixed(2)}%, ${real > 1 ? 'restrictive' : real < 0 ? 'accommodative' : 'roughly neutral'}`
+      line += `; with CPI near ${f.cpi.toFixed(1)}% the real policy rate is ${real >= 0 ? '+' : ''}${real.toFixed(2)}%`
     }
     out.push(line + '.')
   }

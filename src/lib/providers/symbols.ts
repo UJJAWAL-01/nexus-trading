@@ -38,6 +38,16 @@ export const YAHOO_INTERVALS = new Set([
   '1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo',
 ])
 
+/** Finnhub-style symbols → the keyless provider chain's (Yahoo-style) grammar. */
+export function toKeylessSymbol(symbol: string): string {
+  if (symbol === 'VIX') return '^VIX'
+  const crypto = symbol.match(/^BINANCE:([A-Z0-9]+)USDT$/)
+  if (crypto) return `${crypto[1]}-USD`
+  const fx = symbol.match(/^OANDA:([A-Z]{3})_([A-Z]{3})$/)
+  if (fx) return `${fx[1]}${fx[2]}=X`
+  return symbol
+}
+
 /** Free-text search query: bounded length, control characters removed. */
 export function cleanQuery(input: unknown, maxLength = 80): string | null {
   if (typeof input !== 'string') return null

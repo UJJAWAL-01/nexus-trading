@@ -1,0 +1,55 @@
+name: Refresh static data
+
+# Rebuilds public/data/screener.json from SEC EDGAR's public API and commits it
+# when it changed. Costs nothing: GitHub Actions is free for public
+# repositories and the SEC API needs no key. No secrets are used.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"        # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+jobs:
+  screener:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build screener dataset
+        run: npm run data:screener
+
+      - name: Validate dataset
+        run: |
+          node -e "
+            const f = JSON.parse(require('fs').readFileSync('public/data/screener.json', 'utf8'));
+            if (!Array.isArray(f.rows) || f.rows.length < 1500) { console.error('dataset too small:', f.rows && f.rows.length); process.exit(1) }
+            if (!Array.isArray(f.columns) || f.columns[0] !== 'ticker') { console.error('unexpected columns'); process.exit(1) }
+            console.log('ok:', f.rows.length, 'companies, FY' + f.fiscalYear);
+          "
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- public/data/screener.json; then
+            echo "No change."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/screener.json
+          git commit -m "data: refresh SEC screener dataset"
+          git push

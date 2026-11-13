@@ -1,8 +1,9 @@
 // src/app/api/earnings/route.ts
-// US: Finnhub calendar + historical actuals
+// US: Nasdaq public earnings calendar (keyless); Finnhub is an optional fallback
 // India: Yahoo Finance quoteSummary + earningsHistory for past results
 import { NextRequest, NextResponse } from 'next/server'
-import { finnhub } from '@/lib/providers/keys'
+import { finnhub, hasKey } from '@/lib/providers/keys'
+import { nasdaqEarnings } from '@/lib/providers/public-data'
 
 // 1h cache — earnings calendars update at most a few times per day
 export const revalidate = 3600
@@ -55,8 +56,56 @@ export interface EarningItem {
   isFuture:        boolean
 }
 
-// ── US Earnings: Finnhub (upcoming + recent) ─────────────────────────────────
+// ── US Earnings: Nasdaq public calendar (keyless) ───────────────────────────
+// One request per trading day. Each day lists hundreds of reporters, so we keep
+// the largest companies by market cap: that is what a dashboard needs to show.
+const PER_DAY = 10
+
+function tradingDays(from: number, to: number): string[] {
+  const out: string[] = []
+  for (let offset = from; offset <= to; offset++) {
+    const d = new Date(Date.now() + offset * 86400_000)
+    const dow = d.getUTCDay()
+    if (dow !== 0 && dow !== 6) out.push(d.toISOString().slice(0, 10))
+  }
+  return out
+}
+
 async function fetchUSEarnings(): Promise<EarningItem[]> {
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const days     = tradingDays(-5, 9)
+  const perDay   = await Promise.all(days.map(d => nasdaqEarnings(d)))
+
+  const items: EarningItem[] = []
+  for (const rows of perDay) {
+    const top = [...rows].sort((a, b) => (b.marketCap ?? 0) - (a.marketCap ?? 0)).slice(0, PER_DAY)
+    for (const e of top) {
+      const isFuture = e.date > todayStr
+      const actual   = isFuture ? null : e.epsActual
+      items.push({
+        symbol:          e.symbol,
+        name:            e.name,
+        date:            e.date,
+        epsEstimate:     e.epsEstimate,
+        epsActual:       actual,
+        revenueEstimate: null,
+        revenueActual:   null,
+        hour:            e.hour,
+        market:          'US',
+        beat:            actual !== null && e.epsEstimate !== null ? actual >= e.epsEstimate : null,
+        quarter:         e.quarter || undefined,
+        isFuture,
+      })
+    }
+  }
+
+  if (items.length) return items.sort((a, b) => a.date.localeCompare(b.date)).slice(0, 120)
+  // Nasdaq unreachable: use Finnhub if (and only if) a free key is configured.
+  return hasKey('finnhub') ? fetchUSEarningsFinnhub() : []
+}
+
+// ── US Earnings fallback: Finnhub free tier (optional) ──────────────────────
+async function fetchUSEarningsFinnhub(): Promise<EarningItem[]> {
   const today   = new Date()
   // Go back 30 days for recent actuals, forward 30 days for upcoming
   const fromDate = new Date(today.getTime() - 30 * 86400_000)

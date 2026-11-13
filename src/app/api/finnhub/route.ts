@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { finnhub, hasKey, type Params } from '@/lib/providers/keys'
 import { createCache } from '@/lib/providers/cache'
-import { cleanQuery, cleanSymbol } from '@/lib/providers/symbols'
+import { cleanQuery, cleanSymbol, toKeylessSymbol } from '@/lib/providers/symbols'
+import { getQuote } from '@/lib/providers/market'
 
 // Narrow, read-only window onto Finnhub for the dashboard panels.
 //
@@ -56,6 +57,17 @@ const cache = createCache<unknown>({ name: 'finnhub', max: 1000, staleMs: 15 * 6
 
 class RateLimited extends Error {}
 
+// ── Keyless quote ────────────────────────────────────────────────────────────
+// Quotes must work with no API key. When Finnhub is not configured (the
+// default) or fails, the quote comes from the keyless provider chain and is
+// returned in Finnhub's shape, so every panel keeps working unchanged.
+
+async function keylessQuote(symbol: string): Promise<Record<string, number | null> | null> {
+  const q = await getQuote(toKeylessSymbol(symbol))
+  if (!q || q.price === null) return null
+  return { c: q.price, d: q.changeAbs, dp: q.change, h: q.high, l: q.low, o: null, pc: q.prevClose, t: Math.floor(q.ts / 1000) }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const endpoint = searchParams.get('endpoint') ?? ''
@@ -71,7 +83,15 @@ export async function GET(request: NextRequest) {
   if (!params) {
     return NextResponse.json({ error: 'invalid parameters' }, { status: 400 })
   }
+  const quoteSymbol = endpoint === 'quote' ? String(params.symbol ?? '') : ''
+  const QUOTE_HEADERS = { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=60', 'x-quote-source': 'keyless' }
+
   if (!hasKey('finnhub')) {
+    if (quoteSymbol) {
+      const q = await keylessQuote(quoteSymbol)
+      // Same "no data" shape Finnhub uses for an unknown symbol.
+      return NextResponse.json(q ?? { c: 0, d: null, dp: null, h: 0, l: 0, o: 0, pc: 0, t: 0 }, { headers: QUOTE_HEADERS })
+    }
     return NextResponse.json({ error: 'Data source unavailable' }, { status: 503 })
   }
 
@@ -90,6 +110,10 @@ export async function GET(request: NextRequest) {
     // cache.wrap already serves the last good value when one exists; reaching
     // here means there is nothing to fall back to. Shapes below are what the
     // panels have always received in these cases.
+    if (quoteSymbol) {
+      const q = await keylessQuote(quoteSymbol)
+      if (q) return NextResponse.json(q, { headers: QUOTE_HEADERS })
+    }
     if (err instanceof RateLimited) return NextResponse.json({ rateLimited: true }, { status: 200 })
     return NextResponse.json({ error: 'fetch failed' }, { status: 200 })
   }

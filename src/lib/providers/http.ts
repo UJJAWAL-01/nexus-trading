@@ -27,7 +27,9 @@ if (typeof window !== 'undefined') {
  */
 const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
   'finnhub.io',
-  'api.stlouisfed.org',
+  // Keyless public data
+  'fred.stlouisfed.org',
+  'api.nasdaq.com',
   'newsapi.org',
   'www.alphavantage.co',
   'api.groq.com',

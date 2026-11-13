@@ -4,7 +4,7 @@ import { cleanQuery, cleanSymbol, cleanSymbolList, isValidSymbol } from '@/lib/p
 import { redact, upstreamFetch, UpstreamError, isAllowedHost } from '@/lib/providers/http'
 import { BoundedMap, createCache } from '@/lib/providers/cache'
 import { rateLimit, _resetRateLimiter } from '@/lib/ratelimiter'
-import { finnhub, fred, hasKey } from '@/lib/providers/keys'
+import { finnhub, newsapi, hasKey } from '@/lib/providers/keys'
 
 const h = (o: Record<string, string>) => new Headers(o)
 
@@ -101,14 +101,14 @@ describe('key vault', () => {
     else delete process.env.FINNHUB_API_KEY
   })
   it('fails closed with a URL-free error when a key is missing', () => {
-    const saved = process.env.FRED_API_KEY
-    delete process.env.FRED_API_KEY
-    expect(hasKey('fred')).toBe(false)
+    const saved = process.env.NEWS_API_KEY
+    delete process.env.NEWS_API_KEY
+    expect(hasKey('newsapi')).toBe(false)
     let message = ''
-    try { void fred('series/observations', { series_id: 'DGS10' }) } catch (e) { message = String(e) }
+    try { void newsapi('everything', { q: 'markets' }) } catch (e) { message = String(e) }
     expect(message).toContain('not configured')
-    expect(message).not.toMatch(/https?:|api_key/)
-    if (saved) process.env.FRED_API_KEY = saved
+    expect(message).not.toMatch(/https?:|apiKey/)
+    if (saved) process.env.NEWS_API_KEY = saved
   })
 })
 

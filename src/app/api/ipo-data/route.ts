@@ -1,98 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { BoundedMap } from '@/lib/providers/cache'
-import { finnhub, hasKey } from '@/lib/providers/keys'
+import { nasdaqIpos } from '@/lib/providers/public-data'
 
-const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
+// IPO calendar from Nasdaq's public calendar. No API key, no cost.
+// Shows what the exchange publishes: priced deals, expected pricings and new
+// filings. NEXUS adds no opinion or "rating" of its own to these rows.
 
-// ✅ Matches the existing IpoScreenerPanel interface exactly
 export interface IPOData {
   ticker:        string
   company:       string
-  industry:      string
-  ipoDate:       string   // ← was 'date' — now matches component
+  industry:      string   // listing exchange / market (Nasdaq publishes no industry)
+  ipoDate:       string   // ISO date: priced, expected or filed date
   priceRange:    string
   shares:        string
   status:        'upcoming' | 'recent'
-  underwriter?:  string
-  marketCap?:    string
+  stage:         'priced' | 'upcoming' | 'filed'
+  offerAmount?:  string
 }
 
-function parseFinDate(raw: string | null | undefined): string {
-  if (!raw) return ''
-  // Finnhub returns "YYYY-MM-DD" — this is always valid ISO
-  // Guard: if empty or not parseable, return empty string
-  try {
-    const d = new Date(raw + 'T12:00:00Z')   // noon UTC avoids timezone day-shift
-    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
-  } catch { return '' }
-}
-
-async function finnhubIPOs(from: string, to: string): Promise<IPOData[]> {
-  if (!hasKey('finnhub')) return []
-
-  try {
-    const res = await finnhub('calendar/ipo', { from, to }, { timeoutMs: 8000 })
-    if (!res.ok) return []
-    const j = await res.json()
-
-    return (j.ipoCalendar ?? [])
-      .map((e: any): IPOData | null => {
-        const ipoDate = parseFinDate(e.date)
-        if (!ipoDate) return null   // skip entries with no valid date
-
-        const statusDate = new Date(ipoDate + 'T12:00:00Z')
-        const isUpcoming = statusDate >= new Date()
-
-        // price from Finnhub is a single string like "18.00-20.00" or "18.00"
-        let priceRange = '—'
-        if (e.price) priceRange = `$${e.price}`
-        if (e.priceRangeLow && e.priceRangeHigh) priceRange = `$${e.priceRangeLow}–$${e.priceRangeHigh}`
-
-        const shares = e.numberOfShares
-          ? `${(Number(e.numberOfShares) / 1e6).toFixed(1)}M`
-          : '—'
-
-        return {
-          ticker:     e.symbol    ?? '—',
-          company:    e.name      ?? e.symbol ?? '—',
-          industry:   e.exchange  ?? 'US Exchange',
-          ipoDate,
-          priceRange,
-          shares,
-          status:     isUpcoming ? 'upcoming' : 'recent',
-          underwriter: e.underwriter ?? undefined,
-          marketCap:   undefined,
-        }
-      })
-      .filter((x: IPOData | null): x is IPOData => x !== null)
-      .sort((a: IPOData, b: IPOData) => new Date(b.ipoDate).getTime() - new Date(a.ipoDate).getTime())
-  } catch {
-    return []
-  }
-}
+const monthKey = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const status      = searchParams.get('status')   as 'upcoming' | 'recent' | null
-  const ck          = `ipo:${status === 'upcoming' || status === 'recent' ? status : 'all'}`
-  const cached      = cache.get(ck)
-  if (cached && cached.expires > Date.now()) return NextResponse.json(cached.data)
+  const raw    = new URL(request.url).searchParams.get('status')
+  const status = raw === 'upcoming' || raw === 'recent' ? raw : null
 
-  const today = new Date()
-  const from  = new Date(today.getTime() - 30 * 86400_000).toISOString().slice(0, 10)
-  const to    = new Date(today.getTime() + 60 * 86400_000).toISOString().slice(0, 10)
+  const now    = new Date()
+  const months = [-1, 0, 1].map(offset => monthKey(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + offset, 1))))
 
-  let ipos = await finnhubIPOs(from, to)
+  const rows = await nasdaqIpos(months)
 
-  if (status)      ipos = ipos.filter(i => i.status === status)
+  let ipos: IPOData[] = rows
+    .filter(r => r.date)
+    .map(r => ({
+      ticker:      r.ticker,
+      company:     r.company,
+      industry:    r.stage === 'filed' ? 'Filed with SEC' : r.exchange,
+      ipoDate:     r.date,
+      priceRange:  r.priceRange,
+      shares:      r.shares,
+      // Priced deals are done; expected pricings and fresh filings are ahead.
+      status:      r.stage === 'priced' ? 'recent' as const : 'upcoming' as const,
+      stage:       r.stage,
+      offerAmount: r.offerAmount,
+    }))
+    .sort((a, b) => b.ipoDate.localeCompare(a.ipoDate))
 
-  const payload = {
+  if (status) ipos = ipos.filter(i => i.status === status)
+
+  return NextResponse.json({
     ipos,
-    total:       ipos.length,
-    fetchedAt:   new Date().toISOString(),
-    source:      'Finnhub IPO Calendar',
-  }
-
-  cache.set(ck, { data: payload, expires: Date.now() + 3600_000 })
-  return NextResponse.json(payload, { headers: { 'Cache-Control': 'public, s-maxage=3600' } })
+    total:     ipos.length,
+    fetchedAt: new Date().toISOString(),
+    source:    rows.length ? 'Nasdaq IPO Calendar' : 'Nasdaq IPO Calendar (unavailable)',
+  }, { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200' } })
 }

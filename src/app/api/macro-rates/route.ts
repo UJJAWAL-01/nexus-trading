@@ -7,7 +7,7 @@
 //   4. Rate tables aligned between macro-rates and fixed-income endpoints
 import { NextRequest, NextResponse } from 'next/server'
 import { BoundedMap } from '@/lib/providers/cache'
-import { fred, hasKey } from '@/lib/providers/keys'
+import { fredObservations } from '@/lib/providers/public-data'
 
 const cache = new BoundedMap<string, { data: unknown; expires: number }>(2000)
 
@@ -56,11 +56,9 @@ const FED_RATE_KNOWN = [
 
 // ── Core FRED fetcher — single most recent observation ───────────────────────
 async function fredObs(series: string, limit = 3): Promise<{ value: number; date: string } | null> {
-  if (!hasKey('fred')) return null
   try {
-    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit }, { timeoutMs: 6000 })
-    if (!res.ok) return null
-    const j = await res.json()
+    const j = await fredObservations(series, limit)
+    if (!j) return null
     const obs = (j.observations ?? []).find((o: any) => o.value !== '.')
     if (!obs) return null
     return { value: parseFloat(obs.value), date: obs.date }
@@ -69,11 +67,9 @@ async function fredObs(series: string, limit = 3): Promise<{ value: number; date
 
 // ── YoY % calculator from FRED index series ───────────────────────────────────
 async function fredYoY(series: string): Promise<{ value: number; date: string } | null> {
-  if (!hasKey('fred')) return null
   try {
-    const res = await fred('series/observations', { series_id: series, sort_order: 'desc', limit: 14 }, { timeoutMs: 8000 })
-    if (!res.ok) return null
-    const j = await res.json()
+    const j = await fredObservations(series, 14)
+    if (!j) return null
     const obs = (j.observations ?? [])
       .filter((o: any) => o.value !== '.')
       .map((o: any) => ({ value: parseFloat(o.value), date: o.date }))

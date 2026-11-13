@@ -16,7 +16,7 @@ const ReactGridLayout = WidthProvider(GridLayoutBase)
 
 // ── Tab definition ─────────────────────────────────────────────────────────────
 
-type TabId = 'markets' | 'news' | 'smartmoney' | 'india' | 'options' | 'portfolio'
+type TabId = 'markets' | 'news' | 'smartmoney' | 'india' | 'options' | 'portfolio' | 'lab'
 
 interface Tab {
   id:     TabId
@@ -33,6 +33,7 @@ const TABS: Tab[] = [
   { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
   { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'macrorates'] },
   { id: 'portfolio',  label: 'Portfolio',   hint: 'Positions + live P&L',      icon: 'risk-shield',   panels: ['portfolio'] },
+  { id: 'lab',        label: 'Lab',         hint: 'Screener + backtester, in your browser', icon: 'line-chart',    panels: ['backtest', 'screener'] },
 ]
 
 const TAB_LS_KEY            = 'nexus-active-tab'
@@ -60,6 +61,8 @@ const PRO_LAYOUT_KEY_PREFIX = 'nexus-pro-layout-v3-'
 type SizeHint = { w: number; h: number; minW: number; minH: number }
 const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   portfolio:       { w: 12, h: 16, minW: 4, minH: 10 },
+  backtest:        { w: 12, h: 22, minW: 4, minH: 14 },
+  screener:        { w: 12, h: 22, minW: 6, minH: 14 },
   // Markets — small widgets, 3-up
   indices:         { w: 4, h: 12, minW: 3, minH: 8  },
   heatmap:         { w: 4, h: 12, minW: 3, minH: 8  },

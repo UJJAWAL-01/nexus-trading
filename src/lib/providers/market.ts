@@ -97,6 +97,10 @@ export interface Quote {
   changeAbs:   number | null
   currency:    string
   marketState: string
+  /** Session high / low / previous close, when the provider reports them. */
+  high:        number | null
+  low:         number | null
+  prevClose:   number | null
   /** Server time this quote was produced (ms). */
   ts:          number
 }
@@ -120,6 +124,9 @@ function quoteFromChart(symbol: string, payload: ChartPayload): Quote | null {
     changeAbs:   prev ? round(price - prev, 4) : null,
     currency:    typeof meta.currency === 'string' ? meta.currency : 'USD',
     marketState: typeof meta.marketState === 'string' ? meta.marketState : 'UNKNOWN',
+    high:        typeof meta.regularMarketDayHigh === 'number' ? meta.regularMarketDayHigh : null,
+    low:         typeof meta.regularMarketDayLow === 'number' ? meta.regularMarketDayLow : null,
+    prevClose:   prev,
     ts:          Date.now(),
   }
 }
