@@ -30,6 +30,8 @@ import PatternScreenerPanel     from '@/components/panels/PatternScreenerPanel'
 import PortfolioPanel           from '@/components/panels/PortfolioPanel'
 import ScreenerPanel            from '@/components/panels/ScreenerPanel'
 import BacktestPanel            from '@/components/panels/BacktestPanel'
+import RiskPanel                from '@/components/panels/RiskPanel'
+import SeasonalityPanel         from '@/components/panels/SeasonalityPanel'
 
 // ── Panel id list ─────────────────────────────────────────────────────────────
 
@@ -48,7 +50,7 @@ export const PANEL_IDS = [
   // User data (stored in this browser only)
   'portfolio',
   // Offline analytics (computed in the browser, no server or key)
-  'screener', 'backtest',
+  'screener', 'backtest', 'risk', 'seasonality',
 ] as const
 
 export type PanelId = (typeof PANEL_IDS)[number]
@@ -88,6 +90,8 @@ export const PANEL_META: Record<PanelId, PanelMeta> = {
   portfolio:        { component: <PortfolioPanel />,         label: 'PORTFOLIO',         color: 'var(--amber)', mobileH: 520, description: 'Positions · live P&L · CSV import/export · stored in your browser' },
   screener:         { component: <ScreenerPanel />,          label: 'SCREENER',          color: 'var(--teal)',  mobileH: 640, description: 'Filter every SEC filer by revenue, margins, ROE, cash flow · runs in your browser' },
   backtest:         { component: <BacktestPanel />,          label: 'BACKTEST',          color: 'var(--amber)', mobileH: 680, description: 'Test MA-cross, RSI and breakout strategies vs buy-and-hold · runs in your browser' },
+  risk:             { component: <RiskPanel />,              label: 'PORTFOLIO RISK',    color: 'var(--negative)', mobileH: 640, description: 'Volatility · beta · value-at-risk · drawdown · correlations · runs in your browser' },
+  seasonality:      { component: <SeasonalityPanel />,       label: 'SEASONALITY',       color: 'var(--teal)',  mobileH: 560, description: 'Average return and win rate by calendar month, with sample sizes' },
   patternscanner:   { component: <PatternScreenerPanel />,   label: 'PATTERN SCANNER',   color: '#00e5c0',     mobileH: 720, description: 'Scan US + India for chart & candlestick patterns · click to chart' },
 }
 

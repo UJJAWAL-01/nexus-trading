@@ -87,6 +87,10 @@ const DEFAULT_LAYOUT: DashboardLayout = [
 
   // ══ ROW 12 (y:198→220) — Fundamentals screener (static SEC dataset) ═════
   { i: 'screener',      x: 0,  y: 198, w: 12, h: 22, minW: 6, minH: 14 },
+
+  // ══ ROW 13 (y:220→240) — Risk + seasonality ═════════════════════════════
+  { i: 'risk',          x: 0,  y: 220, w: 6,  h: 20, minW: 4, minH: 12 },
+  { i: 'seasonality',   x: 6,  y: 220, w: 6,  h: 20, minW: 4, minH: 12 },
 ]
 
 // ── MOBILE panel order (priority-first: live data → analytics → research) ─────
@@ -100,7 +104,7 @@ const MOBILE_ORDER: PanelId[] = [
   // Tier 4: Deep analytics
   'options', 'macrorates', 'heatmap', 'fixedincome',
   // Tier 5: Equity research (per-stock deep dive, driven by active symbol)
-  'equityresearch', 'stockprofile', 'screener', 'backtest',
+  'equityresearch', 'stockprofile', 'screener', 'backtest', 'risk', 'seasonality',
   // Tier 5.5: Cross-universe screener
   // Tier 6: Smart money / filings / alt
   'smartmoney', 'secfilings', 'altdata', 'supplychain', 'ipo',
@@ -279,7 +283,7 @@ const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
   { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities']  },
   { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                       },
   { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'supplychain']                     },
-  { label: 'Research',     ids: ['equityresearch', 'screener', 'backtest', 'stockprofile', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
+  { label: 'Research',     ids: ['equityresearch', 'screener', 'backtest', 'risk', 'seasonality', 'stockprofile', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────

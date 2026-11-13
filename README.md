@@ -37,14 +37,14 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 
 ## What's in it
 
-27 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+29 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
 
 | Area | Panels |
 |---|---|
 | **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Commodities · Sentiment · World Clock |
-| **Your data** | Portfolio (positions, live P&L, CSV import/export) |
+| **Your data** | Portfolio (positions, live P&L, CSV import/export) · Portfolio Risk (volatility, beta, VaR, drawdown, correlations) |
 | **News and events** | Intel Feed (AI-tagged news) · Economic Calendar · Earnings · IPO · Live TV |
-| **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Pattern Scanner · Stock Profile |
+| **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Seasonality · Pattern Scanner · Stock Profile |
 | **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain · Alt Data |
 | **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Fixed Income · Macro Rates |
 | **India** | India Markets (Nifty, Sensex, FII/DII) and `.NS` / `.BO` symbols across most panels |
