@@ -10,6 +10,7 @@ import ActiveSymbolPill  from '@/components/dashboard/ActiveSymbolPill'
 import Footer            from '@/components/ui/Footer'
 import { useLayoutMode } from '@/store/layoutMode'
 import { SymbolUrlSync } from '@/store/symbol'
+import OfflineNotice from '@/components/dashboard/OfflineNotice'
 
 // ── Market status bar ─────────────────────────────────────────────────────────
 
@@ -171,6 +172,7 @@ export default function Dashboard() {
       {/* Reads `?s=AAPL` from the URL on mount and on browser back/forward.
           Mounted once at the app root — fire-and-forget, renders nothing. */}
       <SymbolUrlSync />
+      <OfflineNotice />
 
       {/* ── Sticky Top Nav (Header + Ticker) ───────────────────────────── */}
       <div ref={topRef} className="top-nav">

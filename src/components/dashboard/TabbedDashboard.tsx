@@ -27,7 +27,7 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'rotation', 'commodities', 'sentiment', 'mktclock'] },
+  { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'rotation', 'positioning', 'commodities', 'sentiment', 'mktclock'] },
   { id: 'symbol',     label: 'Symbol',      hint: 'Everything on the active symbol', icon: 'analysis',    panels: ['stockprofile', 'equityresearch', 'seasonality', 'strategy', 'secfilings', 'insiderdeals'] },
   { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
   { id: 'smartmoney', label: 'Research',    hint: 'Smart money, supply chain, alternative data', icon: 'research-lens', panels: ['smartmoney', 'supplychain', 'altdata', 'insiderdeals', 'secfilings'] },
@@ -72,6 +72,7 @@ const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   risk:            { w: 12, h: 20, minW: 4, minH: 12 },
   alerts:          { w: 6,  h: 16, minW: 4, minH: 10 },
   rotation:        { w: 8,  h: 20, minW: 4, minH: 12 },
+  positioning:     { w: 8,  h: 20, minW: 4, minH: 12 },
   strategy:        { w: 6,  h: 22, minW: 4, minH: 14 },
   screener:        { w: 12, h: 22, minW: 6, minH: 14 },
   // Markets — small widgets, 3-up

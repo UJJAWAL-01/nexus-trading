@@ -47,6 +47,7 @@ export const PANEL_ALIASES: Record<string, readonly string[]> = {
   screener:       ['screener', 'screen', 'eqs'],
   patternscanner: ['patterns', 'scanner'],
   rotation:       ['rotation', 'sectors', 'rrg'],
+  positioning:    ['positioning', 'cot', 'shorts', 'short'],
   heatmap:        ['heatmap', 'map'],
   indices:        ['indices', 'wei'],
   earnings:       ['earnings', 'ern'],

@@ -37,11 +37,11 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 
 ## What's in it
 
-32 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+33 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
 
 | Area | Panels |
 |---|---|
-| **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Rotation (who leads or lags the index) · Commodities · Sentiment · World Clock |
+| **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Rotation (who leads or lags the index) · Positioning (futures positioning from the CFTC, daily short-sale volume from FINRA) · Commodities · Sentiment · World Clock |
 | **Your data** | Portfolio (positions, live P&L, CSV import/export) · Portfolio Risk (volatility, beta, VaR, drawdown, correlations) · Price Alerts (levels and daily moves, desktop notifications) |
 | **News and events** | Intel Feed (AI-tagged news) · Economic Calendar · Earnings · IPO · Live TV |
 | **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Seasonality · Pattern Scanner · Stock Profile |
@@ -54,6 +54,7 @@ Highlights:
 - **Command bar.** Press `/` or `Ctrl/Cmd+K` and type: `NVDA options`, `TSLA seasonality`, `alert AAPL above 400`, `watch MSFT`, `screener`. Company names work too (`microsoft`). Every panel is reachable without the mouse.
 - **Symbol tab** (Pro layout). Type a ticker and get its profile, ten years of fundamentals, seasonality, an options strategy builder, filings and insider trades on one page.
 - **Explains itself.** Analytics panels have a `?` that says in plain language what you are looking at and where to look next.
+- **Works offline for research.** Price history, fundamentals and futures positioning you have already viewed stay available without a connection, with a clear notice that you are looking at saved data.
 - **Chart** with 1-minute to monthly timeframes, indicators, drawing tools, and a deterministic pattern engine (chart and candlestick patterns, composite technical rating). The analyst note is written by rules from what the engine found, so it works offline of any AI and cannot invent a pattern or a price.
 - **Backtester** that runs in your browser: moving-average, RSI and breakout strategies against buy-and-hold, with trading costs and no look-ahead.
 - **Screener** over every SEC filer with a ticker, filtered instantly in the browser from a static dataset rebuilt weekly from public SEC data.
@@ -76,6 +77,8 @@ NEXUS aggregates public and free-tier sources. The license covers the NEXUS code
 | SEC EDGAR | US fundamentals (XBRL company facts), screener dataset, filings, 13F holdings | none |
 | FRED (public CSV) | Macro rates, yields, CPI, credit spreads | none |
 | Nasdaq (public calendars) | Earnings and IPO calendars | none |
+| CFTC (open data) | Weekly futures positioning (Commitments of Traders) | none |
+| FINRA (Reg SHO daily files) | Daily short-sale volume for US shares | none |
 | NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |
 | CBOE | US options chains | none |
 | Wikipedia, Reddit, Hacker News | Alt-data attention signals | none |

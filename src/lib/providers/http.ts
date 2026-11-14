@@ -36,6 +36,9 @@ const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
   // SEC EDGAR — public, keyless
   'data.sec.gov',
   'www.sec.gov',
+  // US regulators' open data — public, keyless
+  'publicreporting.cftc.gov',
+  'cdn.finra.org',
   'query1.finance.yahoo.com',
   'query2.finance.yahoo.com',
 ])
