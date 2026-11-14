@@ -36,6 +36,11 @@ const TABS: Tab[] = [
   { id: 'lab',        label: 'Lab',         hint: 'Screener + backtester, in your browser', icon: 'line-chart',    panels: ['backtest', 'seasonality', 'screener'] },
 ]
 
+// Every panel reachable from the command bar: the two hero panels plus all tabs.
+const PALETTE_TARGETS = (['chart', 'watchlist', ...TABS.flatMap(t => t.panels)] as PanelId[])
+  .filter((id, i, all) => all.indexOf(id) === i)
+  .map(id => ({ id, label: PANEL_META[id].label, description: PANEL_META[id].description }))
+
 const TAB_LS_KEY            = 'nexus-active-tab'
 // v3 = max 50% width per panel (no full-width heroes).
 // v2 had tightened heights; v1 was tall.  Bump invalidates older saves.
@@ -259,6 +264,17 @@ export default function TabbedDashboard() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // The command bar asks for a panel by id; bring its tab forward.
+  useEffect(() => {
+    const onFocus = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id
+      const owner = TABS.find(t => (t.panels as string[]).includes(id ?? ''))
+      if (owner) setActiveTab(owner.id)
+    }
+    window.addEventListener('nexus:focus-panel', onFocus)
+    return () => window.removeEventListener('nexus:focus-panel', onFocus)
+  }, [])
+
   const tab = TABS.find(t => t.id === activeTab) ?? TABS[0]
 
   const handleReset = () => {
@@ -274,10 +290,7 @@ export default function TabbedDashboard() {
     <div className="tabbed-root">
       <AlertEngine />
       <AlertToasts />
-      <KeyboardShortcuts panels={[
-        { id: 'chart',     label: 'CHART',     description: 'Open chart' },
-        { id: 'watchlist', label: 'WATCHLIST', description: 'Open watchlist' },
-      ]} />
+      <KeyboardShortcuts panels={PALETTE_TARGETS} />
 
       {/* ─── HERO ─── Chart + Watchlist (always visible) ──────────────────── */}
       <div className="tabbed-hero">

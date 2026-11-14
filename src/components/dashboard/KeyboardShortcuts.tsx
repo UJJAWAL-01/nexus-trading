@@ -2,7 +2,7 @@
 // src/components/dashboard/KeyboardShortcuts.tsx
 //
 // Global keyboard layer:
-//   /        → open command palette
+//   /  or Ctrl/Cmd+K → open the command bar (symbols, panels, alerts, watchlist)
 //   Esc      → close any palette / drawer (also dispatches custom event for panels)
 //   W        → focus Watchlist panel  (scroll into view + highlight border)
 //   C        → focus Chart
@@ -12,9 +12,8 @@
 // Letter shortcuts are skipped if the user is typing into an input/textarea/
 // contenteditable, so they never interfere with normal text entry.
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
-
-interface PanelTarget { id: string; label: string; description: string }
+import { useCallback, useEffect, useState } from 'react'
+import CommandBar, { focusPanel, type PanelTarget } from './CommandBar'
 
 interface Props {
   panels: PanelTarget[]   // must include id + label for every grid panel
@@ -39,21 +38,12 @@ function isTypingTarget(t: EventTarget | null): boolean {
   return false
 }
 
-function focusPanel(id: string) {
-  const el = document.querySelector<HTMLElement>(`[data-panel-id="${id}"]`)
-  if (!el) return
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  el.classList.add('panel-focus-flash')
-  window.setTimeout(() => el.classList.remove('panel-focus-flash'), 1400)
-}
-
 export default function KeyboardShortcuts({ panels }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [helpOpen,    setHelpOpen]    = useState(false)
-  const [query,       setQuery]       = useState('')
 
   const close = useCallback(() => {
-    setPaletteOpen(false); setHelpOpen(false); setQuery('')
+    setPaletteOpen(false); setHelpOpen(false)
   }, [])
 
   useEffect(() => {
@@ -67,6 +57,11 @@ export default function KeyboardShortcuts({ panels }: Props) {
 
       // While palette/help open, only Enter/arrows are handled inside the modal
       if (paletteOpen || helpOpen) return
+
+      // Ctrl/Cmd+K opens the command bar from anywhere, even while typing.
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'k') {
+        e.preventDefault(); setPaletteOpen(true); return
+      }
 
       // Skip letter shortcuts while user is typing
       if (isTypingTarget(e.target)) return
@@ -95,12 +90,7 @@ export default function KeyboardShortcuts({ panels }: Props) {
   return (
     <>
       {paletteOpen && (
-        <CommandPalette
-          panels={panels}
-          query={query}
-          setQuery={setQuery}
-          onClose={close}
-        />
+        <CommandBar panels={panels} onClose={close} onHelp={() => { setPaletteOpen(false); setHelpOpen(true) }} />
       )}
       {helpOpen && <HelpOverlay onClose={close} />}
       {/* Tiny keyboard hint in the corner */}
@@ -117,117 +107,11 @@ export default function KeyboardShortcuts({ panels }: Props) {
   )
 }
 
-// ── Command palette ─────────────────────────────────────────────────────────
-function CommandPalette({
-  panels, query, setQuery, onClose,
-}: {
-  panels: PanelTarget[]; query: string
-  setQuery: (q: string) => void; onClose: () => void
-}) {
-  const [hi, setHi] = useState(0)
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return panels.slice(0, 12)
-    return panels
-      .filter(p => p.label.toLowerCase().includes(q) ||
-                   p.id.toLowerCase().includes(q) ||
-                   p.description.toLowerCase().includes(q))
-      .slice(0, 12)
-  }, [panels, query])
-
-  // Reset highlight when filter changes
-  useEffect(() => { setHi(0) }, [query])
-
-  const select = useCallback((id: string) => {
-    onClose()
-    // wait one frame for modal to unmount before scrolling
-    requestAnimationFrame(() => focusPanel(id))
-  }, [onClose])
-
-  return (
-    <div onClick={onClose} style={{
-      position: 'fixed', inset: 0, zIndex: 1000,
-      background: 'rgba(0,0,0,0.65)',
-      display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-      paddingTop: '12vh',
-      animation: 'palette-fade 0.12s ease-out',
-    }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        width: 'min(560px, 92vw)',
-        background: 'var(--bg-deep)',
-        border: '1px solid var(--border)',
-        borderRadius: '8px',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
-        overflow: 'hidden',
-        fontFamily: 'JetBrains Mono, monospace',
-      }}>
-        <input
-          autoFocus
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'ArrowDown') { e.preventDefault(); setHi(i => Math.min(i + 1, filtered.length - 1)) }
-            if (e.key === 'ArrowUp')   { e.preventDefault(); setHi(i => Math.max(i - 1, 0)) }
-            if (e.key === 'Enter' && filtered[hi]) { e.preventDefault(); select(filtered[hi].id) }
-          }}
-          placeholder="Jump to panel — type a name or ID, then ↵"
-          style={{
-            width: '100%', padding: '14px 16px',
-            background: 'transparent', border: 'none', outline: 'none',
-            color: '#fff', fontSize: '14px', fontFamily: 'inherit',
-            borderBottom: '1px solid var(--border)',
-          }}
-        />
-        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-          {filtered.length === 0 && (
-            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)',
-                          fontSize: '11px' }}>
-              No matches
-            </div>
-          )}
-          {filtered.map((p, i) => (
-            <div key={p.id} onClick={() => select(p.id)} onMouseEnter={() => setHi(i)}
-                 style={{
-              padding: '8px 16px', cursor: 'pointer',
-              background: i === hi ? 'rgba(167,139,250,0.08)' : 'transparent',
-              borderLeft: i === hi ? '3px solid #a78bfa' : '3px solid transparent',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
-            }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '12px', color: '#fff', fontWeight: 700,
-                              letterSpacing: '0.06em' }}>
-                  {p.label}
-                </div>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)',
-                              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {p.description}
-                </div>
-              </div>
-              <span style={{ fontSize: '9px', color: 'var(--text-muted)',
-                             padding: '1px 5px', border: '1px solid var(--border)',
-                             borderRadius: '2px', flexShrink: 0 }}>
-                {p.id}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div style={{ padding: '6px 12px', borderTop: '1px solid var(--border)',
-                      fontSize: '10px', color: 'var(--text-muted)',
-                      display: 'flex', justifyContent: 'space-between' }}>
-          <span>↑↓ navigate · ↵ open · esc close</span>
-          <span>{filtered.length} of {panels.length}</span>
-        </div>
-      </div>
-      <style>{`@keyframes palette-fade { from { opacity:0; } to { opacity:1; } }`}</style>
-    </div>
-  )
-}
-
 // ── Help overlay (?) ────────────────────────────────────────────────────────
 function HelpOverlay({ onClose }: { onClose: () => void }) {
   const rows: { keys: string; label: string }[] = [
-    { keys: '/',      label: 'Open command palette (jump to any panel)' },
+    { keys: '/',      label: 'Open the command bar (also Ctrl/Cmd+K)' },
+    { keys: '›',      label: 'In the bar: AAPL · NVDA options · alert AAPL above 400 · watch TSLA' },
     { keys: 'W',      label: 'Focus Watchlist' },
     { keys: 'C',      label: 'Focus Chart' },
     { keys: 'N',      label: 'Focus News' },
@@ -290,7 +174,7 @@ function KeyboardHint() {
       pointerEvents: 'none',
       userSelect: 'none',
     }}>
-      <span style={{ color: '#a78bfa' }}>?</span> shortcuts · <span style={{ color: '#a78bfa' }}>/</span> jump
+      <span style={{ color: '#a78bfa' }}>?</span> shortcuts · <span style={{ color: '#a78bfa' }}>/</span> command bar
     </div>
   )
 }

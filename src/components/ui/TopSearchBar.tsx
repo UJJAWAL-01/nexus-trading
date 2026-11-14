@@ -59,20 +59,6 @@ export default function TopSearchBar() {
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // ── Cmd+K / Ctrl+K to focus ───────────────────────────────────────────────
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const isMod = e.metaKey || e.ctrlKey
-      if (isMod && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        inputRef.current?.focus()
-        inputRef.current?.select()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
   // ── Click-outside closes dropdown ─────────────────────────────────────────
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
