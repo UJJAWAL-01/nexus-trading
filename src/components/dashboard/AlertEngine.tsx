@@ -17,6 +17,7 @@
 import { useEffect, useRef } from 'react'
 import { useAlerts } from '@/store/alerts'
 import { useWatchlist } from '@/store/watchlist'
+import PriceAlertEngine from './PriceAlertEngine'
 
 const POLL_MS = 5 * 60_000  // 5 min — enough for live moves; respects rate limits
 
@@ -48,7 +49,8 @@ export default function AlertEngine() {
     }
   }, [])
 
-  return null
+  // User-defined price alerts run beside the built-in triggers.
+  return <PriceAlertEngine />
 }
 
 // ── Trigger 1: Watchlist mover ──────────────────────────────────────────────

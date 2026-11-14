@@ -134,7 +134,7 @@ export default function SeasonalityPanel() {
       </div>
 
       <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
-        Price returns only (no dividends). Past seasonal tendencies are weak evidence and often disappear. Not financial advice.
+        {result && result.suspectBars > 0 ? `${result.suspectBars} month${result.suspectBars === 1 ? '' : 's'} left out as a bad print in the source data. ` : ''}Price returns only (no dividends). Past seasonal tendencies are weak evidence and often disappear. Not financial advice.
       </div>
     </div>
   )

@@ -32,6 +32,9 @@ import ScreenerPanel            from '@/components/panels/ScreenerPanel'
 import BacktestPanel            from '@/components/panels/BacktestPanel'
 import RiskPanel                from '@/components/panels/RiskPanel'
 import SeasonalityPanel         from '@/components/panels/SeasonalityPanel'
+import AlertsPanel              from '@/components/panels/AlertsPanel'
+import RotationPanel            from '@/components/panels/RotationPanel'
+import StrategyPanel            from '@/components/panels/StrategyPanel'
 
 // ── Panel id list ─────────────────────────────────────────────────────────────
 
@@ -51,6 +54,7 @@ export const PANEL_IDS = [
   'portfolio',
   // Offline analytics (computed in the browser, no server or key)
   'screener', 'backtest', 'risk', 'seasonality',
+  'alerts', 'rotation', 'strategy',
 ] as const
 
 export type PanelId = (typeof PANEL_IDS)[number]
@@ -92,6 +96,9 @@ export const PANEL_META: Record<PanelId, PanelMeta> = {
   backtest:         { component: <BacktestPanel />,          label: 'BACKTEST',          color: 'var(--amber)', mobileH: 680, description: 'Test MA-cross, RSI and breakout strategies vs buy-and-hold · runs in your browser' },
   risk:             { component: <RiskPanel />,              label: 'PORTFOLIO RISK',    color: 'var(--negative)', mobileH: 640, description: 'Volatility · beta · value-at-risk · drawdown · correlations · runs in your browser' },
   seasonality:      { component: <SeasonalityPanel />,       label: 'SEASONALITY',       color: 'var(--teal)',  mobileH: 560, description: 'Average return and win rate by calendar month, with sample sizes' },
+  alerts:           { component: <AlertsPanel />,            label: 'PRICE ALERTS',      color: 'var(--amber)', mobileH: 520, description: 'Price-level and daily-move alerts with desktop notifications · stored in your browser' },
+  rotation:         { component: <RotationPanel />,          label: 'ROTATION',          color: 'var(--teal)',  mobileH: 680, description: 'Which sectors lead or lag the index, and whether the lead is growing or fading' },
+  strategy:         { component: <StrategyPanel />,          label: 'OPTIONS STRATEGY',  color: '#a78bfa',      mobileH: 720, description: 'Payoff diagram · break-evens · max profit and loss · probability of profit' },
   patternscanner:   { component: <PatternScreenerPanel />,   label: 'PATTERN SCANNER',   color: '#00e5c0',     mobileH: 720, description: 'Scan US + India for chart & candlestick patterns · click to chart' },
 }
 

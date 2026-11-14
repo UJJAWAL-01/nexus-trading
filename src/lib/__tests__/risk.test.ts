@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   annualVol, beta, commonDates, correlation, historicalVaR, maxDrawdown, portfolioRisk,
-  returnsOn, seasonality, stdev, TRADING_DAYS, type Series,
+  isSpike, returnsOn, seasonality, stdev, TRADING_DAYS, type Series,
 } from '@/lib/risk'
 
 const day = (i: number) => new Date(Date.UTC(2025, 0, 1) + i * 86_400_000).toISOString().slice(0, 10)
@@ -150,6 +150,23 @@ describe('seasonality', () => {
   it('rejects quarterly bars instead of reporting them as monthly returns', () => {
     const quarterly = Array.from({ length: 60 }, (_, i) => ({ time: Date.UTC(2010 + Math.floor(i / 4), (i % 4) * 3, 1) / 1000, close: 100 + i }))
     expect(seasonality(quarterly, now)).toBeNull()
+  })
+  it('discards an isolated bad print but keeps real crashes and squeezes', () => {
+    expect(isSpike(12.9, 25.9, 11.3)).toBe(true)              // doubles then halves straight back
+    expect(isSpike(100, 48, 97)).toBe(true)                   // halves then doubles straight back
+    expect(isSpike(18.8, 325, 101)).toBe(false)               // real squeeze: did not come back
+    expect(isSpike(100, 60, 55)).toBe(false)                  // real crash: stayed down
+    expect(isSpike(100, 130, 100)).toBe(false)                // an ordinary volatile month
+    expect(isSpike(0, 10, 10)).toBe(false)
+
+    const bad = monthly.map((m, i) => (i === 40 ? { ...m, close: m.close * 2.1 } : m))
+    const s = seasonality(bad, now)!
+    expect(s.suspectBars).toBe(1)
+    const worst = Math.min(...s.months.map(m => m.worstPct ?? 0))
+    const best  = Math.max(...s.months.map(m => m.bestPct ?? 0))
+    expect(worst).toBeGreaterThan(-1)                          // no phantom −52% month
+    expect(best).toBeLessThan(11)                              // no phantom +110% month
+    expect(seasonality(monthly, now)!.suspectBars).toBe(0)
   })
   it('lays out a year-by-month grid', () => {
     const s = seasonality(monthly, now)!

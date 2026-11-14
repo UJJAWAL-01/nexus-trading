@@ -27,12 +27,12 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'commodities', 'sentiment', 'mktclock'] },
+  { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'rotation', 'commodities', 'sentiment', 'mktclock'] },
   { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
   { id: 'smartmoney', label: 'Research',    hint: 'Per-stock deep dive + smart money flow', icon: 'research-lens', panels: ['equityresearch', 'stockprofile', 'smartmoney', 'insiderdeals', 'secfilings', 'supplychain', 'altdata'] },
   { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
-  { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'macrorates'] },
-  { id: 'portfolio',  label: 'Portfolio',   hint: 'Positions + live P&L',      icon: 'risk-shield',   panels: ['portfolio', 'risk'] },
+  { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'strategy', 'macrorates'] },
+  { id: 'portfolio',  label: 'Portfolio',   hint: 'Positions + live P&L',      icon: 'risk-shield',   panels: ['portfolio', 'alerts', 'risk'] },
   { id: 'lab',        label: 'Lab',         hint: 'Screener + backtester, in your browser', icon: 'line-chart',    panels: ['backtest', 'seasonality', 'screener'] },
 ]
 
@@ -60,10 +60,13 @@ const PRO_LAYOUT_KEY_PREFIX = 'nexus-pro-layout-v3-'
 
 type SizeHint = { w: number; h: number; minW: number; minH: number }
 const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
-  portfolio:       { w: 12, h: 16, minW: 4, minH: 10 },
+  portfolio:       { w: 6,  h: 16, minW: 4, minH: 10 },
   backtest:        { w: 7,  h: 22, minW: 4, minH: 14 },
   seasonality:     { w: 5,  h: 22, minW: 4, minH: 12 },
   risk:            { w: 12, h: 20, minW: 4, minH: 12 },
+  alerts:          { w: 6,  h: 16, minW: 4, minH: 10 },
+  rotation:        { w: 8,  h: 20, minW: 4, minH: 12 },
+  strategy:        { w: 6,  h: 22, minW: 4, minH: 14 },
   screener:        { w: 12, h: 22, minW: 6, minH: 14 },
   // Markets — small widgets, 3-up
   indices:         { w: 4, h: 12, minW: 3, minH: 8  },

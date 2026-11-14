@@ -199,6 +199,8 @@ export interface Seasonality {
   grid:   Array<{ year: number; returns: (number | null)[] }>
   firstYear: number
   lastYear:  number
+  /** Bars discarded as source errors (see isSpike). */
+  suspectBars: number
 }
 
 const median = (x: number[]): number => {
@@ -207,12 +209,28 @@ const median = (x: number[]): number => {
 }
 
 /**
+ * A bar that roughly doubles (or halves) and is fully undone by the next bar,
+ * while its two neighbours agree with each other, is a bad print in the source
+ * (typically a mis-applied split or bonus), not a real month. Real crashes and
+ * squeezes do not snap back to within 25% of where they started one bar later.
+ */
+export function isSpike(prev: number, cur: number, next: number): boolean {
+  if (!(prev > 0) || !(cur > 0) || !(next > 0)) return false
+  const neighboursAgree = Math.abs(next / prev - 1) <= 0.25
+  const a = cur / prev, b = cur / next
+  return neighboursAgree && ((a >= 1.8 && b >= 1.8) || (a <= 1 / 1.8 && b <= 1 / 1.8))
+}
+
+/**
  * Calendar-month seasonality from month-end closes. `closes` is ordered oldest
  * first; each entry is the close of one calendar month.
  * The current, unfinished month is excluded so a partial month cannot skew it.
  */
 export function seasonality(monthly: ReadonlyArray<{ time: number; close: number }>, now: Date = new Date()): Seasonality | null {
-  const clean = monthly.filter(m => Number.isFinite(m.close) && m.close > 0).sort((a, b) => a.time - b.time)
+  const sorted = monthly.filter(m => Number.isFinite(m.close) && m.close > 0).sort((a, b) => a.time - b.time)
+  // Removing a bad bar leaves a gap, so both returns that touch it are skipped below.
+  const clean = sorted.filter((m, i) => i === 0 || i === sorted.length - 1 || !isSpike(sorted[i - 1].close, m.close, sorted[i + 1].close))
+  const suspectBars = sorted.length - clean.length
   if (clean.length < 25) return null
 
   // Monthly bars are stamped at the start of the month in the EXCHANGE's
@@ -255,5 +273,6 @@ export function seasonality(monthly: ReadonlyArray<{ time: number; close: number
     grid: years.map(year => ({ year, returns: byYear.get(year)! })),
     firstYear: years[0],
     lastYear:  years[years.length - 1],
+    suspectBars,
   }
 }

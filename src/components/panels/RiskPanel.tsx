@@ -10,10 +10,10 @@
 import { useMemo, type CSSProperties } from 'react'
 import useSWR from 'swr'
 import { usePortfolio } from '@/store/portfolio'
-import { isoDay, portfolioRisk, type RiskInput, type Series } from '@/lib/risk'
+import { portfolioRisk, type RiskInput, type Series } from '@/lib/risk'
+import { loadCloses } from '@/lib/closes'
 
 const MONO = 'JetBrains Mono, monospace'
-const CHUNK = 9
 
 const currencyOf = (symbol: string) => (symbol.endsWith('.NS') || symbol.endsWith('.BO') ? 'INR' : 'USD')
 const BENCHMARK: Record<string, { symbol: string; label: string }> = {
@@ -21,30 +21,6 @@ const BENCHMARK: Record<string, { symbol: string; label: string }> = {
   INR: { symbol: '^NSEI', label: 'Nifty 50' },
 }
 const SIGN: Record<string, string> = { USD: '$', INR: '₹' }
-
-interface ChartPayload {
-  results?: Array<{ symbol: string; data?: { chart?: { result?: Array<{ timestamp?: number[]; indicators?: { quote?: Array<{ close?: (number | null)[] }> } }> | null } } }>
-}
-
-async function loadCloses(symbols: string[]): Promise<Record<string, Array<[string, number]>>> {
-  const chunks: string[][] = []
-  for (let i = 0; i < symbols.length; i += CHUNK) chunks.push(symbols.slice(i, i + CHUNK))
-  const out: Record<string, Array<[string, number]>> = {}
-  await Promise.all(chunks.map(async chunk => {
-    const r = await fetch(`/api/yfinance?symbols=${encodeURIComponent(chunk.join(','))}&range=1y&interval=1d`)
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    const j = (await r.json()) as ChartPayload
-    for (const item of j.results ?? []) {
-      const res = item.data?.chart?.result?.[0]
-      const closes = res?.indicators?.quote?.[0]?.close
-      if (!res?.timestamp || !closes) continue
-      const rows: Array<[string, number]> = []
-      res.timestamp.forEach((t, i) => { const c = closes[i]; if (typeof c === 'number' && c > 0) rows.push([isoDay(t), c]) })
-      out[item.symbol] = rows
-    }
-  }))
-  return out
-}
 
 const pct  = (n: number | null, dp = 1) => (n === null || !Number.isFinite(n) ? '—' : `${(n * 100).toFixed(dp)}%`)
 const num  = (n: number | null, dp = 2) => (n === null || !Number.isFinite(n) ? '—' : n.toFixed(dp))

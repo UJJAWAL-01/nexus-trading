@@ -91,18 +91,25 @@ const DEFAULT_LAYOUT: DashboardLayout = [
   // ══ ROW 13 (y:220→240) — Risk + seasonality ═════════════════════════════
   { i: 'risk',          x: 0,  y: 220, w: 6,  h: 20, minW: 4, minH: 12 },
   { i: 'seasonality',   x: 6,  y: 220, w: 6,  h: 20, minW: 4, minH: 12 },
+
+  // ══ ROW 14 (y:240→262) — Rotation + options strategy ════════════════════
+  { i: 'rotation',      x: 0,  y: 240, w: 6,  h: 22, minW: 4, minH: 12 },
+  { i: 'strategy',      x: 6,  y: 240, w: 6,  h: 22, minW: 4, minH: 14 },
+
+  // ══ ROW 15 (y:262→278) — Price alerts ═══════════════════════════════════
+  { i: 'alerts',        x: 0,  y: 262, w: 6,  h: 16, minW: 4, minH: 10 },
 ]
 
 // ── MOBILE panel order (priority-first: live data → analytics → research) ─────
 const MOBILE_ORDER: PanelId[] = [
   // Tier 1: Always-on essentials
-  'watchlist', 'portfolio', 'chart', 'news',
+  'watchlist', 'portfolio', 'alerts', 'chart', 'news',
   // Tier 2: Market pulse
   'indices', 'indiamarkets', 'commodities',
   // Tier 3: Time-critical signals
   'earnings', 'calendar', 'insiderdeals', 'sentiment',
   // Tier 4: Deep analytics
-  'options', 'macrorates', 'heatmap', 'fixedincome',
+  'options', 'strategy', 'macrorates', 'heatmap', 'rotation', 'fixedincome',
   // Tier 5: Equity research (per-stock deep dive, driven by active symbol)
   'equityresearch', 'stockprofile', 'screener', 'backtest', 'risk', 'seasonality',
   // Tier 5.5: Cross-universe screener
@@ -283,7 +290,7 @@ const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
   { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities']  },
   { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                       },
   { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'supplychain']                     },
-  { label: 'Research',     ids: ['equityresearch', 'screener', 'backtest', 'risk', 'seasonality', 'stockprofile', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
+  { label: 'Research',     ids: ['equityresearch', 'screener', 'backtest', 'risk', 'seasonality', 'rotation', 'strategy', 'alerts', 'stockprofile', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────
