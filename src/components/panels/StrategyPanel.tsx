@@ -14,6 +14,7 @@ import { useMemo, useState, type CSSProperties } from 'react'
 import useSWR from 'swr'
 import { useEffectiveSymbol } from '@/store/symbol'
 import { annualVol } from '@/lib/risk'
+import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 import {
   TEMPLATES, analysePayoff, buildTemplate, payoffAtExpiry, payoffBeforeExpiry, probabilityOfProfit, strikeStep,
   type Leg, type LegSide, type LegType, type TemplateId,
@@ -54,7 +55,7 @@ function Num({ label, value, onChange, min, max, step, width = 64, title }: { la
 const W = 640, H = 250, PAD = { l: 52, r: 12, t: 12, b: 24 }
 const POINTS = 161
 
-function PayoffChart({ legs, spot, T, r, sigma, lot, breakevens, sign }: { legs: Leg[]; spot: number; T: number; r: number; sigma: number; lot: number; breakevens: number[]; sign: string }) {
+function PayoffChart({ legs, spot, T, r, sigma, lot, breakevens, sign, drawKey }: { drawKey: string; legs: Leg[]; spot: number; T: number; r: number; sigma: number; lot: number; breakevens: number[]; sign: string }) {
   const strikes = legs.map(l => l.strike)
   const reach = Math.max(0.12, 2.5 * sigma * Math.sqrt(T))
   const lo = Math.max(0, Math.min(spot * (1 - reach), ...strikes.map(s => s * 0.92), ...breakevens.map(b => b * 0.96)))
@@ -93,7 +94,7 @@ function PayoffChart({ legs, spot, T, r, sigma, lot, breakevens, sign }: { legs:
         <text key={i} x={x(S)} y={H - 8} textAnchor={i === 0 ? 'start' : i === 4 ? 'end' : 'middle'} fontSize={9} fontFamily={MONO} fill="var(--text-muted)">{px(S)}</text>
       ))}
       {T > 1 / 365 && <path d={line(today)} fill="none" stroke="var(--amber)" strokeWidth={1.3} strokeDasharray="4 3" />}
-      <path d={line(expiry)} fill="none" stroke="var(--text)" strokeWidth={1.8} />
+      <path key={drawKey} className="nx-draw" pathLength={1} d={line(expiry)} fill="none" stroke="var(--text)" strokeWidth={1.8} />
       <line x1={x(spot)} x2={x(spot)} y1={PAD.t} y2={H - PAD.b} stroke="var(--teal)" strokeDasharray="2 3" />
       <text x={x(spot) + 4} y={PAD.t + 10} fontSize={9} fontFamily={MONO} fill="var(--teal)">SPOT {px(spot)}</text>
       {breakevens.filter(b => b > lo && b < hi).map(b => (
@@ -150,6 +151,12 @@ export default function StrategyPanel() {
     edit([...legs, ...buildTemplate('long-call', strike, sigma, T, r)])
   }
 
+  const guide = usePanelGuide({
+    title: 'Reading a payoff diagram',
+    next: [{ label: 'OPTIONS CHAIN', panelId: 'options' }, { label: 'PRICE ALERTS', panelId: 'alerts' }],
+    children: <>The solid line is what the position makes or loses at expiry for each possible price. Where it crosses zero is a break-even. The probability of profit assumes prices follow the volatility you entered, so change it and watch the number move. Selling options usually means a small, likely gain in exchange for a rare, large loss.</>,
+  })
+
   const analysis = useMemo(() => analysePayoff(legs), [legs])
   const pop = useMemo(() => (spot ? probabilityOfProfit(legs, spot, sigma, T, r) : null), [legs, spot, sigma, T, r])
   const expected = spot ? spot * sigma * Math.sqrt(T) : null
@@ -161,7 +168,9 @@ export default function StrategyPanel() {
         OPTIONS STRATEGY
         <span style={{ fontSize: 11, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
         <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>{spot ? `SPOT ${px(spot)} · ` : ''}MODEL PRICES · RUNS IN YOUR BROWSER</span>
+        <span style={{ marginLeft: 'auto', display: 'inline-flex' }}>{guide.button}</span>
       </div>
+      {guide.body}
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end', padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
         <label style={lbl}>
@@ -181,7 +190,7 @@ export default function StrategyPanel() {
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {!spot ? (
-          <Note bad={!!quoteError} text={quoteError ? `Could not load a price for ${symbol}. Try again shortly.` : `Loading ${symbol} price…`} />
+          quoteError ? <Note bad text={`Could not load a price for ${symbol}. Try again shortly.`} /> : <PanelSkeleton label={`Loading ${symbol} price…`} />
         ) : !analysis ? (
           <Note text="Add at least one leg with a strike and quantity above zero." />
         ) : (
@@ -196,7 +205,7 @@ export default function StrategyPanel() {
             </div>
 
             <div style={{ padding: '0 10px' }}>
-              <PayoffChart legs={legs} spot={spot} T={T} r={r} sigma={sigma} lot={lot} breakevens={analysis.breakevens} sign={sign} />
+              <PayoffChart legs={legs} spot={spot} T={T} r={r} sigma={sigma} lot={lot} breakevens={analysis.breakevens} sign={sign} drawKey={`${symbol}:${isCustom ? 'custom' : template}`} />
             </div>
             <div style={{ padding: '2px 10px 8px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>
               Solid line: profit or loss at expiry. <span style={{ color: 'var(--amber)' }}>Dashed</span>: model value today.

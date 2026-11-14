@@ -340,3 +340,128 @@ input::placeholder {
 
 /* ── Link styles ───────────────────────────────────────────────────────────── */
 a { color: inherit; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MOTION SYSTEM
+   One set of timings and curves for the whole app, so every interaction moves
+   the same way. Rules of the house:
+     • Motion explains a change (something arrived, updated, or was pressed).
+       Nothing moves for decoration.
+     • Fast: feedback ≤ 120ms, transitions ≤ 200ms, arrivals ≤ 360ms.
+     • Numbers never animate through wrong values. A changed value flashes;
+       it does not count up.
+     • Everything is disabled under prefers-reduced-motion.
+   ══════════════════════════════════════════════════════════════════════════════ */
+:root {
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);     /* arrivals: quick start, soft landing */
+  --ease-std:  cubic-bezier(0.4, 0, 0.2, 1);      /* state changes */
+  --dur-fast:  120ms;
+  --dur:       200ms;
+  --dur-slow:  360ms;
+}
+
+/* Numbers keep their width as they change, so columns never jitter. */
+.panel, .nx-num { font-variant-numeric: tabular-nums; }
+
+/* ── Controls: every button, field and link responds the same way ─────────── */
+button, [role='button'], select, input, textarea, a {
+  transition:
+    color            var(--dur-fast) var(--ease-std),
+    background-color var(--dur-fast) var(--ease-std),
+    border-color     var(--dur-fast) var(--ease-std),
+    box-shadow       var(--dur-fast) var(--ease-std),
+    opacity          var(--dur-fast) var(--ease-std);
+}
+.panel button:not(:disabled):hover { filter: brightness(1.18); }
+.panel button:not(:disabled):active { transform: translateY(1px); filter: brightness(0.94); }
+button:disabled { cursor: not-allowed; }
+.panel input:not([type='checkbox']):hover,
+.panel select:hover        { border-color: var(--border-br); }
+.panel input:not([type='checkbox']):focus-visible,
+.panel select:focus-visible {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 18%, transparent);
+}
+
+/* ── Panels ────────────────────────────────────────────────────────────────── */
+.panel { transition: border-color var(--dur) var(--ease-std); }
+.panel:hover, .panel:focus-within { border-color: var(--border-br); }
+.panel tbody tr { transition: background-color var(--dur-fast) var(--ease-std); }
+.panel tbody tr:hover { background-color: rgba(255, 255, 255, 0.028); }
+
+/* Content arriving. `backwards` + `transform: none` at the end means no
+   transform is left behind (a lingering transform would trap fixed popups). */
+@keyframes nx-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes nx-fade { from { opacity: 0; } to { opacity: 1; } }
+.nx-enter { animation: nx-rise var(--dur-slow) var(--ease-out) backwards; }
+.nx-fade  { animation: nx-fade var(--dur) var(--ease-std) backwards; }
+
+/* Pro layout: panels of a tab arrive one after another, top-left first. */
+/* The card itself is positioned by the grid with a transform, so only its
+   body may move; animating the card's transform would fight the grid. */
+.tab-panel-card > .tab-panel-body { animation: nx-rise var(--dur-slow) var(--ease-out) backwards; }
+.tab-panel-card:nth-child(2) > .tab-panel-body { animation-delay: 40ms; }
+.tab-panel-card:nth-child(3) > .tab-panel-body { animation-delay: 80ms; }
+.tab-panel-card:nth-child(4) > .tab-panel-body { animation-delay: 120ms; }
+.tab-panel-card:nth-child(5) > .tab-panel-body { animation-delay: 160ms; }
+.tab-panel-card:nth-child(n+6) > .tab-panel-body { animation-delay: 200ms; }
+
+/* ── Loading: a calm sweep instead of a spinner ───────────────────────────── */
+@keyframes nx-sweep { from { background-position: 180% 0; } to { background-position: -80% 0; } }
+.nx-skel {
+  border-radius: 3px;
+  background:
+    linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.055) 50%, transparent 70%) no-repeat,
+    rgba(255, 255, 255, 0.045);
+  background-size: 60% 100%, 100% 100%;
+  animation: nx-sweep 1.5s var(--ease-std) infinite;
+}
+
+/* ── Live values: a changed number flashes once, then settles ─────────────── */
+@keyframes nx-tick-up   { 0% { background-color: color-mix(in srgb, var(--positive) 30%, transparent); } 100% { background-color: transparent; } }
+@keyframes nx-tick-down { 0% { background-color: color-mix(in srgb, var(--negative) 30%, transparent); } 100% { background-color: transparent; } }
+.nx-tick      { border-radius: 2px; padding: 0 2px; margin: 0 -2px; }
+.nx-tick-up   { animation: nx-tick-up   900ms var(--ease-out); }
+.nx-tick-down { animation: nx-tick-down 900ms var(--ease-out); }
+
+/* ── Dialogs (command bar, help) ──────────────────────────────────────────── */
+@keyframes nx-pop { from { opacity: 0; transform: translateY(-10px) scale(0.985); } to { opacity: 1; transform: none; } }
+.nx-backdrop { animation: nx-fade var(--dur-fast) var(--ease-std) backwards; backdrop-filter: blur(3px); }
+.nx-dialog   { animation: nx-pop var(--dur) var(--ease-out) backwards; }
+
+/* ── Toasts ───────────────────────────────────────────────────────────────── */
+@keyframes nx-toast { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+.nx-toast { animation: nx-toast 260ms var(--ease-out) backwards; }
+
+/* ── "Here it is": the panel a command just opened ────────────────────────── */
+@keyframes nx-locate {
+  0%   { box-shadow: 0 0 0 2px #a78bfa, 0 0 28px rgba(167, 139, 250, 0.45); }
+  100% { box-shadow: 0 0 0 2px transparent, 0 0 0 transparent; }
+}
+.panel-focus-flash { animation: nx-locate 1400ms var(--ease-out); border-radius: 6px; }
+
+/* ── Charts drawn in SVG ──────────────────────────────────────────────────── */
+@keyframes nx-grow { from { transform: scaleY(0); } to { transform: none; } }
+.nx-grow { transform-origin: bottom; animation: nx-grow 420ms var(--ease-out) backwards; }
+@keyframes nx-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.nx-draw { stroke-dasharray: 1; animation: nx-draw 700ms var(--ease-out) backwards; }
+
+/* ── Disclosure (panel guides) ────────────────────────────────────────────── */
+.nx-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--dur) var(--ease-std); }
+.nx-collapse[data-open='true'] { grid-template-rows: 1fr; }
+.nx-collapse > div { overflow: hidden; min-height: 0; }
+
+/* ── Respect people who ask for less motion ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

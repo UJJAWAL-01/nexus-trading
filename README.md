@@ -52,6 +52,8 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 Highlights:
 
 - **Command bar.** Press `/` or `Ctrl/Cmd+K` and type: `NVDA options`, `TSLA seasonality`, `alert AAPL above 400`, `watch MSFT`, `screener`. Company names work too (`microsoft`). Every panel is reachable without the mouse.
+- **Symbol tab** (Pro layout). Type a ticker and get its profile, ten years of fundamentals, seasonality, an options strategy builder, filings and insider trades on one page.
+- **Explains itself.** Analytics panels have a `?` that says in plain language what you are looking at and where to look next.
 - **Chart** with 1-minute to monthly timeframes, indicators, drawing tools, and a deterministic pattern engine (chart and candlestick patterns, composite technical rating). The analyst note is written by rules from what the engine found, so it works offline of any AI and cannot invent a pattern or a price.
 - **Backtester** that runs in your browser: moving-average, RSI and breakout strategies against buy-and-hold, with trading costs and no look-ahead.
 - **Screener** over every SEC filer with a ticker, filtered instantly in the browser from a static dataset rebuilt weekly from public SEC data.

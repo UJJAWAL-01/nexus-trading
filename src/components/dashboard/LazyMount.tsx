@@ -40,35 +40,18 @@ export default function LazyMount({ children, rootMargin = '300px', fallback }: 
 
   return (
     <div ref={ref} style={{ height: '100%', width: '100%' }}>
-      {visible ? children : (fallback ?? <DefaultPlaceholder />)}
+      {visible ? <div className="nx-enter" style={{ height: '100%', width: '100%' }}>{children}</div> : (fallback ?? <DefaultPlaceholder />)}
     </div>
   )
 }
 
 function DefaultPlaceholder() {
+  // Shaped like a panel so nothing jumps when the real one arrives.
   return (
-    <div style={{
-      height: '100%', width: '100%',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'var(--bg-panel)',
-      border: '1px solid var(--border)',
-      borderRadius: '6px',
-      color: 'var(--text-muted)',
-      fontSize: '11px',
-      fontFamily: 'JetBrains Mono, monospace',
-      letterSpacing: '0.08em',
-    }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <div style={{
-          width: '20px', height: '20px',
-          border: '2px solid var(--border)',
-          borderTopColor: 'var(--text-muted)',
-          borderRadius: '50%',
-          animation: 'lazy-spin 0.9s linear infinite',
-        }} />
-        <span>STANDBY</span>
-      </div>
-      <style>{`@keyframes lazy-spin { to { transform: rotate(360deg); } }`}</style>
+    <div aria-hidden style={{ height: '100%', width: '100%', background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: '6px', padding: 12, display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+      <div className="nx-skel" style={{ height: 14, width: '38%' }} />
+      <div className="nx-skel" style={{ flex: 1, minHeight: 40, animationDelay: '120ms' }} />
+      <div className="nx-skel" style={{ height: 10, width: '72%', animationDelay: '240ms' }} />
     </div>
   )
 }

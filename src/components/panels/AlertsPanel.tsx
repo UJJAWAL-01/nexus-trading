@@ -11,6 +11,7 @@ import { useState, useSyncExternalStore, type CSSProperties, type FormEvent } fr
 import useSWR from 'swr'
 import { useAlertQuotes, usePriceAlerts, type AddResult, type AlertLiveQuote } from '@/store/priceAlerts'
 import { useActiveSymbol, useEffectiveSymbol } from '@/store/symbol'
+import { Tick, usePanelGuide } from '@/components/ui/Motion'
 import { ALERT_KINDS, KIND_LABEL, MAX_RULES, describeRule, type AlertKind } from '@/lib/price-alerts'
 
 const MONO = 'JetBrains Mono, monospace'
@@ -67,6 +68,12 @@ export default function AlertsPanel() {
   const live: AlertLiveQuote | undefined = target ? quotes[target] ?? looked : undefined
   const isPct = kind === 'pct-up' || kind === 'pct-down'
 
+  const guide = usePanelGuide({
+    title: 'How alerts work',
+    next: [{ label: 'CHART', panelId: 'chart' }, { label: 'PORTFOLIO', panelId: 'portfolio' }],
+    children: <>An alert watches a price for you and fires once when your condition is met. It works best with a level you chose in advance, such as a support level or the price where you would cut a loss. From anywhere, press <strong>/</strong> and type <strong>alert AAPL above 400</strong>.</>,
+  })
+
   const submit = (e: FormEvent) => {
     e.preventDefault()
     const result = add({ symbol: target, kind, value, note, repeat })
@@ -92,11 +99,13 @@ export default function AlertsPanel() {
           <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
             {rules.filter(r => r.armed).length} ACTIVE · {status === 'live' ? 'LIVE STREAM' : status === 'polling' ? 'POLLING' : status === 'idle' ? 'IDLE' : 'CONNECTING'}
           </span>
+          {guide.button}
         </div>
         {permission === 'default' && <button type="button" style={{ ...btn, color: 'var(--amber)' }} onClick={askPermission}>ENABLE DESKTOP NOTIFICATIONS</button>}
         {permission === 'granted' && <span style={{ fontSize: 10, color: 'var(--positive)', fontFamily: MONO }}>DESKTOP NOTIFICATIONS ON</span>}
         {permission === 'denied' && <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }} title="Allow notifications for this site in your browser settings to turn them on.">NOTIFICATIONS BLOCKED IN BROWSER</span>}
       </div>
+      {guide.body}
 
       <form onSubmit={submit} style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end', padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
         <label style={lbl}>
@@ -152,7 +161,7 @@ export default function AlertsPanel() {
                       {r.note && <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 2 }}>{r.note}</div>}
                     </td>
                     <td style={{ ...td, color: 'var(--text)' }}>{describeRule(r)}{r.repeat && <span style={{ color: 'var(--text-muted)' }}> · repeat</span>}</td>
-                    <td style={{ ...td, textAlign: 'right', color: 'var(--text-2)' }}>{fmt(q?.price)}</td>
+                    <td style={{ ...td, textAlign: 'right', color: 'var(--text-2)' }}><Tick value={q?.price}>{fmt(q?.price)}</Tick></td>
                     <td style={{ ...td, textAlign: 'right', color: 'var(--text-2)' }}>{pctKind ? (q?.change != null ? `${q.change > 0 ? '+' : ''}${q.change.toFixed(2)}% today` : '—') : dist === null ? '—' : `${dist > 0 ? '+' : ''}${dist.toFixed(2)}%`}</td>
                     <td style={td}>
                       {r.armed

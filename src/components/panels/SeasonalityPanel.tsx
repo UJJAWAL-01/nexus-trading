@@ -9,6 +9,7 @@ import { useMemo } from 'react'
 import useSWR from 'swr'
 import { useEffectiveSymbol } from '@/store/symbol'
 import { seasonality } from '@/lib/risk'
+import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
 const MONO = 'JetBrains Mono, monospace'
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
@@ -54,6 +55,12 @@ export default function SeasonalityPanel() {
   const error     = full.error ?? (needTen ? ten.error : undefined)
   const isLoading = full.isLoading || (needTen && ten.isLoading)
 
+  const guide = usePanelGuide({
+    title: 'Reading seasonality',
+    next: [{ label: 'BACKTEST', panelId: 'backtest' }, { label: 'CHART', panelId: 'chart' }],
+    children: <>Each bar is the average price change for that calendar month over the years shown. The percentage under it is how often the month ended higher. A pattern is only worth attention if it holds across many years and you can name a reason for it. With fewer than ten years it is mostly chance.</>,
+  })
+
   const thisMonth = new Date().getUTCMonth()
   const maxAbs = result ? Math.max(1, ...result.months.map(m => Math.abs(m.avgPct ?? 0))) : 1
   const current = result?.months[thisMonth]
@@ -65,17 +72,19 @@ export default function SeasonalityPanel() {
         SEASONALITY
         <span style={{ fontSize: 11, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
         {result && <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>{result.firstYear}–{result.lastYear} · MONTHLY RETURNS</span>}
+        <span style={{ marginLeft: 'auto', display: 'inline-flex' }}>{guide.button}</span>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {isLoading && !result ? (
-          <Note text={`Loading ${symbol} monthly history…`} />
+          <PanelSkeleton label={`Loading ${symbol} monthly history…`} shapes={['chart', 'table']} />
         ) : error ? (
           <Note bad text="Could not load price history. Try again shortly." />
         ) : !result ? (
           <Note bad text={`${symbol} has less than two years of monthly history, which is too little to say anything about seasonality.`} />
         ) : (
-          <>
+          <div key={symbol} className="nx-fade">
             {current && current.avgPct !== null && (
               <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 12, borderBottom: '1px solid var(--border)', color: 'var(--text-2)' }}>
                 {MONTHS[thisMonth]} has closed higher in{' '}
@@ -95,7 +104,7 @@ export default function SeasonalityPanel() {
                   <div key={m.month} title={`${MONTHS[i]}: average ${pct(m.avgPct, 2)}%, median ${pct(m.medianPct, 2)}%, up ${Math.round((m.winRate ?? 0) * 100)}% of ${m.years} years`}
                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, fontFamily: MONO, fontSize: 10 }}>
                     <div style={{ height: 50, display: 'flex', alignItems: 'flex-end' }}>
-                      <div style={{ width: 16, height: Math.max(2, h), background: v >= 0 ? 'var(--positive)' : 'var(--negative)', borderRadius: 2, opacity: i === thisMonth ? 1 : 0.65 }} />
+                      <div className="nx-grow" style={{ animationDelay: `${i * 25}ms`, width: 16, height: Math.max(2, h), background: v >= 0 ? 'var(--positive)' : 'var(--negative)', borderRadius: 2, opacity: i === thisMonth ? 1 : 0.65 }} />
                     </div>
                     <div style={{ color: v >= 0 ? 'var(--positive)' : 'var(--negative)', fontWeight: 700 }}>{pct(m.avgPct)}</div>
                     <div style={{ color: 'var(--text-muted)' }}>{m.winRate === null ? '' : `${Math.round(m.winRate * 100)}%`}</div>
@@ -129,7 +138,7 @@ export default function SeasonalityPanel() {
                 </tbody>
               </table>
             </div>
-          </>
+          </div>
         )}
       </div>
 

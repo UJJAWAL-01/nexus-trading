@@ -1,5 +1,7 @@
 'use client'
 
+import { Tick } from '@/components/ui/Motion'
+
 // PORTFOLIO — positions, live P&L and CSV import/export.
 //
 // Data handling:
@@ -264,7 +266,7 @@ export default function PortfolioPanel() {
                   </td>
                   <td style={td}>{p.qty.toLocaleString('en-US', { maximumFractionDigits: 6 })}</td>
                   <td style={td}>{money(p.avgCost, currency)}</td>
-                  <td style={td}>{money(q?.price ?? null, currency)}</td>
+                  <td style={td}><Tick value={q?.price}>{money(q?.price ?? null, currency)}</Tick></td>
                   <td style={{ ...td, color: tone(q?.change ?? null) }}>{pct(q?.change ?? null)}</td>
                   <td style={td}>{money(pnl.marketValue, currency)}</td>
                   <td style={{ ...td, color: tone(pnl.unrealized) }}>{money(pnl.unrealized, currency, true)}</td>

@@ -12,6 +12,7 @@ import useSWR from 'swr'
 import { usePortfolio } from '@/store/portfolio'
 import { portfolioRisk, type RiskInput, type Series } from '@/lib/risk'
 import { loadCloses } from '@/lib/closes'
+import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
 const MONO = 'JetBrains Mono, monospace'
 
@@ -80,6 +81,11 @@ export default function RiskPanel() {
   }, [data, group, bench, positions])
 
   const risk = result?.risk ?? null
+  const guide = usePanelGuide({
+    title: 'Reading portfolio risk',
+    next: [{ label: 'PORTFOLIO', panelId: 'portfolio' }, { label: 'ROTATION', panelId: 'rotation' }],
+    children: <>Volatility is how much the portfolio swings in a typical year. Beta is how hard it moves when the index moves 1%. Value at risk is a daily loss you should expect to exceed about one day in twenty. Share of risk shows which holding is really driving the swings, which is often not the largest one.</>,
+  })
   const sign = group ? SIGN[group.currency] ?? '' : ''
   const varAmount = risk?.var95 != null && result ? Math.abs(result.net) * risk.var95 : null
 
@@ -93,13 +99,15 @@ export default function RiskPanel() {
             {risk.observations} TRADING DAYS · VS {bench.label.toUpperCase()} · RUNS IN YOUR BROWSER
           </span>
         )}
+        <span style={{ marginLeft: 'auto', display: 'inline-flex' }}>{guide.button}</span>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {!positions.length ? (
           <Note text="Add positions in the Portfolio panel to see their risk here." />
         ) : isLoading && !data ? (
-          <Note text="Loading one year of price history…" />
+          <PanelSkeleton label="Loading one year of price history…" />
         ) : error ? (
           <Note bad text="Could not load price history. Try again shortly." />
         ) : !risk ? (

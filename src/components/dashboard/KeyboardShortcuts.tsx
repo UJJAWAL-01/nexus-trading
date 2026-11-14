@@ -95,14 +95,6 @@ export default function KeyboardShortcuts({ panels }: Props) {
       {helpOpen && <HelpOverlay onClose={close} />}
       {/* Tiny keyboard hint in the corner */}
       <KeyboardHint />
-      <style>{`
-        .panel-focus-flash {
-          outline: 2px solid #a78bfa !important;
-          outline-offset: 2px !important;
-          box-shadow: 0 0 24px rgba(167,139,250,0.35) !important;
-          transition: outline 0.2s, box-shadow 0.2s !important;
-        }
-      `}</style>
     </>
   )
 }
@@ -124,11 +116,11 @@ function HelpOverlay({ onClose }: { onClose: () => void }) {
     { keys: 'Esc',    label: 'Close palette / drawer' },
   ]
   return (
-    <div onClick={onClose} style={{
+    <div onClick={onClose} className="nx-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.7)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
     }}>
-      <div onClick={e => e.stopPropagation()} style={{
+      <div role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" className="nx-dialog" onClick={e => e.stopPropagation()} style={{
         width: 'min(440px, 92vw)', background: 'var(--bg-deep)',
         border: '1px solid var(--border)', borderRadius: '8px', padding: '18px 20px',
         fontFamily: 'JetBrains Mono, monospace',

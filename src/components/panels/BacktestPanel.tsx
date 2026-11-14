@@ -13,6 +13,7 @@ import { useEffectiveSymbol } from '@/store/symbol'
 import { runBacktest, STRATEGIES, MIN_BARS, type StrategyConfig, type StrategyId } from '@/lib/backtest'
 import type { Candle } from '@/lib/patterns/types'
 import { downloadCsv } from '@/lib/export'
+import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
 const MONO = 'JetBrains Mono, monospace'
 const RANGES = [
@@ -94,6 +95,12 @@ export default function BacktestPanel() {
   const edge = result ? result.strategy.totalReturnPct - result.benchmark.totalReturnPct : null
   const invalidCross = strategyId === 'sma-cross' && (active.fast ?? 0) >= (active.slow ?? 0)
 
+  const guide = usePanelGuide({
+    title: 'Reading a backtest',
+    next: [{ label: 'SEASONALITY', panelId: 'seasonality' }, { label: 'SCREENER', panelId: 'screener' }],
+    children: <>A backtest replays one fixed rule over past prices. Always compare it with simply holding the stock, shown beside it. A rule that looks good on one stock or one period has usually been fitted to noise, so try other symbols and date ranges before believing it.</>,
+  })
+
   const exportTrades = () => {
     if (!result) return
     downloadCsv(
@@ -111,11 +118,13 @@ export default function BacktestPanel() {
           BACKTEST
           <span style={{ fontSize: 11, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
           <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>DAILY · RUNS IN YOUR BROWSER</span>
+          {guide.button}
         </div>
         <button type="button" style={{ ...btn, opacity: result?.trades.length ? 1 : 0.4 }} disabled={!result?.trades.length} onClick={exportTrades} title="Download the trade list as CSV">
           EXPORT TRADES
         </button>
       </div>
+      {guide.body}
 
       {/* Controls */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end', padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
@@ -161,7 +170,7 @@ export default function BacktestPanel() {
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {isLoading && !data ? (
-          <Message text={`Loading ${symbol} price history…`} />
+          <PanelSkeleton label={`Loading ${symbol} price history…`} />
         ) : error ? (
           <Message text="Could not load price history. Try again shortly." bad />
         ) : invalidCross ? (

@@ -16,7 +16,7 @@ const ReactGridLayout = WidthProvider(GridLayoutBase)
 
 // ── Tab definition ─────────────────────────────────────────────────────────────
 
-type TabId = 'markets' | 'news' | 'smartmoney' | 'india' | 'options' | 'portfolio' | 'lab'
+type TabId = 'markets' | 'symbol' | 'news' | 'smartmoney' | 'india' | 'options' | 'portfolio' | 'lab'
 
 interface Tab {
   id:     TabId
@@ -28,8 +28,9 @@ interface Tab {
 
 const TABS: Tab[] = [
   { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'rotation', 'commodities', 'sentiment', 'mktclock'] },
+  { id: 'symbol',     label: 'Symbol',      hint: 'Everything on the active symbol', icon: 'analysis',    panels: ['stockprofile', 'equityresearch', 'seasonality', 'strategy', 'secfilings', 'insiderdeals'] },
   { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
-  { id: 'smartmoney', label: 'Research',    hint: 'Per-stock deep dive + smart money flow', icon: 'research-lens', panels: ['equityresearch', 'stockprofile', 'smartmoney', 'insiderdeals', 'secfilings', 'supplychain', 'altdata'] },
+  { id: 'smartmoney', label: 'Research',    hint: 'Smart money, supply chain, alternative data', icon: 'research-lens', panels: ['smartmoney', 'supplychain', 'altdata', 'insiderdeals', 'secfilings'] },
   { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
   { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'strategy', 'macrorates'] },
   { id: 'portfolio',  label: 'Portfolio',   hint: 'Positions + live P&L',      icon: 'risk-shield',   panels: ['portfolio', 'alerts', 'risk'] },
@@ -248,7 +249,7 @@ export default function TabbedDashboard() {
   // Leave edit mode when switching tabs — feels right, prevents accidental drag
   useEffect(() => { setEditing(false) }, [activeTab])
 
-  // Keyboard shortcuts: 1-5 to switch tabs (only when not editing, no modifiers)
+  // Keyboard shortcuts: number keys switch tabs (only when not editing, no modifiers)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null

@@ -14,6 +14,7 @@ import { useWatchlist } from '@/store/watchlist'
 import { loadCloses } from '@/lib/closes'
 import { MOMENTUM_DAYS, TREND_DAYS, rankRotation, relativeRotation, type Quadrant, type Rotation } from '@/lib/rotation'
 import type { Series } from '@/lib/risk'
+import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
 const MONO = 'JetBrains Mono, monospace'
 
@@ -143,6 +144,12 @@ export default function RotationPanel() {
     return { rows: rankRotation(out), missing: none }
   }, [data, universe])
 
+  const guide = usePanelGuide({
+    title: 'Reading rotation',
+    next: [{ label: 'HEATMAP', panelId: 'heatmap' }, { label: 'SCREENER', panelId: 'screener' }],
+    children: <>Right of centre means a sector is beating the index. Above centre means that lead is growing. Sectors tend to travel clockwise: improving, leading, weakening, then lagging. This describes what has already happened; leadership can change without warning.</>,
+  })
+
   const nameOf = (s: string) => universe.members.find(m => m.symbol === s)?.name ?? ''
   const list = (q: Quadrant) => rows.filter(r => r.quadrant === q).map(r => nameOf(r.symbol) || short(r.symbol))
   const leading = list('leading'), improving = list('improving'), lagging = list('lagging')
@@ -155,7 +162,7 @@ export default function RotationPanel() {
           ROTATION
           <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>VS {universe.benchmarkLabel.toUpperCase()} · RUNS IN YOUR BROWSER</span>
         </div>
-        <div style={{ display: 'flex', gap: 4 }} role="group" aria-label="Universe">
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }} role="group" aria-label="Universe">
           {([['us', US.label], ['india', INDIA.label], ['watchlist', 'MY WATCHLIST']] as Array<[UniverseId, string]>).map(([u, label]) => (
             <button key={u} type="button" onClick={() => setId(u)} aria-pressed={id === u} style={{
               background: id === u ? 'color-mix(in srgb, var(--teal) 14%, transparent)' : 'transparent',
@@ -163,20 +170,22 @@ export default function RotationPanel() {
               borderRadius: 3, padding: '3px 7px', fontSize: 10, fontFamily: MONO, fontWeight: 700, cursor: 'pointer',
             }}>{label}</button>
           ))}
+          {guide.button}
         </div>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {universe.members.length === 0 ? (
           <Note text="Your watchlist is empty. Add symbols in the Watchlist panel to see how they rotate against the index." />
         ) : isLoading && !data ? (
-          <Note text="Loading one year of price history…" />
+          <PanelSkeleton label="Loading one year of price history…" shapes={['chart', 'table']} />
         ) : error ? (
           <Note bad text="Could not load price history. Try again shortly." />
         ) : rows.length === 0 ? (
           <Note bad text="Not enough shared price history to measure relative strength." />
         ) : (
-          <>
+          <div key={id} className="nx-fade">
             <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 12, borderBottom: '1px solid var(--border)', color: 'var(--text-2)', lineHeight: 1.5 }}>
               {leading.length
                 ? <>Leading the {universe.benchmarkLabel}: <strong style={{ color: 'var(--positive)' }}>{leading.join(', ')}</strong>. </>
@@ -218,7 +227,7 @@ export default function RotationPanel() {
                 Not shown (too little price history): {missing.map(short).join(', ')}
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 

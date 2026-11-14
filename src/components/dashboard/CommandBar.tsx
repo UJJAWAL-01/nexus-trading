@@ -140,7 +140,8 @@ export default function CommandBar({ panels, onClose, onHelp }: { panels: PanelT
     switch (c.kind) {
       case 'symbol':
         useActiveSymbol.getState().setActiveSymbol(c.symbol)
-        requestAnimationFrame(() => focusPanel('chart'))
+        // Pro layout keeps the chart on screen, so show the symbol's research tab.
+        requestAnimationFrame(() => focusPanel(useLayoutMode.getState().mode === 'tabs' ? 'stockprofile' : 'chart'))
         break
       case 'symbol-panel':
         useActiveSymbol.getState().setActiveSymbol(c.symbol)
@@ -173,12 +174,11 @@ export default function CommandBar({ panels, onClose, onHelp }: { panels: PanelT
   }, [query, onClose, onHelp, labelOf])
 
   return (
-    <div onClick={onClose} style={{
-      position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.65)',
+    <div onClick={onClose} className="nx-backdrop" style={{
+      position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)',
       display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '12vh',
-      animation: 'palette-fade 0.12s ease-out',
     }}>
-      <div role="dialog" aria-modal="true" aria-label="Command bar" onClick={e => e.stopPropagation()} style={{
+      <div role="dialog" aria-modal="true" aria-label="Command bar" className="nx-dialog" onClick={e => e.stopPropagation()} style={{
         width: 'min(620px, 94vw)', background: 'var(--bg-deep)', border: '1px solid var(--border-br)',
         borderRadius: 8, boxShadow: '0 24px 64px rgba(0,0,0,0.6)', overflow: 'hidden', fontFamily: MONO,
       }}>
@@ -212,7 +212,7 @@ export default function CommandBar({ panels, onClose, onHelp }: { panels: PanelT
                 onClick={() => run(r)} onMouseEnter={() => setHi(i)}
                 style={{
                   padding: '8px 16px', cursor: hint ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 12,
-                  background: on ? 'rgba(167,139,250,0.08)' : 'transparent', borderLeft: `3px solid ${on ? ACCENT : 'transparent'}`,
+                  transition: 'background-color 90ms ease-out, border-color 90ms ease-out', background: on ? 'rgba(167,139,250,0.08)' : 'transparent', borderLeft: `3px solid ${on ? ACCENT : 'transparent'}`,
                 }}>
                 <span style={{ fontSize: 9, letterSpacing: '0.08em', color: hint ? 'var(--amber)' : ACCENT, border: '1px solid var(--border)', borderRadius: 2, padding: '1px 5px', minWidth: 52, textAlign: 'center', flexShrink: 0 }}>{r.tag}</span>
                 <div style={{ minWidth: 0, flex: 1 }}>
@@ -230,7 +230,6 @@ export default function CommandBar({ panels, onClose, onHelp }: { panels: PanelT
           <span>SYMBOL PANEL · alert · watch · help</span>
         </div>
       </div>
-      <style>{`@keyframes palette-fade { from { opacity:0; } to { opacity:1; } }`}</style>
     </div>
   )
 }

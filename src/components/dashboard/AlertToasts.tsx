@@ -47,7 +47,7 @@ export default function AlertToasts() {
       {alerts.map(a => {
         const c = LEVEL_COLOR[a.level]
         return (
-          <div key={a.id} style={{
+          <div key={a.id} className="nx-toast" role="status" style={{
             background: 'var(--bg-deep)',
             border: `1px solid ${c.bd}`,
             borderLeft: `3px solid ${c.fg}`,
@@ -56,7 +56,6 @@ export default function AlertToasts() {
             pointerEvents: 'auto',
             boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
             fontFamily: 'JetBrains Mono, monospace',
-            animation: 'alert-in 0.18s ease-out',
           }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
                           gap: '8px', marginBottom: '3px' }}>
