@@ -37,16 +37,16 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 
 ## What's in it
 
-29 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+32 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
 
 | Area | Panels |
 |---|---|
-| **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Commodities · Sentiment · World Clock |
-| **Your data** | Portfolio (positions, live P&L, CSV import/export) · Portfolio Risk (volatility, beta, VaR, drawdown, correlations) |
+| **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Rotation (who leads or lags the index) · Commodities · Sentiment · World Clock |
+| **Your data** | Portfolio (positions, live P&L, CSV import/export) · Portfolio Risk (volatility, beta, VaR, drawdown, correlations) · Price Alerts (levels and daily moves, desktop notifications) |
 | **News and events** | Intel Feed (AI-tagged news) · Economic Calendar · Earnings · IPO · Live TV |
 | **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Seasonality · Pattern Scanner · Stock Profile |
 | **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain · Alt Data |
-| **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Fixed Income · Macro Rates |
+| **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Options Strategy (payoff, break-evens, probability of profit) · Fixed Income · Macro Rates |
 | **India** | India Markets (Nifty, Sensex, FII/DII) and `.NS` / `.BO` symbols across most panels |
 
 Highlights:
@@ -76,7 +76,7 @@ NEXUS aggregates public and free-tier sources. The license covers the NEXUS code
 | NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |
 | CBOE | US options chains | none |
 | Wikipedia, Reddit, Hacker News | Alt-data attention signals | none |
-| Finnhub (optional, free) | Company profile panel, extra news | `FINNHUB_API_KEY` |
+| Finnhub (optional, free) | Trailing-twelve-month ratios and logo in Stock Profile, extra news | `FINNHUB_API_KEY` |
 | NewsAPI (optional, free) | Extra news coverage | `NEWS_API_KEY` |
 | Alpha Vantage (optional, free) | News sentiment | `ALPHA_VANTAGE_KEY` |
 | YouTube embeds | Live TV | none |
@@ -154,7 +154,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. It is sho
 - **Unofficial sources can break.** See [Data sources](#data-sources).
 - **India coverage is partial.** Equity Research is built on SEC filings and is US-only today.
 - **Screener coverage has gaps.** It uses standard XBRL tags for one fiscal year; companies that report revenue or income under non-standard tags (some large ones included) are missing or partly blank. US filers only.
-- **Stock Profile needs a free Finnhub key.** It is the one panel without a keyless source yet.
+- **Stock Profile without a key uses the latest fiscal year.** It is built from SEC annual filings and price history, so ratios are per fiscal year rather than trailing twelve months, dividend yield and debt/equity are not shown, and it covers SEC filers only. A free Finnhub key adds those.
+- **Price alerts run only while NEXUS is open in a browser tab.** Nothing runs on a server on your behalf.
 - **No accounts or sync.** Data is per browser. Use workspace backup to move it.
 - **Portfolio P&L is unrealized only** and ignores fees, dividends, splits and FX.
 - **Generated commentary can be wrong.** Rule-based notes and optional AI lines describe the data shown; they are not advice.

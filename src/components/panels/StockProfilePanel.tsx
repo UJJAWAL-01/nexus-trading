@@ -17,6 +17,27 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
 import { ComingSoon } from '@/components/ui/PanelStates'
+import { buildKeylessProfile, type ProfileSource } from '@/lib/keyless-profile'
+import { loadCloses } from '@/lib/closes'
+import { commonDates, returnsOn } from '@/lib/risk'
+
+// With no data key configured (the default), the profile is built in the
+// browser from SEC annual filings and a year of price history.
+async function loadKeyless(symbol: string, signal: AbortSignal): Promise<{ profile: Profile; metric: NonNullable<MetricsBag['metric']>; fiscalYear: number | null; price: number | null } | null> {
+  const [fund, q, rows] = await Promise.all([
+    fetch(`/api/fundamentals?ticker=${encodeURIComponent(symbol)}`, { signal }).then(r => (r.ok ? (r.json() as Promise<ProfileSource>) : null)).catch(() => null),
+    fetch(`/api/yquote?symbol=${encodeURIComponent(symbol)}`, { signal }).then(r => (r.ok ? (r.json() as Promise<{ price?: number | null }>) : null)).catch(() => null),
+    loadCloses([symbol, 'SPY'], '1y').catch(() => ({} as Awaited<ReturnType<typeof loadCloses>>)),
+  ])
+  const own = new Map(rows[symbol] ?? []), bench = new Map(rows.SPY ?? [])
+  const dates = commonDates([own, bench])
+  const price = typeof q?.price === 'number' ? q.price : null
+  const built = buildKeylessProfile(fund, {
+    price, closes: (rows[symbol] ?? []).map(r => r[1]),
+    returns: returnsOn(own, dates), benchmark: returnsOn(bench, dates),
+  })
+  return built ? { ...built, price } : null
+}
 
 interface Profile {
   name?: string
@@ -115,6 +136,9 @@ export default function StockProfilePanel() {
   const [quote,   setQuote]   = useState<Quote | null>(null)
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState<string | null>(null)
+  // null = live provider (trailing twelve months); a number = SEC fiscal year.
+  const [fiscalYear, setFiscalYear] = useState<number | null>(null)
+  const [keyless, setKeyless] = useState(false)
 
   // Detect uncovered symbol shapes early — explicit messaging beats half-loaded UI
   const unsupported = useMemo(() => {
@@ -142,13 +166,21 @@ export default function StockProfilePanel() {
       fetch(`/api/finnhub?endpoint=quote&symbol=${encodeURIComponent(effSym)}`, { signal: ctrl.signal })
         .then(r => r.ok ? r.json() as Promise<Quote> : null),
     ])
-      .then(([p, m, q]) => {
+      .then(async ([p, m, q]) => {
         if (cancelled) return
         if (!p || !p.name) {
-          setError(`No profile data available for ${effSym}`)
-          setProfile(null); setMetrics(null); setQuote(null)
+          const k = await loadKeyless(effSym, ctrl.signal)
+          if (cancelled) return
+          if (!k) {
+            setError(`No SEC filings found for ${effSym}. Profiles cover companies that file annual reports with the US SEC.`)
+            setProfile(null); setMetrics(null); setQuote(null)
+            return
+          }
+          setProfile(k.profile); setMetrics(k.metric); setKeyless(true); setFiscalYear(k.fiscalYear)
+          setQuote(q && q.c ? q : { c: k.price ?? undefined })
           return
         }
+        setKeyless(false); setFiscalYear(null)
         setProfile(p)
         setMetrics(m?.metric ?? null)
         setQuote(q)
@@ -162,6 +194,8 @@ export default function StockProfilePanel() {
 
     return () => { cancelled = true; ctrl.abort() }
   }, [effSym, unsupported])
+
+  const basis = keyless ? 'FY' : 'TTM'
 
   // 52-week range marker position (0 → low end, 100 → high end)
   const rangePos = useMemo(() => {
@@ -341,12 +375,12 @@ export default function StockProfilePanel() {
               gap: 8, marginBottom: 14,
             }}>
               <Stat label="MARKET CAP" value={fmtCap(profile.marketCapitalization)} />
-              <Stat label="P/E (TTM)"  value={fmtNum(metrics?.peTTM)} />
+              <Stat label={`P/E (${basis})`}  value={fmtNum(metrics?.peTTM)} />
               <Stat label="BETA"       value={fmtNum(metrics?.beta)} />
-              <Stat label="EPS (TTM)"  value={metrics?.epsTTM != null ? `$${metrics.epsTTM.toFixed(2)}` : '—'} />
+              <Stat label={`EPS (${basis})`}  value={metrics?.epsTTM != null ? `$${metrics.epsTTM.toFixed(2)}` : '—'} />
               <Stat label="DIV YIELD"  value={metrics?.dividendYieldIndicatedAnnual != null ? `${metrics.dividendYieldIndicatedAnnual.toFixed(2)}%` : '—'} />
               <Stat label="P/B"        value={fmtNum(metrics?.priceToBookTTM)} />
-              <Stat label="ROE (TTM)"
+              <Stat label={`ROE (${basis})`}
                     value={metrics?.roeTTM != null ? `${metrics.roeTTM.toFixed(1)}%` : '—'}
                     color={metrics?.roeTTM != null ? (metrics.roeTTM >= 0 ? 'var(--positive)' : 'var(--negative)') : undefined} />
               <Stat label="REV GROWTH"
@@ -357,6 +391,12 @@ export default function StockProfilePanel() {
               <Stat label="NET MARGIN"   value={metrics?.netProfitMarginTTM != null ? `${metrics.netProfitMarginTTM.toFixed(1)}%` : '—'} />
               <Stat label="DEBT/EQUITY"  value={fmtNum(metrics?.['totalDebt/totalEquityAnnual'])} />
             </div>
+
+            {keyless && (
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10, lineHeight: 1.5 }}>
+                Source: SEC annual filings{fiscalYear ? ` (fiscal ${fiscalYear})` : ''} and one year of price history. Ratios use the latest fiscal year, not the trailing twelve months. Market cap is the last reported share count × current price.
+              </div>
+            )}
 
             {/* Meta footer */}
             <div style={{

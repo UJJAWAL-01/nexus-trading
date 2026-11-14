@@ -17,6 +17,7 @@ export default function ServiceWorker() {
 
     const register = async () => {
       try {
+        const hadController = !!navigator.serviceWorker.controller
         const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
 
         // Auto-activate updated worker when user refocuses the tab
@@ -27,9 +28,13 @@ export default function ServiceWorker() {
         }
         document.addEventListener('visibilitychange', handleVisibility)
 
-        // When the controller changes (new worker took over), reload once
+        // When an UPDATED worker takes over, reload once. On a first visit
+        // there is no previous controller: the worker claiming the page is
+        // not an update, and reloading then would throw away in-memory state
+        // (such as a price alert that just fired) for nothing.
         let refreshed = false
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!hadController) return
           if (refreshed) return
           refreshed = true
           window.location.reload()
