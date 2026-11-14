@@ -67,7 +67,7 @@ export default function MacroRatesPanel() {
 
   const guide = usePanelGuide({
     title: "Reading macro rates",
-    next: [{ label: "FIXED INCOME", panelId: "fixedincome" }, { label: "ECONOMIC CALENDAR", panelId: "calendar" }],
+    next: [{ label: "FIXED INCOME", panelId: "fixedincome" }, { label: "POSITIONING", panelId: "positioning" }],
     children: <>The policy rate is the central bank&apos;s main lever. Subtract inflation to get the real rate: above zero it is restraining the economy, below zero it is stimulating it. Markets move most when a decision differs from what was expected, so the meeting dates matter as much as the level.</>,
   })
 

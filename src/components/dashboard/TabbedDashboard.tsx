@@ -29,12 +29,12 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'rotation', 'positioning', 'commodities', 'sentiment', 'mktclock'] },
   { id: 'symbol',     label: 'Symbol',      hint: 'Everything on the active symbol', icon: 'analysis',    panels: ['stockprofile', 'equityresearch', 'seasonality', 'strategy', 'secfilings', 'insiderdeals'] },
-  { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
-  { id: 'smartmoney', label: 'Research',    hint: 'Smart money, supply chain, alternative data', icon: 'research-lens', panels: ['smartmoney', 'supplychain', 'altdata', 'insiderdeals', 'secfilings'] },
+  { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'earnings', 'ipo'] },
+  { id: 'smartmoney', label: 'Research',    hint: 'Smart money, insiders, filings, supply chain', icon: 'research-lens', panels: ['smartmoney', 'insiderdeals', 'secfilings', 'supplychain'] },
   { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
   { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'volatility', 'strategy', 'macrorates'] },
   { id: 'portfolio',  label: 'Portfolio',   hint: 'Positions + live P&L',      icon: 'risk-shield',   panels: ['portfolio', 'alerts', 'risk'] },
-  { id: 'lab',        label: 'Lab',         hint: 'Screener + backtester, in your browser', icon: 'line-chart',    panels: ['backtest', 'seasonality', 'screener'] },
+  { id: 'lab',        label: 'Lab',         hint: 'Screener + backtester, in your browser', icon: 'line-chart',    panels: ['backtest', 'patternscanner', 'seasonality', 'screener'] },
 ]
 
 // Every panel reachable from the command bar: the two hero panels plus all tabs.
@@ -67,8 +67,9 @@ const PRO_LAYOUT_KEY_PREFIX = 'nexus-pro-layout-v3-'
 type SizeHint = { w: number; h: number; minW: number; minH: number }
 const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   portfolio:       { w: 6,  h: 16, minW: 4, minH: 10 },
-  backtest:        { w: 7,  h: 22, minW: 4, minH: 14 },
-  seasonality:     { w: 5,  h: 22, minW: 4, minH: 12 },
+  backtest:        { w: 6,  h: 24, minW: 4, minH: 14 },
+  patternscanner:  { w: 6,  h: 24, minW: 4, minH: 14 },
+  seasonality:     { w: 12, h: 20, minW: 4, minH: 12 },
   risk:            { w: 12, h: 20, minW: 4, minH: 12 },
   alerts:          { w: 6,  h: 16, minW: 4, minH: 10 },
   rotation:        { w: 8,  h: 20, minW: 4, minH: 12 },
@@ -84,9 +85,7 @@ const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   mktclock:        { w: 4, h: 12, minW: 2, minH: 8  },
   // News — 2-up
   news:            { w: 6, h: 14, minW: 3, minH: 10 },
-  calendar:        { w: 6, h: 12, minW: 2, minH: 8  },
   earnings:        { w: 6, h: 12, minW: 2, minH: 8  },
-  livevideo:       { w: 6, h: 14, minW: 3, minH: 10 },
   ipo:             { w: 6, h: 12, minW: 3, minH: 10 },
   // Research — everything 2-up, max half-width per user spec.
   equityresearch:  { w: 6, h: 18, minW: 4, minH: 14 },
@@ -95,7 +94,6 @@ const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   insiderdeals:    { w: 6, h: 12, minW: 3, minH: 10 },
   secfilings:      { w: 6, h: 14, minW: 3, minH: 10 },
   supplychain:     { w: 6, h: 12, minW: 3, minH: 10 },
-  altdata:         { w: 6, h: 14, minW: 3, minH: 10 },
   // India — 2-up
   indiamarkets:    { w: 6, h: 14, minW: 3, minH: 10 },
   fixedincome:     { w: 6, h: 14, minW: 3, minH: 10 },

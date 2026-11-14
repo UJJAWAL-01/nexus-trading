@@ -18,8 +18,8 @@ export const WORKSPACES: readonly Workspace[] = [
     description: 'Full multi-panel terminal view',
     visible:     null,
   },
-  // Each preset's `visible` order is curated so the auto-packer produces
-  // 12-column rows with minimal stretching. Order = pack order.
+  // Each preset lists panels in reading order; the grid packs them into
+  // full-width rows, so no preset can leave a gap.
   {
     id:          'trading',
     label:       'Trading Floor',
@@ -36,14 +36,11 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     id:          'news-macro',
     label:       'News & Macro',
-    description: 'News, calendar, rates, filings',
+    description: 'News, earnings, rates, positioning, filings',
     visible:     [
-      // Row 1: livevideo(5) · news(5) · sentiment(2)              → 12
-      'livevideo', 'news', 'sentiment',
-      // Row 2: calendar(3) · earnings(3) · secfilings(6)          → 12
-      'calendar', 'earnings', 'secfilings',
-      // Row 3: macrorates(3) · fixedincome(5) · insiderdeals(4)   → 12
-      'macrorates', 'fixedincome', 'insiderdeals',
+      'news', 'earnings', 'macrorates',
+      'fixedincome', 'positioning',
+      'secfilings', 'insiderdeals', 'sentiment',
     ],
   },
   {
@@ -62,14 +59,12 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     id:          'options',
     label:       'Options Day',
-    description: 'Greeks, IV, OI, flow',
+    description: 'Chain, volatility, strategy builder, positioning',
     visible:     [
       // Row 1: chart(7) · watchlist(2) · sentiment(2)            → 11 (+1)
       'chart', 'watchlist', 'sentiment',
-      // Row 2: options(5) · heatmap(4) · earnings(3)             → 12
       'options', 'heatmap', 'earnings',
-      // Row 3: news(5) · calendar(3) · insiderdeals(4)           → 12
-      'news', 'calendar', 'insiderdeals',
+      'volatility', 'strategy', 'positioning',
     ],
   },
   {

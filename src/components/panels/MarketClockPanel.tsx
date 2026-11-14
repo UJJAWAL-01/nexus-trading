@@ -111,7 +111,7 @@ export default function MarketClockPanel() {
 
   const guide = usePanelGuide({
     title: "Reading the market clocks",
-    next: [{ label: "GLOBAL INDICES", panelId: "indices" }, { label: "ECONOMIC CALENDAR", panelId: "calendar" }],
+    next: [{ label: "GLOBAL INDICES", panelId: "indices" }, { label: "EARNINGS", panelId: "earnings" }],
     children: <>Shows which stock exchanges are open right now. Trading is usually busiest in the first and last hour of a session. When London and New York are open at the same time, currencies and global shares tend to move the most. Outside its own hours, a market&apos;s last price can be many hours old.</>,
   })
 

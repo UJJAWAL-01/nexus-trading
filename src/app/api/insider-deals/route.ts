@@ -615,8 +615,11 @@ export async function GET(request: NextRequest) {
 
   // ── Dedupe ────────────────────────────────────────────────────────────────
   // Key now uses the full normalized person name + full date (not a slice)
+  const MAX_DEAL_AGE_MS = 45 * 86_400_000
   const seen = new Set<string>()
   const unique = allDeals.filter(d => {
+    const age = Date.now() - new Date(d.date).getTime()
+    if (Number.isFinite(age) && age > MAX_DEAL_AGE_MS) return false
     const person = d.person.toLowerCase().replace(/\s+/g, ' ').trim()
     const k = `${d.market}|${d.symbol}|${d.side}|${d.date}|${person}|${d.shares ?? 0}`
     if (seen.has(k)) return false

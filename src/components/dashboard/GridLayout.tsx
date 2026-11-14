@@ -19,88 +19,57 @@ const ReactGridLayout = WidthProvider(GridLayoutBase)
 type DashboardLayoutItem = LayoutItem & { i: PanelId }
 type DashboardLayout     = DashboardLayoutItem[]
 
-// ── DESKTOP default layout — v13 ─────────────────────────────────────────────
-// Full layout redesign: priority tiers, content-fit heights, IPO offscreen bug fixed.
-// Rows 1-3 locked per user instruction. Rows 4+ reorganized by live-data value.
-// rowHeight=30 → h:1 = 30px rendered.
-const LS_KEY = 'nexus-layout-v18'
+// ── DESKTOP default layout ───────────────────────────────────────────────────
+// Panels are listed in reading order with their natural size (12-column grid,
+// rowHeight=30 → h:1 = 30px). The layout itself is produced by packLayout(),
+// the same void-free packer the workspace presets use, so adding or removing a
+// panel can never leave a hole. Widths in each group below add up to 12.
+const LS_KEY = 'nexus-layout-v19'
 
-const DEFAULT_LAYOUT: DashboardLayout = [
-  // ══ ROW 1 (y:0→14) — Live intelligence feed ══════════════════════════════
-  // Unchanged per user: TV | News | Watchlist
-  { i: 'livevideo',     x: 0,  y: 0,  w: 5,  h: 14, minW: 3, minH: 10 },
-  { i: 'news',          x: 5,  y: 0,  w: 5,  h: 14, minW: 3, minH: 8  },
-  { i: 'watchlist',     x: 10, y: 0,  w: 2,  h: 14, minW: 2, minH: 8  },
+type PanelSize = { i: PanelId; w: number; h: number; minW: number; minH: number }
 
-  // ══ ROW 2 (y:14→30) — Market pulse ═══════════════════════════════════════
-  // Unchanged per user: Indices | Clock | Chart (hero)
-  { i: 'indices',       x: 0,  y: 14, w: 2,  h: 16, minW: 2, minH: 8  },
-  { i: 'mktclock',      x: 2,  y: 14, w: 3,  h: 16, minW: 2, minH: 8  },
-  { i: 'chart',         x: 5,  y: 14, w: 7,  h: 16, minW: 4, minH: 14 },
-
-  // ══ ROW 3 (y:30→44) — Global markets overview ════════════════════════════
-  // Unchanged per user: India | Heatmap | Commodities
-  { i: 'indiamarkets',  x: 0,  y: 30, w: 3,  h: 14, minW: 2, minH: 10 },
-  { i: 'heatmap',       x: 3,  y: 30, w: 4,  h: 14, minW: 2, minH: 10 },
-  { i: 'commodities',   x: 7,  y: 30, w: 5,  h: 14, minW: 2, minH: 10 },
-
-  // ══ ROW 4 (y:44→56) — Time-critical signals (earnings · events · flow) ════
-  // All panels here are market-moving and need daily attention.
-  // Heights matched to content: each needs ~330-360px (h:12 = 360px).
-  { i: 'earnings',      x: 0,  y: 44, w: 3,  h: 12, minW: 2, minH: 8  },
-  { i: 'calendar',      x: 3,  y: 44, w: 3,  h: 12, minW: 2, minH: 8  },
-  { i: 'insiderdeals',  x: 6,  y: 44, w: 4,  h: 12, minW: 3, minH: 8  },
-  { i: 'sentiment',     x: 10, y: 44, w: 2,  h: 12, minW: 2, minH: 8  },
-
-  // ══ ROW 5 (y:56→74) — Deep analytics ═════════════════════════════════════
-  // Options needs most height (BSM + Greeks + OI chart ≈ 480px → h:18 = 540px).
-  // Supply Chain: 4 cols for the 3-col map layout.
-  // Macro Rates: rich but scrollable; h:18 gives it room for FED schedule.
-  { i: 'options',       x: 0,  y: 56, w: 5,  h: 18, minW: 4, minH: 14 },
-  { i: 'supplychain',   x: 5,  y: 56, w: 4,  h: 18, minW: 3, minH: 12 },
-  { i: 'macrorates',    x: 9,  y: 56, w: 3,  h: 18, minW: 2, minH: 10 },
-
-  // ══ ROW 6 (y:74→90) — Market structure ═══════════════════════════════════
-  { i: 'fixedincome',   x: 0,  y: 74, w: 5,  h: 16, minW: 3, minH: 12 },
-  { i: 'ipo',           x: 5,  y: 74, w: 4,  h: 16, minW: 3, minH: 10 },
-
-  // ══ ROW 7 (y:90→114) — Equity research deep dive (NEW: SEC fundamentals) ═
-  // EquityResearch is the headline panel — wide and tall to do its 5y
-  // time-series justice.  StockProfile + AnalystConsensus flank it.
-  // { i: 'equityresearch',   x: 0, y: 90, w: 12, h: 24, minW: 6, minH: 20 },
-
-  // ══ ROW 8 (y:114→134) — Per-stock company snapshot panels ═══════════════
-  { i: 'stockprofile',     x: 0, y: 114, w: 12, h: 20, minW: 4, minH: 16 },
-
-  // ══ ROW 9 (y:134→152) — Smart money + filings + alt data ═══════════════
-  { i: 'secfilings',    x: 0,  y: 134, w: 4,  h: 18, minW: 3, minH: 14 },
-  { i: 'smartmoney',    x: 4,  y: 134, w: 4,  h: 18, minW: 3, minH: 14 },
-  { i: 'altdata',       x: 8,  y: 134, w: 4,  h: 18, minW: 3, minH: 14 },
-
-  // ══ ROW 10 (y:152→176) — Cross-universe screener ════════════════════════
-  // Full-width because the table needs room for 12 columns of metrics.
-  // { i: 'screener',      x: 0,  y: 152, w: 12, h: 24, minW: 6, minH: 18 },
-
-  // ══ ROW 11 (y:176→192) — Portfolio (positions + live P&L) ═══════════════
-  { i: 'portfolio',     x: 0,  y: 176, w: 6,  h: 16, minW: 4, minH: 10 },
-  { i: 'backtest',      x: 6,  y: 176, w: 6,  h: 22, minW: 4, minH: 14 },
-
-  // ══ ROW 12 (y:198→220) — Fundamentals screener (static SEC dataset) ═════
-  { i: 'screener',      x: 0,  y: 198, w: 12, h: 22, minW: 6, minH: 14 },
-
-  // ══ ROW 13 (y:220→240) — Risk + seasonality ═════════════════════════════
-  { i: 'risk',          x: 0,  y: 220, w: 6,  h: 20, minW: 4, minH: 12 },
-  { i: 'seasonality',   x: 6,  y: 220, w: 6,  h: 20, minW: 4, minH: 12 },
-
-  // ══ ROW 14 (y:240→262) — Rotation + options strategy ════════════════════
-  { i: 'rotation',      x: 0,  y: 240, w: 6,  h: 22, minW: 4, minH: 12 },
-  { i: 'strategy',      x: 6,  y: 240, w: 6,  h: 22, minW: 4, minH: 14 },
-
-  // ══ ROW 15 (y:262→278) — Price alerts ═══════════════════════════════════
-  { i: 'alerts',        x: 0,  y: 262, w: 6,  h: 16, minW: 4, minH: 10 },
-  { i: 'positioning',   x: 6,  y: 262, w: 6,  h: 20, minW: 4, minH: 12 },
-  { i: 'volatility',    x: 0,  y: 282, w: 6,  h: 24, minW: 4, minH: 14 },
+const GRID_PANELS: readonly PanelSize[] = [
+  // Price and the market at a glance
+  { i: 'chart',          w: 7,  h: 16, minW: 4, minH: 14 },
+  { i: 'watchlist',      w: 2,  h: 16, minW: 2, minH: 8  },
+  { i: 'indices',        w: 3,  h: 16, minW: 2, minH: 8  },
+  // What is moving and why
+  { i: 'news',           w: 5,  h: 14, minW: 3, minH: 8  },
+  { i: 'heatmap',        w: 4,  h: 14, minW: 2, minH: 10 },
+  { i: 'mktclock',       w: 3,  h: 14, minW: 2, minH: 8  },
+  { i: 'indiamarkets',   w: 3,  h: 14, minW: 2, minH: 10 },
+  { i: 'commodities',    w: 5,  h: 14, minW: 2, minH: 10 },
+  { i: 'earnings',       w: 4,  h: 14, minW: 2, minH: 8  },
+  { i: 'sentiment',      w: 2,  h: 14, minW: 2, minH: 8  },
+  { i: 'insiderdeals',   w: 5,  h: 14, minW: 3, minH: 8  },
+  { i: 'ipo',            w: 5,  h: 14, minW: 3, minH: 10 },
+  // Derivatives, rates and positioning
+  { i: 'options',        w: 5,  h: 20, minW: 4, minH: 14 },
+  { i: 'volatility',     w: 4,  h: 20, minW: 4, minH: 14 },
+  { i: 'macrorates',     w: 3,  h: 20, minW: 2, minH: 10 },
+  { i: 'strategy',       w: 6,  h: 22, minW: 4, minH: 14 },
+  { i: 'positioning',    w: 6,  h: 22, minW: 4, minH: 12 },
+  { i: 'fixedincome',    w: 6,  h: 20, minW: 3, minH: 12 },
+  { i: 'rotation',       w: 6,  h: 20, minW: 4, minH: 12 },
+  // The active company
+  { i: 'stockprofile',   w: 5,  h: 22, minW: 4, minH: 16 },
+  { i: 'equityresearch', w: 7,  h: 22, minW: 6, minH: 16 },
+  { i: 'secfilings',     w: 4,  h: 18, minW: 3, minH: 14 },
+  { i: 'smartmoney',     w: 4,  h: 18, minW: 3, minH: 14 },
+  { i: 'supplychain',    w: 4,  h: 18, minW: 3, minH: 12 },
+  // Your money
+  { i: 'portfolio',      w: 6,  h: 16, minW: 4, minH: 10 },
+  { i: 'alerts',         w: 6,  h: 16, minW: 4, minH: 10 },
+  { i: 'risk',           w: 6,  h: 20, minW: 4, minH: 12 },
+  { i: 'seasonality',    w: 6,  h: 20, minW: 4, minH: 12 },
+  // Find ideas and test them
+  { i: 'screener',       w: 12, h: 22, minW: 6, minH: 14 },
+  { i: 'backtest',       w: 6,  h: 24, minW: 4, minH: 14 },
+  { i: 'patternscanner', w: 6,  h: 24, minW: 4, minH: 14 },
 ]
+
+const GRID_ORDER: readonly PanelId[] = GRID_PANELS.map(p => p.i)
+const DEFAULT_LAYOUT: DashboardLayout = packLayout(GRID_ORDER)
 
 // ── MOBILE panel order (priority-first: live data → analytics → research) ─────
 const MOBILE_ORDER: PanelId[] = [
@@ -109,16 +78,16 @@ const MOBILE_ORDER: PanelId[] = [
   // Tier 2: Market pulse
   'indices', 'indiamarkets', 'commodities',
   // Tier 3: Time-critical signals
-  'earnings', 'calendar', 'insiderdeals', 'sentiment',
+  'earnings', 'insiderdeals', 'sentiment',
   // Tier 4: Deep analytics
   'options', 'volatility', 'strategy', 'macrorates', 'heatmap', 'rotation', 'positioning', 'fixedincome',
   // Tier 5: Equity research (per-stock deep dive, driven by active symbol)
   'equityresearch', 'stockprofile', 'screener', 'backtest', 'risk', 'seasonality',
   // Tier 5.5: Cross-universe screener
   // Tier 6: Smart money / filings / alt
-  'smartmoney', 'secfilings', 'altdata', 'supplychain', 'ipo',
+  'smartmoney', 'secfilings', 'supplychain', 'ipo', 'patternscanner',
   // Tier 6: Alt + media
-  'mktclock', 'livevideo',
+  'mktclock',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -150,35 +119,42 @@ function isPanelId(v: unknown): v is PanelId {
   return typeof v === 'string' && (PANEL_IDS as readonly string[]).includes(v)
 }
 
+/**
+ * Make any layout safe to render: drop unknown or malformed items, keep the
+ * first copy of each panel, and append panels that are missing (new since the
+ * layout was saved) below everything else. Returns null only when nothing
+ * usable is left.
+ */
 function normalizeLayout(layout: Layout): DashboardLayout | null {
-  if (!layout.every(item => {
-    if (!item || typeof item !== 'object') return false
+  const seen = new Set<PanelId>()
+  const out: DashboardLayout = []
+  for (const item of layout) {
+    if (!item || typeof item !== 'object') continue
     const i = item as unknown as Record<string, unknown>
-
-    return (
-      isPanelId(i.i) &&
-      typeof i.x === 'number' &&
-      typeof i.y === 'number' &&
-      typeof i.w === 'number' &&
-      typeof i.h === 'number'
-    )
-  })) return null
-
-  const keys = new Set(layout.map(item => item.i))
-  if (!PANEL_IDS.every(id => keys.has(id))) return null
-
-  return cloneLayout(layout) as DashboardLayout
+    if (!isPanelId(i.i) || seen.has(i.i)) continue
+    if (![i.x, i.y, i.w, i.h].every(v => typeof v === 'number' && Number.isFinite(v))) continue
+    seen.add(i.i)
+    out.push({ ...(item as DashboardLayoutItem) })
+  }
+  if (!out.length) return null
+  let bottom = Math.max(...out.map(p => p.y + p.h))
+  for (const p of GRID_PANELS) {
+    if (seen.has(p.i)) continue
+    out.push({ i: p.i, x: 0, y: bottom, w: p.w, h: p.h, minW: p.minW, minH: p.minH })
+    bottom += p.h
+  }
+  return out
 }
 
-function loadLayout(): DashboardLayout {
-  if (typeof window === 'undefined') return cloneLayout(DEFAULT_LAYOUT)
+/** The layout the user saved, or null when there is none worth using. */
+function loadSavedLayout(): DashboardLayout | null {
+  if (typeof window === 'undefined') return null
   try {
     const saved = localStorage.getItem(LS_KEY)
-    if (!saved) return cloneLayout(DEFAULT_LAYOUT)
+    if (!saved) return null
     const parsed: unknown = JSON.parse(saved)
-    if (!Array.isArray(parsed)) return cloneLayout(DEFAULT_LAYOUT)
-    return normalizeLayout(parsed) ?? cloneLayout(DEFAULT_LAYOUT)
-  } catch { return cloneLayout(DEFAULT_LAYOUT) }
+    return Array.isArray(parsed) ? normalizeLayout(parsed) : null
+  } catch { return null }
 }
 
 function saveLayout(layout: DashboardLayout) {
@@ -195,7 +171,7 @@ function saveLayout(layout: DashboardLayout) {
 //      layout state because react-grid-layout requires every key present.
 function packLayout(visibleIds: readonly PanelId[]): DashboardLayout {
   const sizeMap = new Map<PanelId, { w: number; h: number; minW?: number; minH?: number }>()
-  for (const item of DEFAULT_LAYOUT) {
+  for (const item of GRID_PANELS) {
     sizeMap.set(item.i, { w: item.w, h: item.h, minW: item.minW, minH: item.minH })
   }
 
@@ -271,7 +247,7 @@ function packLayout(visibleIds: readonly PanelId[]): DashboardLayout {
   // ── Step 4: park hidden panels far off-screen ─────────────────────────────
   const visibleSet = new Set(visibleIds)
   let hY = y + 100, hX = 0, hRowH = 0
-  for (const id of PANEL_IDS) {
+  for (const id of GRID_ORDER) {
     if (visibleSet.has(id)) continue
     const sz = sizeMap.get(id)
     if (!sz) continue
@@ -288,11 +264,12 @@ function packLayout(visibleIds: readonly PanelId[]): DashboardLayout {
 // ── Panel group definitions for visibility menu ────────────────────────────────
 
 const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
-  { label: 'Live Feed',    ids: ['livevideo', 'news', 'watchlist', 'portfolio']                             },
-  { label: 'Market Pulse', ids: ['chart', 'indices', 'mktclock', 'indiamarkets', 'heatmap', 'commodities']  },
-  { label: 'Signals',      ids: ['earnings', 'calendar', 'insiderdeals', 'sentiment']                       },
-  { label: 'Analytics',    ids: ['options', 'macrorates', 'fixedincome', 'supplychain']                     },
-  { label: 'Research',     ids: ['equityresearch', 'screener', 'backtest', 'risk', 'seasonality', 'rotation', 'positioning', 'volatility', 'strategy', 'alerts', 'stockprofile', 'smartmoney', 'secfilings', 'altdata', 'ipo'] },
+  { label: 'Markets',     ids: ['chart', 'watchlist', 'indices', 'news', 'heatmap', 'mktclock', 'indiamarkets', 'commodities', 'sentiment'] },
+  { label: 'Events',      ids: ['earnings', 'insiderdeals', 'ipo'] },
+  { label: 'Derivatives', ids: ['options', 'volatility', 'strategy', 'positioning', 'macrorates', 'fixedincome', 'rotation'] },
+  { label: 'Company',     ids: ['stockprofile', 'equityresearch', 'secfilings', 'smartmoney', 'supplychain'] },
+  { label: 'Your money',  ids: ['portfolio', 'alerts', 'risk', 'seasonality'] },
+  { label: 'Ideas',       ids: ['screener', 'backtest', 'patternscanner'] },
 ]
 
 // ── Mobile panel component ─────────────────────────────────────────────────────
@@ -392,7 +369,7 @@ function TabletLayout({ hidden }: { hidden: Set<PanelId> }) {
     }}>
       {visible.map(id => {
         const meta = PANEL_META[id]
-        const isWide = ['chart', 'livevideo', 'news', 'indiamarkets', 'macrorates', 'correlation', 'commodities'].includes(id)
+        const isWide = ['chart', 'news', 'indiamarkets', 'macrorates', 'commodities'].includes(id)
         return (
           <div
             key={id}
@@ -439,14 +416,29 @@ export default function GridLayout() {
   // Hydrate persisted state from localStorage after mount (single source of truth
   // for SSR-safety + so originalLayoutRef matches what the user actually has saved).
   useEffect(() => {
-    const persistedLayout = loadLayout()
-    setLayout(persistedLayout)
-    originalLayoutRef.current = cloneLayout(persistedLayout)
-
-    try {
-      const stored = localStorage.getItem('nexus-hidden-panels')
-      if (stored) setHidden(new Set(JSON.parse(stored)))
-    } catch {}
+    // A preset workspace fully defines what is visible and where, so derive
+    // both from it. Trusting a saved copy is what left holes in the grid
+    // whenever the set of panels changed between versions.
+    const preset = WORKSPACES.find(w => w.id === useWorkspace.getState().active)?.visible ?? null
+    let nextHidden = new Set<PanelId>()
+    let nextLayout: DashboardLayout
+    if (preset) {
+      const visible = preset.filter(isPanelId)
+      nextHidden = new Set(GRID_ORDER.filter(id => !visible.includes(id)))
+      nextLayout = packLayout(visible)
+    } else {
+      try {
+        const stored: unknown = JSON.parse(localStorage.getItem('nexus-hidden-panels') ?? '[]')
+        if (Array.isArray(stored)) nextHidden = new Set(stored.filter(isPanelId))
+      } catch {}
+      // No usable saved layout: pack whatever is visible rather than showing the
+      // default arrangement with gaps where hidden panels would have been.
+      nextLayout = loadSavedLayout()
+        ?? (nextHidden.size ? packLayout(GRID_ORDER.filter(id => !nextHidden.has(id))) : cloneLayout(DEFAULT_LAYOUT))
+    }
+    setHidden(nextHidden)
+    setLayout(nextLayout)
+    originalLayoutRef.current = cloneLayout(nextLayout)
 
     const frameId = window.requestAnimationFrame(() => setMounted(true))
     return () => {
@@ -474,7 +466,7 @@ export default function GridLayout() {
   const handleSave      = () => { saveLayout(cloneLayout(layout)); setEditing(false); showSaveIndicator() }
   const handleCancel    = () => { setLayout(cloneLayout(originalLayoutRef.current)); setEditing(false) }
   const handleReset     = () => {
-    const n = cloneLayout(DEFAULT_LAYOUT)
+    const n = hidden.size ? packLayout(GRID_ORDER.filter(id => !hidden.has(id))) : cloneLayout(DEFAULT_LAYOUT)
     originalLayoutRef.current = cloneLayout(n)
     setLayout(n); saveLayout(n); setEditing(false); showSaveIndicator()
   }
@@ -516,11 +508,16 @@ export default function GridLayout() {
     if (activeWorkspace !== 'custom' && activeWorkspace !== 'all') {
       setWorkspace('custom')
     }
-    setHidden(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id); else next.add(id)
-      return next
-    })
+    const next = new Set(hidden)
+    if (next.has(id)) next.delete(id); else next.add(id)
+    setHidden(next)
+    // Re-pack in the order panels currently appear, so hiding one closes the
+    // gap it leaves and showing one slots it in without overlapping.
+    const position = new Map(layout.map(p => [p.i, p.y * 100 + p.x]))
+    const order = GRID_ORDER.filter(p => !next.has(p)).sort((a, b) => (position.get(a) ?? 1e9) - (position.get(b) ?? 1e9))
+    const packed = packLayout(order)
+    setLayout(packed)
+    saveLayout(packed)
   }
 
   const visibleLayout = layout.filter(({ i }) => !hidden.has(i))

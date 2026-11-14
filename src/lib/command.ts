@@ -52,7 +52,6 @@ export const PANEL_ALIASES: Record<string, readonly string[]> = {
   heatmap:        ['heatmap', 'map'],
   indices:        ['indices', 'wei'],
   earnings:       ['earnings', 'ern'],
-  calendar:       ['calendar', 'eco', 'econ'],
   macrorates:     ['macro', 'rates'],
   fixedincome:    ['bonds', 'yields', 'fixedincome'],
   commodities:    ['commodities', 'cmdty'],
@@ -60,8 +59,6 @@ export const PANEL_ALIASES: Record<string, readonly string[]> = {
   indiamarkets:   ['india'],
   ipo:            ['ipo'],
   supplychain:    ['supply', 'spl'],
-  altdata:        ['alt', 'altdata'],
-  livevideo:      ['tv', 'live'],
   mktclock:       ['clock', 'hours'],
 }
 

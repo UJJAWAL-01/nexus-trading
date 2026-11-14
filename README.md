@@ -37,15 +37,15 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 
 ## What's in it
 
-34 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+31 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
 
 | Area | Panels |
 |---|---|
 | **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Rotation (who leads or lags the index) · Positioning (futures positioning from the CFTC, daily short-sale volume from FINRA) · Commodities · Sentiment · World Clock |
 | **Your data** | Portfolio (positions, live P&L, CSV import/export) · Portfolio Risk (volatility, beta, VaR, drawdown, correlations) · Price Alerts (levels and daily moves, desktop notifications) |
-| **News and events** | Intel Feed (AI-tagged news) · Economic Calendar · Earnings · IPO · Live TV |
+| **News and events** | Intel Feed (AI-tagged news) · Earnings · IPO |
 | **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Seasonality · Pattern Scanner · Stock Profile |
-| **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain · Alt Data |
+| **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain |
 | **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Volatility (implied volatility by expiry and strike) · Options Strategy (payoff, break-evens, probability of profit) · Fixed Income · Macro Rates |
 | **India** | India Markets (Nifty, Sensex, FII/DII) and `.NS` / `.BO` symbols across most panels |
 
@@ -81,11 +81,9 @@ NEXUS aggregates public and free-tier sources. The license covers the NEXUS code
 | FINRA (Reg SHO daily files) | Daily short-sale volume for US shares | none |
 | NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |
 | CBOE | US options chains | none |
-| Wikipedia, Reddit, Hacker News | Alt-data attention signals | none |
 | Finnhub (optional, free) | Trailing-twelve-month ratios and logo in Stock Profile, extra news | `FINNHUB_API_KEY` |
 | NewsAPI (optional, free) | Extra news coverage | `NEWS_API_KEY` |
 | Alpha Vantage (optional, free) | News sentiment | `ALPHA_VANTAGE_KEY` |
-| YouTube embeds | Live TV | none |
 | Groq (optional, free) | One-line AI context on news headlines | `GROQ_API_KEY` |
 
 Yahoo and NSE are unofficial integrations. They can change or rate-limit without notice; when that happens the affected panels show stale or unavailable data. Adding more providers is the most valuable contribution you can make, see [CONTRIBUTING.md](CONTRIBUTING.md).
