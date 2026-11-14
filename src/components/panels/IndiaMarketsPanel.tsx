@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import useSWR from 'swr'
 import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
@@ -204,6 +205,12 @@ export default function IndiaMarketsPanel() {
   const gainers = sectors.filter(s => (s.change ?? 0) > 0).length
   const losers  = sectors.filter(s => (s.change ?? 0) < 0).length
 
+  const guide = usePanelGuide({
+    title: "Reading India markets",
+    next: [{ label: "FIXED INCOME", panelId: "fixedincome" }, { label: "ROTATION", panelId: "rotation" }],
+    children: <>NIFTY 50 and SENSEX track the largest Indian companies. FII figures show what foreign institutions bought or sold; DII figures show what domestic institutions did. Foreign selling absorbed by domestic buying is a common pattern. When both sell on the same day, falls tend to be sharper.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       
@@ -212,6 +219,7 @@ export default function IndiaMarketsPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" style={{ background: '#f97316', boxShadow: '0 0 8px #f97316' }} />
           IN INDIA MARKETS
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace' }}>▲ {gainers}</span>
@@ -227,6 +235,7 @@ export default function IndiaMarketsPanel() {
           )}
         </div>
       </div>
+      {guide.body}
 
       {/* Main indices */}
       <div style={{ flex: '0 0 auto' }}>

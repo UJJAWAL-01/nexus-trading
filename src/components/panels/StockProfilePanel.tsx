@@ -14,6 +14,7 @@
 // tier; the panel shows an explicit "not available" message for them rather
 // than a misleading half-loaded card.
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
 import { ComingSoon } from '@/components/ui/PanelStates'
@@ -206,6 +207,12 @@ export default function StockProfilePanel() {
     return Math.max(0, Math.min(100, ((px - lo) / (hi - lo)) * 100))
   }, [metrics, quote])
 
+  const guide = usePanelGuide({
+    title: "Reading a stock profile",
+    next: [{ label: "EQUITY RESEARCH", panelId: "equityresearch" }, { label: "SEASONALITY", panelId: "seasonality" }],
+    children: <>A one-page summary of the company. Market cap is what the whole company is worth at today&apos;s price. P/E is the share price divided by a year of earnings per share: a higher number means investors pay more for each unit of profit, usually because they expect growth. Margins show how much of each unit of sales is kept as profit.</>,
+  })
+
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="panel-header">
@@ -220,7 +227,9 @@ export default function StockProfilePanel() {
             {effSym}
           </span>
         )}
+        <span style={{ marginLeft: 8, display: 'inline-flex' }}>{guide.button}</span>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
         {/* No symbol */}

@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useWatchlist } from '@/store/watchlist'
 import { useActiveSymbol } from '@/store/symbol'
@@ -199,6 +200,12 @@ export default function WatchlistPanel() {
     if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
   }, [])
 
+  const guide = usePanelGuide({
+    title: "Using the watchlist",
+    next: [{ label: "PRICE ALERTS", panelId: "alerts" }, { label: "ROTATION", panelId: "rotation" }],
+    children: <>Your own short list of symbols with live prices. Click a row to load that symbol in every panel that follows the active symbol. The list is stored only in this browser, so export it as CSV to keep a copy. From anywhere, press / and type watch TSLA to add a symbol.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
 
@@ -226,6 +233,7 @@ export default function WatchlistPanel() {
           <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
             {symbols.length}/20
           </span>
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
         <button
@@ -260,6 +268,7 @@ export default function WatchlistPanel() {
         </button>
         </div>
       </div>
+      {guide.body}
 
       {/* Search input */}
       {adding && (

@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useWatchlist } from '@/store/watchlist'
 import { useEffectiveSymbol, useActiveSymbol } from '@/store/symbol'
@@ -354,6 +355,12 @@ export default function NewsFeedPanel() {
 
   const tabDef = TABS.find(t => t.id === activeTab)!
 
+  const guide = usePanelGuide({
+    title: "Reading the news feed",
+    next: [{ label: "CHART", panelId: "chart" }, { label: "EARNINGS", panelId: "earnings" }],
+    children: <>Headlines from public news feeds, tagged with the companies they mention. A headline tells you that something happened, not how much it matters or whether the price already reflects it. Check the size of the move on the chart and read the original article before acting. Markets often react within minutes.</>,
+  })
+
   return (
     <div className="panel" style={{ height:'100%', display:'flex', flexDirection:'column' }}>
 
@@ -367,6 +374,7 @@ export default function NewsFeedPanel() {
               {relevantCount} relevant
             </span>
           )}
+          {guide.button}
         </div>
         {/* Sentiment mini-bar */}
         {!isLoading && currentItems.length > 0 && (
@@ -376,6 +384,7 @@ export default function NewsFeedPanel() {
           </div>
         )}
       </div>
+      {guide.body}
 
       {/* ── Tab Navigation ─────────────────────────────────────────────────── */}
       <div style={{

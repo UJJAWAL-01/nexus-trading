@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState } from 'react'
 
 interface MarketCenter {
@@ -108,6 +109,12 @@ export default function MarketClockPanel() {
 
   const openCount = states.filter(s => s.status === 'open').length
 
+  const guide = usePanelGuide({
+    title: "Reading the market clocks",
+    next: [{ label: "GLOBAL INDICES", panelId: "indices" }, { label: "ECONOMIC CALENDAR", panelId: "calendar" }],
+    children: <>Shows which stock exchanges are open right now. Trading is usually busiest in the first and last hour of a session. When London and New York are open at the same time, currencies and global shares tend to move the most. Outside its own hours, a market&apos;s last price can be many hours old.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
@@ -115,6 +122,7 @@ export default function MarketClockPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" style={{ background: openCount > 0 ? '#00c97a' : '#4a6070' }} />
           WORLD MARKET CLOCKS
+          {guide.button}
         </div>
         <span style={{
           fontSize: '10px', fontFamily: 'JetBrains Mono, monospace',
@@ -123,6 +131,7 @@ export default function MarketClockPanel() {
           {openCount} OPEN
         </span>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {MARKETS.map((m, i) => {
