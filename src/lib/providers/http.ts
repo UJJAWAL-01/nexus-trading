@@ -39,6 +39,8 @@ const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
   // US regulators' open data — public, keyless
   'publicreporting.cftc.gov',
   'cdn.finra.org',
+  // CBOE delayed quotes — public, keyless
+  'cdn-api.cboe.com',
   'query1.finance.yahoo.com',
   'query2.finance.yahoo.com',
 ])

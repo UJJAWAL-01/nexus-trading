@@ -37,6 +37,7 @@ export const PANEL_ALIASES: Record<string, readonly string[]> = {
   alerts:         ['alerts'],
   options:        ['options', 'opt', 'omon', 'chain'],
   strategy:       ['strategy', 'payoff', 'spread'],
+  volatility:     ['volatility', 'vol', 'iv', 'skew'],
   equityresearch: ['fundamentals', 'fa', 'research', 'financials'],
   stockprofile:   ['profile', 'des', 'about'],
   secfilings:     ['filings', 'sec', 'cf'],

@@ -3,6 +3,7 @@
 //
 //   CFTC   publicreporting.cftc.gov   Commitments of Traders (weekly, open data API)
 //   FINRA  cdn.finra.org              Reg SHO daily short-sale volume files
+//   CBOE   cdn-api.cboe.com           delayed options quotes (15 minutes)
 //
 // Server-only. Requests go through upstreamFetch (HTTPS, host allowlist,
 // timeout) and the shared cache (bounded, stale-on-error, de-duplicated).
@@ -13,6 +14,7 @@ import {
   COT_CONTRACTS, findShortVolume, finraSymbol, recentWeekdays, shortStats, summariseCot,
   type CotRawRow, type CotSummary, type ShortDay, type ShortStats,
 } from '@/lib/positioning'
+import { buildVolSurface, cboeSymbol, type RawChain, type VolSurface } from '@/lib/vol-surface'
 
 // ── CFTC ─────────────────────────────────────────────────────────────────────
 
@@ -101,4 +103,31 @@ export async function shortVolume(symbol: string): Promise<(ShortStats & { symbo
     if (days.length >= SHORT_DAYS) break
   }
   return { symbol: symbol.toUpperCase(), ...shortStats(days) }
+}
+
+// ── CBOE ─────────────────────────────────────────────────────────────────────
+
+// The raw chain is 1–10 MB per symbol, so only the computed surface (a few KB)
+// is cached. Five minutes is well inside the feed's own 15-minute delay.
+const surfaceCache = createCache<VolSurface>({ name: 'vol-surface', max: 60, staleMs: 6 * 3600_000 })
+const MAX_CHAIN_BYTES = 40_000_000
+
+/** 'unsupported' when the symbol is not a US optionable ticker; null when no data. */
+export async function volSurface(symbol: string): Promise<VolSurface | 'unsupported' | null> {
+  const cs = cboeSymbol(symbol)
+  if (!cs) return 'unsupported'
+  try {
+    return await surfaceCache.wrap(cs, 5 * 60_000, async () => {
+      const url = new URL(`https://cdn-api.cboe.com/api/global/delayed_quotes/options/${encodeURIComponent(cs)}.json`)
+      const res = await upstreamFetch(url, { provider: 'cboe', timeoutMs: 20_000, headers: { Accept: 'application/json', 'User-Agent': 'Mozilla/5.0' }, cache: 'no-store' })
+      if (!res.ok) throw new Error(`CBOE ${res.status}`)
+      const length = Number(res.headers.get('content-length') ?? 0)
+      if (length > MAX_CHAIN_BYTES) throw new Error('CBOE chain too large')
+      const surface = buildVolSurface((await res.json()) as RawChain)
+      if (!surface) throw new Error('no usable options')
+      return surface
+    })
+  } catch {
+    return surfaceCache.getStale(cs) ?? null
+  }
 }

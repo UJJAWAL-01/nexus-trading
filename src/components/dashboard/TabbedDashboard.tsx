@@ -32,7 +32,7 @@ const TABS: Tab[] = [
   { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'calendar', 'earnings', 'livevideo', 'ipo'] },
   { id: 'smartmoney', label: 'Research',    hint: 'Smart money, supply chain, alternative data', icon: 'research-lens', panels: ['smartmoney', 'supplychain', 'altdata', 'insiderdeals', 'secfilings'] },
   { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
-  { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'strategy', 'macrorates'] },
+  { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'volatility', 'strategy', 'macrorates'] },
   { id: 'portfolio',  label: 'Portfolio',   hint: 'Positions + live P&L',      icon: 'risk-shield',   panels: ['portfolio', 'alerts', 'risk'] },
   { id: 'lab',        label: 'Lab',         hint: 'Screener + backtester, in your browser', icon: 'line-chart',    panels: ['backtest', 'seasonality', 'screener'] },
 ]
@@ -73,6 +73,7 @@ const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   alerts:          { w: 6,  h: 16, minW: 4, minH: 10 },
   rotation:        { w: 8,  h: 20, minW: 4, minH: 12 },
   positioning:     { w: 8,  h: 20, minW: 4, minH: 12 },
+  volatility:      { w: 6,  h: 24, minW: 4, minH: 14 },
   strategy:        { w: 6,  h: 22, minW: 4, minH: 14 },
   screener:        { w: 12, h: 22, minW: 6, minH: 14 },
   // Markets — small widgets, 3-up

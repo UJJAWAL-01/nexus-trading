@@ -37,7 +37,7 @@ const HEAVY_ROUTES = new Set([
   'options', 'fixed-income', 'smart-money', 'sec-filings', 'alternative-data',
   'insider-deals', 'fundamentals', 'news-feed', 'news', 'search',
   'youtube-live', 'pattern-scan', 'chart-analysis', 'ai-context',
-  'earnings', 'ipo-data', 'macro-rates', 'economic-calender', 'stream', 'short-volume',
+  'earnings', 'ipo-data', 'macro-rates', 'economic-calender', 'stream', 'short-volume', 'vol-surface',
 ])
 
 const ALLOWED_METHODS = new Set(['GET', 'HEAD', 'POST', 'OPTIONS'])

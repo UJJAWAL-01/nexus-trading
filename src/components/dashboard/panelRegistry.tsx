@@ -36,6 +36,7 @@ import AlertsPanel              from '@/components/panels/AlertsPanel'
 import RotationPanel            from '@/components/panels/RotationPanel'
 import StrategyPanel            from '@/components/panels/StrategyPanel'
 import PositioningPanel         from '@/components/panels/PositioningPanel'
+import VolatilityPanel          from '@/components/panels/VolatilityPanel'
 
 // ── Panel id list ─────────────────────────────────────────────────────────────
 
@@ -55,7 +56,7 @@ export const PANEL_IDS = [
   'portfolio',
   // Offline analytics (computed in the browser, no server or key)
   'screener', 'backtest', 'risk', 'seasonality',
-  'alerts', 'rotation', 'strategy', 'positioning',
+  'alerts', 'rotation', 'strategy', 'positioning', 'volatility',
 ] as const
 
 export type PanelId = (typeof PANEL_IDS)[number]
@@ -101,6 +102,7 @@ export const PANEL_META: Record<PanelId, PanelMeta> = {
   rotation:         { component: <RotationPanel />,          label: 'ROTATION',          color: 'var(--teal)',  mobileH: 680, description: 'Which sectors lead or lag the index, and whether the lead is growing or fading' },
   strategy:         { component: <StrategyPanel />,          label: 'OPTIONS STRATEGY',  color: '#a78bfa',      mobileH: 720, description: 'Payoff diagram · break-evens · max profit and loss · probability of profit' },
   positioning:      { component: <PositioningPanel />,       label: 'POSITIONING',       color: 'var(--teal)',  mobileH: 640, description: 'Futures positioning of large speculators (CFTC) · daily short-sale volume (FINRA)' },
+  volatility:       { component: <VolatilityPanel />,        label: 'VOLATILITY',        color: '#a78bfa',      mobileH: 720, description: 'Implied volatility by expiry and by strike · the move the options market is pricing' },
   patternscanner:   { component: <PatternScreenerPanel />,   label: 'PATTERN SCANNER',   color: '#00e5c0',     mobileH: 720, description: 'Scan US + India for chart & candlestick patterns · click to chart' },
 }
 
