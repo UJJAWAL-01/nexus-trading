@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { TTL } from '@/lib/data-hooks'
@@ -25,12 +26,19 @@ export default function GlobalIndicesPanel() {
 
   const quotes = useMemo(() => data?.quotes ?? [], [data])
 
+  const guide = usePanelGuide({
+    title: "Reading global indices",
+    next: [{ label: "SECTOR HEATMAP", panelId: "heatmap" }, { label: "WORLD CLOCK", panelId: "mktclock" }],
+    children: <>An index tracks a basket of shares to stand for a whole market. Markets open in sequence around the world, so Asia and Europe often hint at how the US session will start. When most indices move together the cause is global; when one diverges, look for a local reason.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="panel-header" style={{ justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" style={{ background: '#4da6ff' }} />
           GLOBAL INDICES
+          {guide.button}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {isLoading && !quotes.length && (
@@ -44,6 +52,7 @@ export default function GlobalIndicesPanel() {
           )}
         </div>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {quotes.map(q => {

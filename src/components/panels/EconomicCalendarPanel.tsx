@@ -3,6 +3,7 @@
 // ALWAYS shows data — hardcoded FOMC/RBI/ECB events are embedded as SWR fallback
 // Live data from /api/economic-calender enhances when available
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { TTL } from '@/lib/data-hooks'
@@ -151,6 +152,12 @@ export default function EconomicCalendarPanel() {
   const todayCount = displayed.filter(e => isToday(e.date)).length
   const highCount  = displayed.filter(e => e.impact === 'high').length
 
+  const guide = usePanelGuide({
+    title: "Reading the economic calendar",
+    next: [{ label: "MACRO RATES", panelId: "macrorates" }, { label: "FIXED INCOME", panelId: "fixedincome" }],
+    children: <>These are scheduled data releases and central bank decisions. Inflation, jobs and rate decisions move markets the most. The reaction depends on the surprise against the forecast, not on whether the number is good or bad in itself, and prices can swing sharply in the minutes after a release.</>,
+  })
+
   return (
     <div className="panel" style={{ height:'100%', display:'flex', flexDirection:'column' }}>
 
@@ -168,6 +175,7 @@ export default function EconomicCalendarPanel() {
               {todayCount} TODAY
             </span>
           )}
+          {guide.button}
         </div>
         {loading ? (
           <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>updating…</span>
@@ -185,6 +193,7 @@ export default function EconomicCalendarPanel() {
           />
         )}
       </div>
+      {guide.body}
 
       {/* Filters */}
       <div style={{

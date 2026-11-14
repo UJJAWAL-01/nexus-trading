@@ -1,4 +1,5 @@
 'use client'
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState } from 'react'
 import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
 import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
@@ -64,6 +65,12 @@ export default function MacroRatesPanel() {
   const cpiLabel = data?.cpi?.label ?? (mode === 'FED' ? 'US CPI YoY' : 'India CPI YoY')
   const cpiSource = data?.cpi?.source ?? 'FRED'
 
+  const guide = usePanelGuide({
+    title: "Reading macro rates",
+    next: [{ label: "FIXED INCOME", panelId: "fixedincome" }, { label: "ECONOMIC CALENDAR", panelId: "calendar" }],
+    children: <>The policy rate is the central bank&apos;s main lever. Subtract inflation to get the real rate: above zero it is restraining the economy, below zero it is stimulating it. Markets move most when a decision differs from what was expected, so the meeting dates matter as much as the level.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="panel-header" style={{ justifyContent: 'space-between' }}>
@@ -80,6 +87,7 @@ export default function MacroRatesPanel() {
               <DataAgeBadge timestamp={data.fetchedAt} freshSecs={600} staleSecs={86400} small />
             </>
           )}
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '3px' }}>
           {(['FED', 'RBI'] as Mode[]).map(m => (
@@ -93,6 +101,7 @@ export default function MacroRatesPanel() {
           ))}
         </div>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* ── Hero rate card ──────────────────────────────────────────── */}

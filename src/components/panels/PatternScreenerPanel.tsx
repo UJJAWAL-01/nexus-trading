@@ -6,6 +6,7 @@
 // that exact pattern drawn (via the symbol store's focusOnPattern).
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useRef, useState, useCallback, type CSSProperties } from 'react'
 import { useActiveSymbol } from '@/store/symbol'
 import { useWatchlist } from '@/store/watchlist'
@@ -173,12 +174,19 @@ export default function PatternScreenerPanel() {
 
   const selectedLabel = useMemo(() => selected.size === 0 ? 'All patterns' : `${selected.size} selected`, [selected])
 
+  const guide = usePanelGuide({
+    title: "Using the pattern scanner",
+    next: [{ label: "CHART", panelId: "chart" }, { label: "BACKTEST", panelId: "backtest" }],
+    children: <>The scanner looks for price shapes that traders watch, using fixed rules so the same chart always gives the same answer. A pattern is a description of what price has done, with a level that would confirm it and a level that would prove it wrong. Treat the confidence score as how cleanly the shape fits, not the chance it works.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="panel-header" style={{ justifyContent: 'space-between', padding: '6px 10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div className="dot" />
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em' }}>PATTERN SCREENER</span>
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '3px' }}>
           {(['1D', '1W'] as Tf[]).map(t => (
@@ -186,6 +194,7 @@ export default function PatternScreenerPanel() {
           ))}
         </div>
       </div>
+      {guide.body}
 
       {/* presets */}
       <div style={{ display: 'flex', gap: '4px', padding: '6px 10px', borderBottom: '1px solid var(--border)', overflowX: 'auto', background: 'rgba(0,0,0,0.18)' }}>

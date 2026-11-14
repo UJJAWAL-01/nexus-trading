@@ -7,6 +7,7 @@
 // scheduled GitHub Action. There is no server query, no database and no key:
 // after one download, filtering and sorting are instant and work offline.
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useMemo, useState, type CSSProperties } from 'react'
 import useSWR from 'swr'
 import { useActiveSymbol } from '@/store/symbol'
@@ -104,6 +105,12 @@ export default function ScreenerPanel() {
 
   const reset = () => { setQuery(''); setSector('All'); setMinRev(''); setMinNm(''); setMinRoe(''); setProfit(false); setFcf(false); setLimit(PAGE) }
 
+  const guide = usePanelGuide({
+    title: "Using the screener",
+    next: [{ label: "EQUITY RESEARCH", panelId: "equityresearch" }, { label: "BACKTEST", panelId: "backtest" }],
+    children: <>Every row is a company&apos;s latest annual report filed with the SEC. Filters narrow thousands of companies to a short list worth reading about; they do not tell you what to buy. High margins and returns usually cost more to own, so check the price you are paying next. Click a row to load that company everywhere.</>,
+  })
+
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       <div className="panel-header" style={{ justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
@@ -115,6 +122,7 @@ export default function ScreenerPanel() {
               {results.length.toLocaleString()} OF {companies.length.toLocaleString()} US FILERS · FY{data.fiscalYear}
             </span>
           )}
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
           <button type="button" style={{ ...ctl, cursor: 'pointer', fontWeight: 700, color: 'var(--text-2)' }} onClick={reset}>RESET</button>
@@ -122,6 +130,7 @@ export default function ScreenerPanel() {
             disabled={!results.length} onClick={exportCsv} title="Download every matching company as CSV">EXPORT CSV</button>
         </div>
       </div>
+      {guide.body}
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end', padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
         <label style={lbl}>SEARCH

@@ -3,6 +3,7 @@
 // Intelligence layer: smart-money scoring, sector clustering, unusual activity
 // detection, multi-insider CLUSTER signals.
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useMemo, useState } from 'react'
 import { useEffectiveSymbol, useActiveSymbol } from '@/store/symbol'
 import { useInsiderDeals, type InsiderDeal } from '@/lib/data-hooks'
@@ -151,6 +152,12 @@ export default function InsiderDealsPanel() {
   const hasData   = deals.length > 0
   const showError = !!error && !hasData
 
+  const guide = usePanelGuide({
+    title: "Reading insider trades",
+    next: [{ label: "SEC FILINGS", panelId: "secfilings" }, { label: "STOCK PROFILE", panelId: "stockprofile" }],
+    children: <>Executives and directors must report trades in their own company&apos;s shares. Buying with their own money is the stronger signal, because there is only one reason to do it. Selling is weaker: people sell for taxes, diversification or a house. Several insiders buying around the same time carries the most weight.</>,
+  })
+
   return (
     <div className="panel" style={{ height:'100%', display:'flex', flexDirection:'column', fontFamily:'JetBrains Mono,monospace' }}>
       <style>{`
@@ -174,6 +181,7 @@ export default function InsiderDealsPanel() {
               ◈ {clusters.length} CLUSTER{clusters.length===1?'':'S'}
             </span>
           )}
+          {guide.button}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
           <div style={{ display:'flex', gap:'2px' }}>
@@ -198,6 +206,7 @@ export default function InsiderDealsPanel() {
           </button>
         </div>
       </div>
+      {guide.body}
 
       {/* ── Stats / Sentiment bar ────────────────────────────────────────────── */}
       {stats && hasData && (

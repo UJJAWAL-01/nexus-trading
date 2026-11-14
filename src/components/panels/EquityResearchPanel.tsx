@@ -18,6 +18,7 @@
 //   4. Margin trend     — gross / operating / net stacked over time
 //   5. Footer           — source + revision count
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useState } from 'react'
 import { NexusIcon } from '@/components/ui/NexusIcon'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell, Line, LineChart, ReferenceLine } from 'recharts'
@@ -548,6 +549,12 @@ export default function EquityResearchPanel() {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
+  const guide = usePanelGuide({
+    title: "Reading the fundamentals",
+    next: [{ label: "STOCK PROFILE", panelId: "stockprofile" }, { label: "SEC FILINGS", panelId: "secfilings" }],
+    children: <>These figures come straight from the company&apos;s annual filings. Look at the direction over several years rather than one number: revenue growing, margins holding or widening, and cash flow keeping pace with reported profit. Profit that is not backed by cash flow deserves a closer look.</>,
+  })
+
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="panel-header">
@@ -562,7 +569,9 @@ export default function EquityResearchPanel() {
             {effSym} · ANNUAL XBRL
           </span>
         )}
+        <span style={{ marginLeft: 8, display: 'inline-flex' }}>{guide.button}</span>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 10 }}>
         {/* No symbol */}

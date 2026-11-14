@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface IPOData {
@@ -61,6 +62,12 @@ export default function IpoScreenerPanel() {
     fetchIPOs(ctrl.signal)
   }
 
+  const guide = usePanelGuide({
+    title: "Reading the IPO calendar",
+    next: [{ label: "SEC FILINGS", panelId: "secfilings" }, { label: "SCREENER", panelId: "screener" }],
+    children: <>An IPO is a company selling shares to the public for the first time. The price range is the company&apos;s estimate and can change before listing. New listings have little trading history and are often volatile in their first weeks, and early investors may be free to sell after a lock-up period ends.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
@@ -71,8 +78,10 @@ export default function IpoScreenerPanel() {
           <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
             {ipos.length} listings
           </span>
+          {guide.button}
         </div>
       </div>
+      {guide.body}
 
       {/* Filters */}
       <div style={{

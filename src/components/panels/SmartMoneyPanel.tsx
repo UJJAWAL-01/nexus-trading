@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useActiveSymbol, useEffectiveSymbol } from '@/store/symbol'
 
@@ -282,6 +283,12 @@ export default function SmartMoneyPanel() {
       : `Top picks across ${loadedCount} fund categories · Live NSE data`
   }, [loading, selectedId, fundData, market, loadedCount])
 
+  const guide = usePanelGuide({
+    title: "Reading institutional holdings",
+    next: [{ label: "INSIDER DEALS", panelId: "insiderdeals" }, { label: "EQUITY RESEARCH", panelId: "equityresearch" }],
+    children: <>Large US funds must publish their holdings every quarter. The filings arrive up to 45 days after quarter end, so you are seeing where a fund was, not where it is. They are best used as a source of ideas to research, especially when several respected funds hold the same name.</>,
+  })
+
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
@@ -292,7 +299,9 @@ export default function SmartMoneyPanel() {
         <span style={{ marginLeft: 'auto', fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
           {market === 'US' ? 'SEC 13F · 7 FUNDS' : 'NSE LIVE · 7 CATEGORIES'}
         </span>
+        <span style={{ marginLeft: 8, display: 'inline-flex' }}>{guide.button}</span>
       </div>
+      {guide.body}
 
       {/* Market toggle */}
       <div style={{ display: 'flex', gap: 6, padding: '8px 12px', borderBottom: '1px solid var(--border)' }}>

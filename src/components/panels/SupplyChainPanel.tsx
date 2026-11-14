@@ -8,6 +8,7 @@
 // Visual: 3-column hierarchical map with curved SVG connectors animating from
 // the central target node out to suppliers (left) and customers (right).
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
@@ -154,6 +155,12 @@ export default function SupplyChainPanel() {
     setTarget(ticker); setInput(ticker); setPicked(null); setShowAll(false); setHovered(null)
   }
 
+  const guide = usePanelGuide({
+    title: "Reading the supply chain map",
+    next: [{ label: "EQUITY RESEARCH", panelId: "equityresearch" }, { label: "SEC FILINGS", panelId: "secfilings" }],
+    children: <>This shows who a company buys from and sells to, taken from relationships the companies have disclosed. Trouble at a major supplier or customer often reaches a company before it shows in its own results. A business that depends heavily on one partner carries a risk the income statement does not show.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column',
                                      fontFamily: 'JetBrains Mono, monospace' }}>
@@ -168,6 +175,7 @@ export default function SupplyChainPanel() {
           <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
             · verified disclosures only
           </span>
+          {guide.button}
         </div>
         {/* Region toggle */}
         <div style={{ display: 'flex', gap: '3px' }}>
@@ -184,6 +192,7 @@ export default function SupplyChainPanel() {
           ))}
         </div>
       </div>
+      {guide.body}
 
       {/* Stats strip */}
       {data && (

@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useRef, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
@@ -109,6 +110,12 @@ export default function EarningsPanel() {
 
   const isIndia = market === 'IN'
 
+  const guide = usePanelGuide({
+    title: "Reading the earnings calendar",
+    next: [{ label: "OPTIONS", panelId: "options" }, { label: "PRICE ALERTS", panelId: "alerts" }],
+    children: <>Companies report results every quarter, and the share price often moves more on that day than in the weeks around it. What matters is the result against what analysts expected, and the outlook the company gives. Options usually get more expensive beforehand because the market is pricing that jump.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
@@ -127,6 +134,7 @@ export default function EarningsPanel() {
               {todayCount} TODAY
             </span>
           )}
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '3px' }}>
           {(['US', 'IN'] as Market[]).map(m => (
@@ -143,6 +151,7 @@ export default function EarningsPanel() {
           ))}
         </div>
       </div>
+      {guide.body}
 
       {/* Time filters */}
       <div style={{

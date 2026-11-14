@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import useSWR from 'swr'
 import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
@@ -220,6 +221,12 @@ export default function SectorHeatmapPanel() {
 
   const activeSectorDef = activeSector ? SECTORS.find(s => s.symbol === activeSector) : null
 
+  const guide = usePanelGuide({
+    title: "Reading the heatmap",
+    next: [{ label: "ROTATION", panelId: "rotation" }, { label: "SCREENER", panelId: "screener" }],
+    children: <>Each tile is one sector of the US market, coloured by today&apos;s move. A day when everything is the same colour is driven by the whole market; a mixed map means money is moving between sectors. One day is noise, so use Rotation to see whether a move is part of a longer shift.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
 
@@ -231,6 +238,7 @@ export default function SectorHeatmapPanel() {
           <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
             HOVER TO SEE MOVERS
           </span>
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace' }}>▲ {gainers}</span>
@@ -252,6 +260,7 @@ export default function SectorHeatmapPanel() {
           )}
         </div>
       </div>
+      {guide.body}
 
       {/* Grid */}
       <div style={{

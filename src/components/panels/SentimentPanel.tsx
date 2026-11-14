@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState } from 'react'
 import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
 import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
@@ -196,6 +197,12 @@ export default function SentimentPanel() {
   const circumference = 2 * Math.PI * 52
   const dashOffset    = circumference - (data.score / 100) * circumference
 
+  const guide = usePanelGuide({
+    title: "Reading sentiment",
+    next: [{ label: "GLOBAL INDICES", panelId: "indices" }, { label: "OPTIONS", panelId: "options" }],
+    children: <>This score blends volatility and trend measures into one number from fear to greed. It is a modelled estimate, not a survey. Extremes are more useful than the middle: deep fear has often marked better entry points and extreme greed has often come before pullbacks, but neither tells you when.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="panel-header" style={{ justifyContent: 'space-between' }}>
@@ -205,12 +212,14 @@ export default function SentimentPanel() {
           <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '6px' }}>
             Fear &amp; Greed Index
           </span>
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <DataQualityBadge kind="modeled" small tooltip="0–100 score computed from VIX level, VIX momentum, SPY RSI-14, and SPY vs 50-day moving average. Each component live from Finnhub/Yahoo." />
           <DataAgeBadge timestamp={data.fetchedAt} freshSecs={180} staleSecs={600} small />
         </div>
       </div>
+      {guide.body}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px 16px', gap: '12px' }}>
 

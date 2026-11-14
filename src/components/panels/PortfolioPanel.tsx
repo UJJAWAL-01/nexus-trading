@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { Tick } from '@/components/ui/Motion'
 
 // PORTFOLIO — positions, live P&L and CSV import/export.
@@ -157,6 +158,12 @@ export default function PortfolioPanel() {
   const statusLabel = status === 'live' ? 'LIVE' : status === 'polling' ? 'POLLING' : status === 'connecting' ? 'CONNECTING' : ''
   const statusColor = status === 'live' ? 'var(--positive)' : status === 'polling' ? 'var(--amber)' : 'var(--text-muted)'
 
+  const guide = usePanelGuide({
+    title: "Using the portfolio",
+    next: [{ label: "PORTFOLIO RISK", panelId: "risk" }, { label: "PRICE ALERTS", panelId: "alerts" }],
+    children: <>Enter what you hold and what you paid, and this tracks its value with live prices. Day P&amp;L is today&apos;s move in money; Total P&amp;L compares the current value with what you paid. Your positions are stored only in this browser and are never uploaded. Use Portfolio Risk to see how the holdings behave together.</>,
+  })
+
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       <div className="panel-header" style={{ justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
@@ -172,6 +179,7 @@ export default function PortfolioPanel() {
               ● {statusLabel}
             </span>
           )}
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
           <button type="button" style={btn} onClick={() => fileRef.current?.click()} title="Import positions from a CSV file (symbol, quantity, avg_cost)">IMPORT</button>
@@ -190,6 +198,7 @@ export default function PortfolioPanel() {
           />
         </div>
       </div>
+      {guide.body}
 
       {adding && (
         <form onSubmit={submit} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr auto', gap: 6, padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>

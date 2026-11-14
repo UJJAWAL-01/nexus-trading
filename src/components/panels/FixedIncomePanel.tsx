@@ -2,6 +2,7 @@
 // src/components/panels/FixedIncomePanel.tsx
 // Transparent Fixed Income Intelligence — US + India
 // Every number shows its source type badge. No false confidence displayed.
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState, useCallback, useRef } from 'react'
 
 // ── Types (mirror API schema) ─────────────────────────────────────────────────
@@ -597,6 +598,12 @@ export default function FixedIncomePanel() {
     { id: 'spreads',  label: 'SPREADS'     },
   ]
 
+  const guide = usePanelGuide({
+    title: "Reading the yield curve",
+    next: [{ label: "MACRO RATES", panelId: "macrorates" }, { label: "ROTATION", panelId: "rotation" }],
+    children: <>The curve plots what the government pays to borrow for each length of time. Normally longer loans pay more. When short rates sit above long rates the curve is inverted, which has often come before recessions. Credit spreads show how much extra companies pay over the government; widening spreads mean lenders are getting nervous.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
@@ -606,6 +613,7 @@ export default function FixedIncomePanel() {
           <div className="dot" style={{ background: accent }} />
           <span style={{ fontSize: '10px', letterSpacing: '0.12em', fontWeight: 700 }}>FIXED INCOME</span>
           <DSTBadge dst={dq} tooltip={`Yield curve data quality: ${DST_META[dq].label}`} />
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '3px' }}>
           {(['US', 'IN', 'COMPARE'] as Market[]).map(m => (
@@ -619,6 +627,7 @@ export default function FixedIncomePanel() {
           ))}
         </div>
       </div>
+      {guide.body}
 
       {/* DATA QUALITY LEGEND */}
       <div style={{ display: 'flex', gap: '6px', padding: '5px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0, flexWrap: 'wrap', alignItems: 'center' }}>

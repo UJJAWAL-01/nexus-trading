@@ -4,6 +4,7 @@
 // IN:  NSE India real-time → stale cache with age indicator
 // All BSM / Newton-Raphson IV / Greeks computed CLIENT-SIDE
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
 import { NexusIcon } from '@/components/ui/NexusIcon'
@@ -375,6 +376,12 @@ export default function OptionsPanel() {
   const loadMsg = (market === 'IN' ? IN_STEPS : US_STEPS)[Math.min(loadStep, 3)]
 
   // ── Render ──────────────────────────────────────────────────────────────────
+  const guide = usePanelGuide({
+    title: "Reading the options chain",
+    next: [{ label: "OPTIONS STRATEGY", panelId: "strategy" }, { label: "CHART", panelId: "chart" }],
+    children: <>Implied volatility is the size of move the market is pricing in; high means options are expensive. Open interest shows where contracts are concentrated, and those strikes often act as magnets or barriers near expiry. The expected move is a one-standard-deviation range, so price lands outside it roughly one time in three.</>,
+  })
+
   return (
     <div className="panel" style={{ height:'100%', display:'flex', flexDirection:'column' }}>
 
@@ -386,6 +393,7 @@ export default function OptionsPanel() {
           <span style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'JetBrains Mono,monospace' }}>
             BSM · Newton-Raphson IV · Greeks
           </span>
+          {guide.button}
         </div>
         <div style={{ display:'flex', gap:'3px' }}>
           {(['chain','oi'] as Tab[]).map(t => (
@@ -401,6 +409,7 @@ export default function OptionsPanel() {
           ))}
         </div>
       </div>
+      {guide.body}
 
       {/* ── Status bar — market hours + stale indicator ────────────────────── */}
       {(market === 'IN' || data?.staleData) && (

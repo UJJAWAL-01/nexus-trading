@@ -5,6 +5,7 @@
 // from latest vs 30-day baseline, peak detection, and trend slope. No AI, no
 // trading recommendations — just descriptive statistics in plain English.
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
@@ -224,6 +225,12 @@ export default function AlternativeDataPanel() {
   })) : [], [reddit])
   const hnData = useMemo(() => hn ? hn.dates.map((d, i) => ({ date: shortDate(d), value: hn.mentions[i] ?? 0 })) : [], [hn])
 
+  const guide = usePanelGuide({
+    title: "Reading alternative data",
+    next: [{ label: "INTEL FEED", panelId: "news" }, { label: "EQUITY RESEARCH", panelId: "equityresearch" }],
+    children: <>Alternative data is anything outside prices and filings, such as how often people look a company up or talk about it. A jump in attention tells you something is happening, not whether it is good. It is most useful as a prompt to go and find out why.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', fontFamily: 'JetBrains Mono, monospace' }}>
       {/* ── Header ───────────────────────────────────────────────────────────── */}
@@ -234,6 +241,7 @@ export default function AlternativeDataPanel() {
           {data?.companyName && (
             <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>· {data.companyName}</span>
           )}
+          {guide.button}
         </div>
         <button onClick={() => mutate()} disabled={isLoading} style={{
           fontSize: '10px', padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
@@ -242,6 +250,7 @@ export default function AlternativeDataPanel() {
           {isLoading ? '···' : '↺ Refresh'}
         </button>
       </div>
+      {guide.body}
 
       {/* ── Search ──────────────────────────────────────────────────────────── */}
       <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0,

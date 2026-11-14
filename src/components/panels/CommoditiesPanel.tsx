@@ -1,5 +1,6 @@
 'use client'
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { DataQualityBadge } from '@/components/dashboard/DataQualityBadge'
 import { DataAgeBadge } from '@/components/dashboard/DataAgeBadge'
@@ -278,6 +279,12 @@ export default function CommoditiesPanel() {
   const gainers = loadedPrices.filter(p => (p.change ?? 0) > 0).length
   const losers  = loadedPrices.filter(p => (p.change ?? 0) < 0).length
 
+  const guide = usePanelGuide({
+    title: "Reading commodities",
+    next: [{ label: "MACRO RATES", panelId: "macrorates" }, { label: "ROTATION", panelId: "rotation" }],
+    children: <>Raw materials feed into inflation and company costs. Oil affects transport and consumer spending, copper tends to follow industrial demand, and gold often rises when people distrust currencies or real interest rates fall. Moves here frequently show up later in sector performance.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
@@ -296,6 +303,7 @@ export default function CommoditiesPanel() {
           </span>
           <DataQualityBadge kind="live" small tooltip="Commodity & crypto prices from Yahoo Finance, polled every 60s" />
           <DataAgeBadge timestamp={lastUpdateTs} freshSecs={90} staleSecs={300} small />
+          {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
           {(['prices', 'news'] as ActiveView[]).map(v => (
@@ -312,6 +320,7 @@ export default function CommoditiesPanel() {
           ))}
         </div>
       </div>
+      {guide.body}
 
       {/* ── Category filter ─────────────────────────────────────────────────── */}
       {view === 'prices' && (

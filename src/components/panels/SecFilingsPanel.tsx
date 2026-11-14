@@ -5,6 +5,7 @@
 // 13D/G: filer name, ownership %, shares
 // S-1: offering headline
 
+import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useEffectiveSymbol } from '@/store/symbol'
 import useSWR from 'swr'
@@ -111,6 +112,12 @@ export default function SecFilingsPanel() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effSym])
 
+  const guide = usePanelGuide({
+    title: "Reading SEC filings",
+    next: [{ label: "EQUITY RESEARCH", panelId: "equityresearch" }, { label: "INSIDER DEALS", panelId: "insiderdeals" }],
+    children: <>A 10-K is the full annual report and a 10-Q the quarterly one. An 8-K announces something that could not wait, such as results, a deal or an executive leaving. A 13D means an investor has taken more than 5% and may push for change. The filing itself is the primary source; always open it before trusting a summary.</>,
+  })
+
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', fontFamily: 'JetBrains Mono, monospace' }}>
 
@@ -122,6 +129,7 @@ export default function SecFilingsPanel() {
           {data?.companyName && (
             <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>· {data.companyName}</span>
           )}
+          {guide.button}
         </div>
         <button onClick={() => mutate()} disabled={isLoading} style={{
           fontSize: '10px', padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
@@ -130,6 +138,7 @@ export default function SecFilingsPanel() {
           {isLoading ? '···' : '↺ Refresh'}
         </button>
       </div>
+      {guide.body}
 
       {/* ── Search ─────────────────────────────────────────────────────── */}
       <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0,
