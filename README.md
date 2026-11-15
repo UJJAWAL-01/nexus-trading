@@ -37,13 +37,13 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 
 ## What's in it
 
-31 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
+32 panels, arranged either as a draggable grid (**Classic**) or focused tabs (**Pro**). Click a ticker anywhere and the chart, news, options and research panels follow it.
 
 | Area | Panels |
 |---|---|
 | **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Rotation (who leads or lags the index) · Positioning (futures positioning from the CFTC, daily short-sale volume from FINRA) · Commodities · Sentiment · World Clock |
 | **Your data** | Portfolio (positions, live P&L, CSV import/export) · Portfolio Risk (volatility, beta, VaR, drawdown, correlations) · Price Alerts (levels and daily moves, desktop notifications) |
-| **News and events** | Intel Feed (AI-tagged news) · Earnings · IPO |
+| **News and events** | Intel Feed (AI-tagged news) · Live TV · Earnings · IPO |
 | **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Seasonality · Pattern Scanner · Stock Profile |
 | **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain |
 | **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Volatility (implied volatility by expiry and strike) · Options Strategy (payoff, break-evens, probability of profit) · Fixed Income · Macro Rates |
@@ -77,6 +77,7 @@ NEXUS aggregates public and free-tier sources. The license covers the NEXUS code
 | SEC EDGAR | US fundamentals (XBRL company facts), screener dataset, filings, 13F holdings | none |
 | FRED (public CSV) | Macro rates, yields, CPI, credit spreads | none |
 | Nasdaq (public calendars) | Earnings and IPO calendars | none |
+| YouTube (public channel pages, embeds) | Live TV: which stream each channel is broadcasting now | none |
 | CFTC (open data) | Weekly futures positioning (Commitments of Traders) | none |
 | FINRA (Reg SHO daily files) | Daily short-sale volume for US shares | none |
 | NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |

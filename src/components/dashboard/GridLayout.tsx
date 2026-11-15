@@ -34,15 +34,16 @@ const GRID_PANELS: readonly PanelSize[] = [
   { i: 'watchlist',      w: 2,  h: 16, minW: 2, minH: 8  },
   { i: 'indices',        w: 3,  h: 16, minW: 2, minH: 8  },
   // What is moving and why
+  { i: 'livevideo',      w: 5,  h: 14, minW: 3, minH: 10 },
   { i: 'news',           w: 5,  h: 14, minW: 3, minH: 8  },
+  { i: 'sentiment',      w: 2,  h: 14, minW: 2, minH: 8  },
   { i: 'heatmap',        w: 4,  h: 14, minW: 2, minH: 10 },
+  { i: 'commodities',    w: 5,  h: 14, minW: 2, minH: 10 },
   { i: 'mktclock',       w: 3,  h: 14, minW: 2, minH: 8  },
   { i: 'indiamarkets',   w: 3,  h: 14, minW: 2, minH: 10 },
-  { i: 'commodities',    w: 5,  h: 14, minW: 2, minH: 10 },
   { i: 'earnings',       w: 4,  h: 14, minW: 2, minH: 8  },
-  { i: 'sentiment',      w: 2,  h: 14, minW: 2, minH: 8  },
   { i: 'insiderdeals',   w: 5,  h: 14, minW: 3, minH: 8  },
-  { i: 'ipo',            w: 5,  h: 14, minW: 3, minH: 10 },
+  { i: 'ipo',            w: 12, h: 12, minW: 3, minH: 10 },
   // Derivatives, rates and positioning
   { i: 'options',        w: 5,  h: 20, minW: 4, minH: 14 },
   { i: 'volatility',     w: 4,  h: 20, minW: 4, minH: 14 },
@@ -87,7 +88,7 @@ const MOBILE_ORDER: PanelId[] = [
   // Tier 6: Smart money / filings / alt
   'smartmoney', 'secfilings', 'supplychain', 'ipo', 'patternscanner',
   // Tier 6: Alt + media
-  'mktclock',
+  'mktclock', 'livevideo',
 ]
 
 // ── Breakpoints ────────────────────────────────────────────────────────────────
@@ -264,7 +265,7 @@ function packLayout(visibleIds: readonly PanelId[]): DashboardLayout {
 // ── Panel group definitions for visibility menu ────────────────────────────────
 
 const PANEL_GROUPS: { label: string; ids: PanelId[] }[] = [
-  { label: 'Markets',     ids: ['chart', 'watchlist', 'indices', 'news', 'heatmap', 'mktclock', 'indiamarkets', 'commodities', 'sentiment'] },
+  { label: 'Markets',     ids: ['chart', 'watchlist', 'indices', 'livevideo', 'news', 'heatmap', 'mktclock', 'indiamarkets', 'commodities', 'sentiment'] },
   { label: 'Events',      ids: ['earnings', 'insiderdeals', 'ipo'] },
   { label: 'Derivatives', ids: ['options', 'volatility', 'strategy', 'positioning', 'macrorates', 'fixedincome', 'rotation'] },
   { label: 'Company',     ids: ['stockprofile', 'equityresearch', 'secfilings', 'smartmoney', 'supplychain'] },
@@ -369,7 +370,7 @@ function TabletLayout({ hidden }: { hidden: Set<PanelId> }) {
     }}>
       {visible.map(id => {
         const meta = PANEL_META[id]
-        const isWide = ['chart', 'news', 'indiamarkets', 'macrorates', 'commodities'].includes(id)
+        const isWide = ['chart', 'livevideo', 'news', 'indiamarkets', 'macrorates', 'commodities'].includes(id)
         return (
           <div
             key={id}

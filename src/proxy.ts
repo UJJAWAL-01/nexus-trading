@@ -36,7 +36,7 @@ const LIMIT_HEAVY   = envInt('RATE_LIMIT_HEAVY_PER_MIN', 120)
 const HEAVY_ROUTES = new Set([
   'options', 'fixed-income', 'smart-money', 'sec-filings',
   'insider-deals', 'fundamentals', 'news-feed', 'news', 'search',
-  'pattern-scan', 'chart-analysis', 'ai-context',
+  'youtube-live', 'pattern-scan', 'chart-analysis', 'ai-context',
   'earnings', 'ipo-data', 'macro-rates', 'economic-calender', 'stream', 'short-volume', 'vol-surface',
 ])
 

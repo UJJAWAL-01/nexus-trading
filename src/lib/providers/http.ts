@@ -41,6 +41,8 @@ const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
   'cdn.finra.org',
   // CBOE delayed quotes — public, keyless
   'cdn-api.cboe.com',
+  // YouTube public pages — which video a channel is streaming now (no API, no key)
+  'www.youtube.com',
   'query1.finance.yahoo.com',
   'query2.finance.yahoo.com',
 ])

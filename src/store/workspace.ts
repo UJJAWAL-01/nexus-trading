@@ -38,9 +38,10 @@ export const WORKSPACES: readonly Workspace[] = [
     label:       'News & Macro',
     description: 'News, earnings, rates, positioning, filings',
     visible:     [
-      'news', 'earnings', 'macrorates',
+      'livevideo', 'news', 'sentiment',
+      'earnings', 'macrorates',
       'fixedincome', 'positioning',
-      'secfilings', 'insiderdeals', 'sentiment',
+      'secfilings', 'insiderdeals',
     ],
   },
   {

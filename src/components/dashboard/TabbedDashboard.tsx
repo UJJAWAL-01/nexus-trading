@@ -29,7 +29,7 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'markets',    label: 'Markets',     hint: "What's moving",            icon: 'market-pulse',  panels: ['indices', 'heatmap', 'rotation', 'positioning', 'commodities', 'sentiment', 'mktclock'] },
   { id: 'symbol',     label: 'Symbol',      hint: 'Everything on the active symbol', icon: 'analysis',    panels: ['stockprofile', 'equityresearch', 'seasonality', 'strategy', 'secfilings', 'insiderdeals'] },
-  { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'earnings', 'ipo'] },
+  { id: 'news',       label: 'News',        hint: 'Events + earnings',         icon: 'news-signal',   panels: ['news', 'livevideo', 'earnings', 'ipo'] },
   { id: 'smartmoney', label: 'Research',    hint: 'Smart money, insiders, filings, supply chain', icon: 'research-lens', panels: ['smartmoney', 'insiderdeals', 'secfilings', 'supplychain'] },
   { id: 'india',      label: 'India',       hint: 'Nifty / Sensex / FII-DII',  icon: 'india-grid',    panels: ['indiamarkets', 'fixedincome'] },
   { id: 'options',    label: 'Options',     hint: 'Derivatives + rates',       icon: 'options-curve', panels: ['options', 'volatility', 'strategy', 'macrorates'] },
@@ -69,6 +69,7 @@ const PRO_PANEL_SIZE: Partial<Record<PanelId, SizeHint>> = {
   portfolio:       { w: 6,  h: 16, minW: 4, minH: 10 },
   backtest:        { w: 6,  h: 24, minW: 4, minH: 14 },
   patternscanner:  { w: 6,  h: 24, minW: 4, minH: 14 },
+  livevideo:       { w: 6,  h: 14, minW: 3, minH: 10 },
   seasonality:     { w: 12, h: 20, minW: 4, minH: 12 },
   risk:            { w: 12, h: 20, minW: 4, minH: 12 },
   alerts:          { w: 6,  h: 16, minW: 4, minH: 10 },

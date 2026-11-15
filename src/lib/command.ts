@@ -60,6 +60,7 @@ export const PANEL_ALIASES: Record<string, readonly string[]> = {
   ipo:            ['ipo'],
   supplychain:    ['supply', 'spl'],
   mktclock:       ['clock', 'hours'],
+  livevideo:      ['tv', 'live'],
 }
 
 const ALIAS_TO_PANEL = new Map<string, string>()

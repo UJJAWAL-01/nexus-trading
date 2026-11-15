@@ -8,6 +8,7 @@ import SupplyChainPanel         from '@/components/panels/SupplyChainPanel'
 import EarningsPanel            from '@/components/panels/EarningsPanel'
 import GlobalIndicesPanel       from '@/components/panels/GlobalIndicesPanel'
 import IndiaMarketsPanel        from '@/components/panels/IndiaMarketsPanel'
+import LiveFinanceVideoPanel    from '@/components/panels/LiveFinanceVideoPanel'
 import MacroRatesPanel          from '@/components/panels/MacroRatesPanel'
 import MarketClockPanel         from '@/components/panels/MarketClockPanel'
 import NewsFeedPanel            from '@/components/panels/NewsFeedPanel'
@@ -38,7 +39,7 @@ import VolatilityPanel          from '@/components/panels/VolatilityPanel'
 // ── Panel id list ─────────────────────────────────────────────────────────────
 
 export const PANEL_IDS = [
-  'news', 'watchlist',
+  'livevideo', 'news', 'watchlist',
   'indices', 'mktclock', 'chart',
   'sentiment', 'earnings',
   'heatmap', 'indiamarkets', 'macrorates',
@@ -67,6 +68,7 @@ export type PanelMeta = {
 }
 
 export const PANEL_META: Record<PanelId, PanelMeta> = {
+  livevideo:    { component: <LiveFinanceVideoPanel />,    label: 'LIVE TV',       color: '#ff4560',      mobileH: 420, description: 'Live finance and news channels · US, India, world' },
   news:         { component: <NewsFeedPanel />,            label: 'INTEL FEED',    color: 'var(--amber)', mobileH: 480, description: 'AI-powered financial news feed' },
   watchlist:    { component: <WatchlistPanel />,           label: 'WATCHLIST',     color: 'var(--amber)', mobileH: 400, description: 'Live prices + watchlist' },
   indices:      { component: <GlobalIndicesPanel />,       label: 'INDICES',       color: '#1e90ff',      mobileH: 520, description: 'US · India · Asia global indices' },
