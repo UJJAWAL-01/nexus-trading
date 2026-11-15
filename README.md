@@ -44,7 +44,7 @@ Full instructions and reverse-proxy setup are in [docs/SELF_HOSTING.md](docs/SEL
 | **Markets** | Chart · Watchlist · Global Indices · Sector Heatmap · Rotation (who leads or lags the index) · Positioning (futures positioning from the CFTC, daily short-sale volume from FINRA) · Commodities · Sentiment · World Clock |
 | **Your data** | Portfolio (positions, live P&L, CSV import/export) · Portfolio Risk (volatility, beta, VaR, drawdown, correlations) · Price Alerts (levels and daily moves, desktop notifications) |
 | **News and events** | Intel Feed (AI-tagged news) · Live TV · Earnings · IPO |
-| **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Seasonality · Pattern Scanner · Stock Profile |
+| **Research** | Equity Research (10+ years of SEC fundamentals) · Screener (5,300 US filers) · Backtest · Seasonality · Pattern Screener (every Nifty 500 stock plus US large caps, pick a pattern to list the stocks forming it) · Stock Profile |
 | **Flows and filings** | Smart Money (13F) · Insider Deals · SEC Filings · Supply Chain |
 | **Derivatives and rates** | Options (chain, Greeks, IV, OI, max pain) · Volatility (implied volatility by expiry and strike) · Options Strategy (payoff, break-evens, probability of profit) · Fixed Income · Macro Rates |
 | **India** | India Markets (Nifty, Sensex, FII/DII) and `.NS` / `.BO` symbols across most panels |

@@ -24,7 +24,7 @@ type DashboardLayout     = DashboardLayoutItem[]
 // rowHeight=30 → h:1 = 30px). The layout itself is produced by packLayout(),
 // the same void-free packer the workspace presets use, so adding or removing a
 // panel can never leave a hole. Widths in each group below add up to 12.
-const LS_KEY = 'nexus-layout-v19'
+const LS_KEY = 'nexus-layout-v20'
 
 type PanelSize = { i: PanelId; w: number; h: number; minW: number; minH: number }
 
@@ -33,25 +33,28 @@ const GRID_PANELS: readonly PanelSize[] = [
   { i: 'chart',          w: 7,  h: 16, minW: 4, minH: 14 },
   { i: 'watchlist',      w: 2,  h: 16, minW: 2, minH: 8  },
   { i: 'indices',        w: 3,  h: 16, minW: 2, minH: 8  },
+  // Live TV with the newest tools beside it
+  { i: 'livevideo',      w: 4,  h: 16, minW: 3, minH: 10 },
+  { i: 'rotation',       w: 4,  h: 16, minW: 4, minH: 12 },
+  { i: 'alerts',         w: 4,  h: 16, minW: 4, minH: 10 },
+  { i: 'volatility',     w: 4,  h: 20, minW: 4, minH: 14 },
+  { i: 'strategy',       w: 4,  h: 20, minW: 4, minH: 14 },
+  { i: 'positioning',    w: 4,  h: 20, minW: 4, minH: 12 },
+  { i: 'patternscanner', w: 7,  h: 22, minW: 4, minH: 14 },
+  { i: 'news',           w: 5,  h: 22, minW: 3, minH: 8  },
   // What is moving and why
-  { i: 'livevideo',      w: 5,  h: 14, minW: 3, minH: 10 },
-  { i: 'news',           w: 5,  h: 14, minW: 3, minH: 8  },
-  { i: 'sentiment',      w: 2,  h: 14, minW: 2, minH: 8  },
   { i: 'heatmap',        w: 4,  h: 14, minW: 2, minH: 10 },
   { i: 'commodities',    w: 5,  h: 14, minW: 2, minH: 10 },
   { i: 'mktclock',       w: 3,  h: 14, minW: 2, minH: 8  },
+  { i: 'sentiment',      w: 2,  h: 14, minW: 2, minH: 8  },
   { i: 'indiamarkets',   w: 3,  h: 14, minW: 2, minH: 10 },
-  { i: 'earnings',       w: 4,  h: 14, minW: 2, minH: 8  },
-  { i: 'insiderdeals',   w: 5,  h: 14, minW: 3, minH: 8  },
+  { i: 'earnings',       w: 3,  h: 14, minW: 2, minH: 8  },
+  { i: 'insiderdeals',   w: 4,  h: 14, minW: 3, minH: 8  },
   { i: 'ipo',            w: 12, h: 12, minW: 3, minH: 10 },
-  // Derivatives, rates and positioning
+  // Derivatives and rates
   { i: 'options',        w: 5,  h: 20, minW: 4, minH: 14 },
-  { i: 'volatility',     w: 4,  h: 20, minW: 4, minH: 14 },
   { i: 'macrorates',     w: 3,  h: 20, minW: 2, minH: 10 },
-  { i: 'strategy',       w: 6,  h: 22, minW: 4, minH: 14 },
-  { i: 'positioning',    w: 6,  h: 22, minW: 4, minH: 12 },
-  { i: 'fixedincome',    w: 6,  h: 20, minW: 3, minH: 12 },
-  { i: 'rotation',       w: 6,  h: 20, minW: 4, minH: 12 },
+  { i: 'fixedincome',    w: 4,  h: 20, minW: 3, minH: 12 },
   // The active company
   { i: 'stockprofile',   w: 5,  h: 22, minW: 4, minH: 16 },
   { i: 'equityresearch', w: 7,  h: 22, minW: 6, minH: 16 },
@@ -59,14 +62,12 @@ const GRID_PANELS: readonly PanelSize[] = [
   { i: 'smartmoney',     w: 4,  h: 18, minW: 3, minH: 14 },
   { i: 'supplychain',    w: 4,  h: 18, minW: 3, minH: 12 },
   // Your money
-  { i: 'portfolio',      w: 6,  h: 16, minW: 4, minH: 10 },
-  { i: 'alerts',         w: 6,  h: 16, minW: 4, minH: 10 },
+  { i: 'portfolio',      w: 6,  h: 20, minW: 4, minH: 10 },
   { i: 'risk',           w: 6,  h: 20, minW: 4, minH: 12 },
-  { i: 'seasonality',    w: 6,  h: 20, minW: 4, minH: 12 },
   // Find ideas and test them
   { i: 'screener',       w: 12, h: 22, minW: 6, minH: 14 },
-  { i: 'backtest',       w: 6,  h: 24, minW: 4, minH: 14 },
-  { i: 'patternscanner', w: 6,  h: 24, minW: 4, minH: 14 },
+  { i: 'backtest',       w: 6,  h: 22, minW: 4, minH: 14 },
+  { i: 'seasonality',    w: 6,  h: 22, minW: 4, minH: 12 },
 ]
 
 const GRID_ORDER: readonly PanelId[] = GRID_PANELS.map(p => p.i)

@@ -1,20 +1,23 @@
 'use client'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Pattern Screener (spec §4.3). Scans the US + India universe for stocks forming
-// or confirming chart/candlestick patterns. Click a row to focus the chart with
-// that exact pattern drawn (via the symbol store's focusOnPattern).
+// Pattern Screener. Scans the US list and the whole Nifty 500 for stocks that
+// are forming or have confirmed chart and candlestick patterns. The universe
+// is loaded chunk by chunk (results appear as they arrive) and filtered here in
+// the browser, so picking a pattern is instant. Click a row to open the chart
+// with that exact pattern drawn (via the symbol store's focusOnPattern).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { usePanelGuide } from '@/components/ui/Motion'
 import { useEffect, useMemo, useRef, useState, useCallback, type CSSProperties } from 'react'
 import { useActiveSymbol } from '@/store/symbol'
 import { useWatchlist } from '@/store/watchlist'
-import { SECTORS } from '@/data/universe'
+import { SECTORS, UNIVERSE_BY_SYMBOL, chunkCount, SCAN_CHUNK, type ScanMarket } from '@/data/universe'
 
 type Tf = '1D' | '1W'
 type Dir = 'all' | 'bullish' | 'bearish'
 type Status = 'forming' | 'confirmed'
+type Market = 'ALL' | ScanMarket
 
 interface ScanDetection {
   id: string; name: string; direction: 'bullish' | 'bearish' | 'neutral'
@@ -27,7 +30,36 @@ interface Row {
   price: number; changePct: number; spark: number[]; sparkMin: number; sparkMax: number
   detections: ScanDetection[]
 }
-interface ScanMeta { scannedAt: number; universeSize: number; scannedCount: number; stale: boolean; queryMs: number }
+interface Chunk { rows: Row[]; symbols: number; scanned: number; scannedAt: number; complete: boolean }
+
+// ── Chunk loader ─────────────────────────────────────────────────────────────
+// Complete chunks are remembered for the session so switching market, timeframe
+// or tab does not scan again.
+const CHUNK_TTL = 30 * 60_000
+const chunkMemo = new Map<string, { at: number; data: Chunk }>()
+
+async function loadChunk(url: string, signal: AbortSignal): Promise<Chunk | null> {
+  const hit = chunkMemo.get(url)
+  if (hit && Date.now() - hit.at < CHUNK_TTL) return hit.data
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const r = await fetch(url, { signal })
+      if (r.ok) {
+        const data = await r.json() as Chunk
+        if (Array.isArray(data?.rows)) {
+          if (data.complete) chunkMemo.set(url, { at: Date.now(), data })
+          return data
+        }
+      }
+    } catch { if (signal.aborted) return null }
+    await new Promise(res => setTimeout(res, 1500))
+    if (signal.aborted) return null
+  }
+  return null
+}
+
+const MARKET_KEY = 'nexus-pattern-market'
+const PAGE = 80
 
 const PATTERN_GROUPS: Array<{ group: string; items: Array<{ id: string; label: string }> }> = [
   { group: 'Reversal', items: [
@@ -115,21 +147,21 @@ export default function PatternScreenerPanel() {
   const [direction, setDirection] = useState<Dir>('all')
   const [statuses, setStatuses] = useState<Set<Status>>(new Set(['forming', 'confirmed']))
   const [minConf, setMinConf] = useState(55)
-  const [country, setCountry] = useState<'ALL' | 'US' | 'IN'>('ALL')
+  const [market, setMarketState] = useState<Market>('ALL')
   const [sector, setSector] = useState('ALL')
   const [sortBy, setSortBy] = useState<'confidence' | 'changePct' | 'distance'>('confidence')
-  const [patternMenu, setPatternMenu] = useState(false)
+  const [shown, setShown] = useState(PAGE)
 
-  const [rows, setRows] = useState<Row[]>([])
-  const [meta, setMeta] = useState<ScanMeta | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [all, setAll] = useState<Row[]>([])
+  const [progress, setProgress] = useState({ done: 0, total: 0, symbols: 0, scanned: 0, failed: 0, at: 0 })
+  const [reload, setReload] = useState(0)
 
   useEffect(() => {
-    const h = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setPatternMenu(false) }
-    document.addEventListener('mousedown', h)
-    return () => document.removeEventListener('mousedown', h)
+    try { const m = localStorage.getItem(MARKET_KEY); if (m === 'US' || m === 'IN' || m === 'ALL') setMarketState(m) } catch {}
+  }, [])
+  const setMarket = useCallback((m: Market) => {
+    setMarketState(m)
+    try { localStorage.setItem(MARKET_KEY, m) } catch {}
   }, [])
 
   const togglePattern = useCallback((id: string) => {
@@ -142,42 +174,81 @@ export default function PatternScreenerPanel() {
     setSelected(new Set(p.patterns)); setDirection(p.direction); setStatuses(new Set(p.statuses)); setMinConf(p.minConf)
   }, [])
 
-  const watchKey = watchlist.join(',')
-  useEffect(() => {
-    let cancelled = false
-    setLoading(true); setError(null)
-    const params = new URLSearchParams()
-    params.set('tf', tf)
-    if (selected.size) params.set('pattern', [...selected].join(','))
-    if (direction !== 'all') params.set('direction', direction)
-    params.set('status', [...statuses].join(','))
-    params.set('minConfidence', String(minConf))
-    if (country !== 'ALL') params.set('country', country)
-    if (sector !== 'ALL') params.set('sector', sector)
-    params.set('sortBy', sortBy)
-    if (watchKey) params.set('watchlist', watchKey)
-    const t = setTimeout(async () => {
-      try {
-        const r = await fetch(`/api/pattern-scan?${params.toString()}`)
-        const j = await r.json()
-        if (cancelled) return
-        if (j.error) { setError(j.error); setRows([]) }
-        else { setRows(j.results ?? []); setMeta(j.meta ?? null) }
-      } catch {
-        if (!cancelled) setError('Scan request failed')
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }, 300)
-    return () => { cancelled = true; clearTimeout(t) }
-  }, [tf, selected, direction, statuses, minConf, country, sector, sortBy, watchKey])
+  // Watchlist names outside the built-in universe are scanned as one extra request.
+  const extraKey = useMemo(() => [...new Set(watchlist.map(s => s.toUpperCase()))]
+    .filter(s => !UNIVERSE_BY_SYMBOL[s] && /^[A-Z0-9^][A-Z0-9.\-&=^]{0,19}$/.test(s)).sort().slice(0, SCAN_CHUNK).join(','), [watchlist])
 
-  const selectedLabel = useMemo(() => selected.size === 0 ? 'All patterns' : `${selected.size} selected`, [selected])
+  useEffect(() => {
+    const ctl = new AbortController()
+    const urls: string[] = []
+    for (const m of (market === 'ALL' ? ['IN', 'US'] : [market]) as ScanMarket[]) {
+      for (let i = 0; i < chunkCount(m); i++) urls.push(`/api/pattern-scan?tf=${tf}&market=${m}&chunk=${i}`)
+    }
+    if (extraKey) urls.push(`/api/pattern-scan?tf=${tf}&symbols=${encodeURIComponent(extraKey)}`)
+
+    const rows = new Map<string, Row>()
+    const prog = { done: 0, total: urls.length, symbols: 0, scanned: 0, failed: 0, at: 0 }
+    setAll([]); setProgress({ ...prog }); setShown(PAGE)
+
+    let next = 0
+    const worker = async () => {
+      while (next < urls.length && !ctl.signal.aborted) {
+        const data = await loadChunk(urls[next++], ctl.signal)
+        if (ctl.signal.aborted) return
+        prog.done++
+        if (data) {
+          for (const r of data.rows) if (r?.symbol && Array.isArray(r.detections) && r.detections.length) rows.set(r.symbol, r)
+          prog.symbols += data.symbols; prog.scanned += data.scanned
+          prog.at = prog.at ? Math.min(prog.at, data.scannedAt) : data.scannedAt
+        } else prog.failed++
+        setAll([...rows.values()]); setProgress({ ...prog })
+      }
+    }
+    void Promise.all([worker(), worker(), worker()])
+    return () => ctl.abort()
+  }, [tf, market, extraKey, reload])
+
+  // ── Filtering, all in the browser ──────────────────────────────────────────
+  // `base` applies everything except the pattern choice, so the pattern board
+  // can show how many stocks each pattern would give.
+  const base = useMemo(() => {
+    const out: Row[] = []
+    for (const r of all) {
+      if (sector !== 'ALL' && r.sector !== sector) continue
+      const dets = r.detections.filter(d =>
+        (direction === 'all' || d.direction === direction) &&
+        (d.status === 'forming' || d.status === 'confirmed') && statuses.has(d.status) &&
+        d.confidence >= minConf)
+      if (dets.length) out.push({ ...r, detections: dets })
+    }
+    return out
+  }, [all, sector, direction, statuses, minConf])
+
+  const counts = useMemo(() => {
+    const c = new Map<string, number>()
+    for (const r of base) for (const id of new Set(r.detections.map(d => d.id))) c.set(id, (c.get(id) ?? 0) + 1)
+    return c
+  }, [base])
+
+  const rows = useMemo(() => {
+    const out = selected.size === 0 ? [...base] : base
+      .map(r => ({ ...r, detections: r.detections.filter(d => selected.has(d.id)) }))
+      .filter(r => r.detections.length)
+    const top = (r: Row) => Math.max(...r.detections.map(d => d.confidence))
+    const near = (r: Row) => Math.min(...r.detections.map(d => Math.abs(d.distToBreakoutPct ?? 999)))
+    out.sort((a, b) => sortBy === 'changePct' ? b.changePct - a.changePct : sortBy === 'distance' ? near(a) - near(b) : top(b) - top(a) || a.symbol.localeCompare(b.symbol))
+    return out
+  }, [base, selected, sortBy])
+
+  useEffect(() => { setShown(PAGE) }, [selected, sector, direction, statuses, minConf, sortBy])
+
+  const loading = progress.done < progress.total
+  const pct = progress.total ? Math.round((progress.done / progress.total) * 100) : 0
 
   const guide = usePanelGuide({
     title: "Using the pattern scanner",
     next: [{ label: "CHART", panelId: "chart" }, { label: "BACKTEST", panelId: "backtest" }],
-    children: <>The scanner looks for price shapes that traders watch, using fixed rules so the same chart always gives the same answer. A pattern is a description of what price has done, with a level that would confirm it and a level that would prove it wrong. Treat the confidence score as how cleanly the shape fits, not the chance it works.</>,
+    children: <>The scanner looks for price shapes that traders watch, using fixed rules so the same chart always gives the same answer. A pattern is a description of what price has done, with a level that would confirm it and a level that would prove it wrong. Pick a pattern on the board to list every stock showing it now; the number beside each pattern is how many stocks match. It covers the whole Nifty 500 and a US large-cap list, on daily or weekly candles, and only lists patterns that are current: chart shapes that ended within the last 15 candles and candle signals from the last 3. Treat the confidence score as how cleanly the shape fits, not the chance it works.</>,
   })
 
   return (
@@ -209,32 +280,11 @@ export default function PatternScreenerPanel() {
 
       {/* filter bar */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', alignItems: 'center', padding: '6px 10px', borderBottom: '1px solid var(--border)' }}>
-        {/* pattern multi-select */}
-        <div ref={menuRef} style={{ position: 'relative' }}>
-          <button onClick={() => setPatternMenu(v => !v)} style={pillStyle(selected.size > 0)}>
-            {selectedLabel} ▾
-          </button>
-          {patternMenu && (
-            <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 220, maxHeight: 300, overflowY: 'auto', background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 5, boxShadow: '0 12px 40px rgba(0,0,0,0.7)' }}>
-              {selected.size > 0 && (
-                <div onMouseDown={() => setSelected(new Set())} style={{ padding: '5px 10px', fontSize: 10, color: 'var(--negative)', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)' }}>Clear all</div>
-              )}
-              {PATTERN_GROUPS.map(g => (
-                <div key={g.group}>
-                  <div style={{ padding: '5px 10px 2px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.1em', fontFamily: 'JetBrains Mono, monospace' }}>{g.group.toUpperCase()}</div>
-                  {g.items.map(it => (
-                    <div key={it.id} onMouseDown={() => togglePattern(it.id)} style={{ padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, background: selected.has(it.id) ? 'rgba(0,229,192,0.06)' : 'transparent' }}>
-                      <span style={{ width: 11, height: 11, borderRadius: 2, border: `1px solid ${selected.has(it.id) ? 'var(--teal)' : 'var(--border)'}`, background: selected.has(it.id) ? 'var(--teal)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        {selected.has(it.id) && <span style={{ color: '#000', fontSize: 9, fontWeight: 900, lineHeight: 1 }}>✓</span>}
-                      </span>
-                      <span style={{ fontSize: 11, color: selected.has(it.id) ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{it.label}</span>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* market */}
+        {([['ALL', 'All'], ['IN', 'Nifty 500'], ['US', 'US']] as Array<[Market, string]>).map(([m, label]) => (
+          <button key={m} onClick={() => setMarket(m)} style={pillStyle(market === m, 'var(--amber)')}>{label}</button>
+        ))}
+        <span style={{ width: 1, height: 14, background: 'var(--border)' }} />
 
         {/* direction pills */}
         {(['all', 'bullish', 'bearish'] as Dir[]).map(d => (
@@ -250,10 +300,6 @@ export default function PatternScreenerPanel() {
           </button>
         ))}
 
-        {/* country */}
-        <select value={country} onChange={e => setCountry(e.target.value as 'ALL' | 'US' | 'IN')} style={selStyle}>
-          <option value="ALL">All mkts</option><option value="US">US</option><option value="IN">India</option>
-        </select>
         {/* sector */}
         <select value={sector} onChange={e => setSector(e.target.value)} style={selStyle}>
           <option value="ALL">All sectors</option>
@@ -271,35 +317,67 @@ export default function PatternScreenerPanel() {
         </div>
       </div>
 
-      {/* scanned-at line */}
-      <div style={{ padding: '3px 10px', fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
-        <span>{meta ? `universe scanned ${timeAgo(meta.scannedAt)} · ${meta.scannedCount}/${meta.universeSize} symbols${meta.stale ? ' · refreshing…' : ''}` : 'scanning…'}</span>
-        <span>{rows.length} matches</span>
+      {/* pattern board: pick what you are looking for; numbers are stocks matching the filters above */}
+      <div style={{ padding: '6px 10px', borderBottom: '1px solid var(--border)', maxHeight: '42%', overflowY: 'auto', flexShrink: 0 }}>
+        {PATTERN_GROUPS.map(g => (
+          <div key={g.group} style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center', marginBottom: 4 }}>
+            <span style={{ width: 84, flexShrink: 0, fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.1em', fontFamily: 'JetBrains Mono, monospace' }}>{g.group.toUpperCase()}</span>
+            {g.items.map(it => {
+              const n = counts.get(it.id) ?? 0, on = selected.has(it.id)
+              return (
+                <button key={it.id} onClick={() => togglePattern(it.id)} aria-pressed={on} style={{
+                  ...pillStyle(on), opacity: n === 0 && !on ? 0.45 : 1, display: 'inline-flex', gap: 5, alignItems: 'center',
+                }}>
+                  {it.label}
+                  <span style={{ color: on ? 'var(--teal)' : n ? '#fff' : 'var(--text-muted)', fontWeight: 700 }}>{n}</span>
+                </button>
+              )
+            })}
+          </div>
+        ))}
+        {selected.size > 0 && (
+          <button onClick={() => setSelected(new Set())} style={{ ...pillStyle(false), color: 'var(--negative)', marginLeft: 88 }}>Clear patterns</button>
+        )}
+      </div>
+
+      {/* scan status */}
+      <div style={{ position: 'relative', padding: '3px 10px', fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}>
+        <span>
+          {loading
+            ? `scanning ${tf === '1D' ? 'daily' : 'weekly'} candles… ${pct}% · ${progress.scanned} stocks read`
+            : `${progress.scanned} of ${progress.symbols} stocks scanned on ${tf === '1D' ? 'daily' : 'weekly'} candles${progress.at ? ` · ${timeAgo(progress.at)}` : ''}`}
+          {!loading && progress.failed > 0 && (
+            <button onClick={() => setReload(n => n + 1)} style={{ marginLeft: 8, background: 'none', border: 'none', color: 'var(--amber)', cursor: 'pointer', fontSize: 9, fontFamily: 'inherit', padding: 0 }}>
+              {progress.failed} part{progress.failed > 1 ? 's' : ''} did not load · retry
+            </button>
+          )}
+        </span>
+        <span>{rows.length} match{rows.length === 1 ? '' : 'es'}</span>
+        {loading && <span style={{ position: 'absolute', left: 0, bottom: -1, height: 1, width: `${pct}%`, background: 'var(--teal)', transition: 'width var(--dur) var(--ease-out)' }} />}
       </div>
 
       {/* results */}
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {loading && rows.length === 0 && (
           <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: 11 }}>
-            Scanning the universe… first sweep can take a moment.
+            Reading price history… results appear here as each batch finishes.
           </div>
         )}
-        {error && <div style={{ padding: 16, color: '#ff8c42', fontFamily: 'JetBrains Mono, monospace', fontSize: 11 }}>{error}</div>}
-        {!loading && !error && rows.length === 0 && (
+        {!loading && rows.length === 0 && (
           <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: 11 }}>
-            No symbols match these filters.
+            {progress.scanned === 0 ? 'Price history could not be loaded just now. Try again in a minute.' : 'No stocks match these filters. Lower Q or clear a pattern.'}
           </div>
         )}
-        {rows.map(row => {
+        {rows.slice(0, shown).map(row => {
           const det = row.detections[0]
           const up = row.changePct >= 0
           return (
             <button key={row.symbol} onClick={() => focusOnPattern(row.symbol, det.id, tf)} style={{
               display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', cursor: 'pointer',
-              padding: '7px 10px', borderBottom: '1px solid rgba(30,45,61,0.5)', background: 'transparent', border: 'none', borderBottomStyle: 'solid',
+              padding: '7px 10px', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(30,45,61,0.5)',
             }}>
               <div style={{ minWidth: 76, flexShrink: 0 }}>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 12, color: '#fff' }}>{row.symbol.replace('.NS', '')}</div>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 12, color: '#fff' }}>{row.symbol.replace('.NS', '')}{row.country === 'IN' && <span style={{ marginLeft: 4, fontSize: 8, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>NSE</span>}</div>
                 <div style={{ fontSize: 9, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 80 }}>{row.name}</div>
               </div>
               <div style={{ minWidth: 60, flexShrink: 0, fontFamily: 'JetBrains Mono, monospace' }}>
@@ -317,6 +395,7 @@ export default function PatternScreenerPanel() {
               </div>
               <div style={{ minWidth: 64, flexShrink: 0, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>
                 <div style={{ fontSize: 9, fontWeight: 800, color: STATUS_COLOR[det.status], textTransform: 'uppercase' }}>{det.status}</div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{det.ageBar === 0 ? (tf === '1D' ? 'latest candle' : 'this week') : `${det.ageBar} ${tf === '1D' ? 'day' : 'week'}${det.ageBar > 1 ? 's' : ''} ago`}</div>
                 {det.distToBreakoutPct != null && (
                   <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{det.distToBreakoutPct > 0 ? '+' : ''}{det.distToBreakoutPct.toFixed(1)}% to brk</div>
                 )}
@@ -324,6 +403,11 @@ export default function PatternScreenerPanel() {
             </button>
           )
         })}
+        {rows.length > shown && (
+          <button onClick={() => setShown(n => n + PAGE)} style={{ width: '100%', padding: '8px', background: 'transparent', border: 'none', color: 'var(--teal)', cursor: 'pointer', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}>
+            Show {Math.min(PAGE, rows.length - shown)} more of {rows.length - shown}
+          </button>
+        )}
       </div>
     </div>
   )

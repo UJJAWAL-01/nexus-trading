@@ -1,16 +1,18 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Pattern-scan pipeline (spec §4.1) — server-side.
+// Pattern-scan pipeline — server-side.
 //
-// Sweeps the universe on daily/weekly candles, runs the SAME detectAll() the
-// chart uses, and stores compact detections in Redis. A lazy-cron model: the
-// first request after the cache goes stale serves the stale snapshot instantly
-// and refreshes in the background.
+// Runs the SAME detectAll() the chart uses over daily or weekly candles.
+// The universe (US list + the whole Nifty 500) is scanned in chunks of
+// SCAN_CHUNK symbols: one small request per chunk, each cached for hours, so
+// no single request has to sweep 600 symbols and a slow upstream only delays
+// the chunk it affects. Keyless (Yahoo chart data), no cost.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Candle, PatternDetection } from '@/lib/patterns'
 import { detectAll } from '@/lib/patterns'
-import { redis } from '@db/redis'
-import { UNIVERSE, type UniverseEntry } from '@/data/universe'
+import { upstreamFetch } from '@/lib/providers/http'
+import { createCache } from '@/lib/providers/cache'
+import { chunkEntries, UNIVERSE_BY_SYMBOL, type ScanMarket, type UniverseEntry } from '@/data/universe'
 
 export type ScanTf = '1D' | '1W'
 
@@ -31,6 +33,9 @@ export interface ScanDetection {
 
 export interface SymbolScan {
   symbol:     string
+  name:       string
+  sector:     string
+  country:    'US' | 'IN'
   price:      number
   changePct:  number
   spark:      number[]      // downsampled closes (≤48) for the row sparkline
@@ -39,12 +44,14 @@ export interface SymbolScan {
   detections: ScanDetection[]
 }
 
-export interface ScanStore {
-  tf:           ScanTf
-  scannedAt:    number
-  universeSize: number
-  scannedCount: number
-  results:      Record<string, SymbolScan>
+export interface ChunkScan {
+  rows:      SymbolScan[]
+  /** Symbols asked for, and how many returned usable candles. */
+  symbols:   number
+  scanned:   number
+  scannedAt: number
+  /** False when too many symbols failed to load; such a result is not cached. */
+  complete:  boolean
 }
 
 const TF_FETCH: Record<ScanTf, { range: string; interval: string }> = {
@@ -52,33 +59,31 @@ const TF_FETCH: Record<ScanTf, { range: string; interval: string }> = {
   '1W': { range: '5y', interval: '1wk' },
 }
 
-const STORE_TTL = 48 * 3600           // keep snapshot up to 48h so we can serve stale
-const FRESH_MS = 6 * 3600 * 1000      // consider stale after 6h
-const storeKey = (tf: ScanTf) => `patternscan:${tf}`
+const FRESH_MS = 3 * 3600_000
+const chunkCache = createCache<ChunkScan>({ name: 'patternscan', max: 120, staleMs: 24 * 3600_000, distributed: true })
 
-// In-process guard so we don't launch two sweeps at once on the same instance.
-const sweeping = new Set<ScanTf>()
+type FetchResult = { candles: Candle[]; limited: boolean }
 
-async function fetchDaily(symbol: string, tf: ScanTf): Promise<Candle[]> {
+async function fetchCandles(symbol: string, tf: ScanTf): Promise<FetchResult> {
   const { range, interval } = TF_FETCH[tf]
   try {
-    const r = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}`,
-      { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(12_000) },
-    )
-    if (r.status === 429) throw Object.assign(new Error('429'), { rateLimited: true })
-    if (!r.ok) return []
+    const url = new URL(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}`)
+    url.searchParams.set('interval', interval)
+    url.searchParams.set('range', range)
+    const r = await upstreamFetch(url, { provider: 'yahoo', timeoutMs: 8_000, headers: { 'User-Agent': 'Mozilla/5.0' }, cache: 'no-store' })
+    if (r.status === 429) return { candles: [], limited: true }
+    if (!r.ok) return { candles: [], limited: false }
     const j = await r.json()
     const res = j?.chart?.result?.[0]
     const ts = res?.timestamp ?? []
     const q = res?.indicators?.quote?.[0]
-    if (!q) return []
-    return (ts as number[])
+    if (!q) return { candles: [], limited: false }
+    const candles = (ts as number[])
       .map((time, i) => ({ time, open: q.open?.[i], high: q.high?.[i], low: q.low?.[i], close: q.close?.[i], volume: q.volume?.[i] ?? 0 }))
-      .filter((c): c is Candle => c.open != null && c.high != null && c.low != null && c.close != null)
-  } catch (e) {
-    if ((e as { rateLimited?: boolean })?.rateLimited) throw e
-    return []
+      .filter((c): c is Candle => [c.open, c.high, c.low, c.close].every(v => typeof v === 'number' && Number.isFinite(v) && v > 0))
+    return { candles, limited: false }
+  } catch {
+    return { candles: [], limited: false }
   }
 }
 
@@ -90,7 +95,12 @@ function downsample(values: number[], target = 48): number[] {
   return out
 }
 
-function scanSymbol(entry: UniverseEntry, candles: Candle[], tf: ScanTf): SymbolScan | null {
+// How many bars back a pattern may have ended and still be listed.
+const MAX_AGE_GEOMETRIC = 15
+const MAX_AGE_CANDLE    = 2
+
+/** Null when there is too little history or nothing current was detected. */
+export function scanSymbol(entry: UniverseEntry, candles: Candle[], tf: ScanTf): SymbolScan | null {
   if (candles.length < 30) return null
   const result = detectAll(candles, { timeframe: tf })
   const closes = candles.map(c => c.close)
@@ -99,10 +109,16 @@ function scanSymbol(entry: UniverseEntry, candles: Candle[], tf: ScanTf): Symbol
   const lastIndex = candles.length - 1
   const firstIdx = candles[0].time, span = (candles[lastIndex].time - firstIdx) || 1
 
-  const dets: ScanDetection[] = [...result.geometric, ...result.candlestick]
-    .filter(d => d.status !== 'failed')
-    .sort((a, b) => b.confidence - a.confidence)
-    .slice(0, 5)
+  // A screener is about now: drop shapes that finished long ago, and keep
+  // candle signals to the last few bars. Candles are capped separately so a
+  // run of them cannot push a chart pattern off the list.
+  const fresh = (d: PatternDetection, maxAge: number) => d.status !== 'failed' && lastIndex - d.endIndex <= maxAge
+  const byQuality = (a: PatternDetection, b: PatternDetection) => b.confidence - a.confidence
+  const dets: ScanDetection[] = [
+    ...result.geometric.filter(d => fresh(d, MAX_AGE_GEOMETRIC)).sort(byQuality).slice(0, 4),
+    ...result.candlestick.filter(d => fresh(d, MAX_AGE_CANDLE)).sort(byQuality).slice(0, 3),
+  ]
+    .sort(byQuality)
     .map(d => ({
       id: d.id, name: d.name, direction: d.direction, status: d.status, category: d.category,
       confidence: d.confidence, breakoutLevel: d.breakoutLevel, target: d.target,
@@ -117,7 +133,7 @@ function scanSymbol(entry: UniverseEntry, candles: Candle[], tf: ScanTf): Symbol
   if (dets.length === 0) return null
   const spark = downsample(closes)
   return {
-    symbol: entry.symbol,
+    symbol: entry.symbol, name: entry.name, sector: entry.sector, country: entry.country,
     price: +lastClose.toFixed(2),
     changePct: prevClose > 0 ? +((lastClose - prevClose) / prevClose * 100).toFixed(2) : 0,
     spark: spark.map(v => +v.toFixed(2)),
@@ -126,71 +142,56 @@ function scanSymbol(entry: UniverseEntry, candles: Candle[], tf: ScanTf): Symbol
   }
 }
 
-export async function getScanStore(tf: ScanTf): Promise<ScanStore | null> {
-  try { return (await redis.get<ScanStore>(storeKey(tf))) ?? null } catch { return null }
-}
+const CONCURRENCY = 6
 
-export function isStale(store: ScanStore | null): boolean {
-  return !store || Date.now() - store.scannedAt > FRESH_MS
-}
+async function scanEntries(entries: readonly UniverseEntry[], tf: ScanTf): Promise<ChunkScan> {
+  const rows: SymbolScan[] = []
+  let scanned = 0, next = 0
 
-/**
- * Sweep the universe (+ extra watchlist symbols). Batches of 20 with a 250ms
- * stagger and exponential backoff on 429. Writes one snapshot to Redis.
- */
-export async function runSweep(tf: ScanTf, extraSymbols: string[] = []): Promise<ScanStore> {
-  if (sweeping.has(tf)) {
-    const existing = await getScanStore(tf)
-    if (existing) return existing
-  }
-  sweeping.add(tf)
-  try {
-    const seen = new Set<string>()
-    const list: UniverseEntry[] = []
-    for (const e of UNIVERSE) { if (!seen.has(e.symbol)) { seen.add(e.symbol); list.push(e) } }
-    for (const s of extraSymbols) {
-      const sym = s.toUpperCase()
-      if (!seen.has(sym)) { seen.add(sym); list.push({ symbol: sym, name: sym, sector: 'Other', country: sym.endsWith('.NS') ? 'IN' : 'US' }) }
-    }
-
-    const results: Record<string, SymbolScan> = {}
-    let scannedCount = 0
-    const BATCH = 20
-    let backoff = 0
-
-    for (let i = 0; i < list.length; i += BATCH) {
-      const batch = list.slice(i, i + BATCH)
-      try {
-        const settled = await Promise.all(batch.map(async (entry) => {
-          try {
-            const candles = await fetchDaily(entry.symbol, tf)
-            return { entry, scan: candles.length ? scanSymbol(entry, candles, tf) : null }
-          } catch (e) {
-            if ((e as { rateLimited?: boolean })?.rateLimited) throw e
-            return { entry, scan: null }
-          }
-        }))
-        for (const { entry, scan } of settled) {
-          scannedCount++
-          if (scan) results[entry.symbol] = scan
-        }
-        backoff = 0
-      } catch {
-        // 429 somewhere in the batch — back off and retry this batch once.
-        backoff = Math.min(4000, backoff ? backoff * 2 : 750)
-        await new Promise(r => setTimeout(r, backoff))
-        i -= BATCH
-        continue
+  const worker = async () => {
+    while (next < entries.length) {
+      const entry = entries[next++]
+      let res = await fetchCandles(entry.symbol, tf)
+      if (res.limited) {
+        // Rate limited: wait once and retry, then give up on this symbol.
+        await new Promise(r => setTimeout(r, 900))
+        res = await fetchCandles(entry.symbol, tf)
       }
-      await new Promise(r => setTimeout(r, 250))   // stagger between batches
+      if (!res.candles.length) continue
+      scanned++
+      try {
+        const scan = scanSymbol(entry, res.candles, tf)
+        if (scan) rows.push(scan)
+      } catch { /* one bad series must not sink the chunk */ }
     }
-
-    const store: ScanStore = {
-      tf, scannedAt: Date.now(), universeSize: list.length, scannedCount, results,
-    }
-    try { await redis.set(storeKey(tf), store, { ex: STORE_TTL }) } catch { /* non-fatal */ }
-    return store
-  } finally {
-    sweeping.delete(tf)
   }
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, entries.length) }, worker))
+
+  return {
+    rows, symbols: entries.length, scanned, scannedAt: Date.now(),
+    // A few delisted or renamed symbols are normal; most of a chunk failing is an outage.
+    complete: entries.length === 0 || scanned >= entries.length * 0.6,
+  }
+}
+
+async function cached(key: string, entries: readonly UniverseEntry[], tf: ScanTf): Promise<ChunkScan> {
+  const hit = chunkCache.get(key)
+  if (hit) return hit
+  const fresh = await scanEntries(entries, tf)
+  if (fresh.complete) { chunkCache.set(key, fresh, FRESH_MS); return fresh }
+  // Upstream trouble: prefer the last good scan over a thin one.
+  return chunkCache.getStale(key) ?? fresh
+}
+
+/** One fixed chunk of a market's universe. */
+export function scanChunk(tf: ScanTf, market: ScanMarket, index: number): Promise<ChunkScan> {
+  return cached(`${tf}:${market}:${index}`, chunkEntries(market, index), tf)
+}
+
+/** Ad-hoc symbols (the user's watchlist names that are outside the universe). */
+export function scanSymbols(tf: ScanTf, symbols: readonly string[]): Promise<ChunkScan> {
+  const entries = symbols.map(s => UNIVERSE_BY_SYMBOL[s] ?? {
+    symbol: s, name: s, sector: 'Other', country: /\.(NS|BO)$/.test(s) ? 'IN' as const : 'US' as const,
+  })
+  return cached(`${tf}:x:${symbols.join(',')}`, entries, tf)
 }

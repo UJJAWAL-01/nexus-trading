@@ -14,12 +14,13 @@ interface StreamResult {
   accent:      string
   videoId:     string
   embedUrl:    string
+  channelEmbed: string
   watchUrl:    string
   description: string
   isVerified:  boolean
   isLive:      boolean
   title:       string
-  status:      'live' | 'offline'
+  status:      'live' | 'offline' | 'unknown'
 }
 
 interface APIResponse {
@@ -42,10 +43,18 @@ export default function LiveFinanceVideoPanel() {
   const [region,       setRegion]       = useState<Region>('ALL')
   const [active,       setActive]       = useState<StreamResult | null>(null)
   const [liveCount,    setLiveCount]    = useState(0)
-  const [embedFailed,  setEmbedFailed]  = useState(false)
-  const [useFallback,  setUseFallback]  = useState(false)
-  const [lastRefresh,  setLastRefresh]  = useState<string>('')
-  const retryCountRef = useRef(0)
+  // Per channel: which player is in use. Unset = the stream found by the server,
+  // 'channel' = the channel's own live embed, 'failed' = neither would play here.
+  const [tier,        setTier]        = useState<Record<string, 'channel' | 'failed'>>({})
+  const [notice,      setNotice]      = useState('')
+  const [lastRefresh, setLastRefresh] = useState<string>('')
+  const [nonce,       setNonce]       = useState(0)
+  const frameRef = useRef<HTMLIFrameElement>(null)
+  const tierRef  = useRef(tier)
+  tierRef.current = tier
+
+  // A channel can be played unless it is known to be off air or both players failed.
+  const playable = useCallback((c: StreamResult) => c.status !== 'offline' && tierRef.current[c.channelId] !== 'failed', [])
 
   const fetchStreams = useCallback(async (r: Region) => {
     setLoading(true)
@@ -58,19 +67,18 @@ export default function LiveFinanceVideoPanel() {
       setLastRefresh(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }))
 
       setActive(prev => {
-        if (prev) {
-          const same = channels.find(c => c.channelId === prev.channelId)
-          return same ?? channels[0] ?? null
-        }
-        // Auto-select first verified/live channel
-        return channels.find(c => c.isVerified) ?? channels[0] ?? null
+        const same = prev ? channels.find(c => c.channelId === prev.channelId) : undefined
+        // Keep the channel being watched while it can still play; otherwise move
+        // to the first one that can, so something is always on screen.
+        if (same && playable(same)) return same
+        return channels.find(playable) ?? same ?? channels[0] ?? null
       })
     } catch {
       setStreams([])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [playable])
 
   useEffect(() => {
     fetchStreams(region)
@@ -78,35 +86,67 @@ export default function LiveFinanceVideoPanel() {
     return () => clearInterval(id)
   }, [region, fetchStreams])
 
-  // Reset error state when active channel changes
-  useEffect(() => {
-    setEmbedFailed(false)
-    setUseFallback(false)
-    retryCountRef.current = 0
-  }, [active?.channelId])
-
   const displayed = region === 'ALL' ? streams : streams.filter(s => s.region === region)
 
-  // Determine which embed URL to actually use
-  // A channel that is not broadcasting gets a plain off-air notice, never a dead player.
-  const offAir = !!active && !active.isLive
+  const activeTier  = active ? tier[active.channelId] : undefined
+  const offAir      = !!active && active.status === 'offline'
+  const embedFailed = activeTier === 'failed'
   const embedSrc = (() => {
-    if (!active || offAir) return ''
-    if (embedFailed) return ''  // Both tiers failed
-    if (useFallback) {
-      // Tier 2: channel live_stream embed
-      return `https://www.youtube.com/embed/live_stream?channel=${active.channelId}&autoplay=1&mute=1&rel=0`
-    }
-    return active.embedUrl  // Tier 1: direct video ID
+    if (!active || offAir || embedFailed) return ''
+    const base = activeTier === 'channel' || !active.embedUrl ? active.channelEmbed : active.embedUrl
+    // enablejsapi lets the player tell this panel when a stream refuses to play.
+    return base ? `${base}&enablejsapi=1&origin=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}` : ''
   })()
 
-  const handleTryFallback = () => {
-    if (retryCountRef.current === 0) {
-      setUseFallback(true)
-      retryCountRef.current = 1
-    } else {
-      setEmbedFailed(true)
+  // The player could not play this stream: try the channel's own live embed,
+  // and if that fails too, move on to the next channel that can play.
+  const handlePlayerError = useCallback(() => {
+    if (!active) return
+    const id = active.channelId
+    const usingChannel = tierRef.current[id] === 'channel' || !active.embedUrl
+    if (!usingChannel) { setTier(t => ({ ...t, [id]: 'channel' })); return }
+    const nextTier = { ...tierRef.current, [id]: 'failed' as const }
+    tierRef.current = nextTier
+    setTier(nextTier)
+    const next = streams.find(c => c.channelId !== id && playable(c))
+    if (next) { setNotice(`${active.shortName} cannot be played here right now. Switched to ${next.shortName}.`); setActive(next) }
+  }, [active, streams, playable])
+
+  // Listen to the YouTube player (its documented postMessage events).
+  useEffect(() => {
+    if (!embedSrc) return
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== 'https://www.youtube.com' || e.source !== frameRef.current?.contentWindow) return
+      let msg: { event?: string; info?: unknown } | null = null
+      try { msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data } catch { return }
+      if (msg?.event === 'onError') handlePlayerError()
     }
+    window.addEventListener('message', onMessage)
+    // The player only reports events after it is asked to; ask a few times while it starts up.
+    let tries = 0
+    const ask = () => {
+      const w = frameRef.current?.contentWindow
+      if (!w) return
+      try {
+        w.postMessage(JSON.stringify({ event: 'listening', id: 'nexus-tv', channel: 'widget' }), 'https://www.youtube.com')
+        w.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onError'], id: 'nexus-tv', channel: 'widget' }), 'https://www.youtube.com')
+      } catch {}
+    }
+    const timer = setInterval(() => { ask(); if (++tries >= 8) clearInterval(timer) }, 1000)
+    return () => { window.removeEventListener('message', onMessage); clearInterval(timer) }
+  }, [embedSrc, nonce, handlePlayerError])
+
+  useEffect(() => {
+    if (!notice) return
+    const t = setTimeout(() => setNotice(''), 6000)
+    return () => clearTimeout(t)
+  }, [notice])
+
+  const pick = (stream: StreamResult) => {
+    setNotice('')
+    // Picking a channel by hand gives it a fresh try.
+    setTier(t => { const n = { ...t }; delete n[stream.channelId]; return n })
+    setActive(stream)
   }
 
   return (
@@ -128,7 +168,7 @@ export default function LiveFinanceVideoPanel() {
             fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
             flexShrink: 0,
           }}>
-            {loading ? '···' : `${liveCount} LIVE`}
+            {loading && !streams.length ? '···' : `${liveCount || streams.filter(c => c.status !== 'offline').length} LIVE`}
           </span>
         </div>
         <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
@@ -158,7 +198,7 @@ export default function LiveFinanceVideoPanel() {
         scrollbarWidth: 'none',
         WebkitOverflowScrolling: 'touch',
       }}>
-        {loading
+        {loading && !streams.length
           ? <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', padding: '4px' }}>
               Scanning channels...
             </div>
@@ -167,8 +207,8 @@ export default function LiveFinanceVideoPanel() {
             return (
               <button
                 key={stream.channelId}
-                onClick={() => setActive(stream)}
-                title={stream.isLive ? stream.title : `${stream.channelName} is off air`}
+                onClick={() => pick(stream)}
+                title={stream.status === 'offline' ? `${stream.channelName} is off air` : stream.title}
                 style={{
                   padding:    '5px 10px',
                   borderRadius:'4px',
@@ -188,8 +228,8 @@ export default function LiveFinanceVideoPanel() {
                 {/* Status dot */}
                 <div style={{
                   width: '5px', height: '5px', borderRadius: '50%', flexShrink: 0,
-                  background: stream.isLive ? '#00c97a' : '#4a6070',
-                  animation: stream.isLive ? 'pulseDot 2s ease-in-out infinite' : 'none',
+                  background: stream.status === 'offline' || tier[stream.channelId] === 'failed' ? '#4a6070' : '#00c97a',
+                  animation: stream.status === 'live' ? 'pulseDot 2s ease-in-out infinite' : 'none',
                 }} />
                 <span style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>
                   {FLAG[stream.region] ?? '🌐'} {stream.shortName}
@@ -206,7 +246,9 @@ export default function LiveFinanceVideoPanel() {
         {/* Embed iframe */}
         {active && !embedFailed && embedSrc && (
           <iframe
-            key={`${active.channelId}-${useFallback ? 'fb' : 'primary'}`}
+            ref={frameRef}
+            key={`${active.channelId}-${activeTier ?? 'video'}-${nonce}`}
+            title={`${active.channelName} live`}
             src={embedSrc}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
@@ -215,7 +257,7 @@ export default function LiveFinanceVideoPanel() {
         )}
 
         {/* Error state — both tiers failed */}
-        {(embedFailed || offAir || (!active && !loading)) && !loading && (
+        {(embedFailed || offAir || (!active && !loading)) && (
           <div style={{
             position:       'absolute', inset: 0,
             display:        'flex', flexDirection: 'column',
@@ -230,31 +272,27 @@ export default function LiveFinanceVideoPanel() {
             }}>
               {active
                 ? offAir
-                  ? `${active.channelName} is not broadcasting live right now. Pick a channel with a green dot, or check its page on YouTube.`
-                  : `${active.channelName} could not be played here. You can watch it directly on YouTube.`
-                : 'Select a channel above to start watching.'}
+                  ? `${active.channelName} is not broadcasting live right now. Pick a channel with a green dot.`
+                  : `${active.channelName} cannot be played inside the panel right now. Pick another channel.`
+                : 'No channels could be loaded. They are checked again every few minutes.'}
             </div>
-            {active && (
-              <a
-                href={active.watchUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+            {active && embedFailed && (
+              <button
+                onClick={() => pick(active)}
                 style={{
-                  padding: '10px 24px', background: 'rgba(255,0,0,0.9)', color: '#fff',
-                  borderRadius: '4px', fontSize: '13px',
-                  fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
-                  textDecoration: 'none', letterSpacing: '0.06em',
-                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '8px 20px', background: 'transparent', color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.25)', borderRadius: '4px', fontSize: '12px',
+                  fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, letterSpacing: '0.06em', cursor: 'pointer',
                 }}
               >
-                ▶ {offAir ? 'OPEN' : 'WATCH'} {active.shortName} ON YOUTUBE
-              </a>
+                ↺ TRY AGAIN
+              </button>
             )}
           </div>
         )}
 
         {/* Loading state */}
-        {loading && (
+        {loading && !active && (
           <div style={{
             position: 'absolute', inset: 0,
             display: 'flex', flexDirection: 'column',
@@ -285,38 +323,37 @@ export default function LiveFinanceVideoPanel() {
               <span style={{ fontSize: '11px', color: '#fff', fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
                 {active.channelName}
               </span>
-              {active.isVerified && (
+              {active.status === 'live' && (
                 <span style={{ fontSize: '11px', color: '#00c97a', fontFamily: 'JetBrains Mono, monospace' }}>✓ LIVE</span>
               )}
             </div>
 
             <div style={{ position: 'absolute', bottom: '10px', right: '10px', display: 'flex', gap: '5px' }}>
               <button
-                onClick={handleTryFallback}
+                onClick={() => setNonce(n => n + 1)}
                 style={{
                   background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.15)',
                   color: 'var(--text-muted)', padding: '4px 9px', borderRadius: '3px',
                   fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer',
                 }}
                 title="Reload stream"
+                aria-label="Reload stream"
               >
                 ↺
               </button>
-              <a
-                href={active.watchUrl} target="_blank" rel="noopener noreferrer"
-                style={{
-                  background: 'rgba(255,0,0,0.85)', color: '#fff',
-                  padding: '4px 9px', borderRadius: '3px',
-                  fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
-                  textDecoration: 'none',
-                }}
-              >
-                ▶ YT
-              </a>
             </div>
           </>
         )}
       </div>
+
+      {notice && (
+        <div className="nx-fade" role="status" style={{
+          padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
+          fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace',
+        }}>
+          {notice}
+        </div>
+      )}
 
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <div style={{
@@ -324,7 +361,7 @@ export default function LiveFinanceVideoPanel() {
         fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <span>{streams.length} channels · {liveCount} live now · green dot = on air</span>
+        <span>{streams.length} channels · plays here, muted until you unmute · green dot = on air</span>
         <span style={{ color: 'var(--text-muted)' }}>{lastRefresh ? `updated ${lastRefresh}` : ''}</span>
       </div>
 

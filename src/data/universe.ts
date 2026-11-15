@@ -1,11 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Pattern-screener universe (spec §4.1).
 //
-// A curated, sector-tagged slice of the S&P 500 (US) + Nifty 500 (.NS, India).
-// Refresh quarterly. The scan pipeline treats this as the base set and merges in
-// the user's watchlist dynamically, so it scales to the full ~1000-name universe
-// by extending these arrays — no code changes needed.
+// US: a curated, sector-tagged slice of the S&P 500 plus index ETFs.
+// India: every Nifty 500 constituent (src/data/nifty500.ts, generated).
+// The scan pipeline also merges in the user's watchlist.
 // ─────────────────────────────────────────────────────────────────────────────
+
+import { NIFTY500 } from '@/data/nifty500'
 
 export interface UniverseEntry {
   symbol:  string
@@ -66,38 +67,8 @@ const US: UniverseEntry[] = [
   ['IWM', 'Russell 2000 ETF', 'Index'], ['DIA', 'Dow Jones ETF', 'Index'],
 ].map(([symbol, name, sector]) => ({ symbol, name, sector, country: 'US' as const }))
 
-const IN: UniverseEntry[] = [
-  ['RELIANCE.NS', 'Reliance Industries', 'Energy'],
-  ['TCS.NS', 'Tata Consultancy Services', 'Technology'],
-  ['INFY.NS', 'Infosys', 'Technology'],
-  ['HDFCBANK.NS', 'HDFC Bank', 'Financials'],
-  ['ICICIBANK.NS', 'ICICI Bank', 'Financials'],
-  ['SBIN.NS', 'State Bank of India', 'Financials'],
-  ['AXISBANK.NS', 'Axis Bank', 'Financials'],
-  ['KOTAKBANK.NS', 'Kotak Mahindra Bank', 'Financials'],
-  ['BHARTIARTL.NS', 'Bharti Airtel', 'Communication'],
-  ['ITC.NS', 'ITC', 'Consumer Staples'],
-  ['HINDUNILVR.NS', 'Hindustan Unilever', 'Consumer Staples'],
-  ['LT.NS', 'Larsen & Toubro', 'Industrials'],
-  ['WIPRO.NS', 'Wipro', 'Technology'],
-  ['HCLTECH.NS', 'HCL Technologies', 'Technology'],
-  ['MARUTI.NS', 'Maruti Suzuki', 'Consumer Discretionary'],
-  ['TATAMOTORS.NS', 'Tata Motors', 'Consumer Discretionary'],
-  ['SUNPHARMA.NS', 'Sun Pharmaceutical', 'Health Care'],
-  ['ASIANPAINT.NS', 'Asian Paints', 'Materials'],
-  ['TITAN.NS', 'Titan Company', 'Consumer Discretionary'],
-  ['BAJFINANCE.NS', 'Bajaj Finance', 'Financials'],
-  ['ADANIENT.NS', 'Adani Enterprises', 'Industrials'],
-  ['ONGC.NS', 'Oil & Natural Gas Corp', 'Energy'],
-  ['NTPC.NS', 'NTPC', 'Utilities'],
-  ['POWERGRID.NS', 'Power Grid Corp', 'Utilities'],
-  ['TATASTEEL.NS', 'Tata Steel', 'Materials'],
-  ['JSWSTEEL.NS', 'JSW Steel', 'Materials'],
-  ['ULTRACEMCO.NS', 'UltraTech Cement', 'Materials'],
-  ['NESTLEIND.NS', 'Nestle India', 'Consumer Staples'],
-  ['M&M.NS', 'Mahindra & Mahindra', 'Consumer Discretionary'],
-  ['DRREDDY.NS', "Dr. Reddy's Labs", 'Health Care'],
-].map(([symbol, name, sector]) => ({ symbol, name, sector, country: 'IN' as const }))
+// India: the full Nifty 500, generated from the NSE constituent list.
+const IN: UniverseEntry[] = NIFTY500.map(([symbol, name, sector]) => ({ symbol: `${symbol}.NS`, name, sector, country: 'IN' as const }))
 
 export const UNIVERSE: UniverseEntry[] = [...US, ...IN]
 
@@ -105,3 +76,14 @@ export const UNIVERSE_BY_SYMBOL: Record<string, UniverseEntry> =
   Object.fromEntries(UNIVERSE.map(e => [e.symbol, e]))
 
 export const SECTORS: string[] = [...new Set(UNIVERSE.map(e => e.sector))].sort()
+
+// ── Scan chunks ──────────────────────────────────────────────────────────────
+// The screener scans a market in fixed-size chunks so each request stays small
+// and each chunk can be cached on its own. Server and browser share this maths.
+export type ScanMarket = 'US' | 'IN'
+export const SCAN_CHUNK = 30
+
+export const marketEntries = (market: ScanMarket): UniverseEntry[] => UNIVERSE.filter(e => e.country === market)
+export const chunkCount = (market: ScanMarket): number => Math.ceil(marketEntries(market).length / SCAN_CHUNK)
+export const chunkEntries = (market: ScanMarket, index: number): UniverseEntry[] =>
+  marketEntries(market).slice(index * SCAN_CHUNK, (index + 1) * SCAN_CHUNK)
