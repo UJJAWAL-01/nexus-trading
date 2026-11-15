@@ -14,7 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { BoundedMap } from '@/lib/providers/cache'
 
 const dev = process.env.NODE_ENV !== 'production'
-const SEC_UA = 'NEXUS Trading Intelligence nexus-app/1.0 contact@nexustrading.app'
+const SEC_UA = `NEXUS Trading Intelligence nexus-app/1.0 ${process.env.CONTACT_EMAIL?.trim() || 'contact@nexustrading.app'}`
 const ONE_HOUR   = 3_600_000
 const FILING_TTL = 24 * ONE_HOUR
 

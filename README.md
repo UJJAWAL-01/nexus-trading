@@ -83,7 +83,7 @@ NEXUS aggregates public and free-tier sources. The license covers the NEXUS code
 | NSE / BSE India (public site endpoints) | India indices, options, deals, FII/DII | none |
 | CBOE | US options chains | none |
 | Finnhub (optional, free) | Trailing-twelve-month ratios and logo in Stock Profile, extra news | `FINNHUB_API_KEY` |
-| NewsAPI (optional, free) | Extra news coverage | `NEWS_API_KEY` |
+| NewsAPI (optional, free) | Extra news coverage. Its free plan is licensed for development and testing only, so do not set this key on a public deployment | `NEWS_API_KEY` |
 | Alpha Vantage (optional, free) | News sentiment | `ALPHA_VANTAGE_KEY` |
 | Groq (optional, free) | One-line AI context on news headlines | `GROQ_API_KEY` |
 
@@ -173,6 +173,12 @@ Copyright © 2025–2026 Ujjawal Patel and contributors.
 
 NEXUS is free software under the [GNU Affero General Public License v3.0](LICENSE). In short: you may use, modify and redistribute it, and if you let others use a modified version over a network you must offer them its source code. See [NOTICE](NOTICE).
 
-Third-party market data, logos and trademarks belong to their owners and are not covered by this license.
+Third-party market data, logos and trademarks belong to their owners and are not covered by this license. See [NOTICE](NOTICE) for third-party software attributions.
+
+## Disclaimer
+
+NEXUS is an independent, non-commercial project for education and research. It is **not financial advice**, and it is **not affiliated with or endorsed by** Bloomberg, TradingView, Yahoo, Nasdaq, CBOE, NSE, BSE, FINRA, the CFTC, the SEC, YouTube, or any data provider or broadcaster it shows. Data can be delayed, incomplete or wrong.
+
+Several sources are public but unofficial (see [Data sources](#data-sources)). They are used at low volume, with caching, for personal and educational use. If you run your own copy, you are responsible for following each provider's terms, and commercial use will usually need a licensed data feed.
 
 Contact: [nexus.trading.dev@gmail.com](mailto:nexus.trading.dev@gmail.com)

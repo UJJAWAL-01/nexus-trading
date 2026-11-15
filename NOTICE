@@ -13,3 +13,40 @@ more details.
 Market data shown by NEXUS comes from third-party providers. That data is NOT
 covered by this license; each provider's own terms apply. See README.md
 ("Data sources") for the list.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY SOFTWARE
+
+NEXUS is built with open-source software. Each component remains under its own
+license; the full license texts ship with the packages in node_modules.
+
+  TradingView Lightweight Charts(TM)          Apache License 2.0
+    Copyright (c) 2025 TradingView, Inc.  https://www.tradingview.com/
+    Used for the price chart. Attribution and a link to TradingView are shown
+    in the application, as that library's notice requires.
+
+  Next.js, React, SWR, Zustand, Recharts,
+  react-grid-layout, react-resizable,
+  @upstash/redis                              MIT License
+  lucide-react                                ISC License
+  sharp / libvips (image optimisation,
+  pulled in by Next.js)                       Apache-2.0 / LGPL-3.0-or-later
+
+Fonts: JetBrains Mono and Syne, SIL Open Font License 1.1, served by Google Fonts.
+
+--------------------------------------------------------------------------------
+TRADEMARKS AND AFFILIATION
+
+NEXUS is an independent, non-commercial, educational project. It is not
+affiliated with, endorsed by, or sponsored by Bloomberg, TradingView, Yahoo,
+Nasdaq, CBOE, NSE, BSE, FINRA, the CFTC, the SEC, the Federal Reserve, YouTube,
+or any broadcaster or data provider named in the application. All product
+names, logos and trademarks belong to their owners and are used only to
+identify the source of data or content.
+
+--------------------------------------------------------------------------------
+NOT FINANCIAL ADVICE
+
+NEXUS is provided for education and research. Nothing in it is investment,
+legal or tax advice, or a recommendation to buy or sell any security. Data may
+be delayed, incomplete or wrong.

@@ -210,6 +210,16 @@ export default function Footer() {
             <div style={{ fontSize: '10px' }}>
               Open source · GNU AGPL-3.0 · Data should not be gatekept.
             </div>
+            {/* The AGPL requires offering the source to everyone who uses the app over a network. */}
+            <div style={{ fontSize: '10px', marginTop: 2 }}>
+              <a href="https://github.com/UJJAWAL-01/nexus-trading" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal)' }}>Source code</a>
+              {' · '}
+              Charts by{' '}
+              <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)' }}>TradingView Lightweight Charts™</a>
+            </div>
+            <div style={{ fontSize: '10px', marginTop: 2 }}>
+              Independent educational project. Not affiliated with any data provider, exchange or broadcaster shown.
+            </div>
           </div>
         </div>
 

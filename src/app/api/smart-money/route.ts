@@ -140,7 +140,7 @@ async function resolveTickers(holdings: Holding[]): Promise<void> {
 // ── SEC EDGAR 13F parser ───────────────────────────────────────────────────────
 
 const EDGAR_HEADERS = {
-  'User-Agent': 'NEXUS-Trading-Research/1.0 research@nexustrading.app',
+  'User-Agent': `NEXUS-Trading-Research/1.0 ${process.env.CONTACT_EMAIL?.trim() || 'research@nexustrading.app'}`,
   Accept: 'application/json, text/plain, */*',
 }
 

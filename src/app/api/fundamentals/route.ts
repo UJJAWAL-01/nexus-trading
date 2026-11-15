@@ -31,7 +31,9 @@ import { createCache } from '@/lib/providers/cache'
 import { cleanSymbol } from '@/lib/providers/symbols'
 import { buildPeriods, sicToSector, type CompanyFacts, type FundamentalsResponse } from '@/lib/sec-fundamentals'
 
-const SEC_UA = 'NEXUS Trading Intelligence nexus-app/1.0 contact@nexustrading.app'
+// SEC EDGAR asks automated clients to send a real contact address. Operators
+// set CONTACT_EMAIL; the default is the project's own address.
+const SEC_UA = `NEXUS Trading Intelligence nexus-app/1.0 ${process.env.CONTACT_EMAIL?.trim() || 'contact@nexustrading.app'}`
 const SEC_HEADERS = { 'User-Agent': SEC_UA, Accept: 'application/json' }
 
 // ── SEC lookups ───────────────────────────────────────────────────────────────

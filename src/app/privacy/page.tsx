@@ -52,7 +52,7 @@ export default function PrivacyPage() {
           heading: '4. Server-Side Data Processing',
           body: (
             <p>
-              When you use NEXUS, your browser sends requests to our API server (hosted on AWS Amplify). These requests include stock ticker symbols you query, news search terms, and options data requests. These requests are processed to fetch data from third-party providers and are not stored on our servers beyond the in-memory cache used to reduce API calls. Server logs (which may include IP addresses) are managed by AWS and retained per AWS's standard log retention policies.
+              When you use NEXUS, your browser sends requests to our API server (hosted on Vercel). These requests include stock ticker symbols you query, news search terms, and options data requests. These requests are processed to fetch data from third-party providers and are not stored on our servers beyond the in-memory cache used to reduce API calls. Server logs (which may include IP addresses) are managed by the hosting provider and retained under its standard log retention policy.
             </p>
           ),
         },
@@ -67,9 +67,14 @@ export default function PrivacyPage() {
                 <li>Federal Reserve Economic Data — FRED (macro indicators)</li>
                 <li>SEC EDGAR (financial filings)</li>
                 <li>NSE India (Indian market data)</li>
+                <li>Nasdaq (earnings and IPO calendars)</li>
+                <li>CBOE (delayed options quotes)</li>
+                <li>CFTC and FINRA (futures positioning, short-sale volume)</li>
+                <li>Public news RSS feeds (headlines and links to the original articles)</li>
                 <li>NewsAPI (financial news)</li>
                 <li>Groq (optional AI news context, only if the operator enables it — only ticker symbols and news headlines are sent, not personal data)</li>
                 <li>YouTube (embedded live financial news streams)</li>
+                <li>Google Fonts (typefaces; your browser requests them from Google, which sees your IP address)</li>
               </ul>
             </>
           ),
