@@ -315,7 +315,7 @@ export default function TopSearchBar() {
           outline: none;
           color: #fff;
           font-family: var(--font-data);
-          font-size: 12px;
+          font-size: 13px;
           letter-spacing: 0.04em;
           padding: 0;
         }
@@ -327,7 +327,7 @@ export default function TopSearchBar() {
         .top-search-clear {
           background: none; border: none;
           color: var(--text-muted);
-          font-size: 11px;
+          font-size: 13px;
           cursor: pointer;
           padding: 2px 4px;
           flex-shrink: 0;
@@ -342,7 +342,7 @@ export default function TopSearchBar() {
         .top-search-foot kbd,
         .top-search-status kbd {
           font-family: var(--font-data);
-          font-size: 9px;
+          font-size: 11px;
           background: rgba(255,255,255,0.06);
           border: 1px solid var(--border);
           border-radius: 3px;
@@ -373,7 +373,7 @@ export default function TopSearchBar() {
         }
 
         .top-search-section {
-          font-size: 9px;
+          font-size: 11px;
           letter-spacing: 0.14em;
           color: var(--text-muted);
           padding: 8px 12px 4px;
@@ -401,14 +401,14 @@ export default function TopSearchBar() {
           flex: 1;
         }
         .row-symbol {
-          font-size: 13px;
+          font-size: 14px;
           color: #fff;
           font-weight: 700;
           letter-spacing: 0.04em;
           flex-shrink: 0;
         }
         .row-name {
-          font-size: 11px;
+          font-size: 13px;
           color: var(--text-2);
           overflow: hidden;
           text-overflow: ellipsis;
@@ -421,7 +421,7 @@ export default function TopSearchBar() {
           flex-shrink: 0;
         }
         .row-exch, .row-type, .row-tag {
-          font-size: 9px;
+          font-size: 11px;
           padding: 2px 6px;
           border-radius: 3px;
           letter-spacing: 0.06em;
@@ -444,7 +444,7 @@ export default function TopSearchBar() {
 
         .top-search-status {
           padding: 14px 12px;
-          font-size: 11px;
+          font-size: 13px;
           color: var(--text-muted);
           text-align: center;
           line-height: 1.5;
@@ -454,14 +454,14 @@ export default function TopSearchBar() {
         .top-search-foot {
           padding: 7px 12px;
           border-top: 1px solid var(--border);
-          font-size: 10px;
+          font-size: 12px;
           color: var(--text-muted);
           display: flex;
           justify-content: space-between;
           align-items: center;
           background: rgba(0,0,0,0.2);
         }
-        .top-search-foot kbd { font-size: 9px; }
+        .top-search-foot kbd { font-size: 11px; }
 
         /* Hide the ⌘K affordance on touch / narrower viewports */
         @media (max-width: 1099px) {
@@ -471,14 +471,14 @@ export default function TopSearchBar() {
         /* Tablet & under — slightly tighter */
         @media (max-width: 899px) {
           .top-search-wrap { max-width: 320px; }
-          .top-search input { font-size: 12px; }
+          .top-search input { font-size: 13px; }
         }
 
         /* Mobile — full width, larger tap target */
         @media (max-width: 639px) {
           .top-search-wrap { max-width: none; }
           .top-search { height: 34px; }
-          .top-search input { font-size: 13px; }
+          .top-search input { font-size: 14px; }
         }
       `}</style>
     </div>

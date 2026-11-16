@@ -27,8 +27,8 @@ export default function ContactPage() {
             NEX<span style={{ color: 'var(--amber)' }}>US</span>
           </span>
         </Link>
-        <span style={{ color: 'var(--border)', fontSize: '14px' }}>›</span>
-        <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Contact</span>
+        <span style={{ color: 'var(--border)', fontSize: '15px' }}>›</span>
+        <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Contact</span>
       </div>
 
       <div style={{ maxWidth: '700px', margin: '0 auto', padding: '48px 24px 80px' }}>
@@ -41,7 +41,7 @@ export default function ContactPage() {
           letterSpacing: '-0.02em',
         }}>Contact Us</h1>
 
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: 1.7, marginBottom: '40px', borderBottom: '1px solid var(--border)', paddingBottom: '24px' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: 1.7, marginBottom: '40px', borderBottom: '1px solid var(--border)', paddingBottom: '24px' }}>
           NEXUS is built by a solo developer. I read every message — please be specific about your issue or question so I can help you faster.
         </p>
 
@@ -53,7 +53,7 @@ export default function ContactPage() {
           padding: '28px',
           marginBottom: '24px',
         }}>
-          <h2 style={{ color: 'var(--amber)', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.1em', fontWeight: 700, marginBottom: '16px' }}>
+          <h2 style={{ color: 'var(--amber)', textTransform: 'uppercase', fontSize: '13px', letterSpacing: '0.1em', fontWeight: 700, marginBottom: '16px' }}>
             General & Support
           </h2>
           <a href="mailto:nexus.trading.dev@gmail.com" style={{
@@ -65,7 +65,7 @@ export default function ContactPage() {
           }}>
             nexus.trading.dev@gmail.com
           </a>
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '10px', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '10px', lineHeight: 1.6 }}>
             For bug reports, data issues, feature requests, partnership inquiries, and general questions.
           </p>
         </div>
@@ -96,10 +96,10 @@ export default function ContactPage() {
             padding: '20px',
             marginBottom: '16px',
           }}>
-            <h3 style={{ color: item.color, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: '10px' }}>
+            <h3 style={{ color: item.color, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: '10px' }}>
               {item.title}
             </h3>
-            <ul style={{ color: 'var(--text-muted)', fontSize: '13px', paddingLeft: '18px', lineHeight: 1.8 }}>
+            <ul style={{ color: 'var(--text-muted)', fontSize: '14px', paddingLeft: '18px', lineHeight: 1.8 }}>
               {item.tips.map((tip, j) => <li key={j}>{tip}</li>)}
             </ul>
           </div>
@@ -110,7 +110,7 @@ export default function ContactPage() {
           padding: '16px 20px',
           background: 'rgba(0,0,0,0.3)',
           borderRadius: '6px',
-          fontSize: '13px',
+          fontSize: '14px',
           color: 'var(--text-muted)',
           lineHeight: 1.7,
         }}>
@@ -118,7 +118,7 @@ export default function ContactPage() {
         </div>
 
         <div style={{ marginTop: '32px' }}>
-          <Link href="/" style={{ color: 'var(--teal)', textDecoration: 'none', fontSize: '13px' }}>
+          <Link href="/" style={{ color: 'var(--teal)', textDecoration: 'none', fontSize: '14px' }}>
             ← Back to Dashboard
           </Link>
         </div>

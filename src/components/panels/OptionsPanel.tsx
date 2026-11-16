@@ -390,7 +390,7 @@ export default function OptionsPanel() {
         <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
           <div className="dot" style={{ background: acent }} />
           OPTIONS ANALYTICS
-          <span style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)' }}>
+          <span style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)' }}>
             BSM · Newton-Raphson IV · Greeks
           </span>
           {guide.button}
@@ -399,7 +399,7 @@ export default function OptionsPanel() {
           {(['chain','oi'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               padding:'2px 10px', borderRadius:'3px', cursor:'pointer',
-              fontFamily:'var(--font-data)', fontSize:'11px',
+              fontFamily:'var(--font-data)', fontSize:'13px',
               border:`1px solid ${tab===t ? acent : 'var(--border)'}`,
               background: tab===t ? acent+'1a' : 'transparent',
               color: tab===t ? acent : 'var(--text-muted)',
@@ -420,7 +420,7 @@ export default function OptionsPanel() {
             ? 'rgba(240,165,0,0.06)'
             : nseStatus.isOpen ? 'rgba(0,201,122,0.06)' : 'rgba(255,69,96,0.06)',
           display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap',
-          fontSize:'11px', fontFamily:'var(--font-data)',
+          fontSize:'13px', fontFamily:'var(--font-data)',
         }}>
           {market === 'IN' && (
             <>
@@ -451,7 +451,7 @@ export default function OptionsPanel() {
                   onClick={() => load(market, symbol, expiry || undefined)}
                   style={{
                     padding:'1px 7px', borderRadius:'2px', cursor:'pointer',
-                    fontFamily:'var(--font-data)', fontSize:'10px',
+                    fontFamily:'var(--font-data)', fontSize:'12px',
                     border:'1px solid var(--amber)', background:'rgba(240,165,0,0.1)', color:'var(--amber)',
                   }}
                 >
@@ -461,7 +461,7 @@ export default function OptionsPanel() {
             </>
           )}
           {!data?.staleData && market === 'IN' && data && (
-            <span style={{ marginLeft:'auto', color:'var(--text-muted)', fontSize:'10px' }}>
+            <span style={{ marginLeft:'auto', color:'var(--text-muted)', fontSize:'12px' }}>
               Real-time · {new Date(data.fetchedAt).toLocaleTimeString('en-US', { timeZone:'Asia/Kolkata', hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' })} IST
             </span>
           )}
@@ -479,7 +479,7 @@ export default function OptionsPanel() {
           {(['US','IN'] as const).map(m => (
             <button key={m} onClick={() => onMarket(m)} style={{
               padding:'3px 10px', borderRadius:'3px', cursor:'pointer',
-              fontFamily:'var(--font-data)', fontSize:'11px', fontWeight:700,
+              fontFamily:'var(--font-data)', fontSize:'13px', fontWeight:700,
               border:`1px solid ${market===m ? acent : 'var(--border)'}`,
               background: market===m ? acent+'15' : 'transparent',
               color: market===m ? acent : 'var(--text-muted)',
@@ -499,7 +499,7 @@ export default function OptionsPanel() {
             onKeyDown={e => { if (e.key === 'Enter' && symInput) onSymbol(symInput) }}
             placeholder={market === 'IN' ? 'NIFTY, RELIANCE…' : 'SPY, AAPL, SPX…'}
             style={{
-              width:'100%', fontFamily:'var(--font-data)', fontSize:'11px',
+              width:'100%', fontFamily:'var(--font-data)', fontSize:'13px',
               padding:'4px 8px', background:'var(--bg-deep)',
               border:`1px solid ${acent}44`, borderRadius:'3px', color:'#fff', outline:'none',
             }}
@@ -512,7 +512,7 @@ export default function OptionsPanel() {
             }}>
               {suggest.map(s => (
                 <div key={s} onMouseDown={() => onSymbol(s)} style={{
-                  padding:'5px 10px', cursor:'pointer', fontSize:'11px',
+                  padding:'5px 10px', cursor:'pointer', fontSize:'13px',
                   fontFamily:'var(--font-data)', color:'var(--text-2)',
                   borderBottom:'1px solid var(--border)',
                 }}
@@ -527,7 +527,7 @@ export default function OptionsPanel() {
         {/* Expiry */}
         {data?.expiries && data.expiries.length > 0 && (
           <select value={expiry} onChange={e => onExpiry(e.target.value)}
-            style={{ fontFamily:'var(--font-data)', fontSize:'11px', padding:'4px 8px', maxWidth:'120px' }}>
+            style={{ fontFamily:'var(--font-data)', fontSize:'13px', padding:'4px 8px', maxWidth:'120px' }}>
             {data.expiries.map(e => (
               <option key={e} value={e}>{fmtExpiry(e)}</option>
             ))}
@@ -537,7 +537,7 @@ export default function OptionsPanel() {
         {/* Greeks toggle */}
         <button onClick={() => setShowGreeks(v => !v)} style={{
           padding:'2px 8px', borderRadius:'3px', cursor:'pointer',
-          fontFamily:'var(--font-data)', fontSize:'11px',
+          fontFamily:'var(--font-data)', fontSize:'13px',
           border:`1px solid ${showGreeks ? '#00e5c0' : 'var(--border)'}`,
           background: showGreeks ? 'rgba(0,229,192,0.1)' : 'transparent',
           color: showGreeks ? '#00e5c0' : 'var(--text-muted)',
@@ -548,7 +548,7 @@ export default function OptionsPanel() {
           disabled={loading}
           style={{
             marginLeft:'auto', padding:'2px 10px', borderRadius:'3px', cursor:'pointer',
-            fontFamily:'var(--font-data)', fontSize:'11px',
+            fontFamily:'var(--font-data)', fontSize:'13px',
             border:'1px solid var(--border)', background:'transparent', color:'var(--text-muted)',
           }}
         >
@@ -561,11 +561,11 @@ export default function OptionsPanel() {
         <div style={{
           padding:'5px 12px', borderBottom:'1px solid var(--border)', flexShrink:0,
           display:'flex', gap:'16px', alignItems:'center', flexWrap:'wrap',
-          fontSize:'11px', fontFamily:'var(--font-data)',
+          fontSize:'13px', fontFamily:'var(--font-data)',
         }}>
           <span>
             <span style={{ color:'var(--text-muted)' }}>SPOT </span>
-            <b style={{ color:'#fff', fontSize:'13px', fontFamily:'var(--font-ui)' }}>
+            <b style={{ color:'#fff', fontSize:'14px', fontFamily:'var(--font-ui)' }}>
               {data.spot.toLocaleString('en-US', { maximumFractionDigits: 2 })}
             </b>
           </span>
@@ -598,7 +598,7 @@ export default function OptionsPanel() {
             </span>
           )}
           <span style={{
-            marginLeft:'auto', fontSize:'10px',
+            marginLeft:'auto', fontSize:'12px',
             color: data.staleData ? 'var(--amber)' : 'var(--text-muted)',
           }}>
             {data.source}
@@ -620,14 +620,14 @@ export default function OptionsPanel() {
               border:'2px solid var(--border)', borderTop:`2px solid ${acent}`,
               borderRadius:'50%', animation:'spin 0.8s linear infinite', flexShrink:0,
             }} />
-            <div style={{ color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'11px', textAlign:'center' }}>
+            <div style={{ color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'13px', textAlign:'center' }}>
               {loadMsg}
             </div>
             {loadStep >= 2 && market === 'IN' && (
               <div style={{
                 padding:'8px 14px', borderRadius:'4px',
                 background:'rgba(249,115,22,0.06)', border:'1px solid rgba(249,115,22,0.2)',
-                fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)',
+                fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)',
                 textAlign:'center', maxWidth:'300px', lineHeight:1.7,
               }}>
                 NSE India uses bot protection. Session warm-up may take 10–15 seconds.
@@ -644,9 +644,9 @@ export default function OptionsPanel() {
               padding:'10px 14px', borderRadius:'5px',
               background: market === 'IN' ? 'rgba(249,115,22,0.07)' : 'rgba(167,139,250,0.07)',
               border:`1px solid ${market === 'IN' ? 'rgba(249,115,22,0.25)' : 'rgba(167,139,250,0.25)'}`,
-              fontSize:'10px', fontFamily:'var(--font-data)', lineHeight:1.8,
+              fontSize:'12px', fontFamily:'var(--font-data)', lineHeight:1.8,
             }}>
-              <div style={{ color: market === 'IN' ? '#f97316' : '#a78bfa', fontWeight:700, marginBottom:'6px', fontSize:'11px' }}>
+              <div style={{ color: market === 'IN' ? '#f97316' : '#a78bfa', fontWeight:700, marginBottom:'6px', fontSize:'13px' }}>
                 ⚠ {data.error}
               </div>
               {market === 'IN' ? (
@@ -673,7 +673,7 @@ export default function OptionsPanel() {
               onClick={() => load(market, symbol, expiry || undefined)}
               style={{
                 marginTop:'12px', padding:'6px 18px', borderRadius:'4px', cursor:'pointer',
-                fontFamily:'var(--font-data)', fontSize:'11px', fontWeight:700,
+                fontFamily:'var(--font-data)', fontSize:'13px', fontWeight:700,
                 border:`1px solid ${acent}`, background: acent+'15', color: acent,
               }}
             >
@@ -686,7 +686,7 @@ export default function OptionsPanel() {
         {!loading && !data?.error && tab === 'chain' && enriched.length > 0 && (
           <table style={{
             width:'100%', borderCollapse:'collapse',
-            fontFamily:'var(--font-data)', fontSize:'10px', minWidth:'560px',
+            fontFamily:'var(--font-data)', fontSize:'12px', minWidth:'560px',
           }}>
             <thead style={{ position:'sticky', top:0, background:'#0c0d10', zIndex:2 }}>
               <tr>
@@ -699,7 +699,7 @@ export default function OptionsPanel() {
                 <th style={TH('var(--positive)')}>Vol</th>
                 <th style={TH('#f0a500')}>IV%</th>
                 <th style={TH('var(--positive)')}>LTP</th>
-                <th style={{ ...TH('#fff'), background:'rgba(255,255,255,0.06)', minWidth:'70px', fontSize:'11px' }}>STRIKE</th>
+                <th style={{ ...TH('#fff'), background:'rgba(255,255,255,0.06)', minWidth:'70px', fontSize:'13px' }}>STRIKE</th>
                 <th style={TH('var(--negative)')}>LTP</th>
                 <th style={TH('#f0a500')}>IV%</th>
                 <th style={TH('var(--negative)')}>Vol</th>
@@ -756,8 +756,8 @@ export default function OptionsPanel() {
                       whiteSpace:'nowrap',
                     }}>
                       {K.toLocaleString()}
-                      {atm && <sup style={{ fontSize:'10px', color:'#f0a500', marginLeft:'2px' }}>ATM</sup>}
-                      {mps && !atm && <sup style={{ fontSize:'10px', color: acent, marginLeft:'2px' }}>MP</sup>}
+                      {atm && <sup style={{ fontSize:'12px', color:'#f0a500', marginLeft:'2px' }}>ATM</sup>}
+                      {mps && !atm && <sup style={{ fontSize:'12px', color: acent, marginLeft:'2px' }}>MP</sup>}
                     </td>
 
                     <td style={{ ...TD('#fff', itP), fontWeight: 600 }}>
@@ -788,7 +788,7 @@ export default function OptionsPanel() {
         {!loading && !data?.error && tab === 'chain' && enriched.length === 0 && data && data.spot > 0 && (
           <div style={{
             padding:'24px', textAlign:'center',
-            color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'10px', lineHeight:1.8,
+            color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'12px', lineHeight:1.8,
           }}>
             <div style={{ marginBottom:'8px', display:'flex', justifyContent:'center', opacity:0.5 }}><NexusIcon name="options-curve" size={20} /></div>
             <div>Got {data.expiries.length} expiries but 0 strikes for <b style={{color:'#fff'}}>{fmtExpiry(expiry)}</b></div>
@@ -801,7 +801,7 @@ export default function OptionsPanel() {
               onClick={() => load(market, symbol, expiry || undefined)}
               style={{
                 marginTop:'12px', padding:'5px 14px', borderRadius:'3px', cursor:'pointer',
-                fontFamily:'var(--font-data)', fontSize:'10px',
+                fontFamily:'var(--font-data)', fontSize:'12px',
                 border:`1px solid ${acent}`, background: acent + '15', color: acent,
               }}
             >
@@ -816,21 +816,21 @@ export default function OptionsPanel() {
             {/* PCR + Max Pain */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
               <div style={{ padding:'12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid var(--border)' }}>
-                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>PUT / CALL RATIO</div>
+                <div style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>PUT / CALL RATIO</div>
                 <div style={{ fontSize:'24px', fontWeight:600, letterSpacing:'-0.01em', fontFamily:'var(--font-ui)', lineHeight:1,
                   color: (data?.pcr??0) > 1.2 ? 'var(--positive)' : (data?.pcr??0) < 0.7 ? 'var(--negative)' : 'var(--text)' }}>
                   {data && data?.pcr > 0 ? data.pcr.toFixed(3) : '—'}
                 </div>
-                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
+                <div style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
                   {(data?.pcr??0) > 1.2 ? '▲ Bearish hedge-heavy' : (data?.pcr??0) < 0.7 ? '▼ Call-side heavy' : '~ Balanced sentiment'}
                 </div>
               </div>
               <div style={{ padding:'12px', borderRadius:'6px', background:'var(--bg-deep)', border:`1px solid ${acent}33` }}>
-                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>MAX PAIN STRIKE</div>
+                <div style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>MAX PAIN STRIKE</div>
                 <div style={{ fontSize:'24px', fontWeight:600, letterSpacing:'-0.01em', fontFamily:'var(--font-ui)', lineHeight:1, color:'var(--text)' }}>
                   {mp > 0 ? mp.toLocaleString() : '—'}
                 </div>
-                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
+                <div style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
                   {S > 0 && mp > 0
                     ? `${((mp - S) / S * 100).toFixed(2)}% from spot — writer profit peak`
                     : 'Point of max option-writer profit'}
@@ -841,29 +841,29 @@ export default function OptionsPanel() {
             {/* Put Wall / Call Wall / Expected Move */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px' }}>
               <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid rgba(0,201,122,0.2)' }}>
-                <div style={{ fontSize:'10px', color:'var(--positive)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>PUT WALL · SUPPORT</div>
+                <div style={{ fontSize:'12px', color:'var(--positive)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>PUT WALL · SUPPORT</div>
                 <div style={{ fontSize:'20px', fontWeight:600, letterSpacing:'-0.01em', fontFamily:'var(--font-ui)', lineHeight:1, color:'var(--positive)' }}>
                   {putWall > 0 ? putWall.toLocaleString() : '—'}
                 </div>
-                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
+                <div style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
                   {putWall > 0 && S > 0 ? `${((putWall - S) / S * 100).toFixed(1)}% from spot` : 'Heaviest put OI'}
                 </div>
               </div>
               <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid rgba(255,69,96,0.2)' }}>
-                <div style={{ fontSize:'10px', color:'var(--negative)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>CALL WALL · RESISTANCE</div>
+                <div style={{ fontSize:'12px', color:'var(--negative)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>CALL WALL · RESISTANCE</div>
                 <div style={{ fontSize:'20px', fontWeight:600, letterSpacing:'-0.01em', fontFamily:'var(--font-ui)', lineHeight:1, color:'var(--negative)' }}>
                   {callWall > 0 ? callWall.toLocaleString() : '—'}
                 </div>
-                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
+                <div style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
                   {callWall > 0 && S > 0 ? `${((callWall - S) / S * 100).toFixed(1)}% from spot` : 'Heaviest call OI'}
                 </div>
               </div>
               <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:`1px solid ${acent}33` }}>
-                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>BSM 1σ EXP MOVE</div>
+                <div style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'4px', letterSpacing:'0.1em' }}>BSM 1σ EXP MOVE</div>
                 <div style={{ fontSize:'20px', fontWeight:600, letterSpacing:'-0.01em', fontFamily:'var(--font-ui)', lineHeight:1, color:'var(--text)' }}>
                   {expectedMove > 0 ? `±${expectedMove.toLocaleString()}` : '—'}
                 </div>
-                <div style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
+                <div style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginTop:'4px' }}>
                   {expectedMove > 0 && S > 0 ? `${(expectedMove / S * 100).toFixed(1)}% by expiry · straddle ${market === 'IN' ? '₹' : '$'}${straddleCost}` : 'S × ATM IV × √T'}
                 </div>
               </div>
@@ -872,14 +872,14 @@ export default function OptionsPanel() {
             {/* Signals — derived from PCR, max pain, OI walls, and BSM */}
             {signals.length > 0 && (
               <div style={{ padding:'10px 12px', borderRadius:'6px', background:'var(--bg-deep)', border:'1px solid var(--border)' }}>
-                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'8px', letterSpacing:'0.1em' }}>
+                <div style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginBottom:'8px', letterSpacing:'0.1em' }}>
                   MARKET STRUCTURE SIGNALS
                 </div>
                 <div style={{ display:'flex', flexDirection:'column', gap:'5px' }}>
                   {signals.map((sig, i) => (
                     <div key={i} style={{
                       display:'flex', alignItems:'flex-start', gap:'7px',
-                      fontSize:'11px', fontFamily:'var(--font-data)', lineHeight:1.5,
+                      fontSize:'13px', fontFamily:'var(--font-data)', lineHeight:1.5,
                     }}>
                       <span style={{
                         flexShrink:0, marginTop:'1px',
@@ -899,7 +899,7 @@ export default function OptionsPanel() {
             {/* OI bars */}
             {oiRows.length > 0 ? (
               <>
-                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', letterSpacing:'0.1em' }}>
+                <div style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', letterSpacing:'0.1em' }}>
                   OPEN INTEREST BY STRIKE · ■ CALLS (green) ■ PUTS (red)
                 </div>
                 {oiRows.map(row => {
@@ -909,14 +909,14 @@ export default function OptionsPanel() {
                   return (
                     <div key={row.strike} style={{ display:'grid', gridTemplateColumns:'70px 1fr 1fr', gap:'4px', alignItems:'center' }}>
                       <div style={{
-                        textAlign:'center', fontSize:'10px',
+                        textAlign:'center', fontSize:'12px',
                         fontFamily:'var(--font-data)', fontWeight: atm || mps ? 700 : 400,
                         color: atm ? '#f0a500' : mps ? acent : 'var(--text-2)',
                       }}>
                         {row.strike.toLocaleString()}{atm ? ' ★' : mps ? ' ⊕' : ''}
                       </div>
                       <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:'4px' }}>
-                        <span style={{ fontSize:'11px', color:'var(--positive)', fontFamily:'var(--font-data)', minWidth:'34px', textAlign:'right' }}>
+                        <span style={{ fontSize:'13px', color:'var(--positive)', fontFamily:'var(--font-data)', minWidth:'34px', textAlign:'right' }}>
                           {fmtNum(row.ce?.oi??0)}
                         </span>
                         <div style={{ width:'80px', height:'10px', background:'var(--bg-deep)', borderRadius:'2px', overflow:'hidden', display:'flex', justifyContent:'flex-end' }}>
@@ -927,19 +927,19 @@ export default function OptionsPanel() {
                         <div style={{ width:'80px', height:'10px', background:'var(--bg-deep)', borderRadius:'2px', overflow:'hidden' }}>
                           <div style={{ width:`${peW}%`, background:'rgba(255,69,96,0.8)' }} />
                         </div>
-                        <span style={{ fontSize:'11px', color:'var(--negative)', fontFamily:'var(--font-data)', minWidth:'34px' }}>
+                        <span style={{ fontSize:'13px', color:'var(--negative)', fontFamily:'var(--font-data)', minWidth:'34px' }}>
                           {fmtNum(row.pe?.oi??0)}
                         </span>
                       </div>
                     </div>
                   )
                 })}
-                <div style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', paddingTop:'4px' }}>
+                <div style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', paddingTop:'4px' }}>
                   ★ ATM strike · ⊕ Max Pain strike
                 </div>
               </>
             ) : (
-              <div style={{ textAlign:'center', color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'10px', padding:'20px' }}>
+              <div style={{ textAlign:'center', color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'12px', padding:'20px' }}>
                 {data ? 'No OI data for this expiry' : 'Load an options chain to see OI analysis'}
               </div>
             )}
@@ -948,7 +948,7 @@ export default function OptionsPanel() {
 
         {/* Nothing loaded */}
         {!loading && !data && (
-          <div style={{ padding:'32px', textAlign:'center', color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'11px' }}>
+          <div style={{ padding:'32px', textAlign:'center', color:'var(--text-muted)', fontFamily:'var(--font-data)', fontSize:'13px' }}>
             Select a symbol to load the options chain
           </div>
         )}
@@ -957,7 +957,7 @@ export default function OptionsPanel() {
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <div style={{
         padding:'4px 12px', borderTop:'1px solid var(--border)', flexShrink:0,
-        fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)',
+        fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)',
         display:'flex', justifyContent:'space-between', gap:'8px',
       }}>
         <span>
@@ -979,7 +979,7 @@ export default function OptionsPanel() {
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
 const TH = (color: string): React.CSSProperties => ({
-  padding: '6px 6px', textAlign: 'right', fontSize: '11px',
+  padding: '6px 6px', textAlign: 'right', fontSize: '13px',
   color, letterSpacing: '0.06em', fontWeight: 600,
   borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap',
   background: '#0c0d10',
@@ -989,5 +989,5 @@ const TD = (color: string, highlight = false): React.CSSProperties => ({
   padding: '4px 5px', textAlign: 'right',
   color: highlight ? color : 'var(--text-muted)',
   background: highlight ? color + '06' : 'transparent',
-  fontFamily: 'var(--font-data)', fontSize: '11px',
+  fontFamily: 'var(--font-data)', fontSize: '13px',
 })

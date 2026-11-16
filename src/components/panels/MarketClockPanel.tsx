@@ -88,8 +88,8 @@ const STATUS_STYLES = {
   open:       { label: 'OPEN',       dot: '#00c97a', text: '#00c97a', bg: 'rgba(0,201,122,0.08)',  border: 'rgba(0,201,122,0.2)'  },
   premarket:  { label: 'PRE',        dot: '#f0a500', text: '#f0a500', bg: 'rgba(240,165,0,0.06)',  border: 'rgba(240,165,0,0.15)' },
   afterhours: { label: 'AH',         dot: '#1e90ff', text: '#1e90ff', bg: 'rgba(30,144,255,0.06)', border: 'rgba(30,144,255,0.15)'},
-  closed:     { label: 'CLOSED',     dot: '#4a6070', text: '#4a6070', bg: 'transparent',           border: 'var(--border)'       },
-  weekend:    { label: 'WEEKEND',    dot: '#4a6070', text: '#4a6070', bg: 'transparent',           border: 'var(--border)'       },
+  closed:     { label: 'CLOSED',     dot: '#8194a6', text: '#8194a6', bg: 'transparent',           border: 'var(--border)'       },
+  weekend:    { label: 'WEEKEND',    dot: '#8194a6', text: '#8194a6', bg: 'transparent',           border: 'var(--border)'       },
 }
 
 export default function MarketClockPanel() {
@@ -120,12 +120,12 @@ export default function MarketClockPanel() {
 
       <div className="panel-header" style={{ justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div className="dot" style={{ background: openCount > 0 ? '#00c97a' : '#4a6070' }} />
+          <div className="dot" style={{ background: openCount > 0 ? '#00c97a' : '#8194a6' }} />
           WORLD MARKET CLOCKS
           {guide.button}
         </div>
         <span style={{
-          fontSize: '10px', fontFamily: 'var(--font-data)',
+          fontSize: '12px', fontFamily: 'var(--font-data)',
           color: openCount > 0 ? '#00c97a' : 'var(--text-muted)',
         }}>
           {openCount} OPEN
@@ -148,7 +148,7 @@ export default function MarketClockPanel() {
               {/* Row 1 — city + time */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--text-muted)', border: '1px solid var(--border-br)', borderRadius: '3px', padding: '1px 4px', minWidth: '26px', textAlign: 'center', display: 'inline-block', lineHeight: 1.5 }}>{m.flag}</span>
+                  <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--text-muted)', border: '1px solid var(--border-br)', borderRadius: '3px', padding: '1px 4px', minWidth: '26px', textAlign: 'center', display: 'inline-block', lineHeight: 1.5 }}>{m.flag}</span>
                   <div>
                     <div style={{
                       fontFamily: 'var(--font-ui)', fontWeight: isTop ? 800 : 700,
@@ -156,7 +156,7 @@ export default function MarketClockPanel() {
                     }}>
                       {m.city}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.06em' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.06em' }}>
                       {m.exchange}
                     </div>
                   </div>
@@ -172,7 +172,7 @@ export default function MarketClockPanel() {
                   }}>
                     {st.timeStr}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                     {st.dateStr}
                   </div>
                 </div>
@@ -191,14 +191,14 @@ export default function MarketClockPanel() {
                     animation: st.status === 'open' ? 'pulseDot 2s ease-in-out infinite' : 'none',
                   }} />
                   <span style={{
-                    fontSize: '11px', fontFamily: 'var(--font-data)',
+                    fontSize: '13px', fontFamily: 'var(--font-data)',
                     color:    sty.text, fontWeight: 700, letterSpacing: '0.08em',
                   }}>
                     {sty.label}
                   </span>
                 </div>
 
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                   {st.countdown}
                 </span>
 
@@ -227,11 +227,11 @@ export default function MarketClockPanel() {
           { label: 'OPEN',  color: '#00c97a' },
           { label: 'PRE',   color: '#f0a500' },
           { label: 'AH',    color: '#1e90ff' },
-          { label: 'CLOSED',color: '#4a6070' },
+          { label: 'CLOSED',color: '#8194a6' },
         ].map(({ label, color }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: color }} />
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
               {label}
             </span>
           </div>

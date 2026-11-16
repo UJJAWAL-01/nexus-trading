@@ -244,14 +244,14 @@ export default function DrawingLayer({ chart, series, symbol, ready }: DrawingLa
           <div key={tl.id} style={{ position: 'relative' }} onMouseEnter={() => setHovered(tl.id)} onMouseLeave={() => setHovered(null)}>
             {tl.sep && <div style={{ height: 1, background: 'var(--border)', margin: '3px 2px' }} />}
             <button onClick={() => { setTool(tl.id); if (tl.id !== 'select') setSelected(null) }} style={{
-              width: 26, height: 26, borderRadius: 4, cursor: 'pointer', fontSize: 13, lineHeight: 1,
+              width: 26, height: 26, borderRadius: 4, cursor: 'pointer', fontSize: 14, lineHeight: 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: `1px solid ${tool === tl.id ? 'var(--teal)' : 'transparent'}`,
               background: tool === tl.id ? 'rgba(0,229,192,0.14)' : 'transparent',
               color: tool === tl.id ? 'var(--teal)' : (tl.color ?? 'var(--text-2)'),
             }}><NexusIcon name={tl.icon} size={15} strokeWidth={1.65} /></button>
             {hovered === tl.id && (
-              <div style={{ position: 'absolute', left: 'calc(100% + 7px)', top: tl.sep ? 'calc(50% + 3px)' : '50%', transform: 'translateY(-50%)', whiteSpace: 'nowrap', background: 'rgba(9,12,16,0.96)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 9px', fontSize: 10, color: '#dfe8f0', fontFamily: 'var(--font-data)', pointerEvents: 'none', zIndex: 12 }}>{tl.title}</div>
+              <div style={{ position: 'absolute', left: 'calc(100% + 7px)', top: tl.sep ? 'calc(50% + 3px)' : '50%', transform: 'translateY(-50%)', whiteSpace: 'nowrap', background: 'rgba(9,12,16,0.96)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 9px', fontSize: 12, color: '#dfe8f0', fontFamily: 'var(--font-data)', pointerEvents: 'none', zIndex: 12 }}>{tl.title}</div>
             )}
           </div>
         ))}
@@ -260,7 +260,7 @@ export default function DrawingLayer({ chart, series, symbol, ready }: DrawingLa
             <div style={{ height: 1, background: 'var(--border)', margin: '3px 2px' }} />
             <button onClick={() => persist([])} style={{ width: 26, height: 26, borderRadius: 4, cursor: 'pointer', border: '1px solid transparent', background: 'transparent', color: 'var(--negative)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><NexusIcon name="trash" size={14} /></button>
             {hovered === 'clear' && (
-              <div style={{ position: 'absolute', left: 'calc(100% + 7px)', top: 'calc(50% + 3px)', transform: 'translateY(-50%)', whiteSpace: 'nowrap', background: 'rgba(9,12,16,0.96)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 9px', fontSize: 10, color: '#dfe8f0', fontFamily: 'var(--font-data)', pointerEvents: 'none', zIndex: 12 }}>Clear all drawings</div>
+              <div style={{ position: 'absolute', left: 'calc(100% + 7px)', top: 'calc(50% + 3px)', transform: 'translateY(-50%)', whiteSpace: 'nowrap', background: 'rgba(9,12,16,0.96)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 9px', fontSize: 12, color: '#dfe8f0', fontFamily: 'var(--font-data)', pointerEvents: 'none', zIndex: 12 }}>Clear all drawings</div>
             )}
           </div>
         )}
@@ -273,7 +273,7 @@ export default function DrawingLayer({ chart, series, symbol, ready }: DrawingLa
       />
 
       {interactive && (
-        <div style={{ position: 'absolute', left: 34, top: 8, zIndex: 9, fontSize: 9, fontFamily: 'var(--font-data)', color: 'var(--text-muted)', background: 'rgba(9,12,16,0.7)', padding: '2px 6px', borderRadius: 3, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', left: 34, top: 8, zIndex: 9, fontSize: 11, fontFamily: 'var(--font-data)', color: 'var(--text-muted)', background: 'rgba(9,12,16,0.7)', padding: '2px 6px', borderRadius: 3, pointerEvents: 'none' }}>
           {tool === 'select' ? 'click to select · drag endpoints · Del to remove' : 'drag to draw · Esc to cancel · saved on this device'}
         </div>
       )}
@@ -286,7 +286,7 @@ function line(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number,
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke()
 }
 function label(ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string) {
-  ctx.font = '10px Inter, sans-serif'; ctx.fillStyle = color; ctx.fillText(text, x, y)
+  ctx.font = '12px Inter, sans-serif'; ctx.fillStyle = color; ctx.fillText(text, x, y)
 }
 function distToSeg(px: number, py: number, x1: number, y1: number, x2: number, y2: number) {
   const dx = x2 - x1, dy = y2 - y1
@@ -304,7 +304,7 @@ function drawFib(ctx: CanvasRenderingContext2D, ax: number, bx: number, pA: numb
     ctx.strokeStyle = FIB_COLORS[i]; ctx.lineWidth = 1; ctx.setLineDash([4, 3])
     ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(Math.max(x1, w), y); ctx.stroke()
     ctx.setLineDash([])
-    ctx.font = '9px Inter, sans-serif'; ctx.fillStyle = FIB_COLORS[i]
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = FIB_COLORS[i]
     ctx.fillText(`${(lv * 100).toFixed(1)}%  ${fmt(price)}`, x0 + 3, y - 2)
   })
 }
@@ -319,7 +319,7 @@ function drawMeasure(ctx: CanvasRenderingContext2D, A: Pt, B: Pt, ax: number, ay
   const secs = Math.abs(B.time - A.time)
   const span = secs >= 86400 ? `${(secs / 86400).toFixed(secs / 86400 >= 10 ? 0 : 1)}d` : `${(secs / 3600).toFixed(1)}h`
   const txt = `${dP >= 0 ? '+' : ''}${fmt(dP)}   ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%   ${span}`
-  ctx.font = 'bold 10px Inter, sans-serif'
+  ctx.font = 'bold 12px Inter, sans-serif'
   const tw = ctx.measureText(txt).width + 12
   const lx = x0 + bw / 2 - tw / 2
   const ly = up ? y0 - 19 : y0 + bh + 4
@@ -340,7 +340,7 @@ function drawPosition(ctx: CanvasRenderingContext2D, type: 'long' | 'short', A: 
   ctx.strokeStyle = '#00c97a'; ctx.lineWidth = 1; line(ctx, x0, by, x1, by)
   ctx.strokeStyle = '#7a9ab0'; line(ctx, x0, ay, x1, ay)
   ctx.strokeStyle = '#ff4560'; line(ctx, x0, sy, x1, sy)
-  ctx.font = '9px Inter, sans-serif'
+  ctx.font = '11px Inter, sans-serif'
   ctx.fillStyle = '#00c97a'; ctx.fillText(`TP ${fmt(target)}`, x1 + 3, by + 3)
   ctx.fillStyle = '#7a9ab0'; ctx.fillText(`${type === 'long' ? 'LONG' : 'SHORT'} ${fmt(entry)}  R:R 2.0`, x1 + 3, ay + 3)
   ctx.fillStyle = '#ff4560'; ctx.fillText(`SL ${fmt(stop)}`, x1 + 3, sy + 3)

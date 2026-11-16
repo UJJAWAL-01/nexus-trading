@@ -17,11 +17,11 @@ import { ALERT_KINDS, KIND_LABEL, MAX_RULES, describeRule, type AlertKind } from
 const MONO = 'var(--font-data)'
 const ctl: CSSProperties = {
   background: 'var(--bg-deep)', border: '1px solid var(--border)', color: 'var(--text)',
-  borderRadius: 3, padding: '5px 7px', fontSize: 11, fontFamily: MONO, minWidth: 0,
+  borderRadius: 3, padding: '5px 7px', fontSize: 13, fontFamily: MONO, minWidth: 0,
 }
-const lbl: CSSProperties = { fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
+const lbl: CSSProperties = { fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
 const btn: CSSProperties = { ...ctl, cursor: 'pointer', fontWeight: 700, color: 'var(--text-2)' }
-const th: CSSProperties = { textAlign: 'left', padding: '5px 8px', color: 'var(--text-muted)', fontWeight: 700, fontSize: 10, position: 'sticky', top: 0, background: 'var(--bg-panel)' }
+const th: CSSProperties = { textAlign: 'left', padding: '5px 8px', color: 'var(--text-muted)', fontWeight: 700, fontSize: 12, position: 'sticky', top: 0, background: 'var(--bg-panel)' }
 const td: CSSProperties = { padding: '6px 8px', borderTop: '1px solid var(--border)' }
 
 const ADD_MESSAGE: Record<Exclude<AddResult, 'ok'>, string> = {
@@ -96,14 +96,14 @@ export default function AlertsPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" />
           PRICE ALERTS
-          <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
             {rules.filter(r => r.armed).length} ACTIVE · {status === 'live' ? 'LIVE STREAM' : status === 'polling' ? 'POLLING' : status === 'idle' ? 'IDLE' : 'CONNECTING'}
           </span>
           {guide.button}
         </div>
         {permission === 'default' && <button type="button" style={{ ...btn, color: 'var(--amber)' }} onClick={askPermission}>ENABLE DESKTOP NOTIFICATIONS</button>}
-        {permission === 'granted' && <span style={{ fontSize: 10, color: 'var(--positive)', fontFamily: MONO }}>DESKTOP NOTIFICATIONS ON</span>}
-        {permission === 'denied' && <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }} title="Allow notifications for this site in your browser settings to turn them on.">NOTIFICATIONS BLOCKED IN BROWSER</span>}
+        {permission === 'granted' && <span style={{ fontSize: 12, color: 'var(--positive)', fontFamily: MONO }}>DESKTOP NOTIFICATIONS ON</span>}
+        {permission === 'denied' && <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }} title="Allow notifications for this site in your browser settings to turn them on.">NOTIFICATIONS BLOCKED IN BROWSER</span>}
       </div>
       {guide.body}
 
@@ -133,7 +133,7 @@ export default function AlertsPanel() {
       </form>
 
       {(message || alreadyMet || target) && (
-        <div role="status" style={{ padding: '5px 10px', fontSize: 11, fontFamily: MONO, color: message ? 'var(--negative)' : alreadyMet ? 'var(--amber)' : 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
+        <div role="status" style={{ padding: '5px 10px', fontSize: 13, fontFamily: MONO, color: message ? 'var(--negative)' : alreadyMet ? 'var(--amber)' : 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
           {message
             ?? (alreadyMet ? `${target} is already ${kind === 'above' ? 'at or above' : 'at or below'} ${numeric}, so this alert would fire straight away.`
             : `${target} last ${fmt(live?.price)}${live?.change != null ? ` (${live.change > 0 ? '+' : ''}${live.change.toFixed(2)}% today)` : ''}`)}
@@ -142,12 +142,12 @@ export default function AlertsPanel() {
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {rules.length === 0 ? (
-          <div style={{ padding: '22px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+          <div style={{ padding: '22px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
             No alerts yet. Pick a symbol, a condition and a level above.<br />
             Alerts are stored in this browser and checked while NEXUS is open.
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 11 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 13 }}>
             <thead><tr><th style={th}>SYMBOL</th><th style={th}>CONDITION</th><th style={{ ...th, textAlign: 'right' }}>LAST</th><th style={{ ...th, textAlign: 'right' }}>DISTANCE</th><th style={th}>STATUS</th><th style={th} /></tr></thead>
             <tbody>
               {rules.map(r => {
@@ -157,8 +157,8 @@ export default function AlertsPanel() {
                 return (
                   <tr key={r.id}>
                     <td style={td}>
-                      <button type="button" onClick={() => setActive(r.symbol)} title="Open in chart" style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', color: 'var(--amber)', fontFamily: MONO, fontWeight: 700, fontSize: 11 }}>{r.symbol}</button>
-                      {r.note && <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 2 }}>{r.note}</div>}
+                      <button type="button" onClick={() => setActive(r.symbol)} title="Open in chart" style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', color: 'var(--amber)', fontFamily: MONO, fontWeight: 700, fontSize: 13 }}>{r.symbol}</button>
+                      {r.note && <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 2 }}>{r.note}</div>}
                     </td>
                     <td style={{ ...td, color: 'var(--text)' }}>{describeRule(r)}{r.repeat && <span style={{ color: 'var(--text-muted)' }}> · repeat</span>}</td>
                     <td style={{ ...td, textAlign: 'right', color: 'var(--text-2)' }}><Tick value={q?.price}>{fmt(q?.price)}</Tick></td>
@@ -181,12 +181,12 @@ export default function AlertsPanel() {
 
         {history.length > 0 && (
           <div style={{ padding: '10px 10px 6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: MONO, fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 4 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: MONO, fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 4 }}>
               RECENTLY FIRED
               <button type="button" style={{ ...btn, padding: '2px 6px' }} onClick={clearHistory}>CLEAR</button>
             </div>
             {history.slice(0, 10).map((h, i) => (
-              <div key={`${h.ruleId}-${h.at}-${i}`} style={{ display: 'flex', gap: 8, fontFamily: MONO, fontSize: 11, padding: '3px 0', color: 'var(--text-2)' }}>
+              <div key={`${h.ruleId}-${h.at}-${i}`} style={{ display: 'flex', gap: 8, fontFamily: MONO, fontSize: 13, padding: '3px 0', color: 'var(--text-2)' }}>
                 <span style={{ color: 'var(--text-muted)', minWidth: 104 }}>{when(h.at)}</span>
                 <span style={{ color: 'var(--amber)', fontWeight: 700, minWidth: 60 }}>{h.symbol}</span>
                 <span>{describeRule(h)} at {fmt(h.price)}</span>
@@ -196,7 +196,7 @@ export default function AlertsPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         Checked while NEXUS is open in a tab. Quotes can be delayed, so do not rely on alerts for order execution.
       </div>
     </div>

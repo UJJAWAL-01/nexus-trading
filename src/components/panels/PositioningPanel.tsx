@@ -38,8 +38,8 @@ const STANCE: Record<ReturnType<typeof cotStance>, { label: string; color: strin
   'unknown':       { label: '—',             color: 'var(--text-muted)' },
 }
 
-const th: CSSProperties = { padding: '5px 8px', fontSize: 10, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: 'var(--bg-panel)', zIndex: 1 }
-const td: CSSProperties = { padding: '5px 8px', fontSize: 11, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
+const th: CSSProperties = { padding: '5px 8px', fontSize: 12, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: 'var(--bg-panel)', zIndex: 1 }
+const td: CSSProperties = { padding: '5px 8px', fontSize: 13, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
 const tile: CSSProperties = { border: '1px solid var(--border)', borderRadius: 4, padding: '7px 9px', background: 'var(--bg-deep)', minWidth: 0 }
 
 const compact = (n: number) => {
@@ -93,7 +93,7 @@ function Futures() {
 
   return (
     <div className="nx-fade">
-      <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 12, borderBottom: '1px solid var(--border)', color: 'var(--text-2)', lineHeight: 1.5 }}>
+      <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 13, borderBottom: '1px solid var(--border)', color: 'var(--text-2)', lineHeight: 1.5 }}>
         {longs.length > 0 && <>Speculators are most long in {years} years in <strong style={{ color: 'var(--positive)' }}>{longs.join(', ')}</strong>. </>}
         {shorts.length > 0 && <>Most short in <strong style={{ color: 'var(--negative)' }}>{shorts.join(', ')}</strong>. </>}
         {!longs.length && !shorts.length && <>No market is at an extreme of its {years}-year range. </>}
@@ -113,13 +113,13 @@ function Futures() {
         </thead>
         <tbody>
           {groups.map(([group, list]) => [
-            <tr key={group}><td colSpan={7} style={{ ...td, textAlign: 'left', fontSize: 10, letterSpacing: '0.08em', color: 'var(--text-muted)', background: 'var(--bg-deep)', padding: '4px 8px' }}>{group.toUpperCase()}</td></tr>,
+            <tr key={group}><td colSpan={7} style={{ ...td, textAlign: 'left', fontSize: 12, letterSpacing: '0.08em', color: 'var(--text-muted)', background: 'var(--bg-deep)', padding: '4px 8px' }}>{group.toUpperCase()}</td></tr>,
             ...list.map(r => {
               const s = STANCE[cotStance(r.rangePosition)]
               return (
                 <tr key={r.code} onClick={() => CHART_SYMBOL[r.code] && setActive(CHART_SYMBOL[r.code])} style={{ cursor: 'pointer' }} title={`Open the ${r.name} chart. Hedgers are net ${compact(r.commNet)} contracts.`}>
                   <td style={{ ...td, textAlign: 'left', color: 'var(--text)', fontWeight: 700 }}>{r.name}</td>
-                  <td style={{ ...td, textAlign: 'left', color: s.color, fontWeight: 700, fontSize: 10 }}>{s.label}</td>
+                  <td style={{ ...td, textAlign: 'left', color: s.color, fontWeight: 700, fontSize: 12 }}>{s.label}</td>
                   <td style={td}><RangeBar position={r.rangePosition} /></td>
                   <td style={{ ...td, color: tone(r.specNet) }}>{compact(r.specNet)}</td>
                   <td style={{ ...td, color: tone(r.specNetChange) }}>{r.specNetChange === null ? '—' : compact(r.specNetChange)}</td>
@@ -177,7 +177,7 @@ function ShortVolume({ symbol }: { symbol: string }) {
           <text x={W - PAD.r} y={H - 5} textAnchor="end" fontSize={9} fontFamily={MONO} fill="var(--text-muted)">{shortDate(latest.date)}</text>
         </svg>
       </div>
-      <div style={{ padding: '4px 10px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>
+      <div style={{ padding: '4px 10px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>
         Share of each day&apos;s off-exchange volume that was sold short. This is not short interest: market makers sell short routinely, so 40–50% is ordinary. Watch for a clear departure from the stock&apos;s own average.
       </div>
     </div>
@@ -201,7 +201,7 @@ export default function PositioningPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" />
           POSITIONING
-          <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>{tab === 'futures' ? 'CFTC · WEEKLY' : `FINRA · DAILY · ${symbol}`}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>{tab === 'futures' ? 'CFTC · WEEKLY' : `FINRA · DAILY · ${symbol}`}</span>
           {guide.button}
         </div>
         <div style={{ display: 'flex', gap: 4 }} role="tablist" aria-label="Positioning view">
@@ -209,7 +209,7 @@ export default function PositioningPanel() {
             <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)} style={{
               background: tab === t ? 'color-mix(in srgb, var(--teal) 14%, transparent)' : 'transparent',
               border: `1px solid ${tab === t ? 'var(--teal)' : 'var(--border)'}`, color: tab === t ? 'var(--teal)' : 'var(--text-muted)',
-              borderRadius: 3, padding: '3px 7px', fontSize: 10, fontFamily: MONO, fontWeight: 700, cursor: 'pointer',
+              borderRadius: 3, padding: '3px 7px', fontSize: 12, fontFamily: MONO, fontWeight: 700, cursor: 'pointer',
             }}>{label}</button>
           ))}
         </div>
@@ -220,17 +220,17 @@ export default function PositioningPanel() {
         {tab === 'futures' ? <Futures /> : <ShortVolume symbol={symbol} />}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         {tab === 'futures' ? 'Source: CFTC Commitments of Traders, futures only. Speculators = non-commercial traders.' : 'Source: FINRA Reg SHO daily short sale volume.'} Public data, shown as published. Not financial advice.
       </div>
     </div>
   )
 }
 
-const Label = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{children}</div>
+const Label = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{children}</div>
 const Value = ({ children, color }: { children: React.ReactNode; color?: string }) => <div style={{ fontSize: 16, fontWeight: 700, fontFamily: MONO, color: color ?? 'var(--text)', marginTop: 2 }}>{children}</div>
-const Sub = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, marginTop: 2 }}>{children}</div>
+const Sub = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, marginTop: 2 }}>{children}</div>
 
 function Note({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }

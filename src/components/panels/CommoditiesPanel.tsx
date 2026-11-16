@@ -294,7 +294,7 @@ export default function CommoditiesPanel() {
           <div className="dot" style={{ background: '#f0a500', flexShrink: 0 }} />
           <span style={{ whiteSpace: 'nowrap' }}>COMMODITIES</span>
           <span style={{
-            fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
+            fontSize: '13px', padding: '2px 8px', borderRadius: '2px',
             background: 'rgba(240,165,0,0.12)', color: '#f0a500',
             border: '1px solid rgba(240,165,0,0.25)', fontFamily: 'var(--font-data)',
             flexShrink: 0,
@@ -309,7 +309,7 @@ export default function CommoditiesPanel() {
           {(['prices', 'news'] as ActiveView[]).map(v => (
             <button key={v} onClick={() => setView(v)} style={{
               padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'var(--font-data)', fontSize: '11px', letterSpacing: '0.06em',
+              fontFamily: 'var(--font-data)', fontSize: '13px', letterSpacing: '0.06em',
               border: `1px solid ${view === v ? '#f0a500' : 'var(--border)'}`,
               background: view === v ? 'rgba(240,165,0,0.1)' : 'transparent',
               color: view === v ? '#f0a500' : 'var(--text-muted)',
@@ -333,7 +333,7 @@ export default function CommoditiesPanel() {
             <button key={c} onClick={() => setCat(c)} style={{
               padding: '2px 9px', borderRadius: '3px', cursor: 'pointer',
               flexShrink: 0,
-              fontFamily: 'var(--font-data)', fontSize: '11px',
+              fontFamily: 'var(--font-data)', fontSize: '13px',
               border: `1px solid ${cat === c ? (CATEGORY_COLOR[c] ?? 'var(--teal)') : 'var(--border)'}`,
               background: cat === c ? ((CATEGORY_COLOR[c] ?? 'var(--teal)') + '18') : 'transparent',
               color: cat === c ? (CATEGORY_COLOR[c] ?? 'var(--teal)') : 'var(--text-muted)',
@@ -342,7 +342,7 @@ export default function CommoditiesPanel() {
             </button>
           ))}
           {lastUpdate && (
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', alignSelf: 'center', marginLeft: 'auto', flexShrink: 0 }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', alignSelf: 'center', marginLeft: 'auto', flexShrink: 0 }}>
               {lastUpdate}
             </span>
           )}
@@ -353,7 +353,7 @@ export default function CommoditiesPanel() {
       {view === 'prices' && (
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {loadPrices && prices.every(p => p.price === null) ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '11px' }}>
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '13px' }}>
               FETCHING COMMODITY PRICES...
             </div>
           ) : (
@@ -385,11 +385,11 @@ export default function CommoditiesPanel() {
 
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '13px', color: '#fff' }}>
+                      <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '14px', color: '#fff' }}>
                         {def.name.split('(')[0].trim()}
                       </span>
                       <span style={{
-                        fontSize: '10px', padding: '2px 7px', borderRadius: '2px',
+                        fontSize: '12px', padding: '2px 7px', borderRadius: '2px',
                         background: catColor + '18', color: catColor,
                         border: `1px solid ${catColor}30`,
                         fontFamily: 'var(--font-data)',
@@ -397,13 +397,13 @@ export default function CommoditiesPanel() {
                         {def.category}
                       </span>
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '1px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '1px' }}>
                       {def.unit} · {def.symbol}
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', fontWeight: 700, color: price !== null ? '#fff' : 'var(--text-muted)' }}>
+                    <div style={{ fontFamily: 'var(--font-data)', fontSize: '14px', fontWeight: 700, color: price !== null ? '#fff' : 'var(--text-muted)' }}>
                       {price !== null
                         ? price >= 1000
                           ? price.toLocaleString('en-US', { maximumFractionDigits: def.digits })
@@ -412,7 +412,7 @@ export default function CommoditiesPanel() {
                     </div>
                     {change !== null && (
                       <div style={{
-                        fontSize: '10px', fontFamily: 'var(--font-data)',
+                        fontSize: '12px', fontFamily: 'var(--font-data)',
                         color: isPos ? 'var(--positive)' : 'var(--negative)',
                       }}>
                         {isPos ? '+' : ''}{change.toFixed(2)}%
@@ -430,7 +430,7 @@ export default function CommoditiesPanel() {
       {view === 'news' && (
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {loadNews ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '11px' }}>
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '13px' }}>
               LOADING COMMODITY INTELLIGENCE...
             </div>
           ) : news.length === 0 ? (
@@ -439,7 +439,7 @@ export default function CommoditiesPanel() {
                 onClick={fetchNews}
                 style={{
                   padding: '8px 20px', borderRadius: '4px', cursor: 'pointer',
-                  fontFamily: 'var(--font-data)', fontSize: '10px',
+                  fontFamily: 'var(--font-data)', fontSize: '12px',
                   border: '1px solid var(--amber)', background: 'rgba(240,165,0,0.1)',
                   color: 'var(--amber)',
                 }}
@@ -465,7 +465,7 @@ export default function CommoditiesPanel() {
                   {/* Row 1: badges */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px', flexWrap: 'wrap' }}>
                     <span style={{
-                      fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
+                      fontSize: '13px', padding: '2px 8px', borderRadius: '2px',
                       background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`,
                       fontFamily: 'var(--font-data)', textTransform: 'uppercase', fontWeight: 700,
                     }}>
@@ -473,7 +473,7 @@ export default function CommoditiesPanel() {
                     </span>
                     {item.commodity && (
                       <span style={{
-                        fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
+                        fontSize: '13px', padding: '2px 8px', borderRadius: '2px',
                         background: 'rgba(240,165,0,0.12)', color: '#f0a500',
                         border: '1px solid rgba(240,165,0,0.25)',
                         fontFamily: 'var(--font-data)', fontWeight: 700,
@@ -481,16 +481,16 @@ export default function CommoditiesPanel() {
                         {item.commodity}
                       </span>
                     )}
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {item.source}
                     </span>
-                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                    <span style={{ marginLeft: 'auto', fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {timeAgo(item.datetime)}
                     </span>
                   </div>
 
                   {/* Row 2: headline */}
-                  <div style={{ fontSize: '13px', color: '#fff', lineHeight: 1.4, fontFamily: 'var(--font-ui)', fontWeight: 600, marginBottom: '6px' }}>
+                  <div style={{ fontSize: '14px', color: '#fff', lineHeight: 1.4, fontFamily: 'var(--font-ui)', fontWeight: 600, marginBottom: '6px' }}>
                     {item.headline}
                   </div>
 
@@ -503,10 +503,10 @@ export default function CommoditiesPanel() {
                           background: 'rgba(30,144,255,0.06)', border: '1px solid rgba(30,144,255,0.15)',
                           borderLeft: '2px solid rgba(30,144,255,0.5)',
                         }}>
-                          <div style={{ fontSize: '10px', color: '#1e90ff', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '2px' }}>
+                          <div style={{ fontSize: '12px', color: '#1e90ff', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '2px' }}>
                             US IMPACT
                           </div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>
+                          <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>
                             {item.usImpact}
                           </div>
                         </div>
@@ -517,10 +517,10 @@ export default function CommoditiesPanel() {
                           background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.15)',
                           borderLeft: '2px solid rgba(249,115,22,0.5)',
                         }}>
-                          <div style={{ fontSize: '10px', color: '#f97316', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '2px' }}>
+                          <div style={{ fontSize: '12px', color: '#f97316', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '2px' }}>
                             INDIA IMPACT
                           </div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>
+                          <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>
                             {item.indImpact}
                           </div>
                         </div>
@@ -537,7 +537,7 @@ export default function CommoditiesPanel() {
       {/* Footer */}
       <div style={{
         padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
-        fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)',
+        fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)',
         display: 'flex', justifyContent: 'space-between',
       }}>
         <span>{COMMODITIES.length} instruments · Energy · Metals · Agriculture · Crypto</span>

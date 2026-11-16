@@ -36,7 +36,7 @@
   --text:       #f0f6fb;   /* primary — headlines, values, active labels */
   --text-2:     #cdd9e8;   /* secondary — row labels, panel subtitles      */
   --text-muted: #8fa8bb;   /* tertiary — helper text, timestamps, sources  */
-  --text-dim:   #4e6070;   /* quaternary — truly background info           */
+  --text-dim:   #8194a6;   /* quaternary — truly background info           */
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
@@ -85,7 +85,7 @@ html, body {
   align-items:     center;
   gap:             10px;
   font-family:     var(--font-ui);
-  font-size:       12px;
+  font-size:       13px;
   font-weight:     600;
   text-transform:  uppercase;
   letter-spacing:  0.06em;
@@ -111,7 +111,7 @@ html, body {
 /* Subtitle inside panel-header (e.g. "BSM · NEWTON-RAPHSON IV") */
 .panel-header-sub {
   font-family:    var(--font-data);
-  font-size:      10px;
+  font-size:      12px;
   font-weight:    400;
   letter-spacing: 0.08em;
   color:          var(--text-muted);
@@ -136,7 +136,7 @@ html, body {
   border-radius:   3px;
   cursor:          pointer;
   font-family:     var(--font-data);
-  font-size:       11px;
+  font-size:       13px;
   font-weight:     600;
   letter-spacing:  0.07em;
   border:          1px solid var(--border-br);
@@ -184,7 +184,7 @@ html, body {
 /* ── Section label — replaces all the 8px/9px section dividers ───────────── */
 .nx-section {
   padding:        4px 14px;
-  font-size:      10px;
+  font-size:      12px;
   font-family:    var(--font-data);
   font-weight:    500;
   letter-spacing: 0.12em;
@@ -198,7 +198,7 @@ html, body {
 .nx-badge {
   display:       inline-flex;
   align-items:   center;
-  font-size:     10px;
+  font-size:     12px;
   padding:       2px 7px;
   border-radius: 3px;
   font-family:   var(--font-data);
@@ -215,14 +215,14 @@ html, body {
   gap:         1px;
 }
 .nx-stat-label {
-  font-size:      9px;
+  font-size:      11px;
   font-family:    var(--font-data);
   letter-spacing: 0.1em;
   color:          var(--text-muted);
   text-transform: uppercase;
 }
 .nx-stat-value {
-  font-size:   13px;
+  font-size:   14px;
   font-family: var(--font-data);
   font-weight: 600;
   color:       var(--text);
@@ -265,11 +265,11 @@ html, body {
 
 /* ── Mobile-specific overrides ─────────────────────────────────────────────── */
 @media (max-width: 639px) {
-  html { font-size: 14px; }
+  html { font-size: 15px; }
 
   .panel-header {
     padding:   8px 12px;
-    font-size: 14px;
+    font-size: 15px;
     gap:       6px;
   }
 
@@ -285,7 +285,7 @@ html, body {
 
 /* ── Tablet adjustments ────────────────────────────────────────────────────── */
 @media (min-width: 640px) and (max-width: 1023px) {
-  html { font-size: 14px; }
+  html { font-size: 15px; }
 
   .panel-header { padding: 9px 12px; }
 }
@@ -330,7 +330,7 @@ select {
   color:         var(--text);
   border:        1px solid var(--border-br);
   border-radius: 3px;
-  font-size:     12px;
+  font-size:     13px;
 }
 
 select option {

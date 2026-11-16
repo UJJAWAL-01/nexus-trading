@@ -209,7 +209,7 @@ export default function SentimentPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" />
           MARKET SENTIMENT
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginLeft: '6px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginLeft: '6px' }}>
             Fear &amp; Greed Index
           </span>
           {guide.button}
@@ -244,11 +244,11 @@ export default function SentimentPanel() {
                 <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '26px', color: data.color, lineHeight: 1, transition: 'color 0.6s' }}>
                   {data.score}
                 </span>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>/100</span>
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>/100</span>
               </div>
             </div>
 
-            <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '13px', color: data.color, letterSpacing: '0.06em' }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '14px', color: data.color, letterSpacing: '0.06em' }}>
               {data.label}
             </div>
           </>
@@ -257,7 +257,7 @@ export default function SentimentPanel() {
         {/* Component breakdown */}
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '5px' }}>
           {data.loading ? (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-data)' }}>
+            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px', fontFamily: 'var(--font-data)' }}>
               Computing...
             </div>
           ) : data.components.map(c => (
@@ -265,13 +265,13 @@ export default function SentimentPanel() {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               padding: '5px 10px', background: 'var(--bg-deep)', borderRadius: '4px',
             }}>
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', flex: 1 }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', flex: 1 }}>
                 {c.label}
               </span>
-              <span style={{ fontSize: '10px', fontFamily: 'var(--font-data)', color: 'var(--text-2)', marginRight: '8px' }}>
+              <span style={{ fontSize: '12px', fontFamily: 'var(--font-data)', color: 'var(--text-2)', marginRight: '8px' }}>
                 {c.value}
               </span>
-              <span style={{ fontSize: '10px', fontFamily: 'var(--font-data)', color: c.color, minWidth: '44px', textAlign: 'right' }}>
+              <span style={{ fontSize: '12px', fontFamily: 'var(--font-data)', color: c.color, minWidth: '44px', textAlign: 'right' }}>
                 {c.contribution}
               </span>
             </div>
@@ -280,7 +280,7 @@ export default function SentimentPanel() {
 
         {/* Methodology note */}
         {!data.loading && (
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', textAlign: 'center', lineHeight: 1.5 }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', textAlign: 'center', lineHeight: 1.5 }}>
             VIX 25% · VIX momentum 20% · RSI(14) 30% · vs 50d MA 25%
           </div>
         )}

@@ -111,13 +111,13 @@ function Stat({ label, value, color }: { label: string; value: string; color?: s
       border: '1px solid var(--border)',
     }}>
       <div style={{
-        fontSize: 9, color: 'var(--text-muted)',
+        fontSize: 11, color: 'var(--text-muted)',
         fontFamily: 'var(--font-data)', letterSpacing: '0.08em',
       }}>
         {label}
       </div>
       <div style={{
-        fontSize: 13, color: color ?? '#fff',
+        fontSize: 14, color: color ?? '#fff',
         fontFamily: 'var(--font-data)', fontWeight: 700,
         marginTop: 2, fontVariantNumeric: 'tabular-nums',
       }}>
@@ -220,7 +220,7 @@ export default function StockProfilePanel() {
         <span>STOCK PROFILE</span>
         {effSym && (
           <span style={{
-            marginLeft: 'auto', fontSize: 10,
+            marginLeft: 'auto', fontSize: 12,
             color: 'var(--text-muted)',
             fontFamily: 'var(--font-data)',
           }}>
@@ -237,7 +237,7 @@ export default function StockProfilePanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'var(--font-data)',
+            fontSize: 13, fontFamily: 'var(--font-data)',
             lineHeight: 1.7,
           }}>
             
@@ -259,12 +259,12 @@ export default function StockProfilePanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'var(--font-data)',
+            fontSize: 13, fontFamily: 'var(--font-data)',
             lineHeight: 1.7,
           }}>
             <div style={{ color: 'var(--amber)', marginBottom: 8 }}>INDEX</div>
-            <code style={{ color: '#fff', fontSize: 12 }}>{effSym}</code><br/>
-            <span style={{ fontSize: 10, marginTop: 8, display: 'inline-block' }}>
+            <code style={{ color: '#fff', fontSize: 13 }}>{effSym}</code><br/>
+            <span style={{ fontSize: 12, marginTop: 8, display: 'inline-block' }}>
               Indices don&apos;t have company-level fundamentals.
             </span>
           </div>
@@ -275,7 +275,7 @@ export default function StockProfilePanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'var(--font-data)',
+            fontSize: 13, fontFamily: 'var(--font-data)',
           }}>
             Loading <b style={{ color: '#fff' }}>{effSym}</b> profile…
           </div>
@@ -285,7 +285,7 @@ export default function StockProfilePanel() {
         {effSym && !unsupported && !loading && error && (
           <div style={{
             textAlign: 'center', padding: '24px 16px',
-            color: 'var(--negative)', fontSize: 11,
+            color: 'var(--negative)', fontSize: 13,
             fontFamily: 'var(--font-data)',
           }}>
             ⚠ {error}
@@ -314,7 +314,7 @@ export default function StockProfilePanel() {
                   {profile.name}
                 </div>
                 <div style={{
-                  fontSize: 10, color: 'var(--text-muted)',
+                  fontSize: 12, color: 'var(--text-muted)',
                   fontFamily: 'var(--font-data)', marginTop: 3,
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>
@@ -325,13 +325,13 @@ export default function StockProfilePanel() {
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{
                   fontFamily: 'var(--font-data)',
-                  fontSize: 14, fontWeight: 700, color: '#fff',
+                  fontSize: 15, fontWeight: 700, color: '#fff',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
                   {fmtPrice(quote?.c)}
                 </div>
                 <div style={{
-                  fontFamily: 'var(--font-data)', fontSize: 10,
+                  fontFamily: 'var(--font-data)', fontSize: 12,
                   color: (quote?.dp ?? 0) >= 0 ? 'var(--positive)' : 'var(--negative)',
                   marginTop: 2, fontVariantNumeric: 'tabular-nums',
                 }}>
@@ -344,7 +344,7 @@ export default function StockProfilePanel() {
             {rangePos !== null && metrics?.['52WeekLow'] && metrics?.['52WeekHigh'] && (
               <div style={{ marginBottom: 14 }}>
                 <div style={{
-                  fontSize: 9, color: 'var(--text-muted)',
+                  fontSize: 11, color: 'var(--text-muted)',
                   fontFamily: 'var(--font-data)', letterSpacing: '0.08em',
                   marginBottom: 6,
                 }}>
@@ -366,7 +366,7 @@ export default function StockProfilePanel() {
                 </div>
                 <div style={{
                   display: 'flex', justifyContent: 'space-between',
-                  marginTop: 4, fontSize: 9,
+                  marginTop: 4, fontSize: 11,
                   fontFamily: 'var(--font-data)',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
@@ -402,14 +402,14 @@ export default function StockProfilePanel() {
             </div>
 
             {keyless && (
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginBottom: 10, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginBottom: 10, lineHeight: 1.5 }}>
                 Source: SEC annual filings{fiscalYear ? ` (fiscal ${fiscalYear})` : ''} and one year of price history. Ratios use the latest fiscal year, not the trailing twelve months. Market cap is the last reported share count × current price.
               </div>
             )}
 
             {/* Meta footer */}
             <div style={{
-              fontSize: 10, color: 'var(--text-muted)',
+              fontSize: 12, color: 'var(--text-muted)',
               fontFamily: 'var(--font-data)',
               borderTop: '1px solid var(--border)',
               paddingTop: 10, lineHeight: 1.8,

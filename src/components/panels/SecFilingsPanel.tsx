@@ -125,14 +125,14 @@ export default function SecFilingsPanel() {
       <div className="panel-header" style={{ flexShrink: 0, justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" style={{ background: '#f97316', flexShrink: 0 }} />
-          <span style={{ fontSize: '10px', letterSpacing: '0.12em', fontWeight: 700 }}>SEC FILINGS</span>
+          <span style={{ fontSize: '12px', letterSpacing: '0.12em', fontWeight: 700 }}>SEC FILINGS</span>
           {data?.companyName && (
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>· {data.companyName}</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>· {data.companyName}</span>
           )}
           {guide.button}
         </div>
         <button onClick={() => mutate()} disabled={isLoading} style={{
-          fontSize: '10px', padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
+          fontSize: '12px', padding: '2px 8px', borderRadius: '3px', cursor: 'pointer',
           border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)',
         }}>
           {isLoading ? '···' : '↺ Refresh'}
@@ -150,17 +150,17 @@ export default function SecFilingsPanel() {
           style={{
             flex: 1, minWidth: '100px', background: 'var(--bg-deep)', color: '#fff',
             border: '1px solid var(--border)', borderRadius: '4px',
-            padding: '5px 8px', fontSize: '11px', fontFamily: 'var(--font-data)', outline: 'none',
+            padding: '5px 8px', fontSize: '13px', fontFamily: 'var(--font-data)', outline: 'none',
           }}
         />
         <button onClick={submit} style={{
           padding: '5px 12px', borderRadius: '3px', cursor: 'pointer',
           border: '1px solid #f97316', background: 'rgba(249,115,22,0.12)',
-          color: '#f97316', fontSize: '10px', fontFamily: 'var(--font-data)',
+          color: '#f97316', fontSize: '12px', fontFamily: 'var(--font-data)',
         }}>SEARCH</button>
         {watchlist.slice(0, 4).map(s => (
           <button key={s} onClick={() => { setInput(s); setTicker(s) }} style={{
-            padding: '3px 7px', borderRadius: '3px', cursor: 'pointer', fontSize: '10px',
+            padding: '3px 7px', borderRadius: '3px', cursor: 'pointer', fontSize: '12px',
             border: `1px solid ${ticker === s ? '#f97316' : 'var(--border)'}`,
             background: ticker === s ? 'rgba(249,115,22,0.08)' : 'transparent',
             color: ticker === s ? '#f97316' : 'var(--text-muted)',
@@ -172,20 +172,20 @@ export default function SecFilingsPanel() {
       {/* ── Form type filters ───────────────────────────────────────────── */}
       <div style={{ padding: '6px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0,
                     display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>FORMS</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>FORMS</span>
         {ALL_TYPES.map(t => {
           const m  = fmtMeta(t)
           const on = active.has(t)
           return (
             <button key={t} onClick={() => toggleType(t)} style={{
-              padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '10px',
+              padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '12px',
               border: `1px solid ${on ? m.color : 'var(--border)'}`,
               background: on ? m.bg : 'transparent',
               color: on ? m.color : 'var(--text-muted)',
               fontFamily: 'var(--font-data)', fontWeight: 700,
             }}>
               {on ? '✓ ' : ''}{t}
-              <span style={{ marginLeft: '4px', fontWeight: 400, fontSize: '9px', opacity: 0.7 }}>
+              <span style={{ marginLeft: '4px', fontWeight: 400, fontSize: '11px', opacity: 0.7 }}>
                 {fmtMeta(t).description}
               </span>
             </button>
@@ -196,30 +196,30 @@ export default function SecFilingsPanel() {
       {/* ── Content ────────────────────────────────────────────────────── */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {isLoading && (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px' }}>
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
             <div style={{ marginBottom: '6px' }}>Fetching EDGAR filings…</div>
-            <div style={{ fontSize: '10px' }}>Parsing filing documents (5-10 s first load)</div>
+            <div style={{ fontSize: '12px' }}>Parsing filing documents (5-10 s first load)</div>
           </div>
         )}
 
         {!isLoading && error && (
-          <div style={{ padding: '24px', textAlign: 'center', fontSize: '11px' }}>
+          <div style={{ padding: '24px', textAlign: 'center', fontSize: '13px' }}>
             <div style={{ color: 'var(--negative)', marginBottom: '6px' }}>⚠ Network error</div>
             <button onClick={() => mutate()} style={{
-              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px',
+              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '13px',
               border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)',
             }}>↺ Retry</button>
           </div>
         )}
 
         {!isLoading && !error && data?.error && (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--negative)', fontSize: '11px' }}>
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--negative)', fontSize: '13px' }}>
             ⚠ {data.error}
           </div>
         )}
 
         {!isLoading && !error && data && !data.error && data.filings.length === 0 && (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px' }}>
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
             No recent filings of the selected types for <strong style={{ color: '#fff' }}>{data.ticker}</strong>.
           </div>
         )}
@@ -234,7 +234,7 @@ export default function SecFilingsPanel() {
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <div style={{
         padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
-        fontSize: '10px', color: 'var(--text-muted)', display: 'flex',
+        fontSize: '12px', color: 'var(--text-muted)', display: 'flex',
         justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px',
       }}>
         <span>Source: SEC EDGAR · 1h cache</span>
@@ -290,7 +290,7 @@ function FilingCard({ filing }: { filing: ParsedFiling }) {
       }}>
         {/* Form type badge */}
         <span style={{
-          fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '3px',
+          fontSize: '13px', fontWeight: 800, padding: '2px 8px', borderRadius: '3px',
           background: m.bg, color: m.color, letterSpacing: '0.08em', flexShrink: 0,
         }}>
           {filing.formType}
@@ -298,13 +298,13 @@ function FilingCard({ filing }: { filing: ParsedFiling }) {
 
         {/* Headline */}
         {headline && (
-          <span style={{ fontSize: '11px', color: '#fff', flex: 1, fontWeight: 600 }}>
+          <span style={{ fontSize: '13px', color: '#fff', flex: 1, fontWeight: 600 }}>
             {headline}
           </span>
         )}
 
         {/* Date */}
-        <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)', flexShrink: 0 }}>
+        <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}>
           {relDate(filing.filingDate)} · {filing.filingDate}
         </span>
       </div>
@@ -319,7 +319,7 @@ function FilingCard({ filing }: { filing: ParsedFiling }) {
             const ic = IMPORTANCE_COLOR[item.importance]
             return (
               <span key={item.code} style={{
-                fontSize: '10px', padding: '2px 6px', borderRadius: '3px',
+                fontSize: '12px', padding: '2px 6px', borderRadius: '3px',
                 background: ic.bg, color: ic.color,
                 border: `1px solid ${ic.border}`,
                 fontWeight: item.importance === 'high' ? 700 : 400,
@@ -349,8 +349,8 @@ function FilingCard({ filing }: { filing: ParsedFiling }) {
           }}>
             {tiles.map(t => (
               <div key={t.label} style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>{t.label}</div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: m.color, fontFamily: 'var(--font-data)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>{t.label}</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: m.color, fontFamily: 'var(--font-data)' }}>
                   {t.value}
                 </div>
               </div>
@@ -363,11 +363,11 @@ function FilingCard({ filing }: { filing: ParsedFiling }) {
       {filing.excerpt && (
         <div style={{ padding: '8px 12px' }}>
           {filing.exhibitSource && (
-            <span style={{ fontSize: '9px', color: 'var(--text-muted)', marginRight: '6px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginRight: '6px' }}>
               PRESS RELEASE ·
             </span>
           )}
-          <span style={{ fontSize: '11px', color: 'var(--text-2)', lineHeight: 1.55 }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-2)', lineHeight: 1.55 }}>
             {filing.excerpt}
           </span>
         </div>
@@ -381,18 +381,18 @@ function FilingCard({ filing }: { filing: ParsedFiling }) {
         background: 'rgba(255,255,255,0.01)',
       }}>
         <a href={linkUrl} target="_blank" rel="noopener noreferrer" style={{
-          fontSize: '10px', color: m.color, textDecoration: 'none', fontWeight: 600,
+          fontSize: '12px', color: m.color, textDecoration: 'none', fontWeight: 600,
         }}>
           View document →
         </a>
         {linkUrl !== indexUrl && (
           <a href={indexUrl} target="_blank" rel="noopener noreferrer" style={{
-            fontSize: '10px', color: 'var(--text-muted)', textDecoration: 'none',
+            fontSize: '12px', color: 'var(--text-muted)', textDecoration: 'none',
           }}>
             Filing index
           </a>
         )}
-        <span style={{ marginLeft: 'auto', fontSize: '9px', color: 'var(--text-muted)' }}>
+        <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)' }}>
           SEC EDGAR · {filing.accession}
         </span>
       </div>

@@ -31,14 +31,14 @@ const tone = (n: number | null) => (n === null ? 'var(--text-muted)' : n > 0 ? '
 
 const ctl: CSSProperties = {
   background: 'var(--bg-deep)', border: '1px solid var(--border)', color: 'var(--text)',
-  borderRadius: 3, padding: '5px 7px', fontSize: 11, fontFamily: MONO, minWidth: 0,
+  borderRadius: 3, padding: '5px 7px', fontSize: 13, fontFamily: MONO, minWidth: 0,
 }
-const lbl: CSSProperties = { fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
+const lbl: CSSProperties = { fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
 const th: CSSProperties = {
-  padding: '6px 8px', fontSize: 10, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700,
+  padding: '6px 8px', fontSize: 12, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700,
   textAlign: 'right', position: 'sticky', top: 0, background: 'var(--bg-panel)', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none',
 }
-const td: CSSProperties = { padding: '6px 8px', fontSize: 11, fontFamily: MONO, textAlign: 'right', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border)' }
+const td: CSSProperties = { padding: '6px 8px', fontSize: 13, fontFamily: MONO, textAlign: 'right', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border)' }
 
 type SortKey = keyof Company
 const COLUMNS: Array<{ key: SortKey; label: string; render: (c: Company) => string; color?: (c: Company) => string; title?: string }> = [
@@ -118,7 +118,7 @@ export default function ScreenerPanel() {
           <div className="dot" />
           SCREENER
           {data && (
-            <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
               {results.length.toLocaleString()} OF {companies.length.toLocaleString()} US FILERS · FY{data.fiscalYear}
             </span>
           )}
@@ -193,7 +193,7 @@ export default function ScreenerPanel() {
                 <tr key={`${c.cik}-${c.ticker}`}>
                   <td style={{ ...td, textAlign: 'left' }}>
                     <button type="button" onClick={() => setActiveSymbol(c.ticker)} title={`Focus ${c.ticker} across the dashboard`}
-                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--amber)', fontFamily: MONO, fontSize: 11, fontWeight: 700 }}>
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--amber)', fontFamily: MONO, fontSize: 13, fontWeight: 700 }}>
                       {c.ticker}
                     </button>
                   </td>
@@ -216,7 +216,7 @@ export default function ScreenerPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         {data
           ? `Source: ${data.source}. Annual figures as filed for FY${data.fiscalYear}; built ${data.generatedAt.slice(0, 10)}. Companies missing a metric are excluded by filters on that metric. Not financial advice.`
           : 'Source: SEC EDGAR public data.'}
@@ -226,5 +226,5 @@ export default function ScreenerPanel() {
 }
 
 function Note({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }

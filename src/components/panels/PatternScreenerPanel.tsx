@@ -132,7 +132,7 @@ function Spark({ row }: { row: Row }) {
 }
 
 const pillStyle = (active: boolean, color = 'var(--teal)'): CSSProperties => ({
-  padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '10px', fontFamily: 'var(--font-data)',
+  padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '12px', fontFamily: 'var(--font-data)',
   border: `1px solid ${active ? color : 'var(--border)'}`,
   background: active ? 'rgba(0,229,192,0.1)' : 'transparent',
   color: active ? color : 'var(--text-2)', whiteSpace: 'nowrap',
@@ -256,7 +256,7 @@ export default function PatternScreenerPanel() {
       <div className="panel-header" style={{ justifyContent: 'space-between', padding: '6px 10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div className="dot" />
-          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em' }}>PATTERN SCREENER</span>
+          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '13px', letterSpacing: '0.05em' }}>PATTERN SCREENER</span>
           {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '3px' }}>
@@ -271,7 +271,7 @@ export default function PatternScreenerPanel() {
       <div style={{ display: 'flex', gap: '4px', padding: '6px 10px', borderBottom: '1px solid var(--border)', overflowX: 'auto', background: 'rgba(0,0,0,0.18)' }}>
         {PRESETS.map(p => (
           <button key={p.label} onClick={() => applyPreset(p)} style={{
-            padding: '3px 9px', borderRadius: '3px', cursor: 'pointer', fontSize: '10px', flexShrink: 0,
+            padding: '3px 9px', borderRadius: '3px', cursor: 'pointer', fontSize: '12px', flexShrink: 0,
             fontFamily: 'var(--font-ui)', fontWeight: 700, border: '1px solid var(--border)',
             background: 'var(--bg-deep)', color: 'var(--text-2)', whiteSpace: 'nowrap',
           }}>{p.label}</button>
@@ -312,7 +312,7 @@ export default function PatternScreenerPanel() {
 
         {/* min quality slider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>Q≥{minConf}</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>Q≥{minConf}</span>
           <input type="range" min={0} max={95} value={minConf} onChange={e => setMinConf(Number(e.target.value))} style={{ width: 70, accentColor: 'var(--teal)' }} />
         </div>
       </div>
@@ -321,7 +321,7 @@ export default function PatternScreenerPanel() {
       <div style={{ padding: '6px 10px', borderBottom: '1px solid var(--border)', maxHeight: '42%', overflowY: 'auto', flexShrink: 0 }}>
         {PATTERN_GROUPS.map(g => (
           <div key={g.group} style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center', marginBottom: 4 }}>
-            <span style={{ width: 84, flexShrink: 0, fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.1em', fontFamily: 'var(--font-data)' }}>{g.group.toUpperCase()}</span>
+            <span style={{ width: 84, flexShrink: 0, fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.1em', fontFamily: 'var(--font-data)' }}>{g.group.toUpperCase()}</span>
             {g.items.map(it => {
               const n = counts.get(it.id) ?? 0, on = selected.has(it.id)
               return (
@@ -341,13 +341,13 @@ export default function PatternScreenerPanel() {
       </div>
 
       {/* scan status */}
-      <div style={{ position: 'relative', padding: '3px 10px', fontSize: 9, color: 'var(--text-muted)', fontFamily: 'var(--font-data)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}>
+      <div style={{ position: 'relative', padding: '3px 10px', fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-data)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}>
         <span>
           {loading
             ? `scanning ${tf === '1D' ? 'daily' : 'weekly'} candles… ${pct}% · ${progress.scanned} stocks read`
             : `${progress.scanned} of ${progress.symbols} stocks scanned on ${tf === '1D' ? 'daily' : 'weekly'} candles${progress.at ? ` · ${timeAgo(progress.at)}` : ''}`}
           {!loading && progress.failed > 0 && (
-            <button onClick={() => setReload(n => n + 1)} style={{ marginLeft: 8, background: 'none', border: 'none', color: 'var(--amber)', cursor: 'pointer', fontSize: 9, fontFamily: 'inherit', padding: 0 }}>
+            <button onClick={() => setReload(n => n + 1)} style={{ marginLeft: 8, background: 'none', border: 'none', color: 'var(--amber)', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', padding: 0 }}>
               {progress.failed} part{progress.failed > 1 ? 's' : ''} did not load · retry
             </button>
           )}
@@ -359,12 +359,12 @@ export default function PatternScreenerPanel() {
       {/* results */}
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {loading && rows.length === 0 && (
-          <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: 11 }}>
+          <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: 13 }}>
             Reading price history… results appear here as each batch finishes.
           </div>
         )}
         {!loading && rows.length === 0 && (
-          <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: 11 }}>
+          <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: 13 }}>
             {progress.scanned === 0 ? 'Price history could not be loaded just now. Try again in a minute.' : 'No stocks match these filters. Lower Q or clear a pattern.'}
           </div>
         )}
@@ -377,34 +377,34 @@ export default function PatternScreenerPanel() {
               padding: '7px 10px', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(30,45,61,0.5)',
             }}>
               <div style={{ minWidth: 76, flexShrink: 0 }}>
-                <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: '#fff' }}>{row.symbol.replace('.NS', '')}{row.country === 'IN' && <span style={{ marginLeft: 4, fontSize: 8, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>NSE</span>}</div>
-                <div style={{ fontSize: 9, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 80 }}>{row.name}</div>
+                <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, color: '#fff' }}>{row.symbol.replace('.NS', '')}{row.country === 'IN' && <span style={{ marginLeft: 4, fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>NSE</span>}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 80 }}>{row.name}</div>
               </div>
               <div style={{ minWidth: 60, flexShrink: 0, fontFamily: 'var(--font-data)' }}>
-                <div style={{ fontSize: 11, color: '#fff' }}>{row.price}</div>
-                <div style={{ fontSize: 10, color: up ? 'var(--positive)' : 'var(--negative)' }}>{up ? '+' : ''}{row.changePct}%</div>
+                <div style={{ fontSize: 13, color: '#fff' }}>{row.price}</div>
+                <div style={{ fontSize: 12, color: up ? 'var(--positive)' : 'var(--negative)' }}>{up ? '+' : ''}{row.changePct}%</div>
               </div>
               <Spark row={row} />
               <div style={{ flex: 1, minWidth: 0, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {row.detections.slice(0, 3).map((d, i) => (
                   <span key={i} style={{
-                    fontSize: 9, fontFamily: 'var(--font-data)', padding: '1px 6px', borderRadius: 3,
+                    fontSize: 11, fontFamily: 'var(--font-data)', padding: '1px 6px', borderRadius: 3,
                     border: `1px solid ${DIR_COLOR[d.direction]}55`, color: DIR_COLOR[d.direction], background: `${DIR_COLOR[d.direction]}14`,
                   }}>{d.name} {d.confidence}</span>
                 ))}
               </div>
               <div style={{ minWidth: 64, flexShrink: 0, textAlign: 'right', fontFamily: 'var(--font-data)' }}>
-                <div style={{ fontSize: 9, fontWeight: 800, color: STATUS_COLOR[det.status], textTransform: 'uppercase' }}>{det.status}</div>
-                <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{det.ageBar === 0 ? (tf === '1D' ? 'latest candle' : 'this week') : `${det.ageBar} ${tf === '1D' ? 'day' : 'week'}${det.ageBar > 1 ? 's' : ''} ago`}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: STATUS_COLOR[det.status], textTransform: 'uppercase' }}>{det.status}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{det.ageBar === 0 ? (tf === '1D' ? 'latest candle' : 'this week') : `${det.ageBar} ${tf === '1D' ? 'day' : 'week'}${det.ageBar > 1 ? 's' : ''} ago`}</div>
                 {det.distToBreakoutPct != null && (
-                  <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{det.distToBreakoutPct > 0 ? '+' : ''}{det.distToBreakoutPct.toFixed(1)}% to brk</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{det.distToBreakoutPct > 0 ? '+' : ''}{det.distToBreakoutPct.toFixed(1)}% to brk</div>
                 )}
               </div>
             </button>
           )
         })}
         {rows.length > shown && (
-          <button onClick={() => setShown(n => n + PAGE)} style={{ width: '100%', padding: '8px', background: 'transparent', border: 'none', color: 'var(--teal)', cursor: 'pointer', fontSize: 10, fontFamily: 'var(--font-data)' }}>
+          <button onClick={() => setShown(n => n + PAGE)} style={{ width: '100%', padding: '8px', background: 'transparent', border: 'none', color: 'var(--teal)', cursor: 'pointer', fontSize: 12, fontFamily: 'var(--font-data)' }}>
             Show {Math.min(PAGE, rows.length - shown)} more of {rows.length - shown}
           </button>
         )}
@@ -414,6 +414,6 @@ export default function PatternScreenerPanel() {
 }
 
 const selStyle: CSSProperties = {
-  padding: '2px 6px', borderRadius: 3, fontSize: 10, fontFamily: 'var(--font-data)',
+  padding: '2px 6px', borderRadius: 3, fontSize: 12, fontFamily: 'var(--font-data)',
   border: '1px solid var(--border)', background: 'var(--bg-deep)', color: 'var(--text-2)', cursor: 'pointer',
 }

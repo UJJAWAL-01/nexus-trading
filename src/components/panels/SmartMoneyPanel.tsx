@@ -96,7 +96,7 @@ function ConsensusRow({ item, totalFunds, market, prices, isActive, onClick }: {
         display: 'grid', gridTemplateColumns: '24px 1fr 90px 56px 72px 60px',
         padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)',
         alignItems: 'center', fontFamily: 'var(--font-data)',
-        fontSize: 11, cursor: item.ticker ? 'pointer' : 'default',
+        fontSize: 13, cursor: item.ticker ? 'pointer' : 'default',
         transition: 'background 0.15s, box-shadow 0.15s',
         background:   isActive ? 'rgba(240,165,0,0.12)' : 'transparent',
         boxShadow:    isActive ? 'inset 3px 0 0 var(--amber)' : 'none',
@@ -104,25 +104,25 @@ function ConsensusRow({ item, totalFunds, market, prices, isActive, onClick }: {
       onMouseEnter={e => { if (item.ticker && !isActive) e.currentTarget.style.background = 'rgba(0,229,192,0.08)' }}
       onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
     >
-      <span style={{ color: 'var(--text-muted)', fontSize: 9 }}>{item.count}</span>
+      <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>{item.count}</span>
       <div style={{ overflow: 'hidden' }}>
         <div style={{ color: '#e8e8e8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {item.name}
         </div>
-        <div style={{ fontSize: 9, color: 'rgba(0,229,192,0.6)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ fontSize: 11, color: 'rgba(0,229,192,0.6)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {item.funds.slice(0, 4).join(' · ')}{item.funds.length > 4 ? ` +${item.funds.length - 4}` : ''}
         </div>
       </div>
-      <span style={{ textAlign: 'center', color: item.count >= 4 ? 'var(--positive)' : item.count >= 3 ? 'var(--amber)' : 'var(--text-2)', fontSize: 10, letterSpacing: 0 }}>
+      <span style={{ textAlign: 'center', color: item.count >= 4 ? 'var(--positive)' : item.count >= 3 ? 'var(--amber)' : 'var(--text-2)', fontSize: 12, letterSpacing: 0 }}>
         {filled}
       </span>
       <span style={{ textAlign: 'right', color: 'var(--amber)', fontVariantNumeric: 'tabular-nums' }}>
         {item.avgPct.toFixed(1)}%
       </span>
-      <span style={{ textAlign: 'right', color: 'var(--teal)', fontVariantNumeric: 'tabular-nums', fontSize: 10 }}>
+      <span style={{ textAlign: 'right', color: 'var(--teal)', fontVariantNumeric: 'tabular-nums', fontSize: 12 }}>
         {fmtPrice(price, market)}
       </span>
-      <span style={{ textAlign: 'right', color: changeColor, fontVariantNumeric: 'tabular-nums', fontSize: 10 }}>
+      <span style={{ textAlign: 'right', color: changeColor, fontVariantNumeric: 'tabular-nums', fontSize: 12 }}>
         {fmtChange(change)}
       </span>
     </div>
@@ -150,7 +150,7 @@ function HoldingRow({ holding, rank, market, prices, isActive, onClick }: {
         display: 'grid', gridTemplateColumns: '24px 1fr 56px 72px 60px',
         padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)',
         alignItems: 'center', fontFamily: 'var(--font-data)',
-        fontSize: 11, cursor: holding.ticker ? 'pointer' : 'default',
+        fontSize: 13, cursor: holding.ticker ? 'pointer' : 'default',
         transition: 'background 0.15s, box-shadow 0.15s',
         background:   isActive ? 'rgba(240,165,0,0.12)' : 'transparent',
         boxShadow:    isActive ? 'inset 3px 0 0 var(--amber)' : 'none',
@@ -158,22 +158,22 @@ function HoldingRow({ holding, rank, market, prices, isActive, onClick }: {
       onMouseEnter={e => { if (holding.ticker && !isActive) e.currentTarget.style.background = 'rgba(0,229,192,0.08)' }}
       onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
     >
-      <span style={{ color: 'var(--text-muted)', fontSize: 9 }}>{rank}</span>
+      <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>{rank}</span>
       <div style={{ overflow: 'hidden' }}>
         <div style={{ color: '#e8e8e8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {holding.name}
         </div>
         {holding.ticker && (
-          <div style={{ fontSize: 9, color: 'rgba(0,229,192,0.6)', marginTop: 1 }}>{holding.ticker}</div>
+          <div style={{ fontSize: 11, color: 'rgba(0,229,192,0.6)', marginTop: 1 }}>{holding.ticker}</div>
         )}
       </div>
       <span style={{ textAlign: 'right', color: 'var(--amber)', fontVariantNumeric: 'tabular-nums' }}>
         {holding.pctPort.toFixed(1)}%
       </span>
-      <span style={{ textAlign: 'right', color: 'var(--teal)', fontVariantNumeric: 'tabular-nums', fontSize: 10 }}>
+      <span style={{ textAlign: 'right', color: 'var(--teal)', fontVariantNumeric: 'tabular-nums', fontSize: 12 }}>
         {fmtPrice(price, market)}
       </span>
-      <span style={{ textAlign: 'right', color: changeColor, fontVariantNumeric: 'tabular-nums', fontSize: 10 }}>
+      <span style={{ textAlign: 'right', color: changeColor, fontVariantNumeric: 'tabular-nums', fontSize: 12 }}>
         {fmtChange(change)}
       </span>
     </div>
@@ -296,7 +296,7 @@ export default function SmartMoneyPanel() {
       <div className="panel-header">
         <span className="dot" style={{ background: '#00e5c0', boxShadow: '0 0 6px #00e5c0' }} />
         <span>SMART MONEY</span>
-        <span style={{ marginLeft: 'auto', fontSize: 9, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
           {market === 'US' ? 'SEC 13F · 7 FUNDS' : 'NSE LIVE · 7 CATEGORIES'}
         </span>
         <span style={{ marginLeft: 8, display: 'inline-flex' }}>{guide.button}</span>
@@ -308,7 +308,7 @@ export default function SmartMoneyPanel() {
         {(['US', 'IN'] as const).map(m => (
           <button key={m} onClick={() => handleMarket(m)} style={{
             padding: '4px 14px', borderRadius: 3, cursor: 'pointer',
-            fontFamily: 'var(--font-data)', fontSize: 10, fontWeight: 700,
+            fontFamily: 'var(--font-data)', fontSize: 12, fontWeight: 700,
             border: `1px solid ${market === m ? '#00e5c0' : 'var(--border)'}`,
             background: market === m ? 'rgba(0,229,192,0.15)' : 'transparent',
             color: market === m ? '#00e5c0' : 'var(--text-muted)',
@@ -322,7 +322,7 @@ export default function SmartMoneyPanel() {
       <div style={{ display: 'flex', gap: 4, padding: '7px 12px', overflowX: 'auto', borderBottom: '1px solid var(--border)', scrollbarWidth: 'none' }}>
         <button onClick={() => setSelectedId(null)} style={{
           padding: '3px 11px', borderRadius: 3, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-          fontFamily: 'var(--font-data)', fontSize: 10, fontWeight: 700,
+          fontFamily: 'var(--font-data)', fontSize: 12, fontWeight: 700,
           border: `1px solid ${isConsensusView ? 'var(--teal)' : 'var(--border)'}`,
           background: isConsensusView ? 'rgba(0,229,192,0.1)' : 'transparent',
           color: isConsensusView ? 'var(--teal)' : 'var(--text-muted)',
@@ -336,7 +336,7 @@ export default function SmartMoneyPanel() {
           return (
             <button key={f.id} onClick={() => setSelectedId(f.id)} title={f.full} style={{
               padding: '3px 11px', borderRadius: 3, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-              fontFamily: 'var(--font-data)', fontSize: 10,
+              fontFamily: 'var(--font-data)', fontSize: 12,
               border: `1px solid ${selected ? '#00e5c0' : failed ? 'var(--negative)' : 'var(--border)'}`,
               background: selected ? 'rgba(0,229,192,0.12)' : 'transparent',
               color: selected ? '#00e5c0' : failed ? 'var(--negative)' : 'var(--text-muted)',
@@ -351,7 +351,7 @@ export default function SmartMoneyPanel() {
       {/* Context line */}
       {contextLine && (
         <div style={{
-          padding: '5px 12px', fontFamily: 'var(--font-data)', fontSize: 10,
+          padding: '5px 12px', fontFamily: 'var(--font-data)', fontSize: 12,
           color: '#00e5c0', background: 'rgba(0,229,192,0.06)',
           borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap',
           overflow: 'hidden', textOverflow: 'ellipsis',
@@ -366,7 +366,7 @@ export default function SmartMoneyPanel() {
           display: 'grid',
           gridTemplateColumns: isConsensusView ? '24px 1fr 90px 56px 72px 60px' : '24px 1fr 56px 72px 60px',
           padding: '5px 12px', borderBottom: '1px solid var(--border)',
-          fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.08em',
+          fontFamily: 'var(--font-data)', fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.08em',
           background: 'var(--bg-panel)',
         }}>
           {isConsensusView ? (
@@ -393,15 +393,15 @@ export default function SmartMoneyPanel() {
         {loading ? (
           <Skeleton />
         ) : error ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 20, fontFamily: 'var(--font-data)', fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 20, fontFamily: 'var(--font-data)', fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
             <span style={{ color: 'var(--negative)' }}>⚠ {error}</span>
-            <button onClick={loadData} style={{ padding: '4px 14px', borderRadius: 3, cursor: 'pointer', fontFamily: 'var(--font-data)', fontSize: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}>
+            <button onClick={loadData} style={{ padding: '4px 14px', borderRadius: 3, cursor: 'pointer', fontFamily: 'var(--font-data)', fontSize: 12, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)' }}>
               RETRY
             </button>
           </div>
         ) : isConsensusView ? (
           consensus.length === 0 ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-data)', fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: 20 }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-data)', fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', padding: 20 }}>
               No consensus picks (no overlap across funds).<br/>
               Click a fund button to see individual holdings.
             </div>
@@ -435,7 +435,7 @@ export default function SmartMoneyPanel() {
             ))}
           </div>
         ) : (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-data)', fontSize: 11, color: 'var(--text-muted)' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-data)', fontSize: 13, color: 'var(--text-muted)' }}>
             No holdings data
           </div>
         )}
@@ -443,7 +443,7 @@ export default function SmartMoneyPanel() {
 
       {/* Footer hint */}
       <div style={{
-        padding: '5px 12px', fontSize: 9, color: 'var(--text-muted)',
+        padding: '5px 12px', fontSize: 11, color: 'var(--text-muted)',
         fontFamily: 'var(--font-data)', borderTop: '1px solid var(--border)',
         display: 'flex', justifyContent: 'space-between', gap: 8,
       }}>

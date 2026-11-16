@@ -47,20 +47,20 @@ function guessCurrency(symbol: string): string {
 
 const btn: CSSProperties = {
   background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-2)',
-  borderRadius: 3, padding: '4px 10px', fontSize: 11, cursor: 'pointer',
+  borderRadius: 3, padding: '4px 10px', fontSize: 13, cursor: 'pointer',
   fontFamily: MONO, fontWeight: 700, minHeight: 26,
 }
 const input: CSSProperties = {
   background: 'var(--bg-deep)', border: '1px solid var(--border)', color: 'var(--text)',
-  borderRadius: 3, padding: '6px 8px', fontSize: 12, fontFamily: MONO, minWidth: 0, width: '100%',
+  borderRadius: 3, padding: '6px 8px', fontSize: 13, fontFamily: MONO, minWidth: 0, width: '100%',
 }
 const th: CSSProperties = {
-  padding: '6px 8px', fontSize: 10, letterSpacing: '0.08em', color: 'var(--text-muted)',
+  padding: '6px 8px', fontSize: 12, letterSpacing: '0.08em', color: 'var(--text-muted)',
   fontFamily: MONO, fontWeight: 700, textAlign: 'right', position: 'sticky', top: 0,
   background: 'var(--bg-panel)', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap',
 }
 const td: CSSProperties = {
-  padding: '7px 8px', fontSize: 12, fontFamily: MONO, textAlign: 'right', whiteSpace: 'nowrap',
+  padding: '7px 8px', fontSize: 13, fontFamily: MONO, textAlign: 'right', whiteSpace: 'nowrap',
   borderBottom: '1px solid var(--border)',
 }
 
@@ -170,11 +170,11 @@ export default function PortfolioPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" />
           PORTFOLIO
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: MONO }}>{positions.length}</span>
+          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: MONO }}>{positions.length}</span>
           {statusLabel && (
             <span
               title={status === 'live' ? 'Prices pushed over a live stream' : status === 'polling' ? 'Live stream unavailable; refreshing every 20s' : 'Connecting to the price stream'}
-              style={{ fontSize: 10, color: statusColor, fontFamily: MONO, fontWeight: 700, letterSpacing: '0.08em' }}
+              style={{ fontSize: 12, color: statusColor, fontFamily: MONO, fontWeight: 700, letterSpacing: '0.08em' }}
             >
               ● {statusLabel}
             </span>
@@ -213,7 +213,7 @@ export default function PortfolioPanel() {
       )}
 
       {notice && (
-        <div role="status" style={{ padding: '6px 10px', fontSize: 11, fontFamily: MONO, color: notice.ok ? 'var(--positive)' : 'var(--negative)', borderBottom: '1px solid var(--border)' }}>
+        <div role="status" style={{ padding: '6px 10px', fontSize: 13, fontFamily: MONO, color: notice.ok ? 'var(--positive)' : 'var(--negative)', borderBottom: '1px solid var(--border)' }}>
           {notice.text}
         </div>
       )}
@@ -229,7 +229,7 @@ export default function PortfolioPanel() {
                 <Stat label="TOTAL P&L" value={t.priced ? money(total, currency, true) : '—'} color={tone(t.priced ? total : null)}
                   sub={t.priced && t.cost !== 0 ? pct((total / Math.abs(t.cost)) * 100) : undefined} />
                 {t.priced < t.count && (
-                  <div style={{ gridColumn: '1 / -1', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+                  <div style={{ gridColumn: '1 / -1', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
                     {t.count - t.priced} position(s) awaiting a price are excluded from these totals.
                   </div>
                 )}
@@ -241,7 +241,7 @@ export default function PortfolioPanel() {
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {rows.length === 0 ? (
-          <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: MONO, fontSize: 12, lineHeight: 1.7 }}>
+          <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: MONO, fontSize: 13, lineHeight: 1.7 }}>
             <div style={{ color: 'var(--text-2)', fontWeight: 700, marginBottom: 6 }}>No positions yet</div>
             Add a position with <strong>+ ADD</strong> or import a CSV with the columns<br />
             <code>symbol, quantity, avg_cost</code>.<br />
@@ -268,7 +268,7 @@ export default function PortfolioPanel() {
                   <td style={{ ...td, textAlign: 'left' }}>
                     <button
                       type="button" onClick={() => setActiveSymbol(p.symbol)} title={`Focus ${p.symbol} across the dashboard`}
-                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--amber)', fontFamily: MONO, fontSize: 12, fontWeight: 700 }}
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--amber)', fontFamily: MONO, fontSize: 13, fontWeight: 700 }}
                     >
                       {p.symbol}
                     </button>
@@ -284,7 +284,7 @@ export default function PortfolioPanel() {
                     <button
                       type="button" aria-label={`Remove ${p.symbol}`} title={`Remove ${p.symbol}`}
                       onClick={() => { if (window.confirm(`Remove ${p.symbol} from the portfolio?`)) remove(p.id) }}
-                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13, padding: '2px 6px' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14, padding: '2px 6px' }}
                     >
                       ✕
                     </button>
@@ -296,7 +296,7 @@ export default function PortfolioPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         Prices may be delayed. Unrealized P&amp;L only; excludes fees, dividends and FX. Not financial advice.
       </div>
     </div>
@@ -306,9 +306,9 @@ export default function PortfolioPanel() {
 function Stat({ label, value, color, sub }: { label: string; value: string; color?: string; sub?: string }) {
   return (
     <div style={{ minWidth: 0 }}>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>{label}</div>
-      <div style={{ fontSize: 14, fontWeight: 700, fontFamily: MONO, color: color ?? 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</div>
-      {sub && <div style={{ fontSize: 10, fontFamily: MONO, color: color ?? 'var(--text-muted)' }}>{sub}</div>}
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>{label}</div>
+      <div style={{ fontSize: 15, fontWeight: 700, fontFamily: MONO, color: color ?? 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</div>
+      {sub && <div style={{ fontSize: 12, fontFamily: MONO, color: color ?? 'var(--text-muted)' }}>{sub}</div>}
     </div>
   )
 }

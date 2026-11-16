@@ -111,7 +111,7 @@ export default function ActiveSymbolPill() {
           background: transparent;
           border: none;
           color: var(--amber);
-          font-size: 11px;
+          font-size: 13px;
           font-weight: 700;
           letter-spacing: 0.06em;
           cursor: pointer;

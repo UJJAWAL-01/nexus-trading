@@ -126,7 +126,7 @@ function HelpOverlay({ onClose }: { onClose: () => void }) {
         fontFamily: 'var(--font-data)',
         boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
       }}>
-        <div style={{ fontSize: '13px', color: '#fff', fontWeight: 700, letterSpacing: '0.1em',
+        <div style={{ fontSize: '14px', color: '#fff', fontWeight: 700, letterSpacing: '0.1em',
                       marginBottom: '14px' }}>
           KEYBOARD SHORTCUTS
         </div>
@@ -136,15 +136,15 @@ function HelpOverlay({ onClose }: { onClose: () => void }) {
               <span style={{
                 minWidth: '38px', padding: '2px 8px', borderRadius: '3px',
                 background: 'rgba(167,139,250,0.10)', border: '1px solid rgba(167,139,250,0.3)',
-                color: '#a78bfa', fontSize: '11px', fontWeight: 700, textAlign: 'center',
+                color: '#a78bfa', fontSize: '13px', fontWeight: 700, textAlign: 'center',
               }}>
                 {r.keys}
               </span>
-              <span style={{ fontSize: '11px', color: 'var(--text-2)' }}>{r.label}</span>
+              <span style={{ fontSize: '13px', color: 'var(--text-2)' }}>{r.label}</span>
             </div>
           ))}
         </div>
-        <div style={{ marginTop: '14px', fontSize: '10px', color: 'var(--text-muted)' }}>
+        <div style={{ marginTop: '14px', fontSize: '12px', color: 'var(--text-muted)' }}>
           Letter shortcuts are disabled while typing in inputs.
         </div>
       </div>
@@ -157,7 +157,7 @@ function KeyboardHint() {
   return (
     <div style={{
       position: 'fixed', left: '10px', bottom: '10px', zIndex: 80,
-      fontSize: '10px', color: 'var(--text-muted)',
+      fontSize: '12px', color: 'var(--text-muted)',
       fontFamily: 'var(--font-data)',
       letterSpacing: '0.08em',
       padding: '4px 8px', borderRadius: '3px',

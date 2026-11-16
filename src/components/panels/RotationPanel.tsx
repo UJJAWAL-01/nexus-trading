@@ -47,8 +47,8 @@ const QUAD: Record<Quadrant, { label: string; color: string; meaning: string }> 
   improving: { label: 'IMPROVING', color: '#38bdf8',         meaning: 'behind the index but catching up' },
 }
 
-const th: CSSProperties = { padding: '5px 8px', fontSize: 10, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: 'var(--bg-panel)' }
-const td: CSSProperties = { padding: '5px 8px', fontSize: 11, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
+const th: CSSProperties = { padding: '5px 8px', fontSize: 12, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: 'var(--bg-panel)' }
+const td: CSSProperties = { padding: '5px 8px', fontSize: 13, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
 const signed = (n: number | null, dp = 1) => (n === null || !Number.isFinite(n) ? '—' : `${n > 0 ? '+' : ''}${n.toFixed(dp)}`)
 const tone = (n: number | null) => (n === null || n === 0 ? 'var(--text-2)' : n > 0 ? 'var(--positive)' : 'var(--negative)')
 const short = (s: string) => s.replace(/^\^CNX|^\^NSE|^\^/, '').replace(/\.(NS|BO)$/, '')
@@ -160,14 +160,14 @@ export default function RotationPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" />
           ROTATION
-          <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>VS {universe.benchmarkLabel.toUpperCase()} · RUNS IN YOUR BROWSER</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>VS {universe.benchmarkLabel.toUpperCase()} · RUNS IN YOUR BROWSER</span>
         </div>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }} role="group" aria-label="Universe">
           {([['us', US.label], ['india', INDIA.label], ['watchlist', 'MY WATCHLIST']] as Array<[UniverseId, string]>).map(([u, label]) => (
             <button key={u} type="button" onClick={() => setId(u)} aria-pressed={id === u} style={{
               background: id === u ? 'color-mix(in srgb, var(--teal) 14%, transparent)' : 'transparent',
               border: `1px solid ${id === u ? 'var(--teal)' : 'var(--border)'}`, color: id === u ? 'var(--teal)' : 'var(--text-muted)',
-              borderRadius: 3, padding: '3px 7px', fontSize: 10, fontFamily: MONO, fontWeight: 700, cursor: 'pointer',
+              borderRadius: 3, padding: '3px 7px', fontSize: 12, fontFamily: MONO, fontWeight: 700, cursor: 'pointer',
             }}>{label}</button>
           ))}
           {guide.button}
@@ -186,7 +186,7 @@ export default function RotationPanel() {
           <Note bad text="Not enough shared price history to measure relative strength." />
         ) : (
           <div key={id} className="nx-fade">
-            <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 12, borderBottom: '1px solid var(--border)', color: 'var(--text-2)', lineHeight: 1.5 }}>
+            <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 13, borderBottom: '1px solid var(--border)', color: 'var(--text-2)', lineHeight: 1.5 }}>
               {leading.length
                 ? <>Leading the {universe.benchmarkLabel}: <strong style={{ color: 'var(--positive)' }}>{leading.join(', ')}</strong>. </>
                 : <>Nothing is clearly leading the {universe.benchmarkLabel} right now. </>}
@@ -195,7 +195,7 @@ export default function RotationPanel() {
             </div>
 
             <div style={{ padding: '8px 10px 0' }}><Scatter rows={rows} onPick={setActive} focus={focus} onFocus={setFocus} /></div>
-            <div style={{ padding: '2px 10px 8px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>
+            <div style={{ padding: '2px 10px 8px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>
               Strength: price ÷ index, compared with its own {TREND_DAYS}-day average. Momentum: change in strength over {MOMENTUM_DAYS} trading days. Tails show the last five weeks; hover a point or row to trace one. Click to open it.
             </div>
 
@@ -223,7 +223,7 @@ export default function RotationPanel() {
               </tbody>
             </table>
             {missing.length > 0 && (
-              <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+              <div style={{ padding: '6px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
                 Not shown (too little price history): {missing.map(short).join(', ')}
               </div>
             )}
@@ -231,7 +231,7 @@ export default function RotationPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         Relative performance describes the past; leadership changes without warning. Not financial advice.
       </div>
     </div>
@@ -239,5 +239,5 @@ export default function RotationPanel() {
 }
 
 function Note({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }

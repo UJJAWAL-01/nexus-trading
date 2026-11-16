@@ -448,7 +448,7 @@ export default function TabbedDashboard() {
           color: var(--text-2);
           font-family: var(--font-ui);
           font-weight: 700;
-          font-size: 14px;
+          font-size: 15px;
           letter-spacing: 0.04em;
           cursor: pointer;
           transition: background 0.18s, color 0.18s, border-color 0.18s, box-shadow 0.18s;
@@ -486,7 +486,7 @@ export default function TabbedDashboard() {
           background: rgba(255,255,255,0.08);
           color: var(--text-muted);
           font-family: var(--font-data);
-          font-size: 10px; font-weight: 700;
+          font-size: 12px; font-weight: 700;
           flex-shrink: 0;
         }
         .tabbed-tab.active .tab-key {
@@ -505,7 +505,7 @@ export default function TabbedDashboard() {
         .tabbed-hint {
           padding: 6px 10px;
           font-family: var(--font-data);
-          font-size: 10px;
+          font-size: 12px;
           color: var(--amber);
           letter-spacing: 0.08em;
           background: rgba(240,165,0,0.06);
@@ -529,7 +529,7 @@ export default function TabbedDashboard() {
         .tab-tool-btn {
           padding: 6px 12px;
           font-family: var(--font-data);
-          font-size: 10px;
+          font-size: 12px;
           letter-spacing: 0.08em;
           font-weight: 700;
           background: transparent;
@@ -581,7 +581,7 @@ export default function TabbedDashboard() {
           animation: none;
         }
         .tab-tool-btn--edit-cta .edit-icon {
-          font-size: 12px;
+          font-size: 13px;
           line-height: 1;
         }
         .tab-tool-btn--edit-cta .edit-chevron {
@@ -600,7 +600,7 @@ export default function TabbedDashboard() {
 
         @media (max-width: 1180px) {
           .tabbed-hint { display: none; }
-          .tabbed-tab  { padding: 9px 12px 11px; font-size: 13px; }
+          .tabbed-tab  { padding: 9px 12px 11px; font-size: 14px; }
         }
         @media (max-width: 1024px) {
           .tab-key { display: none; }
@@ -634,13 +634,13 @@ export default function TabbedDashboard() {
           cursor: grab;
           user-select: none;
           font-family: var(--font-data);
-          font-size: 10px;
+          font-size: 12px;
           letter-spacing: 0.08em;
           border-radius: 6px 6px 0 0;
         }
         .tab-drag-handle:active { cursor: grabbing; }
         .dh-grip   { color: var(--text-muted); }
-        .dh-label  { font-family: var(--font-ui); font-weight: 700; font-size: 11px; letter-spacing: 0.1em; }
+        .dh-label  { font-family: var(--font-ui); font-weight: 700; font-size: 13px; letter-spacing: 0.1em; }
         .dh-hint   { margin-left: auto; color: var(--text-muted); }
         .tab-panel-body {
           flex: 1; min-height: 0; overflow: hidden;
@@ -734,7 +734,7 @@ export default function TabbedDashboard() {
             background: transparent; border: none;
             color: var(--text-muted);
             font-family: var(--font-data);
-            font-size: 9px; font-weight: 600; letter-spacing: 0.04em;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
             transition: color 0.15s;

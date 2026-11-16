@@ -195,13 +195,13 @@ export default function CommandBar({ panels, onClose, onHelp }: { panels: PanelT
               else if (e.key === 'Enter' && rows[active]) { e.preventDefault(); run(rows[active]) }
               else if (e.key === 'Tab' && rows[active]?.text) { e.preventDefault(); setQuery(rows[active].text!); setHi(0) }
             }}
-            style={{ flex: 1, padding: '14px 16px 14px 10px', background: 'transparent', border: 'none', outline: 'none', color: 'var(--text)', fontSize: 14, fontFamily: 'inherit', minWidth: 0 }}
+            style={{ flex: 1, padding: '14px 16px 14px 10px', background: 'transparent', border: 'none', outline: 'none', color: 'var(--text)', fontSize: 15, fontFamily: 'inherit', minWidth: 0 }}
           />
         </div>
 
         <div id="command-results" role="listbox" ref={listRef} style={{ maxHeight: '56vh', overflowY: 'auto' }}>
           {rows.length === 0 && (
-            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 11, lineHeight: 1.7 }}>
+            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.7 }}>
               Nothing matches that yet.<br />Try a ticker, a panel name, or <span style={{ color: 'var(--text-2)' }}>alert AAPL above 400</span>.
             </div>
           )}
@@ -214,18 +214,18 @@ export default function CommandBar({ panels, onClose, onHelp }: { panels: PanelT
                   padding: '8px 16px', cursor: hint ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 12,
                   transition: 'background-color 90ms ease-out, border-color 90ms ease-out', background: on ? 'rgba(167,139,250,0.08)' : 'transparent', borderLeft: `3px solid ${on ? ACCENT : 'transparent'}`,
                 }}>
-                <span style={{ fontSize: 9, letterSpacing: '0.08em', color: hint ? 'var(--amber)' : ACCENT, border: '1px solid var(--border)', borderRadius: 2, padding: '1px 5px', minWidth: 52, textAlign: 'center', flexShrink: 0 }}>{r.tag}</span>
+                <span style={{ fontSize: 11, letterSpacing: '0.08em', color: hint ? 'var(--amber)' : ACCENT, border: '1px solid var(--border)', borderRadius: 2, padding: '1px 5px', minWidth: 52, textAlign: 'center', flexShrink: 0 }}>{r.tag}</span>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 12, color: hint ? 'var(--text-2)' : 'var(--text)', fontWeight: hint ? 400 : 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</div>
-                  {r.sub && <div style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.sub}</div>}
+                  <div style={{ fontSize: 13, color: hint ? 'var(--text-2)' : 'var(--text)', fontWeight: hint ? 400 : 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</div>
+                  {r.sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.sub}</div>}
                 </div>
-                {on && !hint && <span aria-hidden style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>↵</span>}
+                {on && !hint && <span aria-hidden style={{ fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 }}>↵</span>}
               </div>
             )
           })}
         </div>
 
-        <div style={{ padding: '6px 12px', borderTop: '1px solid var(--border)', fontSize: 10, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ padding: '6px 12px', borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
           <span>↑↓ choose · ↵ run{!query.trim() ? ' · tab fill' : ''} · esc close</span>
           <span>SYMBOL PANEL · alert · watch · help</span>
         </div>

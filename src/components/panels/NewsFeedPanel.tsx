@@ -120,7 +120,7 @@ function NewsItem({
       <div style={{ display:'flex', alignItems:'center', gap:'5px', marginBottom:'5px', flexWrap:'wrap' }}>
         {/* Sentiment badge */}
         <span style={{
-          fontSize:'11px', padding:'1px 6px', borderRadius:'2px',
+          fontSize:'13px', padding:'1px 6px', borderRadius:'2px',
           background: ss.bg, color: ss.color, border:`1px solid ${ss.border}`,
           fontFamily:'var(--font-data)', letterSpacing:'0.08em', textTransform:'uppercase',
           fontWeight: 700,
@@ -131,7 +131,7 @@ function NewsItem({
         {/* India badge */}
         {item.isIndian && (
           <span style={{
-            fontSize:'11px', padding:'1px 5px', borderRadius:'2px',
+            fontSize:'13px', padding:'1px 5px', borderRadius:'2px',
             background:'rgba(249,115,22,0.1)', color:'#f97316',
             border:'1px solid rgba(249,115,22,0.25)',
             fontFamily:'var(--font-data)',
@@ -141,7 +141,7 @@ function NewsItem({
         {/* Related symbol badges */}
         {item.relatedSymbols.slice(0, 3).map(sym => (
           <span key={sym} style={{
-            fontSize:'11px', padding:'1px 6px', borderRadius:'2px',
+            fontSize:'13px', padding:'1px 6px', borderRadius:'2px',
             background:'rgba(240,165,0,0.12)', color:'var(--amber)',
             border:'1px solid rgba(240,165,0,0.25)',
             fontFamily:'var(--font-data)', letterSpacing:'0.06em', fontWeight:700,
@@ -150,17 +150,17 @@ function NewsItem({
           </span>
         ))}
 
-        <span style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginLeft:'2px' }}>
+        <span style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginLeft:'2px' }}>
           {item.source}
         </span>
-        <span style={{ fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginLeft:'auto' }}>
+        <span style={{ fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)', marginLeft:'auto' }}>
           {timeAgo(item.datetime)}
         </span>
       </div>
 
       {/* Row 2 — headline */}
       <div style={{
-        fontSize:'13px', color:'#fff', lineHeight:1.45,
+        fontSize:'14px', color:'#fff', lineHeight:1.45,
         fontFamily:'var(--font-ui)', fontWeight:600, marginBottom:'4px',
       }}>
         {item.headline}
@@ -169,7 +169,7 @@ function NewsItem({
       {/* Row 3 — summary snippet */}
       {item.summary && (
         <div style={{
-          fontSize:'11px', color:'var(--text-muted)', lineHeight:1.5,
+          fontSize:'13px', color:'var(--text-muted)', lineHeight:1.5,
           fontFamily:'var(--font-data)',
         }}>
           {item.summary.slice(0, 140)}{item.summary.length > 140 ? '…' : ''}
@@ -370,7 +370,7 @@ export default function NewsFeedPanel() {
           <div className="dot" style={{ background:'var(--amber)' }} />
           INTELLIGENCE FEED
           {!isLoading && relevantCount > 0 && activeTab === 'relevant' && (
-            <span style={{ fontSize:'11px', color:'var(--text-muted)', fontFamily:'var(--font-data)' }}>
+            <span style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font-data)' }}>
               {relevantCount} relevant
             </span>
           )}
@@ -378,7 +378,7 @@ export default function NewsFeedPanel() {
         </div>
         {/* Sentiment mini-bar */}
         {!isLoading && currentItems.length > 0 && (
-          <div style={{ display:'flex', gap:'8px', fontSize:'11px', fontFamily:'var(--font-data)' }}>
+          <div style={{ display:'flex', gap:'8px', fontSize:'13px', fontFamily:'var(--font-data)' }}>
             {sentimentCounts.bullish ? <span style={{ color:'var(--positive)' }}>▲ {sentimentCounts.bullish}</span> : null}
             {sentimentCounts.bearish ? <span style={{ color:'var(--negative)' }}>▼ {sentimentCounts.bearish}</span> : null}
           </div>
@@ -410,7 +410,7 @@ export default function NewsFeedPanel() {
             >
               <span style={{ display:'inline-flex', color: isActive ? tab.color : 'var(--text-muted)' }}><NexusIcon name={tab.icon} size={13} /></span>
               <span style={{
-                fontSize:'11px', fontFamily:'var(--font-data)', fontWeight: isActive ? 700 : 400,
+                fontSize:'13px', fontFamily:'var(--font-data)', fontWeight: isActive ? 700 : 400,
                 letterSpacing:'0.06em', color: isActive ? tab.color : 'var(--text-muted)',
                 whiteSpace:'nowrap',
               }}>
@@ -418,7 +418,7 @@ export default function NewsFeedPanel() {
               </span>
               {count > 0 && (
                 <span style={{
-                  fontSize:'10px', padding:'1px 4px', borderRadius:'2px',
+                  fontSize:'12px', padding:'1px 4px', borderRadius:'2px',
                   background: isActive ? tab.color + '20' : 'rgba(74,96,112,0.2)',
                   color: isActive ? tab.color : 'var(--text-muted)',
                   fontFamily:'var(--font-data)',
@@ -435,7 +435,7 @@ export default function NewsFeedPanel() {
       {effSym && (
         <div style={{
           padding:'5px 12px', borderBottom:'1px solid var(--border)', flexShrink:0,
-          fontSize:'10px', fontFamily:'var(--font-data)',
+          fontSize:'12px', fontFamily:'var(--font-data)',
           background:'rgba(240,165,0,0.08)',
           display:'flex', justifyContent:'space-between', alignItems:'center',
           color:'var(--amber)',
@@ -454,7 +454,7 @@ export default function NewsFeedPanel() {
             style={{
               background:'transparent', border:'1px solid rgba(240,165,0,0.4)',
               color:'var(--amber)', padding:'2px 8px', borderRadius:3,
-              cursor:'pointer', fontSize:'9px', fontFamily:'var(--font-data)',
+              cursor:'pointer', fontSize:'11px', fontFamily:'var(--font-data)',
               letterSpacing:'0.08em',
             }}
           >
@@ -466,7 +466,7 @@ export default function NewsFeedPanel() {
       {/* ── Tab description ────────────────────────────────────────────────── */}
       <div style={{
         padding:'3px 14px', borderBottom:'1px solid var(--border)', flexShrink:0,
-        fontSize:'10px', color:'var(--text-muted)', fontFamily:'var(--font-data)',
+        fontSize:'12px', color:'var(--text-muted)', fontFamily:'var(--font-data)',
         background:'rgba(0,0,0,0.08)',
         display:'flex', justifyContent:'space-between', alignItems:'center',
       }}>
@@ -483,7 +483,7 @@ export default function NewsFeedPanel() {
         {isLoading && (
           <div style={{
             padding:'24px', textAlign:'center',
-            color:'var(--text-muted)', fontSize:'11px', fontFamily:'var(--font-data)',
+            color:'var(--text-muted)', fontSize:'13px', fontFamily:'var(--font-data)',
             letterSpacing:'0.1em', display:'flex', flexDirection:'column', alignItems:'center', gap:'8px',
           }}>
             <div style={{
@@ -498,14 +498,14 @@ export default function NewsFeedPanel() {
         {/* Error */}
         {!isLoading && hasError && (
           <div style={{ padding:'16px', textAlign:'center' }}>
-            <div style={{ color:'var(--negative)', fontSize:'10px', fontFamily:'var(--font-data)', marginBottom:'8px' }}>
+            <div style={{ color:'var(--negative)', fontSize:'12px', fontFamily:'var(--font-data)', marginBottom:'8px' }}>
               ⚠ {hasError}
             </div>
             <button
               onClick={() => { loadedTabs.current.delete(activeTab); fetchTab(activeTab, true) }}
               style={{
                 padding:'4px 12px', borderRadius:'3px', cursor:'pointer',
-                fontFamily:'var(--font-data)', fontSize:'11px',
+                fontFamily:'var(--font-data)', fontSize:'13px',
                 border:`1px solid ${tabDef.color}`, background: tabDef.color + '15', color: tabDef.color,
               }}
             >
@@ -516,7 +516,7 @@ export default function NewsFeedPanel() {
 
         {/* Empty */}
         {!isLoading && !hasError && currentItems.length === 0 && (
-          <div style={{ padding:'24px', textAlign:'center', color:'var(--text-muted)', fontSize:'11px', fontFamily:'var(--font-data)' }}>
+          <div style={{ padding:'24px', textAlign:'center', color:'var(--text-muted)', fontSize:'13px', fontFamily:'var(--font-data)' }}>
             {activeTab === 'relevant' ? 'Add stocks to your watchlist to see relevant news' : 'No stories found — try refreshing'}
           </div>
         )}
@@ -531,14 +531,14 @@ export default function NewsFeedPanel() {
               {activeTab === 'relevant' && (
                 <>
                   {aiState?.loading && (
-                    <div style={{ paddingLeft:'14px', paddingBottom:'6px', fontSize:'10px', color:'var(--teal)', fontFamily:'var(--font-data)', opacity:0.6 }}>
+                    <div style={{ paddingLeft:'14px', paddingBottom:'6px', fontSize:'12px', color:'var(--teal)', fontFamily:'var(--font-data)', opacity:0.6 }}>
                       ◆ analyzing…
                     </div>
                   )}
                   {aiState?.context && (
                     <div style={{
                       margin:'-1px 14px 0', padding:'5px 10px', marginBottom:'1px',
-                      fontSize:'11px', color:'var(--teal)',
+                      fontSize:'13px', color:'var(--teal)',
                       fontFamily:'var(--font-data)', lineHeight:1.5,
                       background:'rgba(0,229,192,0.04)',
                       borderLeft:'2px solid rgba(0,229,192,0.4)',
@@ -563,7 +563,7 @@ export default function NewsFeedPanel() {
               onClick={() => { loadedTabs.current.delete(activeTab); fetchTab(activeTab, true) }}
               style={{
                 padding:'4px 14px', borderRadius:'3px', cursor:'pointer',
-                fontFamily:'var(--font-data)', fontSize:'11px',
+                fontFamily:'var(--font-data)', fontSize:'13px',
                 border:'1px solid var(--border)', background:'transparent', color:'var(--text-muted)',
               }}
             >

@@ -319,14 +319,14 @@ function MobilePanelCard({ id, hidden, onToggle }: {
             <div style={{
               fontFamily:    'var(--font-ui)',
               fontWeight:    800,
-              fontSize:      '13px',
+              fontSize:      '14px',
               color:         '#fff',
               letterSpacing: '0.06em',
             }}>
               {meta.label}
             </div>
             <div style={{
-              fontSize:   '10px',
+              fontSize:   '12px',
               color:      'var(--text-muted)',
               fontFamily: 'var(--font-data)',
               marginTop:  '1px',
@@ -529,7 +529,7 @@ export default function GridLayout() {
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100vh', color: 'var(--text-muted)',
-        fontFamily: 'var(--font-data)', fontSize: '13px', letterSpacing: '0.12em',
+        fontFamily: 'var(--font-data)', fontSize: '14px', letterSpacing: '0.12em',
         flexDirection: 'column', gap: '12px',
       }}>
         <div style={{
@@ -568,7 +568,7 @@ export default function GridLayout() {
                 borderRadius:'3px',
                 cursor:     'pointer',
                 fontFamily: 'var(--font-data)',
-                fontSize:   '10px',
+                fontSize:   '12px',
                 letterSpacing: '0.08em',
                 border:     `1px solid ${showWorkspaceMenu ? 'var(--amber)' : 'var(--border)'}`,
                 background: showWorkspaceMenu ? 'rgba(240,165,0,0.10)' : 'transparent',
@@ -594,7 +594,7 @@ export default function GridLayout() {
                 borderRadius:'3px',
                 cursor:     'pointer',
                 fontFamily: 'var(--font-data)',
-                fontSize:   '10px',
+                fontSize:   '12px',
                 letterSpacing: '0.08em',
                 border:     `1px solid ${showMenu ? 'var(--teal)' : 'var(--border)'}`,
                 background: showMenu ? 'rgba(0,229,192,0.1)' : 'transparent',
@@ -620,7 +620,7 @@ export default function GridLayout() {
                 {PANEL_GROUPS.map(group => (
                   <div key={group.label} style={{ marginBottom: '10px' }}>
                     <div style={{
-                      fontSize:    '10px',
+                      fontSize:    '12px',
                       color:       'var(--text-muted)',
                       fontFamily:  'var(--font-data)',
                       letterSpacing: '0.12em',
@@ -652,7 +652,7 @@ export default function GridLayout() {
                               background: visible ? meta.color : 'var(--border)',
                             }} />
                             <span style={{
-                              fontSize:   '11px',
+                              fontSize:   '13px',
                               color:      visible ? '#fff' : 'var(--text-muted)',
                               fontFamily: 'var(--font-data)',
                             }}>
@@ -668,7 +668,7 @@ export default function GridLayout() {
                             display:      'flex',
                             alignItems:   'center',
                             justifyContent:'center',
-                            fontSize:     '10px',
+                            fontSize:     '12px',
                             color:        visible ? meta.color : 'var(--text-muted)',
                           }}>
                             {visible ? '✓' : ''}
@@ -725,7 +725,7 @@ export default function GridLayout() {
               onClick={() => { setShowWorkspaceMenu(v => !v); setShowMenu(false) }}
               style={{
                 padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-                fontFamily: 'var(--font-data)', fontSize: '10px',
+                fontFamily: 'var(--font-data)', fontSize: '12px',
                 border: `1px solid ${showWorkspaceMenu ? 'var(--amber)' : 'var(--border)'}`,
                 background: showWorkspaceMenu ? 'rgba(240,165,0,0.10)' : 'transparent',
                 color: showWorkspaceMenu ? 'var(--amber)' : 'var(--text-muted)',
@@ -746,7 +746,7 @@ export default function GridLayout() {
               onClick={() => { setShowMenu(v => !v); setShowWorkspaceMenu(false) }}
               style={{
                 padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-                fontFamily: 'var(--font-data)', fontSize: '10px',
+                fontFamily: 'var(--font-data)', fontSize: '12px',
                 border: `1px solid ${showMenu ? 'var(--teal)' : 'var(--border)'}`,
                 background: showMenu ? 'rgba(0,229,192,0.1)' : 'transparent',
                 color: showMenu ? 'var(--teal)' : 'var(--text-muted)',
@@ -766,7 +766,7 @@ export default function GridLayout() {
 
   const btnBase: React.CSSProperties = {
     padding: '4px 14px', borderRadius: '3px', cursor: 'pointer',
-    fontFamily: 'var(--font-data)', fontSize: '10px',
+    fontFamily: 'var(--font-data)', fontSize: '12px',
     letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'all 0.15s',
   }
 
@@ -803,14 +803,14 @@ export default function GridLayout() {
         }}>
         {editing && (
           <span style={{
-            fontSize: '11px', color: 'var(--amber)', fontFamily: 'var(--font-data)',
+            fontSize: '13px', color: 'var(--amber)', fontFamily: 'var(--font-data)',
             letterSpacing: '0.06em', marginRight: 'auto', marginLeft: '4px',
           }}>
             drag headers to move · corner to resize
           </span>
         )}
         {saved && !editing && (
-          <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
+          <span style={{ fontSize: '12px', color: 'var(--positive)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
             ✓ layout saved
           </span>
         )}
@@ -834,7 +834,7 @@ export default function GridLayout() {
             <span style={{ color: '#fff', fontWeight: 700 }}>
               {(WORKSPACES.find(w => w.id === activeWorkspace)?.label ?? 'All Panels').toUpperCase()}
             </span>
-            <span style={{ fontSize: '8px', opacity: 0.7 }}>▾</span>
+            <span style={{ fontSize: '11px', opacity: 0.7 }}>▾</span>
           </button>
           {showWorkspaceMenu && (
             <WorkspaceMenu
@@ -928,10 +928,10 @@ export default function GridLayout() {
                     onMouseUp={e   => { e.currentTarget.style.cursor = 'grab' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>⠿ DRAG</span>
-                      <span style={{ fontSize: '11px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: meta.color, letterSpacing: '0.1em' }}>{meta.label}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>⠿ DRAG</span>
+                      <span style={{ fontSize: '13px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: meta.color, letterSpacing: '0.1em' }}>{meta.label}</span>
                     </div>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>↔ move · ↘ resize</span>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>↔ move · ↘ resize</span>
                   </div>
                 )}
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, borderRadius: editing ? '0 0 6px 6px' : '6px' }}>
@@ -1057,14 +1057,14 @@ function WorkspaceMenu({ active, onPick, onClose }: {
         marginBottom:   '6px',
       }}>
         <span style={{
-          fontSize: '10px', color: 'var(--text-muted)',
+          fontSize: '12px', color: 'var(--text-muted)',
           fontFamily: 'var(--font-data)', letterSpacing: '0.14em',
         }}>
           WORKSPACES
         </span>
         <button
           onClick={onClose}
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '13px' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px' }}
         >
           ✕
         </button>
@@ -1100,21 +1100,21 @@ function WorkspaceMenu({ active, onPick, onClose }: {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{
-                fontSize: '12px', color: isActive ? 'var(--amber)' : '#fff',
+                fontSize: '13px', color: isActive ? 'var(--amber)' : '#fff',
                 fontWeight: 700, letterSpacing: '0.06em',
               }}>
                 {ws.label}
               </span>
               {isActive && (
                 <span style={{
-                  fontSize: '9px', color: 'var(--amber)',
+                  fontSize: '11px', color: 'var(--amber)',
                   letterSpacing: '0.1em',
                 }}>
                   ● ACTIVE
                 </span>
               )}
             </div>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
               {ws.description}
             </span>
           </button>
@@ -1124,7 +1124,7 @@ function WorkspaceMenu({ active, onPick, onClose }: {
         marginTop:    '4px',
         paddingTop:   '6px',
         borderTop:    '1px solid var(--border)',
-        fontSize:     '10px',
+        fontSize:     '12px',
         color:        'var(--text-muted)',
         padding:      '6px 6px 2px',
         lineHeight:   1.4,
@@ -1167,10 +1167,10 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
         paddingBottom:  '6px',
         borderBottom:   '1px solid var(--border)',
       }}>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
+        <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
           TOGGLE PANELS
         </span>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px' }}>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '15px' }}>
           ✕
         </button>
       </div>
@@ -1178,7 +1178,7 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
       {PANEL_GROUPS.map(group => (
         <div key={group.label} style={{ marginBottom: '10px' }}>
           <div style={{
-            fontSize:    '10px',
+            fontSize:    '12px',
             color:       'var(--text-muted)',
             fontFamily:  'var(--font-data)',
             letterSpacing:'0.12em',
@@ -1213,10 +1213,10 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
                     transition: 'background 0.15s',
                   }} />
                   <div>
-                    <div style={{ fontSize: '11px', color: visible ? '#fff' : 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                    <div style={{ fontSize: '13px', color: visible ? '#fff' : 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {meta.label}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {meta.description}
                     </div>
                   </div>
@@ -1230,7 +1230,7 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
                   display:      'flex',
                   alignItems:   'center',
                   justifyContent:'center',
-                  fontSize:     '10px',
+                  fontSize:     '12px',
                   color:        meta.color,
                   flexShrink:   0,
                 }}>

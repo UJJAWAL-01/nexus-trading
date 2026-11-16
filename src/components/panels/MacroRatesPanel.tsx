@@ -93,7 +93,7 @@ export default function MacroRatesPanel() {
           {(['FED', 'RBI'] as Mode[]).map(m => (
             <button key={m} onClick={() => setMode(m)} style={{
               padding: '3px 14px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'var(--font-data)', fontSize: '11px', letterSpacing: '0.08em', fontWeight: 700,
+              fontFamily: 'var(--font-data)', fontSize: '13px', letterSpacing: '0.08em', fontWeight: 700,
               border: `1px solid ${mode === m ? (m === 'FED' ? 'var(--teal)' : '#f97316') : 'var(--border)'}`,
               background: mode === m ? (m === 'FED' ? 'rgba(0,229,192,0.12)' : 'rgba(249,115,22,0.12)') : 'transparent',
               color: mode === m ? (m === 'FED' ? 'var(--teal)' : '#f97316') : 'var(--text-muted)',
@@ -112,7 +112,7 @@ export default function MacroRatesPanel() {
           borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.12em', marginBottom: '6px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.12em', marginBottom: '6px' }}>
               {mode === 'FED' ? 'FED FUNDS TARGET RANGE' : 'RBI POLICY REPO RATE'}
             </div>
             {loading ? (
@@ -133,7 +133,7 @@ export default function MacroRatesPanel() {
                     ? `Live data from ${src}, observation date ${date}`
                     : `Live API unavailable — showing last known official policy rate from regulator's decision table`}
                   style={{
-                    fontSize: '11px', color: 'var(--text-muted)',
+                    fontSize: '13px', color: 'var(--text-muted)',
                     fontFamily: 'var(--font-data)', marginTop: '5px',
                     display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
                   }}
@@ -153,13 +153,13 @@ export default function MacroRatesPanel() {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{
-              padding: '4px 12px', borderRadius: '3px', fontSize: '11px',
+              padding: '4px 12px', borderRadius: '3px', fontSize: '13px',
               fontFamily: 'var(--font-data)', fontWeight: 700,
               background: `${primary}18`, color: primary, border: `1px solid ${primary}35`, marginBottom: '6px',
             }}>
               {data?.stance ?? '···'}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
               Next: {data?.nextMeeting?.label ?? '···'}
             </div>
           </div>
@@ -172,10 +172,10 @@ export default function MacroRatesPanel() {
             {mode === 'FED' && data.policyRate.effective != null && (
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-data)' }}>Effective Fed Funds</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>Monthly avg · FRED FEDFUNDS</div>
+                  <div style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)' }}>Effective Fed Funds</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>Monthly avg · FRED FEDFUNDS</div>
                 </div>
-                <div style={{ fontSize: '14px', fontFamily: 'var(--font-data)', fontWeight: 700, color: 'var(--teal)' }}>
+                <div style={{ fontSize: '15px', fontFamily: 'var(--font-data)', fontWeight: 700, color: 'var(--teal)' }}>
                   {data.policyRate.effective.toFixed(2)}%
                 </div>
               </div>
@@ -185,19 +185,19 @@ export default function MacroRatesPanel() {
             {data.cpi && (
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-data)' }}>
+                  <div style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)' }}>
                     {cpiLabel}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                     {data.cpi.date} · {cpiSource}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '14px', fontFamily: 'var(--font-data)', fontWeight: 700, color: cpiColor }}>
+                  <div style={{ fontSize: '15px', fontFamily: 'var(--font-data)', fontWeight: 700, color: cpiColor }}>
                     {data.cpi.value.toFixed(2)}%
                   </div>
                   {/* CPI regime label */}
-                  <div style={{ fontSize: '10px', fontFamily: 'var(--font-data)', color: cpiColor }}>
+                  <div style={{ fontSize: '12px', fontFamily: 'var(--font-data)', color: cpiColor }}>
                     {cpiValue === null ? '' : cpiValue > 6 ? 'CRISIS' : cpiValue > 4 ? 'HIGH' : cpiValue > 2.5 ? 'ELEVATED' : cpiValue > 2 ? 'TARGET' : 'BELOW TARGET'}
                   </div>
                 </div>
@@ -208,12 +208,12 @@ export default function MacroRatesPanel() {
             {data.unrate && (
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-data)' }}>Unemployment Rate</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                  <div style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)' }}>Unemployment Rate</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                     {data.unrate.date} · FRED UNRATE
                   </div>
                 </div>
-                <div style={{ fontSize: '14px', fontFamily: 'var(--font-data)', fontWeight: 700, color: '#fff' }}>
+                <div style={{ fontSize: '15px', fontFamily: 'var(--font-data)', fontWeight: 700, color: '#fff' }}>
                   {data.unrate.value.toFixed(1)}%
                 </div>
               </div>
@@ -228,16 +228,16 @@ export default function MacroRatesPanel() {
                 return (
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-data)' }}>Real Policy Rate</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                      <div style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)' }}>Real Policy Rate</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                         Policy rate − CPI (approx)
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '14px', fontFamily: 'var(--font-data)', fontWeight: 700, color: realColor }}>
+                      <div style={{ fontSize: '15px', fontFamily: 'var(--font-data)', fontWeight: 700, color: realColor }}>
                         {realRate >= 0 ? '+' : ''}{realRate.toFixed(2)}%
                       </div>
-                      <div style={{ fontSize: '10px', fontFamily: 'var(--font-data)', color: realColor }}>
+                      <div style={{ fontSize: '12px', fontFamily: 'var(--font-data)', color: realColor }}>
                         {realRate > 1.5 ? 'RESTRICTIVE' : realRate > 0 ? 'MILDLY POSITIVE' : 'NEGATIVE REAL'}
                       </div>
                     </div>
@@ -250,7 +250,7 @@ export default function MacroRatesPanel() {
 
         {/* ── Meeting schedule ─────────────────────────────────────────── */}
         <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.12em', marginBottom: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.12em', marginBottom: '8px' }}>
             {mode === 'FED' ? 'FOMC 2026 SCHEDULE' : 'RBI MPC 2026 SCHEDULE'}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -258,7 +258,7 @@ export default function MacroRatesPanel() {
               const isCurrent = !m.done && data?.nextMeeting?.date === m.date
               return (
                 <span key={m.date} style={{
-                  fontSize: '11px', padding: '3px 8px', borderRadius: '2px',
+                  fontSize: '13px', padding: '3px 8px', borderRadius: '2px',
                   fontFamily: 'var(--font-data)',
                   background: isCurrent ? `rgba(${mode === 'FED' ? '0,229,192' : '249,115,22'}, 0.15)` : 'var(--bg-deep)',
                   color: isCurrent ? primary : m.done ? 'var(--text-muted)' : 'var(--text-2)',
@@ -275,7 +275,7 @@ export default function MacroRatesPanel() {
 
         {/* Footer note */}
         {!loading && data && (
-          <div style={{ padding: '6px 14px', borderTop: '1px solid var(--border)', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.5 }}>
+          <div style={{ padding: '6px 14px', borderTop: '1px solid var(--border)', fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.5 }}>
             Data: FRED (Federal Reserve Bank of St. Louis) · CPI is 12-month YoY change · Rates updated daily for Fed, quarterly for RBI via IMF IFS
           </div>
         )}

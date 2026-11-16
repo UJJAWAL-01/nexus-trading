@@ -26,9 +26,9 @@ const VOL_WINDOW = 30
 
 const ctl: CSSProperties = {
   background: 'var(--bg-deep)', border: '1px solid var(--border)', color: 'var(--text)',
-  borderRadius: 3, padding: '5px 7px', fontSize: 11, fontFamily: MONO, minWidth: 0,
+  borderRadius: 3, padding: '5px 7px', fontSize: 13, fontFamily: MONO, minWidth: 0,
 }
-const lbl: CSSProperties = { fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
+const lbl: CSSProperties = { fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
 const btn: CSSProperties = { ...ctl, cursor: 'pointer', fontWeight: 700, color: 'var(--text-2)' }
 const tile: CSSProperties = { border: '1px solid var(--border)', borderRadius: 4, padding: '7px 9px', background: 'var(--bg-deep)', minWidth: 0 }
 const cell: CSSProperties = { padding: '3px 4px' }
@@ -166,8 +166,8 @@ export default function StrategyPanel() {
       <div className="panel-header" style={{ gap: 8, flexWrap: 'wrap' }}>
         <div className="dot" />
         OPTIONS STRATEGY
-        <span style={{ fontSize: 11, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
-        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>{spot ? `SPOT ${px(spot)} · ` : ''}MODEL PRICES · RUNS IN YOUR BROWSER</span>
+        <span style={{ fontSize: 13, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>{spot ? `SPOT ${px(spot)} · ` : ''}MODEL PRICES · RUNS IN YOUR BROWSER</span>
         <span style={{ marginLeft: 'auto', display: 'inline-flex' }}>{guide.button}</span>
       </div>
       {guide.body}
@@ -207,15 +207,15 @@ export default function StrategyPanel() {
             <div style={{ padding: '0 10px' }}>
               <PayoffChart legs={legs} spot={spot} T={T} r={r} sigma={sigma} lot={lot} breakevens={analysis.breakevens} sign={sign} drawKey={`${symbol}:${isCustom ? 'custom' : template}`} />
             </div>
-            <div style={{ padding: '2px 10px 8px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>
+            <div style={{ padding: '2px 10px 8px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>
               Solid line: profit or loss at expiry. <span style={{ color: 'var(--amber)' }}>Dashed</span>: model value today.
               {expected ? ` One-standard-deviation move by expiry at this volatility: ±${px(expected)} (${((expected / spot) * 100).toFixed(1)}%).` : ''}
             </div>
 
             <div style={{ overflowX: 'auto', padding: '0 10px 8px' }}>
-              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: 11, width: '100%' }}>
+              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: 13, width: '100%' }}>
                 <thead>
-                  <tr style={{ color: 'var(--text-muted)', fontSize: 10, textAlign: 'left' }}>
+                  <tr style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'left' }}>
                     <th style={cell}>SIDE</th><th style={cell}>TYPE</th><th style={cell}>STRIKE / ENTRY</th><th style={cell}>PREMIUM</th><th style={cell}>QTY</th><th style={cell} />
                   </tr>
                 </thead>
@@ -250,7 +250,7 @@ export default function StrategyPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         Premiums are Black-Scholes model prices, not market quotes; replace them with your broker&apos;s. Ignores early exercise, dividends, fees and margin. Not financial advice.
       </div>
     </div>
@@ -260,13 +260,13 @@ export default function StrategyPanel() {
 function Tile({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <div style={tile}>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
       <div style={{ fontSize: 15, fontWeight: 700, fontFamily: MONO, color: color ?? 'var(--text)', marginTop: 2, overflowWrap: 'anywhere' }}>{value}</div>
-      {sub && <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, marginTop: 2 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, marginTop: 2 }}>{sub}</div>}
     </div>
   )
 }
 
 function Note({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }

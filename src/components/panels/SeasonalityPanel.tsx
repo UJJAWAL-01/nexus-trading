@@ -70,8 +70,8 @@ export default function SeasonalityPanel() {
       <div className="panel-header" style={{ gap: 8, flexWrap: 'wrap' }}>
         <div className="dot" />
         SEASONALITY
-        <span style={{ fontSize: 11, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
-        {result && <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>{result.firstYear}–{result.lastYear} · MONTHLY RETURNS</span>}
+        <span style={{ fontSize: 13, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
+        {result && <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>{result.firstYear}–{result.lastYear} · MONTHLY RETURNS</span>}
         <span style={{ marginLeft: 'auto', display: 'inline-flex' }}>{guide.button}</span>
       </div>
       {guide.body}
@@ -86,7 +86,7 @@ export default function SeasonalityPanel() {
         ) : (
           <div key={symbol} className="nx-fade">
             {current && current.avgPct !== null && (
-              <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 12, borderBottom: '1px solid var(--border)', color: 'var(--text-2)' }}>
+              <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 13, borderBottom: '1px solid var(--border)', color: 'var(--text-2)' }}>
                 {MONTHS[thisMonth]} has closed higher in{' '}
                 <strong style={{ color: 'var(--text)' }}>{Math.round((current.winRate ?? 0) * current.years)} of {current.years}</strong> years, averaging{' '}
                 <strong style={{ color: current.avgPct >= 0 ? 'var(--positive)' : 'var(--negative)' }}>{pct(current.avgPct)}%</strong>
@@ -102,7 +102,7 @@ export default function SeasonalityPanel() {
                 const h = Math.round((Math.abs(v) / maxAbs) * 46)
                 return (
                   <div key={m.month} title={`${MONTHS[i]}: average ${pct(m.avgPct, 2)}%, median ${pct(m.medianPct, 2)}%, up ${Math.round((m.winRate ?? 0) * 100)}% of ${m.years} years`}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, fontFamily: MONO, fontSize: 10 }}>
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, fontFamily: MONO, fontSize: 12 }}>
                     <div style={{ height: 50, display: 'flex', alignItems: 'flex-end' }}>
                       <div className="nx-grow" style={{ animationDelay: `${i * 25}ms`, width: 16, height: Math.max(2, h), background: v >= 0 ? 'var(--positive)' : 'var(--negative)', borderRadius: 2, opacity: i === thisMonth ? 1 : 0.65 }} />
                     </div>
@@ -113,13 +113,13 @@ export default function SeasonalityPanel() {
                 )
               })}
             </div>
-            <div style={{ padding: '0 10px 8px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+            <div style={{ padding: '0 10px 8px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
               Bar and first number: average monthly return (%). Second number: share of years the month closed higher.
             </div>
 
             {/* Year by month grid */}
             <div style={{ overflowX: 'auto', padding: '0 10px 10px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 10 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12 }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '3px 4px', color: 'var(--text-muted)' }}>YEAR</th>
@@ -142,7 +142,7 @@ export default function SeasonalityPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         {result && result.suspectBars > 0 ? `${result.suspectBars} month${result.suspectBars === 1 ? '' : 's'} left out as a bad print in the source data. ` : ''}Price returns only (no dividends). Past seasonal tendencies are weak evidence and often disappear. Not financial advice.
       </div>
     </div>
@@ -150,5 +150,5 @@ export default function SeasonalityPanel() {
 }
 
 function Note({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }

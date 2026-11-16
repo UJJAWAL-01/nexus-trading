@@ -148,7 +148,7 @@ export function drawGeometric(
     // label at the pattern's last vertex
     const labelPt = verts[verts.length - 1]
     if (labelPt && selected) {
-      ctx.font = '10px Inter, sans-serif'
+      ctx.font = '12px Inter, sans-serif'
       ctx.fillStyle = color
       ctx.fillText(d.name, labelPt.x + 6, labelPt.y - 6)
     }

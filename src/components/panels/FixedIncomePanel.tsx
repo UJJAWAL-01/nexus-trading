@@ -101,7 +101,7 @@ const DST_META: Record<DataSourceType, { label: string; color: string; bg: strin
   official:    { label: 'OFFICIAL',  color: '#38bdf8', bg: 'rgba(56,189,248,0.1)',    icon: '◆', border: 'rgba(56,189,248,0.25)' },
   modeled:     { label: 'MODELED',   color: '#f0a500', bg: 'rgba(240,165,0,0.12)',    icon: '⚙', border: 'rgba(240,165,0,0.3)'  },
   synthetic:   { label: 'SYNTHETIC', color: '#a78bfa', bg: 'rgba(167,139,250,0.1)',   icon: '◈', border: 'rgba(167,139,250,0.25)'},
-  unavailable: { label: 'N/A',       color: '#4a6070', bg: 'rgba(74,96,112,0.1)',     icon: '○', border: 'rgba(74,96,112,0.2)'  },
+  unavailable: { label: 'N/A',       color: '#8194a6', bg: 'rgba(74,96,112,0.1)',     icon: '○', border: 'rgba(74,96,112,0.2)'  },
 }
 
 function DSTBadge({ dst, small, tooltip }: { dst: DataSourceType; small?: boolean; tooltip?: string }) {
@@ -122,7 +122,7 @@ function DSTBadge({ dst, small, tooltip }: { dst: DataSourceType; small?: boolea
 function SignalPill({ label, color }: { label: string; color: string }) {
   return (
     <span style={{
-      display: 'inline-block', padding: '2px 8px', borderRadius: '2px', fontSize: '11px',
+      display: 'inline-block', padding: '2px 8px', borderRadius: '2px', fontSize: '13px',
       fontFamily: 'var(--font-data)', fontWeight: 700, letterSpacing: '0.08em',
       background: color + '20', color, border: `1px solid ${color}40`,
     }}>{label}</span>
@@ -133,28 +133,28 @@ function TradingSignalsBar({ signals, tips }: { signals: TradingSignals; tips?: 
   const rows = [
     { label: 'DURATION',       signal: signals.duration,     color: signals.durationColor,   reason: signals.durationReason    },
     { label: 'CREDIT (IG)',    signal: signals.credit,       color: signals.creditColor,     reason: signals.creditReason      },
-    { label: 'CURVE',         signal: signals.curveSignal,  color: signals.curveSignal === 'N/A' ? '#4a6070' : '#38bdf8', reason: signals.curveReason },
+    { label: 'CURVE',         signal: signals.curveSignal,  color: signals.curveSignal === 'N/A' ? '#8194a6' : '#38bdf8', reason: signals.curveReason },
     { label: 'RECESSION RISK', signal: signals.recessionRisk, color: signals.recessionColor, reason: signals.recessionReason   },
   ]
   return (
     <div style={{ margin: '8px 14px', padding: '10px 12px', background: 'rgba(0,229,192,0.03)', border: '1px solid rgba(0,229,192,0.12)', borderRadius: '5px' }}>
-      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.12em', marginBottom: '8px' }}>
+      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.12em', marginBottom: '8px' }}>
         TRADING SIGNALS — computed from live data
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: tips ? '10px' : 0 }}>
         {rows.map(r => (
           <div key={r.label} style={{ padding: '7px 10px', background: 'var(--bg-deep)', borderRadius: '4px', borderLeft: `3px solid ${r.color}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>{r.label}</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>{r.label}</span>
               <SignalPill label={r.signal} color={r.color} />
             </div>
-            <div style={{ fontSize: '10px', color: 'var(--text-2)', fontFamily: 'var(--font-data)', lineHeight: 1.5 }}>{r.reason}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-2)', fontFamily: 'var(--font-data)', lineHeight: 1.5 }}>{r.reason}</div>
           </div>
         ))}
       </div>
       {tips && (
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '8px', marginTop: '2px' }}>
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px' }}>
             TIPS REAL YIELDS &amp; BREAKEVEN INFLATION
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px' }}>
@@ -166,15 +166,15 @@ function TradingSignalsBar({ signals, tips }: { signals: TradingSignals; tips?: 
             ].map(({ label, dp }) => (
               <div key={label} title={`Source: ${dp.source}${dp.notes ? ' — ' + dp.notes : ''}`}
                 style={{ padding: '6px 8px', background: 'var(--bg-deep)', borderRadius: '3px', cursor: 'help' }}>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginBottom: '2px' }}>{label}</div>
-                <div style={{ fontSize: '14px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: dp.value !== null ? (label.includes('BE') ? '#f0a500' : '#38bdf8') : '#4a6070', lineHeight: 1 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginBottom: '2px' }}>{label}</div>
+                <div style={{ fontSize: '15px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: dp.value !== null ? (label.includes('BE') ? '#f0a500' : '#38bdf8') : '#8194a6', lineHeight: 1 }}>
                   {dp.value !== null ? `${dp.value.toFixed(2)}%` : '—'}
                 </div>
                 <DSTBadge dst={dp.dataSourceType} small />
               </div>
             ))}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '6px', lineHeight: 1.5 }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '6px', lineHeight: 1.5 }}>
             TIPS = inflation-protected real yield · BE = market-implied inflation expectation (FRED T5YIE / T10YIE)
           </div>
         </div>
@@ -188,7 +188,7 @@ function SourceChip({ dp }: { dp: DataPoint<any> }) {
   const m = DST_META[dp.dataSourceType]
   return (
     <span title={`Source: ${dp.source}${dp.reportingDate ? ` (${dp.reportingDate})` : ''}${dp.notes ? ` — ${dp.notes}` : ''}`} style={{
-      fontSize: '10px', color: m.color, cursor: 'help', fontFamily: 'var(--font-data)',
+      fontSize: '12px', color: m.color, cursor: 'help', fontFamily: 'var(--font-data)',
     }}>
       {m.icon}
     </span>
@@ -205,22 +205,22 @@ function SystemMessages({ messages, accentColor }: { messages: string[]; accentC
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 12px', flexShrink: 0 }}>
       {errors.map((m, i) => (
-        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '10px', fontFamily: 'var(--font-data)', background: 'rgba(255,69,96,0.08)', border: '1px solid rgba(255,69,96,0.25)', color: '#ff4560', lineHeight: 1.5 }}>
+        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '12px', fontFamily: 'var(--font-data)', background: 'rgba(255,69,96,0.08)', border: '1px solid rgba(255,69,96,0.25)', color: '#ff4560', lineHeight: 1.5 }}>
           {m.replace(/^[\u274C\u26A0\u2139\u2699]\uFE0F?\s*/, '')}
         </div>
       ))}
       {warnings.map((m, i) => (
-        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '10px', fontFamily: 'var(--font-data)', background: 'rgba(240,165,0,0.07)', border: '1px solid rgba(240,165,0,0.25)', color: '#f0a500', lineHeight: 1.5 }}>
+        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '12px', fontFamily: 'var(--font-data)', background: 'rgba(240,165,0,0.07)', border: '1px solid rgba(240,165,0,0.25)', color: '#f0a500', lineHeight: 1.5 }}>
           {m.replace(/^[\u274C\u26A0\u2139\u2699]\uFE0F?\s*/, '')}
         </div>
       ))}
       {infos.map((m, i) => (
-        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontFamily: 'var(--font-data)', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', color: '#38bdf8', lineHeight: 1.5 }}>
+        <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '13px', fontFamily: 'var(--font-data)', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', color: '#38bdf8', lineHeight: 1.5 }}>
           {m.replace(/^[\u274C\u26A0\u2139\u2699]\uFE0F?\s*/, '')}
         </div>
       ))}
       {ok.map((m, i) => (
-        <div key={i} style={{ padding: '4px 8px', borderRadius: '3px', fontSize: '11px', fontFamily: 'var(--font-data)', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+        <div key={i} style={{ padding: '4px 8px', borderRadius: '3px', fontSize: '13px', fontFamily: 'var(--font-data)', color: 'var(--text-muted)', lineHeight: 1.5 }}>
           {m}
         </div>
       ))}
@@ -244,7 +244,7 @@ function YieldCurveChart({ us, india, mode, h = 190 }: { us: YieldPoint[]; india
   const allY      = [...primary, ...secondary].map(p => p.yieldData.value).filter(v => v !== null) as number[]
   if (allY.length === 0) return (
     <div style={{ height: H, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-      <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '11px' }}>YIELD CURVE UNAVAILABLE</div>
+      <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '13px' }}>YIELD CURVE UNAVAILABLE</div>
       <DSTBadge dst="unavailable" />
     </div>
   )
@@ -296,7 +296,7 @@ function YieldCurveChart({ us, india, mode, h = 190 }: { us: YieldPoint[]; india
       {gridYs.map(({ y: gy, v }) => (
         <g key={v}>
           <line x1={PAD.l} y1={gy.toFixed(1)} x2={W - PAD.r} y2={gy.toFixed(1)} stroke="#1c1f25" strokeWidth="1" strokeDasharray="3,4"/>
-          <text x={PAD.l - 4} y={(gy + 3.5).toFixed(1)} textAnchor="end" fill="#4a6070" fontSize="9" fontFamily="Inter, sans-serif">{v.toFixed(1)}%</text>
+          <text x={PAD.l - 4} y={(gy + 3.5).toFixed(1)} textAnchor="end" fill="#8194a6" fontSize="9" fontFamily="Inter, sans-serif">{v.toFixed(1)}%</text>
         </g>
       ))}
       <line x1={PAD.l} y1={H - PAD.b} x2={W - PAD.r} y2={H - PAD.b} stroke="#1c1f25" strokeWidth="1"/>
@@ -305,7 +305,7 @@ function YieldCurveChart({ us, india, mode, h = 190 }: { us: YieldPoint[]; india
         return (
           <g key={m}>
             <line x1={px} y1={H - PAD.b} x2={px} y2={(H - PAD.b + 4).toFixed(1)} stroke="#1c1f25" strokeWidth="1"/>
-            <text x={px} y={(H - PAD.b + 14).toFixed(1)} textAnchor="middle" fill="#4a6070" fontSize="8.5" fontFamily="Inter, sans-serif">{tl(m)}</text>
+            <text x={px} y={(H - PAD.b + 14).toFixed(1)} textAnchor="middle" fill="#8194a6" fontSize="8.5" fontFamily="Inter, sans-serif">{tl(m)}</text>
           </g>
         )
       })}
@@ -357,20 +357,20 @@ function KpiCard({ label, dp, color, note }: { label: string; dp: DataPoint<numb
     <div style={{
       padding: '10px 12px', background: 'var(--bg-deep)', flex: 1, minWidth: '90px',
       border: `1px solid ${isAvail ? (color ? color + '30' : 'var(--border)') : 'rgba(74,96,112,0.2)'}`,
-      borderLeft: `3px solid ${isAvail ? (color ?? m.color) : '#4a6070'}`,
+      borderLeft: `3px solid ${isAvail ? (color ?? m.color) : '#8194a6'}`,
       borderRadius: '4px', cursor: dp.notes ? 'help' : 'default',
     }} title={dp.notes ?? `Source: ${dp.source}${dp.reportingDate ? ` (${dp.reportingDate})` : ''}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em', flex: 1 }}>{label}</div>
+        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em', flex: 1 }}>{label}</div>
         <DSTBadge dst={dp.dataSourceType} small />
       </div>
-      <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: '20px', color: isAvail ? (color ?? '#fff') : '#4a6070', lineHeight: 1 }}>
+      <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: '20px', color: isAvail ? (color ?? '#fff') : '#8194a6', lineHeight: 1 }}>
         {isAvail ? (typeof dp.value === 'number' ? dp.value.toFixed(2) : dp.value) : '—'}
         {isAvail && typeof dp.value === 'number' && label.includes('%') ? '' : isAvail ? '%' : ''}
       </div>
-      {note && <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '3px' }}>{note}</div>}
+      {note && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '3px' }}>{note}</div>}
       {dp.ageHours != null && dp.ageHours > 48 && (
-        <div style={{ fontSize: '10px', color: '#f0a500', fontFamily: 'var(--font-data)', marginTop: '2px' }}>
+        <div style={{ fontSize: '12px', color: '#f0a500', fontFamily: 'var(--font-data)', marginTop: '2px' }}>
           ⚠ {Math.round(dp.ageHours / 24)}d old
         </div>
       )}
@@ -388,10 +388,10 @@ function SpreadBar({ label, dp, maxBps }: { label: string; dp: DataPoint<number>
     <div style={{ marginBottom: '12px' }} title={`Source: ${dp.source}${dp.notes ? ' — ' + dp.notes : ''}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-data)' }}>{label}</span>
+          <span style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)' }}>{label}</span>
           <DSTBadge dst={dp.dataSourceType} small />
         </div>
-        <span style={{ fontSize: '13px', fontWeight: 700, color: dp.value !== null ? m.color : '#4a6070', fontFamily: 'var(--font-ui)' }}>
+        <span style={{ fontSize: '14px', fontWeight: 700, color: dp.value !== null ? m.color : '#8194a6', fontFamily: 'var(--font-ui)' }}>
           {dp.value !== null ? `${dp.value > 0 ? '+' : ''}${Math.round(dp.value)}bp` : 'N/A'}
         </span>
       </div>
@@ -400,7 +400,7 @@ function SpreadBar({ label, dp, maxBps }: { label: string; dp: DataPoint<number>
           <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, ${m.color}50, ${m.color})`, borderRadius: '3px', transition: 'width 0.8s ease' }}/>
         )}
       </div>
-      {dp.notes && <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '3px', lineHeight: 1.5 }}>{dp.notes}</div>}
+      {dp.notes && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '3px', lineHeight: 1.5 }}>{dp.notes}</div>}
     </div>
   )
 }
@@ -413,9 +413,9 @@ function SyntheticBanner({ text }: { text: string }) {
     <div style={{ padding: '8px 12px', background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)', borderLeft: '3px solid #a78bfa', borderRadius: '0 4px 4px 0', marginBottom: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
         <DSTBadge dst="synthetic" />
-        <span style={{ fontSize: '11px', color: '#a78bfa', fontFamily: 'var(--font-data)', letterSpacing: '0.08em', fontWeight: 700 }}>SYNTHETIC BOND UNIVERSE</span>
+        <span style={{ fontSize: '13px', color: '#a78bfa', fontFamily: 'var(--font-data)', letterSpacing: '0.08em', fontWeight: 700 }}>SYNTHETIC BOND UNIVERSE</span>
       </div>
-      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.6 }}>{text}</div>
+      <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.6 }}>{text}</div>
     </div>
   )
 }
@@ -443,7 +443,7 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
 
   const TH = ({ label, sk, right }: { label: string; sk?: string; right?: boolean }) => (
     <th onClick={() => sk && (sk === sortKey ? setSortDir(d => d === 1 ? -1 : 1) : (setSortKey(sk), setSortDir(1)))} style={{
-      padding: '5px 7px', textAlign: right ? 'right' : 'left', fontSize: '10px',
+      padding: '5px 7px', textAlign: right ? 'right' : 'left', fontSize: '12px',
       color: sortKey === sk ? '#fff' : 'var(--text-muted)', letterSpacing: '0.1em',
       cursor: sk ? 'pointer' : 'default', borderBottom: '1px solid var(--border)',
       background: 'var(--bg-deep)', userSelect: 'none', fontFamily: 'var(--font-data)',
@@ -462,18 +462,18 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
           {types.map(t => (
             <button key={t} onClick={() => setFilter(t)} style={{
-              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px',
+              padding: '4px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '13px',
               fontFamily: 'var(--font-data)', textTransform: 'uppercase',
               border: `1px solid ${filter === t ? BOND_COLORS[t] ?? 'var(--teal)' : 'var(--border)'}`,
               background: filter === t ? (BOND_COLORS[t] ?? 'var(--teal)') + '18' : 'transparent',
               color: filter === t ? BOND_COLORS[t] ?? 'var(--teal)' : 'var(--text-muted)',
             }}>{t}</button>
           ))}
-          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', alignSelf: 'center' }}>{sorted.length} bonds</span>
+          <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', alignSelf: 'center' }}>{sorted.length} bonds</span>
         </div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-data)', fontSize: '10px', minWidth: '680px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-data)', fontSize: '12px', minWidth: '680px' }}>
           <thead>
             <tr>
               <TH label="ISSUER"   sk="issuer" />
@@ -496,11 +496,11 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
                 <tr key={b.id} style={{ borderBottom: '1px solid var(--border)', background: i % 2 ? 'rgba(255,255,255,0.01)' : 'transparent' }}
                   title={`Synthetic: ${b.syntheticNote}`}>
                   <td style={{ padding: '6px 7px' }}>
-                    <div style={{ color: '#fff', fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: '11px' }}>{b.issuer.length > 22 ? b.issuer.slice(0, 22) + '…' : b.issuer}</div>
-                    {b.isin && <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{b.isin}</div>}
+                    <div style={{ color: '#fff', fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: '13px' }}>{b.issuer.length > 22 ? b.issuer.slice(0, 22) + '…' : b.issuer}</div>
+                    {b.isin && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{b.isin}</div>}
                   </td>
                   <td style={{ padding: '6px 7px' }}>
-                    <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '2px', background: tc + '18', color: tc, border: `1px solid ${tc}30` }}>
+                    <span style={{ fontSize: '12px', padding: '2px 7px', borderRadius: '2px', background: tc + '18', color: tc, border: `1px solid ${tc}30` }}>
                       {b.type}
                     </span>
                   </td>
@@ -510,7 +510,7 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
                   <td style={{ padding: '6px 7px', textAlign: 'right', color: 'var(--text-2)' }}>
                     {b.coupon === 0 ? 'Disc' : `${b.coupon.toFixed(2)}%`}
                   </td>
-                  <td style={{ padding: '6px 7px', textAlign: 'right', color: b.price.value !== null ? 'var(--text-2)' : '#4a6070' }}>
+                  <td style={{ padding: '6px 7px', textAlign: 'right', color: b.price.value !== null ? 'var(--text-2)' : '#8194a6' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '3px', justifyContent: 'flex-end' }}>
                       {b.price.value !== null ? b.price.value.toFixed(2) : '—'}
                       <SourceChip dp={b.price} />
@@ -518,7 +518,7 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
                   </td>
                   <td style={{ padding: '6px 7px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '3px', justifyContent: 'flex-end' }}>
-                      <span style={{ fontWeight: 700, color: ytmAvail ? (b.ytm.value! >= 7 ? '#ff4560' : b.ytm.value! >= 5 ? '#00c97a' : 'var(--text-2)') : '#4a6070' }}>
+                      <span style={{ fontWeight: 700, color: ytmAvail ? (b.ytm.value! >= 7 ? '#ff4560' : b.ytm.value! >= 5 ? '#00c97a' : 'var(--text-2)') : '#8194a6' }}>
                         {ytmAvail ? `${b.ytm.value?.toFixed(2)}%` : '—'}
                       </span>
                       <SourceChip dp={b.ytm} />
@@ -529,13 +529,13 @@ function BondTable({ bonds, market }: { bonds: BondData[]; market: 'US' | 'IN' |
                   </td>
                   <td style={{ padding: '6px 7px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '3px', justifyContent: 'flex-end' }}>
-                      <span style={{ color: b.spreadBps.value != null ? (b.spreadBps.value === 0 ? 'var(--text-muted)' : b.spreadBps.value > 300 ? '#ff4560' : '#00c97a') : '#4a6070' }}>
+                      <span style={{ color: b.spreadBps.value != null ? (b.spreadBps.value === 0 ? 'var(--text-muted)' : b.spreadBps.value > 300 ? '#ff4560' : '#00c97a') : '#8194a6' }}>
                         {b.spreadBps.value !== null ? (b.spreadBps.value === 0 ? 'Benchmark' : `+${Math.round(b.spreadBps.value)}bp`) : '—'}
                       </span>
                       <SourceChip dp={b.spreadBps} />
                     </div>
                   </td>
-                  <td style={{ padding: '6px 7px', fontSize: '11px', color: b.rating === 'UST' || b.rating === 'Sov' ? '#00c97a' : 'var(--text-2)' }}>{b.rating}</td>
+                  <td style={{ padding: '6px 7px', fontSize: '13px', color: b.rating === 'UST' || b.rating === 'Sov' ? '#00c97a' : 'var(--text-2)' }}>{b.rating}</td>
                   <td style={{ padding: '6px 7px' }}>
                     <div style={{ display: 'flex', gap: '1px' }}>
                       {Array.from({ length: 10 }, (_, j) => (
@@ -611,7 +611,7 @@ export default function FixedIncomePanel() {
       <div className="panel-header" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '5px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" style={{ background: accent }} />
-          <span style={{ fontSize: '10px', letterSpacing: '0.12em', fontWeight: 700 }}>FIXED INCOME</span>
+          <span style={{ fontSize: '12px', letterSpacing: '0.12em', fontWeight: 700 }}>FIXED INCOME</span>
           <DSTBadge dst={dq} tooltip={`Yield curve data quality: ${DST_META[dq].label}`} />
           {guide.button}
         </div>
@@ -619,7 +619,7 @@ export default function FixedIncomePanel() {
           {(['US', 'IN', 'COMPARE'] as Market[]).map(m => (
             <button key={m} onClick={() => setMarket(m)} style={{
               padding: '3px 10px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'var(--font-data)', fontSize: '11px', fontWeight: 700,
+              fontFamily: 'var(--font-data)', fontSize: '13px', fontWeight: 700,
               border: `1px solid ${market === m ? (m === 'IN' ? INDIA_COLOR : US_COLOR) : 'var(--border)'}`,
               background: market === m ? (m === 'IN' ? INDIA_COLOR : US_COLOR) + '18' : 'transparent',
               color: market === m ? (m === 'IN' ? INDIA_COLOR : US_COLOR) : 'var(--text-muted)',
@@ -636,7 +636,7 @@ export default function FixedIncomePanel() {
           return (
             <div key={dst} style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
               <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: m.color }} />
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{m.label}</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{m.label}</span>
             </div>
           )
         })}
@@ -644,7 +644,7 @@ export default function FixedIncomePanel() {
         {(market === 'IN' || market === 'COMPARE') && !inAvail?.nseSuccess && (
           <button onClick={() => setAllowModeled(v => !v)} style={{
             marginLeft: 'auto', padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
-            fontFamily: 'var(--font-data)', fontSize: '11px',
+            fontFamily: 'var(--font-data)', fontSize: '13px',
             border: `1px solid ${allowModeled ? '#f0a500' : 'var(--border)'}`,
             background: allowModeled ? 'rgba(240,165,0,0.1)' : 'transparent',
             color: allowModeled ? '#f0a500' : 'var(--text-muted)',
@@ -659,7 +659,7 @@ export default function FixedIncomePanel() {
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: '6px 14px', cursor: 'pointer', flexShrink: 0,
-            fontFamily: 'var(--font-data)', fontSize: '11px', letterSpacing: '0.08em',
+            fontFamily: 'var(--font-data)', fontSize: '13px', letterSpacing: '0.08em',
             border: 'none', borderBottom: `2px solid ${tab === t.id ? accent : 'transparent'}`,
             background: 'transparent', color: tab === t.id ? accent : 'var(--text-muted)',
             fontWeight: tab === t.id ? 700 : 400, transition: 'all 0.15s',
@@ -671,7 +671,7 @@ export default function FixedIncomePanel() {
       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
         {loading && (
-          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '11px' }}>
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '13px' }}>
             LOADING FIXED INCOME DATA...
           </div>
         )}
@@ -686,7 +686,7 @@ export default function FixedIncomePanel() {
           <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
             {(market === 'US' || market === 'COMPARE') && usData && (
               <div>
-                {market === 'COMPARE' && <div style={{ fontSize: '11px', color: US_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px' }}>US TREASURY</div>}
+                {market === 'COMPARE' && <div style={{ fontSize: '13px', color: US_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px' }}>US TREASURY</div>}
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' }}>
                   <KpiCard label="FED FUNDS RATE %" dp={usData.macroContext.policyRate} color={US_COLOR} note={usData.macroContext.stance} />
                   <KpiCard label="10Y TREASURY %" dp={{ ...usData.yieldCurve.find(p => p.maturityYears >= 9)?.yieldData ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' } }} color={US_COLOR} note="Benchmark" />
@@ -695,10 +695,10 @@ export default function FixedIncomePanel() {
                   <KpiCard label="HY OAS bp" dp={usData.spreads?.hyOAS ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} color="#f0a500" />
                 </div>
                 <div style={{ padding: '10px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     US TREASURY CURVE — {usData.yieldCurve[0]?.yieldData.reportingDate}
                     <DSTBadge dst={usData.curveDataQuality} small />
-                    <span style={{ color: '#4a6070' }}>{livePoints.length}/11 live tenors</span>
+                    <span style={{ color: '#8194a6' }}>{livePoints.length}/11 live tenors</span>
                   </div>
                   <YieldCurveChart us={usData.yieldCurve} india={[]} mode="US" h={130} />
                 </div>
@@ -709,7 +709,7 @@ export default function FixedIncomePanel() {
             )}
             {(market === 'IN' || market === 'COMPARE') && inData && (
               <div style={{ marginTop: market === 'COMPARE' ? '6px' : 0 }}>
-                {market === 'COMPARE' && <div style={{ fontSize: '11px', color: INDIA_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>INDIA G-SEC</div>}
+                {market === 'COMPARE' && <div style={{ fontSize: '13px', color: INDIA_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>INDIA G-SEC</div>}
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' }}>
                   <KpiCard label="RBI REPO RATE %" dp={inData.macroContext.policyRate} color={INDIA_COLOR} note={inData.macroContext.stance} />
                   <KpiCard label="10Y G-SEC %" dp={{ ...(inData.yieldCurve.find(p => p.maturityYears >= 9)?.yieldData ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }) }} color={INDIA_COLOR} note="Benchmark" />
@@ -719,7 +719,7 @@ export default function FixedIncomePanel() {
                 </div>
                 {market !== 'COMPARE' && (
                   <div style={{ padding: '10px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       INDIA G-SEC CURVE
                       <DSTBadge dst={inData.curveDataQuality} small />
                       {!inAvail?.nseSuccess && !allowModeled && (
@@ -734,7 +734,7 @@ export default function FixedIncomePanel() {
             {/* Compare mode cross-market */}
             {market === 'COMPARE' && usData && inData && (
               <div style={{ padding: '10px 12px', background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.15)', borderRadius: '5px' }}>
-                <div style={{ fontSize: '11px', color: '#a78bfa', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px' }}>⇄ CROSS-MARKET</div>
+                <div style={{ fontSize: '13px', color: '#a78bfa', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px' }}>⇄ CROSS-MARKET</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                   {[
                     { l:'10Y Yield Differential', v: (() => { const u=usData.yieldCurve.find(p=>p.maturityYears>=9)?.yieldData.value; const i=inData.yieldCurve.find(p=>p.maturityYears>=9)?.yieldData.value; return u&&i?`+${(i-u).toFixed(2)}%`:'N/A' })(), s:'India − US (carry)' },
@@ -743,9 +743,9 @@ export default function FixedIncomePanel() {
                     { l:'Real Rate (India)', v: inData.macroContext.policyRate.value&&inData.macroContext.cpi.value?`${(inData.macroContext.policyRate.value-inData.macroContext.cpi.value).toFixed(2)}%`:'N/A', s:'Repo − CPI' },
                   ].map(({ l, v, s }) => (
                     <div key={l} style={{ padding: '8px', background: 'var(--bg-deep)', borderRadius: '4px' }}>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{l}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{l}</div>
                       <div style={{ fontSize: '18px', fontWeight: 900, fontFamily: 'var(--font-ui)', color: '#fff', lineHeight: 1.2 }}>{v}</div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '2px' }}>{s}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '2px' }}>{s}</div>
                     </div>
                   ))}
                 </div>
@@ -758,18 +758,18 @@ export default function FixedIncomePanel() {
         {!loading && tab === 'curve' && (
           <div style={{ padding: '10px 14px', flex: 1 }}>
             <div style={{ padding: '10px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)', marginBottom: '10px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {market === 'COMPARE' ? 'US TREASURY vs INDIA G-SEC' : market === 'US' ? 'US TREASURY YIELD CURVE' : 'INDIA G-SEC YIELD CURVE'}
                 <DSTBadge dst={active?.curveDataQuality ?? 'unavailable'} small />
               </div>
               <YieldCurveChart us={usData?.yieldCurve ?? []} india={inData?.yieldCurve ?? []} mode={market} h={190} />
             </div>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-data)', fontSize: '10px', minWidth: '520px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-data)', fontSize: '12px', minWidth: '520px' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
                     {['TENOR','MAT','YIELD','vs 2Y','SOURCE','QUALITY'].map(h => (
-                      <th key={h} style={{ padding: '5px 8px', textAlign: h === 'TENOR' || h === 'SOURCE' || h === 'QUALITY' ? 'left' : 'right', fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.1em', background: 'var(--bg-deep)' }}>{h}</th>
+                      <th key={h} style={{ padding: '5px 8px', textAlign: h === 'TENOR' || h === 'SOURCE' || h === 'QUALITY' ? 'left' : 'right', fontSize: '12px', color: 'var(--text-muted)', letterSpacing: '0.1em', background: 'var(--bg-deep)' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -782,13 +782,13 @@ export default function FixedIncomePanel() {
                       <tr key={p.tenor} style={{ borderBottom: '1px solid var(--border)' }} title={`Source: ${p.yieldData.source}${p.yieldData.notes ? ' — ' + p.yieldData.notes : ''}`}>
                         <td style={{ padding: '6px 8px', fontWeight: 700, color: accent }}>{p.tenor}</td>
                         <td style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text-muted)' }}>{p.maturityYears < 1 ? `${Math.round(p.maturityYears * 365)}D` : `${p.maturityYears.toFixed(1)}Y`}</td>
-                        <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: p.yieldData.value != null ? (p.yieldData.value >= 7 ? '#ff4560' : '#00c97a') : '#4a6070' }}>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: p.yieldData.value != null ? (p.yieldData.value >= 7 ? '#ff4560' : '#00c97a') : '#8194a6' }}>
                           {p.yieldData.value != null ? `${p.yieldData.value.toFixed(3)}%` : '—'}
                         </td>
-                        <td style={{ padding: '6px 8px', textAlign: 'right', color: vs2Y != null ? (vs2Y > 0 ? '#00c97a' : '#ff4560') : '#4a6070' }}>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', color: vs2Y != null ? (vs2Y > 0 ? '#00c97a' : '#ff4560') : '#8194a6' }}>
                           {vs2Y != null ? `${vs2Y > 0 ? '+' : ''}${vs2Y}bp` : '—'}
                         </td>
-                        <td style={{ padding: '6px 8px', fontSize: '10px', color: 'var(--text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '6px 8px', fontSize: '12px', color: 'var(--text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {p.yieldData.source}
                         </td>
                         <td style={{ padding: '6px 8px' }}><DSTBadge dst={p.yieldData.dataSourceType} small /></td>
@@ -818,7 +818,7 @@ export default function FixedIncomePanel() {
           <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {(market === 'US' || market === 'COMPARE') && usData?.spreads && (
               <div>
-                <div style={{ fontSize: '11px', color: US_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px' }}>US CREDIT SPREADS</div>
+                <div style={{ fontSize: '13px', color: US_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px' }}>US CREDIT SPREADS</div>
                 <div style={{ padding: '10px 14px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
                   <SpreadBar label="IG OAS"        dp={usData.spreads.igOAS}        maxBps={300} />
                   <SpreadBar label="HY OAS"        dp={usData.spreads.hyOAS}        maxBps={900} />
@@ -829,14 +829,14 @@ export default function FixedIncomePanel() {
             )}
             {(market === 'IN' || market === 'COMPARE') && inData?.spreads && (
               <div>
-                <div style={{ fontSize: '11px', color: INDIA_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', borderTop: market === 'COMPARE' ? '1px solid var(--border)' : 'none', paddingTop: market === 'COMPARE' ? '10px' : 0 }}>INDIA G-SEC SPREADS</div>
+                <div style={{ fontSize: '13px', color: INDIA_COLOR, fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '8px', borderTop: market === 'COMPARE' ? '1px solid var(--border)' : 'none', paddingTop: market === 'COMPARE' ? '10px' : 0 }}>INDIA G-SEC SPREADS</div>
                 <div style={{ padding: '10px 14px', background: 'var(--bg-deep)', borderRadius: '5px', border: '1px solid var(--border)' }}>
                   <SpreadBar label="2Y-10Y G-Sec"  dp={inData.spreads.twoTenSpread}              maxBps={200} />
                   <SpreadBar label="10Y vs Repo"   dp={inData.spreads.tenYrVsRepo  ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} maxBps={300} />
                   <SpreadBar label="SDL vs G-Sec"  dp={inData.spreads.sdlSpread   ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} maxBps={120} />
                   <SpreadBar label="PSU vs G-Sec"  dp={inData.spreads.psuSpread   ?? { value: null, source:'', dataSourceType:'unavailable', fetchedAt:'' }} maxBps={100} />
                 </div>
-                <div style={{ marginTop: '8px', padding: '8px 12px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', background: 'rgba(74,96,112,0.08)', border: '1px solid rgba(74,96,112,0.15)', borderRadius: '4px', lineHeight: 1.7 }}>
+                <div style={{ marginTop: '8px', padding: '8px 12px', fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', background: 'rgba(74,96,112,0.08)', border: '1px solid rgba(74,96,112,0.15)', borderRadius: '4px', lineHeight: 1.7 }}>
                   ⚠ SDL and AAA PSU spreads are not available from any free real-time source. Paid CCIL or NSE bond data terminal required for live spreads. Historical ranges: SDL ~40-70bps, AAA PSU ~30-55bps over G-Sec.
                 </div>
               </div>
@@ -847,7 +847,7 @@ export default function FixedIncomePanel() {
       </div>
 
       {/* FOOTER */}
-      <div style={{ padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0, fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0, fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>US: FRED Treasury + ICE BofA · IN: NSE India → RBI DBIE → Official table · Quant: NR-YTM · Duration · Convexity · NS-curve</span>
         {active && <span>{new Date(active.fetchedAt).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}</span>}
       </div>

@@ -42,7 +42,7 @@ export default function GlobalIndicesPanel() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {isLoading && !quotes.length && (
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>loading…</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>loading…</span>
           )}
           {data?.lastUpdated && !isLoading && (
             <>
@@ -78,17 +78,17 @@ export default function GlobalIndicesPanel() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--text-muted)', border: '1px solid var(--border-br)', borderRadius: '3px', padding: '1px 4px', minWidth: '26px', textAlign: 'center', display: 'inline-block', lineHeight: 1.5 }}>{q.flag}</span>
-                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '13px', color: 'var(--text)' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--text-muted)', border: '1px solid var(--border-br)', borderRadius: '3px', padding: '1px 4px', minWidth: '26px', textAlign: 'center', display: 'inline-block', lineHeight: 1.5 }}>{q.flag}</span>
+                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '14px', color: 'var(--text)' }}>
                     {q.label}
                   </span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
+                  <div style={{ fontFamily: 'var(--font-data)', fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>
                     {q.price != null ? q.price.toLocaleString('en-US', { maximumFractionDigits: q.digits }) : '···'}
                   </div>
                   <div style={{
-                    fontFamily: 'var(--font-data)', fontSize: '11px',
+                    fontFamily: 'var(--font-data)', fontSize: '13px',
                     color: q.change == null ? 'var(--text-muted)' : isPos ? 'var(--positive)' : 'var(--negative)',
                   }}>
                     {q.change != null ? `${isPos ? '+' : ''}${q.change.toFixed(2)}%` : '···'}
@@ -100,7 +100,7 @@ export default function GlobalIndicesPanel() {
         })}
 
         {quotes.length === 0 && !isLoading && (
-          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-data)' }}>
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px', fontFamily: 'var(--font-data)' }}>
             No data available
           </div>
         )}

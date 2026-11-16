@@ -81,7 +81,7 @@ function MarketStatusBar() {
           animation: status.pulse ? 'pulseDot 2s ease-in-out infinite' : 'none',
         }} />
         <span style={{
-          fontSize: '11px', color: status.color,
+          fontSize: '13px', color: status.color,
           fontFamily: 'var(--font-data)', fontWeight: 700,
           letterSpacing: '0.08em',
         }}>
@@ -286,7 +286,7 @@ export default function Dashboard() {
         .tagline {
           border-left: 1px solid var(--border);
           padding-left: 10px;
-          font-size: 11px;
+          font-size: 13px;
           color: var(--text-muted);
           font-family: var(--font-data);
           letter-spacing: 0.12em;
@@ -312,7 +312,7 @@ export default function Dashboard() {
         }
         .layout-mode-toggle button {
           font-family: var(--font-data);
-          font-size: 10px;
+          font-size: 12px;
           font-weight: 700;
           letter-spacing: 0.06em;
           padding: 4px 10px;
@@ -360,12 +360,12 @@ export default function Dashboard() {
         }
 
         .clock-label {
-          font-size: 10px;
+          font-size: 12px;
           color: var(--text-muted);
         }
 
         .clock-value {
-          font-size: 12px;
+          font-size: 13px;
           font-family: var(--font-data);
         }
 
@@ -374,7 +374,7 @@ export default function Dashboard() {
         }
 
         .status-sub {
-          font-size: 10px;
+          font-size: 12px;
           color: var(--text-muted);
           margin-left: 4px;
           white-space: nowrap;
@@ -398,12 +398,12 @@ export default function Dashboard() {
         @media (max-width: 899px) {
           .header { padding: 0 12px; gap: 10px; }
           .clock-lon { display: none; }
-          .clock-value { font-size: 11px; }
-          .clock-label { font-size: 9px; }
+          .clock-value { font-size: 13px; }
+          .clock-label { font-size: 11px; }
           .clock-wrap { gap: 8px; }
         }
         @media (max-width: 899px) {
-          .layout-mode-toggle button { padding: 3px 8px; font-size: 9px; }
+          .layout-mode-toggle button { padding: 3px 8px; font-size: 11px; }
         }
         @media (max-width: 639px) {
           .header { padding: 0 10px; gap: 8px; }

@@ -177,7 +177,7 @@ export default function MorningBrief() {
     background: 'linear-gradient(180deg, rgba(167,139,250,0.04), transparent)',
     borderBottom: '1px solid var(--border)',
     fontFamily:   'var(--font-data)',
-    fontSize:     '11px',
+    fontSize:     '13px',
     overflow:     'hidden',
     whiteSpace:   'nowrap',
     flexWrap:     'wrap',
@@ -203,7 +203,7 @@ export default function MorningBrief() {
       <Sep />
 
       {/* Movers */}
-      <span style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', fontSize: '10px' }}>
+      <span style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', fontSize: '12px' }}>
         MOVERS
       </span>
       {movers.length === 0 ? (
@@ -227,7 +227,7 @@ export default function MorningBrief() {
       <Sep />
 
       {/* Next event */}
-      <span style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', fontSize: '10px' }}>
+      <span style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', fontSize: '12px' }}>
         NEXT
       </span>
       {nextEvent ? (
@@ -245,7 +245,7 @@ export default function MorningBrief() {
         <span style={{ color: 'var(--text-muted)' }}>—</span>
       )}
 
-      <span style={{ marginLeft: 'auto', color: 'var(--text-muted)', fontSize: '10px',
+      <span style={{ marginLeft: 'auto', color: 'var(--text-muted)', fontSize: '12px',
                      letterSpacing: '0.08em' }}>
         TOP · live · {formatClock(new Date())}
       </span>

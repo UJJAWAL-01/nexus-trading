@@ -75,32 +75,32 @@ function SectorHoverOverlay({ sector, change, movers, loading }: SectorHoverProp
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '13px', color: '#fff' }}>NSE {sector.label}</div>
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{sector.symbol}</div>
+          <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '14px', color: '#fff' }}>NSE {sector.label}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{sector.symbol}</div>
         </div>
         <div style={{ fontSize: '18px', fontWeight: 900, fontFamily: 'var(--font-ui)', color: isPos ? '#00c97a' : '#ff4560' }}>
           {change != null ? `${isPos?'+':''}${change.toFixed(2)}%` : '···'}
         </div>
       </div>
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '12px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>Loading sector components...</div>
+        <div style={{ textAlign: 'center', padding: '12px', fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>Loading sector components...</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div>
-            <div style={{ fontSize: '10px', color: '#00c97a', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '4px', borderBottom: '1px solid rgba(0,201,122,0.2)', paddingBottom: '2px' }}>▲ WINNERS</div>
+            <div style={{ fontSize: '12px', color: '#00c97a', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '4px', borderBottom: '1px solid rgba(0,201,122,0.2)', paddingBottom: '2px' }}>▲ WINNERS</div>
             {winners.map(m => (
               <div key={m.sym} style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
-                <span style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-data)' }}>{m.sym.replace('.NS','')}</span>
-                <span style={{ fontSize: '11px', color: '#00c97a', fontFamily: 'var(--font-data)', fontWeight: 700 }}>{m.change!=null?`+${m.change.toFixed(1)}%`:'···'}</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)' }}>{m.sym.replace('.NS','')}</span>
+                <span style={{ fontSize: '13px', color: '#00c97a', fontFamily: 'var(--font-data)', fontWeight: 700 }}>{m.change!=null?`+${m.change.toFixed(1)}%`:'···'}</span>
               </div>
             ))}
           </div>
           <div>
-            <div style={{ fontSize: '10px', color: '#ff4560', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '4px', borderBottom: '1px solid rgba(255,69,96,0.2)', paddingBottom: '2px' }}>▼ LOSERS</div>
+            <div style={{ fontSize: '12px', color: '#ff4560', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '4px', borderBottom: '1px solid rgba(255,69,96,0.2)', paddingBottom: '2px' }}>▼ LOSERS</div>
             {losers.map(m => (
               <div key={m.sym} style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
-                <span style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-data)' }}>{m.sym.replace('.NS','')}</span>
-                <span style={{ fontSize: '11px', color: '#ff4560', fontFamily: 'var(--font-data)', fontWeight: 700 }}>{m.change!=null?`${m.change.toFixed(1)}%`:'···'}</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)' }}>{m.sym.replace('.NS','')}</span>
+                <span style={{ fontSize: '13px', color: '#ff4560', fontFamily: 'var(--font-data)', fontWeight: 700 }}>{m.change!=null?`${m.change.toFixed(1)}%`:'···'}</span>
               </div>
             ))}
           </div>
@@ -218,12 +218,12 @@ export default function IndiaMarketsPanel() {
       <div className="panel-header" style={{ justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" style={{ background: '#f97316', boxShadow: '0 0 8px #f97316' }} />
-          IN INDIA MARKETS
+          INDIA MARKETS
           {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'var(--font-data)' }}>▲ {gainers}</span>
-          <span style={{ fontSize: '10px', color: 'var(--negative)', fontFamily: 'var(--font-data)' }}>▼ {losers}</span>
+          <span style={{ fontSize: '12px', color: 'var(--positive)', fontFamily: 'var(--font-data)' }}>▲ {gainers}</span>
+          <span style={{ fontSize: '12px', color: 'var(--negative)', fontFamily: 'var(--font-data)' }}>▼ {losers}</span>
           <DataQualityBadge kind="live" small tooltip="Yahoo Finance live quotes, polled every 60s" />
           <DataAgeBadge timestamp={lastUpdatedTs} freshSecs={90} staleSecs={300} small />
           {nseFile?.generatedAt && (
@@ -245,16 +245,16 @@ export default function IndiaMarketsPanel() {
           return (
             <div key={idx.symbol} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 14px', borderBottom: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(249,115,22,0.12)', color: '#f97316', border: '1px solid rgba(249,115,22,0.25)', fontFamily: 'var(--font-data)', fontWeight: 700 }}>
+                <span style={{ fontSize: '13px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(249,115,22,0.12)', color: '#f97316', border: '1px solid rgba(249,115,22,0.25)', fontFamily: 'var(--font-data)', fontWeight: 700 }}>
                   {idx.badge}
                 </span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '13px', color: '#fff' }}>{idx.label}</span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '14px', color: '#fff' }}>{idx.label}</span>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: '#fff' }}>
+                <div style={{ fontFamily: 'var(--font-data)', fontSize: '14px', color: '#fff' }}>
                   {idx.price != null ? idx.price.toLocaleString('en-IN', { maximumFractionDigits: idx.digits }) : '···'}
                 </div>
-                <div style={{ fontFamily: 'var(--font-data)', fontSize: '10px', color: idx.change == null ? 'var(--text-muted)' : isVix ? (isPos ? 'var(--negative)' : 'var(--positive)') : (isPos ? 'var(--positive)' : 'var(--negative)') }}>
+                <div style={{ fontFamily: 'var(--font-data)', fontSize: '12px', color: idx.change == null ? 'var(--text-muted)' : isVix ? (isPos ? 'var(--negative)' : 'var(--positive)') : (isPos ? 'var(--positive)' : 'var(--negative)') }}>
                   {idx.change != null ? `${isPos ? '+' : ''}${idx.change.toFixed(2)}%` : '···'}
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function IndiaMarketsPanel() {
 
       {/* Sector mini-heatmap */}
       <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)', flex: '0 0 auto' }}>
-        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '5px', paddingLeft: '4px' }}>
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '5px', paddingLeft: '4px' }}>
           NSE SECTORS · hover for movers
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
@@ -284,8 +284,8 @@ export default function IndiaMarketsPanel() {
                   transition: 'all 0.15s',
                 }}
               >
-                <div style={{ fontSize: '11px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: '#fff' }}>{sec.short}</div>
-                <div style={{ fontSize: '10px', fontFamily: 'var(--font-data)', fontWeight: 700, color: col.text }}>
+                <div style={{ fontSize: '13px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: '#fff' }}>{sec.short}</div>
+                <div style={{ fontSize: '12px', fontFamily: 'var(--font-data)', fontWeight: 700, color: col.text }}>
                   {sec.change != null ? `${sec.change >= 0 ? '+' : ''}${sec.change.toFixed(2)}%` : '···'}
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function IndiaMarketsPanel() {
 
       {/* FII/DII flow strip
       <div style={{ padding: '8px 14px', marginTop: 'auto', flex: '0 0 auto' }}>
-        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px' }}>
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', marginBottom: '6px' }}>
           FII / DII FLOWS — T-1 EST (₹ Cr)
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -306,12 +306,12 @@ export default function IndiaMarketsPanel() {
             { label: 'COMBINED', value: '+', positive: true  },
           ].map(({ label, value, positive }) => (
             <div key={label} style={{ flex: 1, padding: '6px 8px', borderRadius: '4px', background: positive ? 'rgba(0,201,122,0.08)' : 'rgba(255,69,96,0.08)', border: `1px solid ${positive ? 'rgba(0,201,122,0.2)' : 'rgba(255,69,96,0.2)'}` }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{label}</div>
-              <div style={{ fontSize: '13px', fontFamily: 'var(--font-data)', fontWeight: 700, color: positive ? 'var(--positive)' : 'var(--negative)' }}>{value}</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>{label}</div>
+              <div style={{ fontSize: '14px', fontFamily: 'var(--font-data)', fontWeight: 700, color: positive ? 'var(--positive)' : 'var(--negative)' }}>{value}</div>
             </div>
           ))}
         </div>
-        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '4px', opacity: 0.6 }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '4px', opacity: 0.6 }}>
           * Indicative T-1 data. Connect NSE API for live flows.
         </div>
       </div> */}

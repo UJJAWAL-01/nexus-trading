@@ -27,7 +27,7 @@ export function Skeleton({ rows = 6, cols, label, tint = 'rgba(240,165,0,0.10)',
         <div style={{
           padding: '8px 12px 4px',
           fontFamily: 'var(--font-data)',
-          fontSize: 10,
+          fontSize: 12,
           color: 'var(--text-muted)',
           letterSpacing: '0.08em',
         }}>
@@ -111,11 +111,11 @@ export function ErrorState({ message, hint, onRetry, retryLabel = 'Retry' }: Err
         textAlign: 'center',
       }}
     >
-      <div style={{ fontSize: 13, color: 'var(--negative)', fontWeight: 700, letterSpacing: '0.04em' }}>
+      <div style={{ fontSize: 14, color: 'var(--negative)', fontWeight: 700, letterSpacing: '0.04em' }}>
         ⚠ {message}
       </div>
       {hint && (
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', maxWidth: 320, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', maxWidth: 320, lineHeight: 1.5 }}>
           {hint}
         </div>
       )}
@@ -130,7 +130,7 @@ export function ErrorState({ message, hint, onRetry, retryLabel = 'Retry' }: Err
             background: 'transparent',
             color: 'var(--text-2)',
             fontFamily: 'var(--font-data)',
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 700,
             letterSpacing: '0.06em',
             cursor: 'pointer',
@@ -170,16 +170,16 @@ export function ComingSoon({ feature = 'India coverage', detail }: ComingSoonPro
         fontFamily: 'var(--font-data)',
       }}
     >
-      <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: 14, color: 'var(--amber)', letterSpacing: '0.01em' }}>
+      <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: 15, color: 'var(--amber)', letterSpacing: '0.01em' }}>
         {feature} is on the way
       </div>
-      <div style={{ fontSize: 11, color: 'var(--text-2)', maxWidth: 320, lineHeight: 1.6 }}>
+      <div style={{ fontSize: 13, color: 'var(--text-2)', maxWidth: 320, lineHeight: 1.6 }}>
         We&apos;re actively building {feature.toLowerCase()} and will ship it soon. Thanks for your patience — stay tuned.
       </div>
       {detail && (
-        <div style={{ fontSize: 10, color: 'var(--text-muted)', maxWidth: 320, lineHeight: 1.5 }}>{detail}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', maxWidth: 320, lineHeight: 1.5 }}>{detail}</div>
       )}
-      <div style={{ marginTop: 4, fontSize: 9, color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 10px', letterSpacing: '0.1em' }}>
+      <div style={{ marginTop: 4, fontSize: 11, color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 4, padding: '3px 10px', letterSpacing: '0.1em' }}>
         IN DEVELOPMENT
       </div>
     </div>
@@ -207,9 +207,9 @@ export function EmptyState({ message, hint, action, icon }: EmptyStateProps) {
       }}
     >
       {icon && <div style={{ fontSize: 22, opacity: 0.5, marginBottom: 4 }}>{icon}</div>}
-      <div style={{ fontSize: 12, color: 'var(--text-2)' }}>{message}</div>
+      <div style={{ fontSize: 13, color: 'var(--text-2)' }}>{message}</div>
       {hint && (
-        <div style={{ fontSize: 10, color: 'var(--text-muted)', maxWidth: 280, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', maxWidth: 280, lineHeight: 1.5 }}>
           {hint}
         </div>
       )}

@@ -37,8 +37,8 @@ export default function LegalPage({ title, subtitle, lastUpdated, sections }: Le
             NEX<span style={{ color: 'var(--amber)' }}>US</span>
           </span>
         </Link>
-        <span style={{ color: 'var(--border)', fontSize: '14px' }}>›</span>
-        <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{title}</span>
+        <span style={{ color: 'var(--border)', fontSize: '15px' }}>›</span>
+        <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>{title}</span>
       </div>
 
       {/* Content */}
@@ -53,10 +53,10 @@ export default function LegalPage({ title, subtitle, lastUpdated, sections }: Le
         }}>{title}</h1>
 
         {subtitle && (
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px' }}>{subtitle}</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '15px', marginBottom: '8px' }}>{subtitle}</p>
         )}
 
-        <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '40px', borderBottom: '1px solid var(--border)', paddingBottom: '24px' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '40px', borderBottom: '1px solid var(--border)', paddingBottom: '24px' }}>
           Last updated: {lastUpdated}
         </p>
 
@@ -70,7 +70,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, sections }: Le
               letterSpacing: '0.08em',
               marginBottom: '12px',
             }}>{s.heading}</h2>
-            <div style={{ fontSize: '14px', color: 'var(--text-2, #94a3b8)', lineHeight: 1.8 }}>
+            <div style={{ fontSize: '15px', color: 'var(--text-2, #94a3b8)', lineHeight: 1.8 }}>
               {s.body}
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, sections }: Le
           background: 'rgba(0,0,0,0.3)',
           borderRadius: '6px',
           borderLeft: '3px solid var(--teal)',
-          fontSize: '13px',
+          fontSize: '14px',
           color: 'var(--text-muted)',
         }}>
           Questions? Email us at{' '}
@@ -92,7 +92,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, sections }: Le
         </div>
 
         <div style={{ marginTop: '32px' }}>
-          <Link href="/" style={{ color: 'var(--teal)', textDecoration: 'none', fontSize: '13px' }}>
+          <Link href="/" style={{ color: 'var(--teal)', textDecoration: 'none', fontSize: '14px' }}>
             ← Back to Dashboard
           </Link>
         </div>

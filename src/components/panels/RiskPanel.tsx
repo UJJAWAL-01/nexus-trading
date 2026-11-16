@@ -26,8 +26,8 @@ const SIGN: Record<string, string> = { USD: '$', INR: '₹' }
 const pct  = (n: number | null, dp = 1) => (n === null || !Number.isFinite(n) ? '—' : `${(n * 100).toFixed(dp)}%`)
 const num  = (n: number | null, dp = 2) => (n === null || !Number.isFinite(n) ? '—' : n.toFixed(dp))
 const tile: CSSProperties = { border: '1px solid var(--border)', borderRadius: 4, padding: '7px 9px', background: 'var(--bg-deep)', minWidth: 0 }
-const th: CSSProperties = { padding: '6px 8px', fontSize: 10, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
-const td: CSSProperties = { padding: '6px 8px', fontSize: 11, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
+const th: CSSProperties = { padding: '6px 8px', fontSize: 12, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
+const td: CSSProperties = { padding: '6px 8px', fontSize: 13, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
 
 // Correlation cell colour: red = moves together (concentrated), teal = offsets.
 const corrBg = (v: number | null): string => {
@@ -95,7 +95,7 @@ export default function RiskPanel() {
         <div className="dot" />
         PORTFOLIO RISK
         {risk && bench && (
-          <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
             {risk.observations} TRADING DAYS · VS {bench.label.toUpperCase()} · RUNS IN YOUR BROWSER
           </span>
         )}
@@ -158,11 +158,11 @@ export default function RiskPanel() {
 
             {risk.correlation.symbols.length > 1 && (
               <div style={{ padding: '10px' }}>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', marginBottom: 6 }}>
                   CORRELATION OF DAILY RETURNS · RED = MOVE TOGETHER · TEAL = OFFSET
                 </div>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: 10 }}>
+                  <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: 12 }}>
                     <thead>
                       <tr>
                         <th />
@@ -187,7 +187,7 @@ export default function RiskPanel() {
             )}
 
             {(result!.noHistory.length > 0 || (group?.excluded.length ?? 0) > 0) && (
-              <div style={{ padding: '0 10px 8px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+              <div style={{ padding: '0 10px 8px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
                 {result!.noHistory.length > 0 && <div>No usable price history, excluded: {result!.noHistory.join(', ')}.</div>}
                 {(group?.excluded.length ?? 0) > 0 && <div>Other-currency positions are analysed separately and excluded here: {group!.excluded.join(', ')}.</div>}
               </div>
@@ -196,7 +196,7 @@ export default function RiskPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         Based on the past year at today&apos;s weights. Historical risk understates rare events and does not predict losses. Not financial advice.
       </div>
     </div>
@@ -206,13 +206,13 @@ export default function RiskPanel() {
 function Tile({ label, value, sub, bad }: { label: string; value: string; sub?: string; bad?: boolean }) {
   return (
     <div style={tile}>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 700, fontFamily: MONO, color: bad ? 'var(--negative)' : 'var(--text)' }}>{value}</div>
-      {sub && <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', lineHeight: 1.4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 12, fontFamily: MONO, color: 'var(--text-muted)', lineHeight: 1.4 }}>{sub}</div>}
     </div>
   )
 }
 
 function Note({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }

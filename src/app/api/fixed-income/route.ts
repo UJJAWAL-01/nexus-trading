@@ -313,7 +313,7 @@ function computeSignals(
 
   let credit: TradingSignals['credit'] = 'N/A'
   let creditReason = 'IG OAS data unavailable from FRED'
-  let creditColor  = '#4a6070'
+  let creditColor  = '#8194a6'
   if (igOAS !== null) {
     if (igOAS < 80)       { credit = 'REDUCE'; creditReason = `IG OAS ${igOAS}bp — historically tight, limited margin of safety`; creditColor = '#ff4560' }
     else if (igOAS < 110) { credit = 'NEUTRAL'; creditReason = `IG OAS ${igOAS}bp — fair value, selective sector allocation`;       creditColor = '#f0a500' }

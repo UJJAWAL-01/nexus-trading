@@ -9,7 +9,7 @@ import { downloadBackup, parseBackup, restoreBackup } from '@/lib/export'
 
 const linkStyle: React.CSSProperties = {
   background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-  color: 'var(--text-2)', fontFamily: 'var(--font-data)', fontSize: 11,
+  color: 'var(--text-2)', fontFamily: 'var(--font-data)', fontSize: 13,
   textDecoration: 'underline', textUnderlineOffset: 3,
 }
 
@@ -42,7 +42,7 @@ export default function WorkspaceBackup() {
   }
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14, fontSize: 11, fontFamily: 'var(--font-data)', color: 'var(--text-muted)' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14, fontSize: 13, fontFamily: 'var(--font-data)', color: 'var(--text-muted)' }}>
       <span>YOUR DATA STAYS IN THIS BROWSER</span>
       <button type="button" style={linkStyle} onClick={onBackup} title="Download watchlist, portfolio, layouts and drawings as one file">
         Back up workspace

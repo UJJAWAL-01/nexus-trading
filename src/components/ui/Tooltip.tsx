@@ -112,7 +112,7 @@ export default function Tooltip({
             borderRadius: 4,
             padding: '6px 10px',
             fontFamily: 'var(--font-data)',
-            fontSize: 11,
+            fontSize: 13,
             lineHeight: 1.5,
             color: 'var(--text)',
             maxWidth,

@@ -60,15 +60,15 @@ export default function AlertToasts() {
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
                           gap: '8px', marginBottom: '3px' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', minWidth: 0 }}>
-                <span style={{ color: c.fg, fontSize: '11px', flexShrink: 0 }}>
+                <span style={{ color: c.fg, fontSize: '13px', flexShrink: 0 }}>
                   {LEVEL_PREFIX[a.level]}
                 </span>
-                <span style={{ fontSize: '9px', color: c.fg, letterSpacing: '0.1em',
+                <span style={{ fontSize: '11px', color: c.fg, letterSpacing: '0.1em',
                                flexShrink: 0 }}>
                   {a.source}
                 </span>
                 {a.symbol && (
-                  <span style={{ fontSize: '10px', color: '#a78bfa',
+                  <span style={{ fontSize: '12px', color: '#a78bfa',
                                  padding: '0 4px', borderRadius: '2px',
                                  background: 'rgba(167,139,250,0.10)',
                                  border: '1px solid rgba(167,139,250,0.3)',
@@ -76,18 +76,18 @@ export default function AlertToasts() {
                     {a.symbol}
                   </span>
                 )}
-                <span style={{ fontSize: '11px', color: '#fff', fontWeight: 700,
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 700,
                                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {a.title}
                 </span>
               </div>
               <button onClick={() => dismiss(a.id)} style={{
                 background: 'transparent', border: 'none', color: 'var(--text-muted)',
-                cursor: 'pointer', fontSize: '14px', padding: 0, lineHeight: 1,
+                cursor: 'pointer', fontSize: '15px', padding: 0, lineHeight: 1,
                 flexShrink: 0,
               }}>×</button>
             </div>
-            <div style={{ fontSize: '10px', color: 'var(--text-2)', lineHeight: 1.4 }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-2)', lineHeight: 1.4 }}>
               {a.body}
             </div>
           </div>

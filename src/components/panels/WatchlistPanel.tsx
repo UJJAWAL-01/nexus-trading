@@ -213,7 +213,7 @@ export default function WatchlistPanel() {
       <div style={{ position: 'absolute', top: '44px', left: '8px', right: '8px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '4px', pointerEvents: 'none' }}>
         {toasts.map(t => (
           <div key={t.id} style={{
-            padding: '5px 10px', borderRadius: '4px', fontSize: '10px',
+            padding: '5px 10px', borderRadius: '4px', fontSize: '12px',
             fontFamily: 'var(--font-data)',
             background: t.type === 'ok' ? 'rgba(0,201,122,0.15)' : 'rgba(255,69,96,0.15)',
             border: `1px solid ${t.type === 'ok' ? 'rgba(0,201,122,0.4)' : 'rgba(255,69,96,0.4)'}`,
@@ -230,7 +230,7 @@ export default function WatchlistPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" />
           WATCHLIST
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
             {symbols.length}/20
           </span>
           {guide.button}
@@ -247,7 +247,7 @@ export default function WatchlistPanel() {
           )}
           style={{
             background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-2)',
-            borderRadius: '3px', padding: '4px 6px', fontSize: '10px', cursor: 'pointer', whiteSpace: 'nowrap',
+            borderRadius: '3px', padding: '4px 6px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
             fontFamily: 'var(--font-data)', fontWeight: 700,
           }}
         >
@@ -260,7 +260,7 @@ export default function WatchlistPanel() {
             border: `1px solid ${adding ? 'var(--amber)' : 'var(--border)'}`,
             color: adding ? '#000' : 'var(--text-2)',
             borderRadius: '3px', padding: '4px 8px', whiteSpace: 'nowrap',
-            fontSize: '11px', cursor: 'pointer', fontFamily: 'var(--font-data)',
+            fontSize: '13px', cursor: 'pointer', fontFamily: 'var(--font-data)',
             fontWeight: 700,
           }}
         >
@@ -283,7 +283,7 @@ export default function WatchlistPanel() {
               style={{
                 flex: 1, background: 'var(--bg-deep)', border: '1px solid var(--border-br)',
                 borderRadius: '3px', padding: '6px 10px', color: '#fff',
-                fontSize: '11px', fontFamily: 'var(--font-data)', outline: 'none',
+                fontSize: '13px', fontFamily: 'var(--font-data)', outline: 'none',
               }}
             />
             <button
@@ -292,7 +292,7 @@ export default function WatchlistPanel() {
               style={{
                 padding: '6px 12px', borderRadius: '3px', cursor: 'pointer',
                 background: 'rgba(0,229,192,0.12)', border: '1px solid var(--teal)',
-                color: 'var(--teal)', fontSize: '10px', fontFamily: 'var(--font-data)',
+                color: 'var(--teal)', fontSize: '12px', fontFamily: 'var(--font-data)',
               }}
             >
               {validating ? '···' : 'ADD'}
@@ -311,14 +311,14 @@ export default function WatchlistPanel() {
                   onMouseDown={() => { setInput(r.symbol); addTicker(r.symbol) }}
                   style={{
                     padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid var(--border)',
-                    fontSize: '11px', fontFamily: 'var(--font-data)',
+                    fontSize: '13px', fontFamily: 'var(--font-data)',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   <span style={{ color: 'var(--amber)', fontWeight: 700 }}>{r.symbol}</span>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{r.name?.slice(0, 24)}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{r.name?.slice(0, 24)}</span>
                 </div>
               ))}
             </div>
@@ -329,7 +329,7 @@ export default function WatchlistPanel() {
       {/* Rows */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {rows.length === 0 && (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-data)' }}>
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px', fontFamily: 'var(--font-data)' }}>
             No symbols yet. Click + ADD to get started.
           </div>
         )}
@@ -375,20 +375,20 @@ export default function WatchlistPanel() {
             >
               {/* Symbol + exchange */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: '13px', color: '#fff', fontFamily: 'var(--font-ui)' }}>
+                <div style={{ fontWeight: 700, fontSize: '14px', color: '#fff', fontFamily: 'var(--font-ui)' }}>
                   {row.symbol}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '1px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '1px' }}>
                   {row.exchange || (row.symbol.endsWith('.NS') ? 'NSE' : 'US')}
                 </div>
               </div>
 
               {/* Price + change */}
               <div style={{ textAlign: 'right', marginRight: isHov ? '36px' : '0', transition: 'margin 0.15s' }}>
-                <div style={{ fontSize: '13px', color: '#fff', fontFamily: 'var(--font-data)', fontWeight: 600 }}>
+                <div style={{ fontSize: '14px', color: '#fff', fontFamily: 'var(--font-data)', fontWeight: 600 }}>
                   {fmtPrice(row.price, row.currency)}
                 </div>
-                <div style={{ fontSize: '11px', color: isPos ? 'var(--positive)' : 'var(--negative)', fontFamily: 'var(--font-data)' }}>
+                <div style={{ fontSize: '13px', color: isPos ? 'var(--positive)' : 'var(--negative)', fontFamily: 'var(--font-data)' }}>
                   {isPos ? '+' : ''}{(row.changePercent ?? 0).toFixed(2)}%
                 </div>
               </div>
@@ -430,7 +430,7 @@ export default function WatchlistPanel() {
       {rows.length > 0 && (
         <div style={{
           padding: '4px 12px', borderTop: '1px solid var(--border)',
-          fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)',
+          fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)',
         }}>
           Click row → focus everywhere · × to remove
         </div>

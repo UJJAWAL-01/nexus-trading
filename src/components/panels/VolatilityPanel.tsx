@@ -16,8 +16,8 @@ const MONO = 'var(--font-data)'
 interface Payload { symbol: string; supported: boolean; surface?: VolSurface | null; source?: string; reason?: string }
 
 const tile: CSSProperties = { border: '1px solid var(--border)', borderRadius: 4, padding: '7px 9px', background: 'var(--bg-deep)', minWidth: 0 }
-const th: CSSProperties = { padding: '5px 8px', fontSize: 10, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: 'var(--bg-panel)' }
-const td: CSSProperties = { padding: '5px 8px', fontSize: 11, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
+const th: CSSProperties = { padding: '5px 8px', fontSize: 12, letterSpacing: '0.06em', color: 'var(--text-muted)', fontFamily: MONO, fontWeight: 700, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: 'var(--bg-panel)' }
+const td: CSSProperties = { padding: '5px 8px', fontSize: 13, fontFamily: MONO, textAlign: 'right', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
 
 const pct = (v: number | null | undefined, dp = 1) => (v == null || !Number.isFinite(v) ? '—' : `${(v * 100).toFixed(dp)}%`)
 const pts = (v: number | null) => (v === null ? '—' : `${v > 0 ? '+' : ''}${(v * 100).toFixed(1)}`)
@@ -60,7 +60,7 @@ function TermChart({ rows, selected, onSelect }: { rows: ExpiryVol[]; selected: 
 }
 
 function SmileChart({ row, spot }: { row: ExpiryVol; spot: number }) {
-  if (row.smile.length < 3) return <div style={{ padding: 14, fontFamily: MONO, fontSize: 11, color: 'var(--text-muted)' }}>Too few quoted strikes to draw a smile for this expiry.</div>
+  if (row.smile.length < 3) return <div style={{ padding: 14, fontFamily: MONO, fontSize: 13, color: 'var(--text-muted)' }}>Too few quoted strikes to draw a smile for this expiry.</div>
   const [lo, hi] = niceRange(row.smile.map(p => p.iv))
   const mLo = row.smile[0].moneyness, mHi = row.smile[row.smile.length - 1].moneyness
   const x = (m: number) => PAD.l + ((m - mLo) / (mHi - mLo || 1)) * (W - PAD.l - PAD.r)
@@ -118,8 +118,8 @@ export default function VolatilityPanel() {
       <div className="panel-header" style={{ gap: 8, flexWrap: 'wrap' }}>
         <div className="dot" />
         VOLATILITY
-        <span style={{ fontSize: 11, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
-        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>IMPLIED · 15-MIN DELAYED</span>
+        <span style={{ fontSize: 13, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>IMPLIED · 15-MIN DELAYED</span>
         <span style={{ marginLeft: 'auto', display: 'inline-flex' }}>{guide.button}</span>
       </div>
       {guide.body}
@@ -143,7 +143,7 @@ export default function VolatilityPanel() {
             </div>
 
             <Section title="TERM STRUCTURE · AT-THE-MONEY IMPLIED VOLATILITY BY EXPIRY">
-              {rows.length >= 2 ? <TermChart rows={rows} selected={selected} onSelect={e => setPicked({ symbol, expiry: e })} /> : <div style={{ padding: 10, fontFamily: MONO, fontSize: 11, color: 'var(--text-muted)' }}>Only one expiry has usable quotes.</div>}
+              {rows.length >= 2 ? <TermChart rows={rows} selected={selected} onSelect={e => setPicked({ symbol, expiry: e })} /> : <div style={{ padding: 10, fontFamily: MONO, fontSize: 13, color: 'var(--text-muted)' }}>Only one expiry has usable quotes.</div>}
               {surface.shape && <Caption>{SHAPE[surface.shape]} Click a point to see that expiry&apos;s skew.</Caption>}
             </Section>
 
@@ -176,25 +176,25 @@ export default function VolatilityPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         Source: CBOE delayed quotes{surface?.asOf ? `, quote time ${surface.asOf}` : ''}. A priced move is what options cost, not a forecast. Not financial advice.
       </div>
     </div>
   )
 }
 
-const Label = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{children}</div>
+const Label = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{children}</div>
 const Value = ({ children, color }: { children: React.ReactNode; color?: string }) => <div style={{ fontSize: 16, fontWeight: 700, fontFamily: MONO, color: color ?? 'var(--text)', marginTop: 2 }}>{children}</div>
-const Sub = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, marginTop: 2 }}>{children}</div>
-const Caption = ({ children }: { children: React.ReactNode }) => <div style={{ padding: '2px 0 0', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>{children}</div>
+const Sub = ({ children }: { children: React.ReactNode }) => <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, marginTop: 2 }}>{children}</div>
+const Caption = ({ children }: { children: React.ReactNode }) => <div style={{ padding: '2px 0 0', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, lineHeight: 1.5 }}>{children}</div>
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ padding: '4px 10px 10px' }}>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', marginBottom: 4 }}>{title}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', marginBottom: 4 }}>{title}</div>
       {children}
     </div>
   )
 }
 function Note({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '24px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }

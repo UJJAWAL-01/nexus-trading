@@ -207,17 +207,17 @@ export default function Footer() {
 
           <div style={{ color: 'var(--text-muted)' }}>
             <div>© {currentYear} <strong style={{ color: '#fff' }}>UJJAWAL (UJ) PATEL</strong></div>
-            <div style={{ fontSize: '10px' }}>
+            <div style={{ fontSize: '12px' }}>
               Open source · GNU AGPL-3.0 · Data should not be gatekept.
             </div>
             {/* The AGPL requires offering the source to everyone who uses the app over a network. */}
-            <div style={{ fontSize: '10px', marginTop: 2 }}>
+            <div style={{ fontSize: '12px', marginTop: 2 }}>
               <a href="https://github.com/UJJAWAL-01/nexus-trading" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal)' }}>Source code</a>
               {' · '}
               Charts by{' '}
               <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)' }}>TradingView Lightweight Charts™</a>
             </div>
-            <div style={{ fontSize: '10px', marginTop: 2 }}>
+            <div style={{ fontSize: '12px', marginTop: 2 }}>
               Independent educational project. Not affiliated with any data provider, exchange or broadcaster shown.
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function Footer() {
             padding: '10px',
             background: 'rgba(0,0,0,0.2)',
             borderRadius: '4px',
-            fontSize: '11px',
+            fontSize: '13px',
             color: 'var(--text-muted)',
             textAlign: 'center',
           }}

@@ -126,7 +126,7 @@ export default function EarningsPanel() {
           EARNINGS CALENDAR
           {todayCount > 0 && (
             <span style={{
-              fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
+              fontSize: '13px', padding: '2px 8px', borderRadius: '2px',
               background: 'rgba(0,229,192,0.15)', color: '#00e5c0',
               border: '1px solid rgba(0,229,192,0.3)',
               fontFamily: 'var(--font-data)',
@@ -140,7 +140,7 @@ export default function EarningsPanel() {
           {(['US', 'IN'] as Market[]).map(m => (
             <button key={m} onClick={() => setMarket(m)} style={{
               padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'var(--font-data)', fontSize: '10px',
+              fontFamily: 'var(--font-data)', fontSize: '12px',
               letterSpacing: '0.08em', fontWeight: 700,
               border:     `1px solid ${market === m ? '#00e5c0' : 'var(--border)'}`,
               background: market === m ? 'rgba(0,229,192,0.12)' : 'transparent',
@@ -165,7 +165,7 @@ export default function EarningsPanel() {
         ] as const).map(([f, label]) => (
           <button key={f} onClick={() => setFilter(f)} style={{
             padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-            fontFamily: 'var(--font-data)', fontSize: '11px',
+            fontFamily: 'var(--font-data)', fontSize: '13px',
             border:     `1px solid ${filter === f ? 'var(--teal)' : 'var(--border)'}`,
             background: filter === f ? 'rgba(0,229,192,0.08)' : 'transparent',
             color:      filter === f ? 'var(--teal)' : 'var(--text-muted)',
@@ -173,7 +173,7 @@ export default function EarningsPanel() {
             {label}
           </button>
         ))}
-        <div style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+        <div style={{ marginLeft: 'auto', fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
           {isIndia ? 'via Yahoo Finance' : 'via Finnhub · ±30d'}
         </div>
       </div>
@@ -191,12 +191,12 @@ export default function EarningsPanel() {
           ].map(({ color, label }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: color }} />
-              <span style={{ fontSize: '10px', color, fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
+              <span style={{ fontSize: '12px', color, fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
                 {label}
               </span>
             </div>
           ))}
-          <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+          <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
             {displayed.filter(e => e.beat === true).length} beat · {displayed.filter(e => e.beat === false).length} missed
           </span>
         </div>
@@ -205,18 +205,18 @@ export default function EarningsPanel() {
       {/* List */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {loading ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '11px', letterSpacing: '0.1em' }}>
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '13px', letterSpacing: '0.1em' }}>
             {isIndia ? 'FETCHING INDIA EARNINGS...' : 'FETCHING EARNINGS DATA...'}
           </div>
         ) : displayed.length === 0 ? (
-          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '11px', lineHeight: 1.7 }}>
+          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '13px', lineHeight: 1.7 }}>
             {filter === 'upcoming'
               ? `No upcoming earnings in the next 30 days.`
               : `No recent results in the past 30 days.`}
             <br />
             <button onClick={() => setFilter('all')} style={{
               marginTop: '8px', padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'var(--font-data)', fontSize: '11px',
+              fontFamily: 'var(--font-data)', fontSize: '13px',
               border: '1px solid var(--teal)', background: 'rgba(0,229,192,0.08)', color: 'var(--teal)',
             }}>
               Show All ({earnings.length})
@@ -256,14 +256,14 @@ export default function EarningsPanel() {
                 {/* Row 1: Symbol + badges + time */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '7px', flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '13px', color: '#fff' }}>
+                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '14px', color: '#fff' }}>
                       {e.symbol}
                     </span>
 
                     {/* Beat/miss badge */}
                     {hasBeat && !e.isFuture && (
                       <span style={{
-                        fontSize: '10px', padding: '2px 8px', borderRadius: '2px', fontWeight: 700,
+                        fontSize: '12px', padding: '2px 8px', borderRadius: '2px', fontWeight: 700,
                         background: beaten ? 'rgba(0,201,122,0.12)' : 'rgba(255,69,96,0.12)',
                         color:      beaten ? 'var(--positive)' : 'var(--negative)',
                         border:     `1px solid ${beaten ? 'rgba(0,201,122,0.3)' : 'rgba(255,69,96,0.3)'}`,
@@ -276,7 +276,7 @@ export default function EarningsPanel() {
                     {/* EPS surprise % */}
                     {surprise !== null && Math.abs(surprise) > 0.5 && (
                       <span style={{
-                        fontSize: '10px', padding: '2px 7px', borderRadius: '2px',
+                        fontSize: '12px', padding: '2px 7px', borderRadius: '2px',
                         fontFamily: 'var(--font-data)',
                         color:     surprise >= 0 ? 'var(--positive)' : 'var(--negative)',
                         background: surprise >= 0 ? 'rgba(0,201,122,0.08)' : 'rgba(255,69,96,0.08)',
@@ -288,7 +288,7 @@ export default function EarningsPanel() {
                     {/* Upcoming badge */}
                     {e.isFuture && (
                       <span style={{
-                        fontSize: '10px', padding: '2px 8px', borderRadius: '2px',
+                        fontSize: '12px', padding: '2px 8px', borderRadius: '2px',
                         fontFamily: 'var(--font-data)',
                         background: 'rgba(0,229,192,0.1)', color: '#00e5c0',
                         border: '1px solid rgba(0,229,192,0.25)',
@@ -298,13 +298,13 @@ export default function EarningsPanel() {
                     )}
 
                     {/* Hour badge */}
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {e.hour === 'bmo' ? 'BMO' : e.hour === 'amc' ? 'AMC' : 'INTRA'}
                     </span>
 
                     {/* Quarter label for India */}
                     {isIndia && e.quarter && e.quarter !== 'Upcoming' && (
-                      <span style={{ fontSize: '10px', color: '#f97316', fontFamily: 'var(--font-data)' }}>
+                      <span style={{ fontSize: '12px', color: '#f97316', fontFamily: 'var(--font-data)' }}>
                         {e.quarter}
                       </span>
                     )}
@@ -312,20 +312,20 @@ export default function EarningsPanel() {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{
-                      fontSize: '11px', fontFamily: 'var(--font-data)',
+                      fontSize: '13px', fontFamily: 'var(--font-data)',
                       color:      isToday ? '#00e5c0' : 'var(--text-muted)',
                       fontWeight: isToday ? 700 : 400,
                     }}>
                       {rel}
                     </span>
-                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {fmtDate(e.date)}
                     </span>
                   </div>
                 </div>
 
                 {/* Row 2: Company name */}
-                <div style={{ fontSize: '11px', color: 'var(--text-2)', fontFamily: 'var(--font-ui)', marginBottom: '5px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-2)', fontFamily: 'var(--font-ui)', marginBottom: '5px' }}>
                   {e.name}
                 </div>
 
@@ -334,10 +334,10 @@ export default function EarningsPanel() {
                   {/* EPS Estimate */}
                   {e.epsEstimate !== null && (
                     <div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
                         EPS EST
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>
                         {fmtEps(e.epsEstimate, isIndia ? '₹' : '$')}
                       </div>
                     </div>
@@ -346,11 +346,11 @@ export default function EarningsPanel() {
                   {/* EPS Actual */}
                   {!e.isFuture && e.epsActual !== null && (
                     <div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
                         EPS ACTUAL
                       </div>
                       <div style={{
-                        fontSize: '11px', fontFamily: 'var(--font-data)', fontWeight: 600,
+                        fontSize: '13px', fontFamily: 'var(--font-data)', fontWeight: 600,
                         color: e.beat === true ? 'var(--positive)' : e.beat === false ? 'var(--negative)' : 'var(--text-2)',
                       }}>
                         {fmtEps(e.epsActual, isIndia ? '₹' : '$')}
@@ -361,10 +361,10 @@ export default function EarningsPanel() {
                   {/* Revenue Estimate */}
                   {e.revenueEstimate !== null && (
                     <div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
                         REV EST
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>
                         {fmtRevenue(e.revenueEstimate, isIndia)}
                       </div>
                     </div>
@@ -373,10 +373,10 @@ export default function EarningsPanel() {
                   {/* Revenue Actual */}
                   {!e.isFuture && e.revenueActual !== null && (
                     <div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
                         REV ACTUAL
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>
                         {fmtRevenue(e.revenueActual, isIndia)}
                       </div>
                     </div>
@@ -385,11 +385,11 @@ export default function EarningsPanel() {
                   {/* YoY Growth or surprise */}
                   {e.yoyGrowth !== null && e.yoyGrowth !== undefined && (
                     <div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
                         SURPRISE
                       </div>
                       <div style={{
-                        fontSize: '11px', fontFamily: 'var(--font-data)',
+                        fontSize: '13px', fontFamily: 'var(--font-data)',
                         color: e.yoyGrowth >= 0 ? 'var(--positive)' : 'var(--negative)',
                       }}>
                         {e.yoyGrowth >= 0 ? '+' : ''}{e.yoyGrowth.toFixed(1)}%
@@ -421,7 +421,7 @@ export default function EarningsPanel() {
         {/* India data note */}
         {isIndia && !loading && (
           <div style={{
-            padding: '8px 14px', fontSize: '10px', color: 'var(--text-muted)',
+            padding: '8px 14px', fontSize: '12px', color: 'var(--text-muted)',
             fontFamily: 'var(--font-data)', lineHeight: 1.6,
             borderTop: '1px solid var(--border)',
           }}>

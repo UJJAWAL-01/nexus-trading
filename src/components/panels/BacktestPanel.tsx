@@ -51,9 +51,9 @@ const day = (t: number | null) => (t == null ? 'open' : new Date(t * 1000).toISO
 
 const ctl: CSSProperties = {
   background: 'var(--bg-deep)', border: '1px solid var(--border)', color: 'var(--text)',
-  borderRadius: 3, padding: '5px 7px', fontSize: 11, fontFamily: MONO, minWidth: 0,
+  borderRadius: 3, padding: '5px 7px', fontSize: 13, fontFamily: MONO, minWidth: 0,
 }
-const lbl: CSSProperties = { fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
+const lbl: CSSProperties = { fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em', display: 'flex', flexDirection: 'column', gap: 3 }
 const btn: CSSProperties = { ...ctl, cursor: 'pointer', fontWeight: 700, color: 'var(--text-2)' }
 
 function NumberField({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (n: number) => void }) {
@@ -116,8 +116,8 @@ export default function BacktestPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="dot" />
           BACKTEST
-          <span style={{ fontSize: 11, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
-          <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>DAILY · RUNS IN YOUR BROWSER</span>
+          <span style={{ fontSize: 13, color: 'var(--amber)', fontFamily: MONO, fontWeight: 700 }}>{symbol}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>DAILY · RUNS IN YOUR BROWSER</span>
           {guide.button}
         </div>
         <button type="button" style={{ ...btn, opacity: result?.trades.length ? 1 : 0.4 }} disabled={!result?.trades.length} onClick={exportTrades} title="Download the trade list as CSV">
@@ -164,7 +164,7 @@ export default function BacktestPanel() {
         </div>
       </div>
 
-      <div style={{ padding: '6px 10px', fontSize: 11, color: 'var(--text-muted)', fontFamily: MONO, borderBottom: '1px solid var(--border)' }}>
+      <div style={{ padding: '6px 10px', fontSize: 13, color: 'var(--text-muted)', fontFamily: MONO, borderBottom: '1px solid var(--border)' }}>
         {STRATEGIES[strategyId].description} Signals use the close; orders fill at the next open. Long-only, no leverage.
       </div>
 
@@ -180,7 +180,7 @@ export default function BacktestPanel() {
         ) : (
           <>
             {/* Verdict */}
-            <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 12, color: tone(edge), borderBottom: '1px solid var(--border)' }}>
+            <div style={{ padding: '8px 10px', fontFamily: MONO, fontSize: 13, color: tone(edge), borderBottom: '1px solid var(--border)' }}>
               {edge !== null && Math.abs(edge) < 0.05
                 ? 'Matched buy-and-hold over this period.'
                 : `${(edge ?? 0) > 0 ? 'Beat' : 'Lagged'} buy-and-hold by ${Math.abs(edge ?? 0).toFixed(1)} percentage points over ${result.years.toFixed(1)} years (${result.bars} bars, after costs).`}
@@ -202,7 +202,7 @@ export default function BacktestPanel() {
             {result.trades.length === 0 ? (
               <Message text="The strategy never entered a trade in this period." />
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 11 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 13 }}>
                 <thead>
                   <tr style={{ color: 'var(--text-muted)' }}>
                     {['ENTRY', 'PRICE', 'EXIT', 'PRICE', 'BARS', 'RETURN'].map((h, i) => (
@@ -225,7 +225,7 @@ export default function BacktestPanel() {
               </table>
             )}
             {result.trades.length > 12 && (
-              <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO }}>
+              <div style={{ padding: '6px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO }}>
                 Showing the latest 12 of {result.trades.length} trades. Export for the full list.
               </div>
             )}
@@ -233,7 +233,7 @@ export default function BacktestPanel() {
         )}
       </div>
 
-      <div style={{ padding: '5px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
+      <div style={{ padding: '5px 10px', fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, borderTop: '1px solid var(--border)' }}>
         Past performance does not predict future results. Excludes dividends and taxes; tuning parameters to past data overstates results. Not financial advice.
       </div>
     </div>
@@ -241,15 +241,15 @@ export default function BacktestPanel() {
 }
 
 function Message({ text, bad }: { text: string; bad?: boolean }) {
-  return <div role="status" style={{ padding: '22px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 12, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
+  return <div role="status" style={{ padding: '22px 14px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: bad ? 'var(--negative)' : 'var(--text-muted)' }}>{text}</div>
 }
 
 function Compare({ label, a, b, fmt, plain }: { label: string; a: number | null; b: number | null; fmt: (n: number | null) => string; plain?: boolean }) {
   return (
     <div style={{ border: '1px solid var(--border)', borderRadius: 4, padding: '7px 9px', background: 'var(--bg-deep)' }}>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
       <div style={{ fontSize: 15, fontWeight: 700, fontFamily: MONO, color: plain ? 'var(--text)' : tone(a) }}>{fmt(a)}</div>
-      <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)' }}>buy &amp; hold {fmt(b)}</div>
+      <div style={{ fontSize: 12, fontFamily: MONO, color: 'var(--text-muted)' }}>buy &amp; hold {fmt(b)}</div>
     </div>
   )
 }
@@ -257,7 +257,7 @@ function Compare({ label, a, b, fmt, plain }: { label: string; a: number | null;
 function Single({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: '1px solid var(--border)', borderRadius: 4, padding: '7px 9px', background: 'var(--bg-deep)' }}>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: MONO, letterSpacing: '0.06em' }}>{label}</div>
       <div style={{ fontSize: 15, fontWeight: 700, fontFamily: MONO, color: 'var(--text)' }}>{value}</div>
     </div>
   )
@@ -292,7 +292,7 @@ function EquityChart({ strategy, benchmark }: { strategy: number[]; benchmark: n
         <polyline points={path.benchmark} fill="none" stroke="var(--text-muted)" strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
         <polyline points={path.strategy} fill="none" stroke="var(--amber)" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
       </svg>
-      <div style={{ display: 'flex', gap: 14, padding: '4px 2px', fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)' }}>
+      <div style={{ display: 'flex', gap: 14, padding: '4px 2px', fontSize: 12, fontFamily: MONO, color: 'var(--text-muted)' }}>
         <span><span style={{ color: 'var(--amber)' }}>━</span> Strategy</span>
         <span><span style={{ color: 'var(--text-muted)' }}>━</span> Buy &amp; hold</span>
         <span>Dashed line = starting capital</span>
