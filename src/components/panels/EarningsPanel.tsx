@@ -122,13 +122,13 @@ export default function EarningsPanel() {
       {/* Header */}
       <div className="panel-header" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div className="dot" style={{ background: '#a78bfa' }} />
+          <div className="dot" style={{ background: '#00e5c0' }} />
           EARNINGS CALENDAR
           {todayCount > 0 && (
             <span style={{
               fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
-              background: 'rgba(167,139,250,0.15)', color: '#a78bfa',
-              border: '1px solid rgba(167,139,250,0.3)',
+              background: 'rgba(0,229,192,0.15)', color: '#00e5c0',
+              border: '1px solid rgba(0,229,192,0.3)',
               fontFamily: 'var(--font-data)',
             }}>
               {todayCount} TODAY
@@ -142,9 +142,9 @@ export default function EarningsPanel() {
               padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
               fontFamily: 'var(--font-data)', fontSize: '10px',
               letterSpacing: '0.08em', fontWeight: 700,
-              border:     `1px solid ${market === m ? '#a78bfa' : 'var(--border)'}`,
-              background: market === m ? 'rgba(167,139,250,0.12)' : 'transparent',
-              color:      market === m ? '#a78bfa' : 'var(--text-muted)',
+              border:     `1px solid ${market === m ? '#00e5c0' : 'var(--border)'}`,
+              background: market === m ? 'rgba(0,229,192,0.12)' : 'transparent',
+              color:      market === m ? '#00e5c0' : 'var(--text-muted)',
             }}>
               {m === 'US' ? 'US' : 'IN'}
             </button>
@@ -234,10 +234,10 @@ export default function EarningsPanel() {
             // Color coding — active symbol takes precedence over other borders
             const leftBorderColor =
               isActive ? 'var(--amber)' :
-              isToday ? '#a78bfa' :
+              isToday ? '#00e5c0' :
               hasBeat && beaten ? 'rgba(0,201,122,0.5)' :
               hasBeat && !beaten ? 'rgba(255,69,96,0.5)' :
-              e.isFuture ? 'rgba(167,139,250,0.2)' :
+              e.isFuture ? 'rgba(0,229,192,0.2)' :
               'transparent'
 
             return (
@@ -248,7 +248,7 @@ export default function EarningsPanel() {
                   padding:      '9px 14px',
                   borderBottom: '1px solid var(--border)',
                   background:   isActive ? 'rgba(240,165,0,0.10)' :
-                                isToday  ? 'rgba(167,139,250,0.04)' : 'transparent',
+                                isToday  ? 'rgba(0,229,192,0.04)' : 'transparent',
                   borderLeft:   `3px solid ${leftBorderColor}`,
                   boxShadow:    isActive ? 'inset 0 0 0 1px rgba(240,165,0,0.18)' : 'none',
                   transition:   'background 0.2s, box-shadow 0.2s',
@@ -290,8 +290,8 @@ export default function EarningsPanel() {
                       <span style={{
                         fontSize: '10px', padding: '2px 8px', borderRadius: '2px',
                         fontFamily: 'var(--font-data)',
-                        background: 'rgba(167,139,250,0.1)', color: '#a78bfa',
-                        border: '1px solid rgba(167,139,250,0.25)',
+                        background: 'rgba(0,229,192,0.1)', color: '#00e5c0',
+                        border: '1px solid rgba(0,229,192,0.25)',
                       }}>
                         UPCOMING
                       </span>
@@ -313,7 +313,7 @@ export default function EarningsPanel() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{
                       fontSize: '11px', fontFamily: 'var(--font-data)',
-                      color:      isToday ? '#a78bfa' : 'var(--text-muted)',
+                      color:      isToday ? '#00e5c0' : 'var(--text-muted)',
                       fontWeight: isToday ? 700 : 400,
                     }}>
                       {rel}

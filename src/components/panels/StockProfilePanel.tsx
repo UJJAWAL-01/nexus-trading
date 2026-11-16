@@ -216,7 +216,7 @@ export default function StockProfilePanel() {
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="panel-header">
-        <span className="dot" style={{ background: '#a78bfa', boxShadow: '0 0 6px #a78bfa' }} />
+        <span className="dot" style={{ background: '#00e5c0', boxShadow: '0 0 6px #00e5c0' }} />
         <span>STOCK PROFILE</span>
         {effSym && (
           <span style={{
@@ -352,7 +352,7 @@ export default function StockProfilePanel() {
                 </div>
                 <div style={{
                   position: 'relative', height: 6,
-                  background: 'linear-gradient(90deg, rgba(255,69,96,0.25), rgba(167,139,250,0.25), rgba(0,201,122,0.25))',
+                  background: 'linear-gradient(90deg, rgba(255,69,96,0.25), rgba(0,229,192,0.25), rgba(0,201,122,0.25))',
                   borderRadius: 3,
                 }}>
                   <div style={{

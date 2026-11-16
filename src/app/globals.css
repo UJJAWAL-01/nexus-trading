@@ -101,7 +101,9 @@ html, body {
   width:      6px;
   height:     6px;
   border-radius: 50%;
-  background: var(--teal);
+  background: var(--teal) !important;   /* panels used to pick their own colour and glow */
+  box-shadow: none !important;
+  animation:  none !important;
   opacity:    0.85;
   flex-shrink: 0;
 }

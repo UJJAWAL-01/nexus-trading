@@ -294,7 +294,7 @@ export default function OptionsPanel() {
   })
 
   const mp      = data ? calcMaxPain(data.chain) : 0
-  const acent   = market === 'IN' ? '#f97316' : '#a78bfa'
+  const acent   = '#00e5c0'
   const symbols = market === 'IN' ? IN_SYMBOLS : US_SYMBOLS
   const suggest = symInput
     ? symbols.filter(s => s.toUpperCase().startsWith(symInput.toUpperCase())).slice(0, 8)
@@ -577,7 +577,7 @@ export default function OptionsPanel() {
           </span>
           <span>
             <span style={{ color:'var(--text-muted)' }}>MAX PAIN </span>
-            <b style={{ color: acent }}>{mp > 0 ? mp.toLocaleString() : '—'}</b>
+            <b style={{ color: 'var(--text)' }}>{mp > 0 ? mp.toLocaleString() : '—'}</b>
           </span>
           <span>
             <span style={{ color:'var(--text-muted)' }}>C-OI </span>
@@ -594,7 +594,7 @@ export default function OptionsPanel() {
           {expectedMove > 0 && (
             <span>
               <span style={{ color:'var(--text-muted)' }}>EXP MOVE </span>
-              <b style={{ color: acent }}>±{market === 'IN' ? expectedMove.toLocaleString('en-IN') : expectedMove.toFixed(2)}</b>
+              <b style={{ color: 'var(--text)' }}>±{market === 'IN' ? expectedMove.toLocaleString('en-IN') : expectedMove.toFixed(2)}</b>
             </span>
           )}
           <span style={{

@@ -206,17 +206,17 @@ function SystemMessages({ messages, accentColor }: { messages: string[]; accentC
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 12px', flexShrink: 0 }}>
       {errors.map((m, i) => (
         <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '10px', fontFamily: 'var(--font-data)', background: 'rgba(255,69,96,0.08)', border: '1px solid rgba(255,69,96,0.25)', color: '#ff4560', lineHeight: 1.5 }}>
-          {m}
+          {m.replace(/^[\u274C\u26A0\u2139\u2699]\uFE0F?\s*/, '')}
         </div>
       ))}
       {warnings.map((m, i) => (
         <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '10px', fontFamily: 'var(--font-data)', background: 'rgba(240,165,0,0.07)', border: '1px solid rgba(240,165,0,0.25)', color: '#f0a500', lineHeight: 1.5 }}>
-          {m}
+          {m.replace(/^[\u274C\u26A0\u2139\u2699]\uFE0F?\s*/, '')}
         </div>
       ))}
       {infos.map((m, i) => (
         <div key={i} style={{ padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontFamily: 'var(--font-data)', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', color: '#38bdf8', lineHeight: 1.5 }}>
-          {m}
+          {m.replace(/^[\u274C\u26A0\u2139\u2699]\uFE0F?\s*/, '')}
         </div>
       ))}
       {ok.map((m, i) => (

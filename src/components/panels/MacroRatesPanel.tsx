@@ -116,9 +116,9 @@ export default function MacroRatesPanel() {
               {mode === 'FED' ? 'FED FUNDS TARGET RANGE' : 'RBI POLICY REPO RATE'}
             </div>
             {loading ? (
-              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '32px', color: 'var(--text-muted)' }}>···</div>
+              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: '26px', color: 'var(--text-muted)' }}>···</div>
             ) : (
-              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '32px', color: primary, lineHeight: 1 }}>
+              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: '26px', letterSpacing: '-0.01em', color: 'var(--text)', lineHeight: 1 }}>
                 {rateStr}
               </div>
             )}

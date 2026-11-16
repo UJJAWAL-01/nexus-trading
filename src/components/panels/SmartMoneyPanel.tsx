@@ -66,10 +66,10 @@ function Skeleton() {
           borderBottom: '1px solid var(--border)', alignItems: 'center',
           opacity: 1 - i * 0.1,
         }}>
-          <div style={{ width: 20, height: 11, background: 'rgba(167,139,250,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite' }} />
-          <div style={{ flex: 1, height: 11, background: 'rgba(167,139,250,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite', animationDelay: '0.1s' }} />
-          <div style={{ width: 60, height: 11, background: 'rgba(167,139,250,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite', animationDelay: '0.2s' }} />
-          <div style={{ width: 50, height: 11, background: 'rgba(167,139,250,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite', animationDelay: '0.3s' }} />
+          <div style={{ width: 20, height: 11, background: 'rgba(0,229,192,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite' }} />
+          <div style={{ flex: 1, height: 11, background: 'rgba(0,229,192,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite', animationDelay: '0.1s' }} />
+          <div style={{ width: 60, height: 11, background: 'rgba(0,229,192,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite', animationDelay: '0.2s' }} />
+          <div style={{ width: 50, height: 11, background: 'rgba(0,229,192,0.12)', borderRadius: 2, animation: 'shimmer 1.4s ease infinite', animationDelay: '0.3s' }} />
         </div>
       ))}
     </div>
@@ -101,7 +101,7 @@ function ConsensusRow({ item, totalFunds, market, prices, isActive, onClick }: {
         background:   isActive ? 'rgba(240,165,0,0.12)' : 'transparent',
         boxShadow:    isActive ? 'inset 3px 0 0 var(--amber)' : 'none',
       }}
-      onMouseEnter={e => { if (item.ticker && !isActive) e.currentTarget.style.background = 'rgba(167,139,250,0.08)' }}
+      onMouseEnter={e => { if (item.ticker && !isActive) e.currentTarget.style.background = 'rgba(0,229,192,0.08)' }}
       onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
     >
       <span style={{ color: 'var(--text-muted)', fontSize: 9 }}>{item.count}</span>
@@ -109,7 +109,7 @@ function ConsensusRow({ item, totalFunds, market, prices, isActive, onClick }: {
         <div style={{ color: '#e8e8e8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {item.name}
         </div>
-        <div style={{ fontSize: 9, color: 'rgba(167,139,250,0.6)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ fontSize: 9, color: 'rgba(0,229,192,0.6)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {item.funds.slice(0, 4).join(' · ')}{item.funds.length > 4 ? ` +${item.funds.length - 4}` : ''}
         </div>
       </div>
@@ -155,7 +155,7 @@ function HoldingRow({ holding, rank, market, prices, isActive, onClick }: {
         background:   isActive ? 'rgba(240,165,0,0.12)' : 'transparent',
         boxShadow:    isActive ? 'inset 3px 0 0 var(--amber)' : 'none',
       }}
-      onMouseEnter={e => { if (holding.ticker && !isActive) e.currentTarget.style.background = 'rgba(167,139,250,0.08)' }}
+      onMouseEnter={e => { if (holding.ticker && !isActive) e.currentTarget.style.background = 'rgba(0,229,192,0.08)' }}
       onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
     >
       <span style={{ color: 'var(--text-muted)', fontSize: 9 }}>{rank}</span>
@@ -164,7 +164,7 @@ function HoldingRow({ holding, rank, market, prices, isActive, onClick }: {
           {holding.name}
         </div>
         {holding.ticker && (
-          <div style={{ fontSize: 9, color: 'rgba(167,139,250,0.6)', marginTop: 1 }}>{holding.ticker}</div>
+          <div style={{ fontSize: 9, color: 'rgba(0,229,192,0.6)', marginTop: 1 }}>{holding.ticker}</div>
         )}
       </div>
       <span style={{ textAlign: 'right', color: 'var(--amber)', fontVariantNumeric: 'tabular-nums' }}>
@@ -294,7 +294,7 @@ export default function SmartMoneyPanel() {
 
       {/* Header */}
       <div className="panel-header">
-        <span className="dot" style={{ background: '#a78bfa', boxShadow: '0 0 6px #a78bfa' }} />
+        <span className="dot" style={{ background: '#00e5c0', boxShadow: '0 0 6px #00e5c0' }} />
         <span>SMART MONEY</span>
         <span style={{ marginLeft: 'auto', fontSize: 9, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
           {market === 'US' ? 'SEC 13F · 7 FUNDS' : 'NSE LIVE · 7 CATEGORIES'}
@@ -309,9 +309,9 @@ export default function SmartMoneyPanel() {
           <button key={m} onClick={() => handleMarket(m)} style={{
             padding: '4px 14px', borderRadius: 3, cursor: 'pointer',
             fontFamily: 'var(--font-data)', fontSize: 10, fontWeight: 700,
-            border: `1px solid ${market === m ? '#a78bfa' : 'var(--border)'}`,
-            background: market === m ? 'rgba(167,139,250,0.15)' : 'transparent',
-            color: market === m ? '#a78bfa' : 'var(--text-muted)',
+            border: `1px solid ${market === m ? '#00e5c0' : 'var(--border)'}`,
+            background: market === m ? 'rgba(0,229,192,0.15)' : 'transparent',
+            color: market === m ? '#00e5c0' : 'var(--text-muted)',
           }}>
             {m === 'US' ? 'US Hedge Funds' : 'India Smart Money'}
           </button>
@@ -337,9 +337,9 @@ export default function SmartMoneyPanel() {
             <button key={f.id} onClick={() => setSelectedId(f.id)} title={f.full} style={{
               padding: '3px 11px', borderRadius: 3, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
               fontFamily: 'var(--font-data)', fontSize: 10,
-              border: `1px solid ${selected ? '#a78bfa' : failed ? 'var(--negative)' : 'var(--border)'}`,
-              background: selected ? 'rgba(167,139,250,0.12)' : 'transparent',
-              color: selected ? '#a78bfa' : failed ? 'var(--negative)' : 'var(--text-muted)',
+              border: `1px solid ${selected ? '#00e5c0' : failed ? 'var(--negative)' : 'var(--border)'}`,
+              background: selected ? 'rgba(0,229,192,0.12)' : 'transparent',
+              color: selected ? '#00e5c0' : failed ? 'var(--negative)' : 'var(--text-muted)',
               opacity: failed ? 0.6 : 1,
             }}>
               {f.short}
@@ -352,7 +352,7 @@ export default function SmartMoneyPanel() {
       {contextLine && (
         <div style={{
           padding: '5px 12px', fontFamily: 'var(--font-data)', fontSize: 10,
-          color: '#a78bfa', background: 'rgba(167,139,250,0.06)',
+          color: '#00e5c0', background: 'rgba(0,229,192,0.06)',
           borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap',
           overflow: 'hidden', textOverflow: 'ellipsis',
         }}>

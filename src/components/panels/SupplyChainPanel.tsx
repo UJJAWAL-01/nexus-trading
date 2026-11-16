@@ -168,7 +168,7 @@ export default function SupplyChainPanel() {
       <div className="panel-header" style={{ flexShrink: 0, justifyContent: 'space-between',
                                               flexWrap: 'wrap', gap: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div className="dot" style={{ background: '#a78bfa', flexShrink: 0 }} />
+          <div className="dot" style={{ background: '#00e5c0', flexShrink: 0 }} />
           <span style={{ fontSize: '10px', letterSpacing: '0.12em', fontWeight: 700 }}>
             SUPPLY CHAIN MAP
           </span>
@@ -183,9 +183,9 @@ export default function SupplyChainPanel() {
             <button key={r} onClick={() => switchRegion(r)} style={{
               padding: '3px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '10px',
               fontFamily: 'var(--font-data)', letterSpacing: '0.08em', fontWeight: 700,
-              border: `1px solid ${region === r ? '#a78bfa' : 'var(--border)'}`,
-              background: region === r ? 'rgba(167,139,250,0.12)' : 'transparent',
-              color:      region === r ? '#a78bfa' : 'var(--text-muted)',
+              border: `1px solid ${region === r ? '#00e5c0' : 'var(--border)'}`,
+              background: region === r ? 'rgba(0,229,192,0.12)' : 'transparent',
+              color:      region === r ? '#00e5c0' : 'var(--text-muted)',
             }}>
               {r === 'us' ? 'US · S&P 500' : 'INDIA · NIFTY 50'}
             </button>
@@ -224,8 +224,8 @@ export default function SupplyChainPanel() {
           />
           <button onClick={submit} style={{
             padding: '6px 14px', borderRadius: '4px', cursor: 'pointer',
-            border: '1px solid #a78bfa', background: 'rgba(167,139,250,0.12)',
-            color: '#a78bfa', fontSize: '10px', fontFamily: 'inherit', letterSpacing: '0.08em',
+            border: '1px solid #00e5c0', background: 'rgba(0,229,192,0.12)',
+            color: '#00e5c0', fontSize: '10px', fontFamily: 'inherit', letterSpacing: '0.08em',
           }}>MAP</button>
         </div>
         {/* Quick-pick: only seeded tickers in current region */}
@@ -234,9 +234,9 @@ export default function SupplyChainPanel() {
             <button key={t} onClick={() => recenter(t)} style={{
               padding: '3px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '10px',
               fontFamily: 'inherit',
-              border: `1px solid ${resolved === t ? '#a78bfa' : 'var(--border)'}`,
-              background: resolved === t ? 'rgba(167,139,250,0.10)' : 'transparent',
-              color:      resolved === t ? '#a78bfa' : 'var(--text-muted)',
+              border: `1px solid ${resolved === t ? '#00e5c0' : 'var(--border)'}`,
+              background: resolved === t ? 'rgba(0,229,192,0.10)' : 'transparent',
+              color:      resolved === t ? '#00e5c0' : 'var(--text-muted)',
             }}>{tickerLabel(t)}</button>
           ))}
         </div>
@@ -244,7 +244,7 @@ export default function SupplyChainPanel() {
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative',
-                    background: 'radial-gradient(circle at center, rgba(167,139,250,0.025) 0%, transparent 60%)' }}>
+                    background: 'radial-gradient(circle at center, rgba(0,229,192,0.025) 0%, transparent 60%)' }}>
         {isLoading && (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)',
                         fontSize: '11px' }}>
@@ -312,7 +312,7 @@ function NoCoverage({
   return (
     <div style={{ padding: '32px 20px', textAlign: 'center', maxWidth: '520px', margin: '0 auto' }}>
       <div style={{ fontSize: '13px', color: '#fff', marginBottom: '8px', fontWeight: 700 }}>
-        <span style={{ color: '#a78bfa' }}>{ticker}</span> not yet in dataset
+        <span style={{ color: '#00e5c0' }}>{ticker}</span> not yet in dataset
       </div>
       <div style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '14px' }}>
         Coverage: {quickPicks.length} {idx} companies seeded. Re-runs quarterly.
@@ -320,7 +320,7 @@ function NoCoverage({
       </div>
       <div style={{ background: 'var(--bg-deep)', border: '1px solid var(--border)',
                     borderRadius: '4px', padding: '10px 12px', marginBottom: '14px',
-                    fontSize: '11px', color: '#a78bfa', textAlign: 'left' }}>
+                    fontSize: '11px', color: '#00e5c0', textAlign: 'left' }}>
         npx tsx scripts/extract-supply-chain.ts {ticker} --write
       </div>
       <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '12px',
@@ -422,7 +422,7 @@ function MapView({
       {(ownedBy.length > 0 || ownership.length > 0) && (
         <div style={{
           padding: '8px 12px', borderRadius: '5px',
-          background: 'rgba(167,139,250,0.05)', border: '1px solid rgba(167,139,250,0.2)',
+          background: 'rgba(0,229,192,0.05)', border: '1px solid rgba(0,229,192,0.2)',
           display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center',
         }}>
           {ownedBy.map(e => (
@@ -544,8 +544,8 @@ function CenterNode({ ticker, company }: { ticker: string; company: Company }) {
   return (
     <div style={{
       padding: '12px 14px', borderRadius: '8px', textAlign: 'center', width: '100%',
-      border: '2px solid #a78bfa', background: 'rgba(167,139,250,0.10)',
-      boxShadow: '0 0 24px rgba(167,139,250,0.15), inset 0 0 12px rgba(167,139,250,0.05)',
+      border: '2px solid #00e5c0', background: 'rgba(0,229,192,0.10)',
+      boxShadow: '0 0 24px rgba(0,229,192,0.15), inset 0 0 12px rgba(0,229,192,0.05)',
     }}>
       <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff',
                     fontFamily: 'var(--font-ui)', lineHeight: 1.1 }}>
@@ -560,7 +560,7 @@ function CenterNode({ ticker, company }: { ticker: string; company: Company }) {
         <Tag>{company.country}</Tag>
         <Tag>{company.exchange}</Tag>
       </div>
-      <div style={{ fontSize: '10px', color: '#a78bfa', marginTop: '4px',
+      <div style={{ fontSize: '10px', color: '#00e5c0', marginTop: '4px',
                     fontFamily: 'var(--font-data)' }}>
         {company.sector}
       </div>
@@ -578,7 +578,7 @@ function ColumnHeader({ label, count, side }:
       paddingRight: side === 'left' ? '4px' : 0,
       paddingLeft:  side === 'right' ? '4px' : 0,
     }}>
-      {label} <span style={{ color: '#a78bfa', marginLeft: '4px' }}>{count}</span>
+      {label} <span style={{ color: '#00e5c0', marginLeft: '4px' }}>{count}</span>
     </div>
   )
 }
@@ -617,14 +617,14 @@ function OwnershipChip({
   const labelTxt = role === 'parent' ? 'PARENT' : 'SUBSIDIARY'
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-      <span style={{ fontSize: '9px', letterSpacing: '0.1em', color: '#a78bfa',
+      <span style={{ fontSize: '9px', letterSpacing: '0.1em', color: '#00e5c0',
                      fontFamily: 'var(--font-data)' }}>
         {labelTxt} →
       </span>
       <button onClick={() => onRecenter(counterTicker)} title="Recenter map"
               style={{ padding: '3px 8px', borderRadius: '3px', cursor: 'pointer',
-                       border: '1px solid rgba(167,139,250,0.3)',
-                       background: 'rgba(167,139,250,0.06)', color: '#fff',
+                       border: '1px solid rgba(0,229,192,0.3)',
+                       background: 'rgba(0,229,192,0.06)', color: '#fff',
                        fontSize: '11px', fontWeight: 700,
                        fontFamily: 'var(--font-ui)' }}>
         {tickerLabel(counterTicker)}
@@ -811,7 +811,7 @@ function EdgeDetail({
                     fontSize: '10px', fontFamily: 'var(--font-data)' }}>
         <a href={edge.sourceUrl} target="_blank" rel="noopener noreferrer" style={{
           padding: '4px 10px', borderRadius: '3px', textDecoration: 'none',
-          border: '1px solid #a78bfa', background: 'rgba(167,139,250,0.1)', color: '#a78bfa',
+          border: '1px solid #00e5c0', background: 'rgba(0,229,192,0.1)', color: '#00e5c0',
           letterSpacing: '0.08em', fontWeight: 700,
         }}>
           ↗ {edge.sourceType.toUpperCase()} SOURCE
@@ -835,9 +835,9 @@ function EdgeDetail({
 function tickerBtnStyle(isTarget: boolean): React.CSSProperties {
   return {
     padding: '3px 10px', borderRadius: '3px', cursor: 'pointer',
-    border: `1px solid ${isTarget ? '#a78bfa' : 'var(--border)'}`,
-    background: isTarget ? 'rgba(167,139,250,0.12)' : 'transparent',
-    color: isTarget ? '#a78bfa' : '#fff',
+    border: `1px solid ${isTarget ? '#00e5c0' : 'var(--border)'}`,
+    background: isTarget ? 'rgba(0,229,192,0.12)' : 'transparent',
+    color: isTarget ? '#00e5c0' : '#fff',
     fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-ui)',
   }
 }
