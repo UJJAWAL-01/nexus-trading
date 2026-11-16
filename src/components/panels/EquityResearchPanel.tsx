@@ -230,12 +230,12 @@ function InsightStrip({ insights }: { insights: Insight[] }) {
           >
             <span style={{
               fontSize: 9, color: 'var(--text-muted)',
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'var(--font-data)',
               letterSpacing: '0.08em', whiteSpace: 'nowrap',
             }}>{i.label}</span>
             <span style={{
               fontSize: 11, fontWeight: 700, color: c.fg,
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'var(--font-data)',
               fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap',
             }}>{i.value}</span>
           </div>
@@ -305,13 +305,13 @@ function MiniChart({ title, series, yFmt, latest, yoy, accent }: MiniChartProps)
         <div style={chartTitleStyle}>{title}</div>
         <div style={chartLatestRow}>
           <span style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
             fontSize: 13, fontWeight: 700, color: '#fff',
             fontVariantNumeric: 'tabular-nums',
           }}>{yFmt(latest)}</span>
           {yoy != null && isFinite(yoy) && (
             <span style={{
-              fontSize: 10, fontFamily: 'JetBrains Mono, monospace',
+              fontSize: 10, fontFamily: 'var(--font-data)',
               color: yoy >= 0 ? 'var(--positive)' : 'var(--negative)',
               fontVariantNumeric: 'tabular-nums',
               marginLeft: 6,
@@ -346,7 +346,7 @@ function MiniChart({ title, series, yFmt, latest, yoy, accent }: MiniChartProps)
                 background: '#0a0e14',
                 border: `1px solid ${accent}`,
                 borderRadius: 4,
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: 'var(--font-data)',
                 fontSize: 11,
                 color: '#fff',
                 padding: '6px 10px',
@@ -396,7 +396,7 @@ function MarginChart({ periods }: { periods: PeriodPoint[] }) {
     <div style={{ ...chartCardStyle, height: 200 }}>
       <div style={chartHeaderRow}>
         <div style={chartTitleStyle}>MARGIN TREND (ANNUAL)</div>
-        <div style={{ display: 'flex', gap: 12, fontFamily: 'JetBrains Mono, monospace', fontSize: 9 }}>
+        <div style={{ display: 'flex', gap: 12, fontFamily: 'var(--font-data)', fontSize: 9 }}>
           <span style={{ color: '#00c97a' }}>● GROSS</span>
           <span style={{ color: 'var(--amber)' }}>● OP</span>
           <span style={{ color: '#a78bfa' }}>● NET</span>
@@ -418,7 +418,7 @@ function MarginChart({ periods }: { periods: PeriodPoint[] }) {
                 background: '#0a0e14',
                 border: '1px solid var(--amber)',
                 borderRadius: 4,
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: 'var(--font-data)',
                 fontSize: 11,
                 color: '#fff',
                 padding: '6px 10px',
@@ -453,7 +453,7 @@ const chartCardStyle: React.CSSProperties = {
 const chartTitleStyle: React.CSSProperties = {
   fontSize: 9,
   color: 'var(--text-muted)',
-  fontFamily: 'JetBrains Mono, monospace',
+  fontFamily: 'var(--font-data)',
   letterSpacing: '0.08em',
   fontWeight: 700,
 }
@@ -469,7 +469,7 @@ const chartLatestRow: React.CSSProperties = {
 }
 const chartEmpty: React.CSSProperties = {
   flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-  color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+  color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: 11,
 }
 
 // ── Main panel ────────────────────────────────────────────────────────────────
@@ -564,7 +564,7 @@ export default function EquityResearchPanel() {
           <span style={{
             marginLeft: 'auto', fontSize: 10,
             color: 'var(--text-muted)',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
           }}>
             {effSym} · ANNUAL XBRL
           </span>
@@ -579,7 +579,7 @@ export default function EquityResearchPanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11, fontFamily: 'var(--font-data)',
             lineHeight: 1.7,
           }}>
             <div style={{ marginBottom: 12, opacity: 0.45, display: 'flex', justifyContent: 'center' }}><NexusIcon name="research-lens" size={28} /></div>
@@ -601,7 +601,7 @@ export default function EquityResearchPanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11, fontFamily: 'var(--font-data)',
           }}>
             Loading <b style={{ color: '#fff' }}>{effSym}</b> fundamentals…
           </div>
@@ -612,7 +612,7 @@ export default function EquityResearchPanel() {
           <div style={{
             textAlign: 'center', padding: '24px 16px',
             color: 'var(--negative)', fontSize: 11,
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
           }}>
             ⚠ {error}
           </div>
@@ -623,7 +623,7 @@ export default function EquityResearchPanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11, fontFamily: 'var(--font-data)',
             lineHeight: 1.7,
           }}>
             <div style={{ color: 'var(--amber)', marginBottom: 8 }}>NO XBRL DATA</div>
@@ -642,7 +642,7 @@ export default function EquityResearchPanel() {
             {/* Identity row */}
             <div style={{ marginBottom: 12 }}>
               <div style={{
-                fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                fontFamily: 'var(--font-ui)', fontWeight: 800,
                 fontSize: 17, color: '#fff', lineHeight: 1.2,
                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               }}>
@@ -650,7 +650,7 @@ export default function EquityResearchPanel() {
               </div>
               <div style={{
                 fontSize: 10, color: 'var(--text-muted)',
-                fontFamily: 'JetBrains Mono, monospace', marginTop: 4,
+                fontFamily: 'var(--font-data)', marginTop: 4,
               }}>
                 {data.company.sector ?? '—'}
                 {data.company.industry && ` · ${data.company.industry}`}
@@ -726,7 +726,7 @@ export default function EquityResearchPanel() {
               marginTop: 10, paddingTop: 8,
               borderTop: '1px solid var(--border)',
               fontSize: 9, color: 'var(--text-muted)',
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'var(--font-data)',
               display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6,
             }}>
               <span>SOURCE: {data.meta.source}</span>
@@ -752,11 +752,11 @@ function Stat({ label, value }: { label: string; value: string }) {
     }}>
       <div style={{
         fontSize: 9, color: 'var(--text-muted)',
-        fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em',
+        fontFamily: 'var(--font-data)', letterSpacing: '0.06em',
       }}>{label}</div>
       <div style={{
         fontSize: 12, color: '#fff', fontWeight: 700,
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'var(--font-data)',
         marginTop: 2, fontVariantNumeric: 'tabular-nums',
       }}>{value}</div>
     </div>

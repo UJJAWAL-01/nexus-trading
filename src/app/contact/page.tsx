@@ -23,7 +23,7 @@ export default function ContactPage() {
         gap: '16px',
       }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '18px', color: '#fff' }}>
+          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '18px', color: '#fff' }}>
             NEX<span style={{ color: 'var(--amber)' }}>US</span>
           </span>
         </Link>
@@ -33,7 +33,7 @@ export default function ContactPage() {
 
       <div style={{ maxWidth: '700px', margin: '0 auto', padding: '48px 24px 80px' }}>
         <h1 style={{
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: 'var(--font-ui)',
           fontWeight: 800,
           fontSize: '28px',
           color: '#fff',
@@ -61,7 +61,7 @@ export default function ContactPage() {
             fontSize: '18px',
             fontWeight: 600,
             textDecoration: 'none',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
           }}>
             nexus.trading.dev@gmail.com
           </a>

@@ -195,7 +195,7 @@ export default function Footer() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
               style={{
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: 'var(--font-ui)',
                 fontWeight: 800,
                 fontSize: isMobile ? '14px' : '16px',
                 color: '#fff',

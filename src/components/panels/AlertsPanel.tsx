@@ -14,7 +14,7 @@ import { useActiveSymbol, useEffectiveSymbol } from '@/store/symbol'
 import { Tick, usePanelGuide } from '@/components/ui/Motion'
 import { ALERT_KINDS, KIND_LABEL, MAX_RULES, describeRule, type AlertKind } from '@/lib/price-alerts'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 const ctl: CSSProperties = {
   background: 'var(--bg-deep)', border: '1px solid var(--border)', color: 'var(--text)',
   borderRadius: 3, padding: '5px 7px', fontSize: 11, fontFamily: MONO, minWidth: 0,

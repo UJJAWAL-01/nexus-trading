@@ -33,7 +33,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, sections }: Le
         gap: '16px',
       }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '18px', color: '#fff' }}>
+          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '18px', color: '#fff' }}>
             NEX<span style={{ color: 'var(--amber)' }}>US</span>
           </span>
         </Link>
@@ -44,7 +44,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, sections }: Le
       {/* Content */}
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '48px 24px 80px' }}>
         <h1 style={{
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: 'var(--font-ui)',
           fontWeight: 800,
           fontSize: '28px',
           color: '#fff',

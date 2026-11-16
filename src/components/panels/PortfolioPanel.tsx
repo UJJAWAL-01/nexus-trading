@@ -19,7 +19,7 @@ import { useQuoteStream } from '@/lib/useQuoteStream'
 import { useActiveSymbol } from '@/store/symbol'
 import { downloadCsv, parseCsv } from '@/lib/export'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: '$', EUR: '€', GBP: '£', JPY: '¥', INR: '₹', CNY: '¥', CAD: 'C$', AUD: 'A$',

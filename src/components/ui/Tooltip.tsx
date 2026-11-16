@@ -111,7 +111,7 @@ export default function Tooltip({
             border: '1px solid var(--border-br)',
             borderRadius: 4,
             padding: '6px 10px',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
             fontSize: 11,
             lineHeight: 1.5,
             color: 'var(--text)',

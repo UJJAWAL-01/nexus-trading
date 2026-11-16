@@ -82,7 +82,7 @@ function MarketStatusBar() {
         }} />
         <span style={{
           fontSize: '11px', color: status.color,
-          fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+          fontFamily: 'var(--font-data)', fontWeight: 700,
           letterSpacing: '0.08em',
         }}>
           {status.label}
@@ -272,7 +272,7 @@ export default function Dashboard() {
         }
 
         .logo {
-          font-family: 'Syne', sans-serif;
+          font-family: var(--font-ui);
           font-weight: 800;
           font-size: 20px;
           color: #fff;
@@ -288,7 +288,7 @@ export default function Dashboard() {
           padding-left: 10px;
           font-size: 11px;
           color: var(--text-muted);
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-data);
           letter-spacing: 0.12em;
           white-space: nowrap;
         }
@@ -311,7 +311,7 @@ export default function Dashboard() {
           background: rgba(255,255,255,0.02);
         }
         .layout-mode-toggle button {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-data);
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.06em;
@@ -366,7 +366,7 @@ export default function Dashboard() {
 
         .clock-value {
           font-size: 12px;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-data);
         }
 
         .clock-value.active {

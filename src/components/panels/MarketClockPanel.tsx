@@ -17,15 +17,15 @@ interface MarketCenter {
 }
 
 const MARKETS: MarketCenter[] = [
-  { city: 'New York',   country: 'US',  flag: '🇺🇸', tz: 'America/New_York',    exchange: 'NYSE / NASDAQ', openHour: 9,  openMin: 30, closeHour: 16, closeMin: 0,  tradingDays: [1,2,3,4,5] },
-  { city: 'Chicago',    country: 'US',  flag: '🇺🇸', tz: 'America/Chicago',     exchange: 'CME / CBOT',    openHour: 8,  openMin: 30, closeHour: 15, closeMin: 15, tradingDays: [1,2,3,4,5] },
-  { city: 'London',     country: 'UK',  flag: '🇬🇧', tz: 'Europe/London',       exchange: 'LSE',           openHour: 8,  openMin: 0,  closeHour: 16, closeMin: 30, tradingDays: [1,2,3,4,5] },
-  { city: 'Frankfurt',  country: 'DE',  flag: '🇩🇪', tz: 'Europe/Berlin',       exchange: 'Xetra / FSE',   openHour: 9,  openMin: 0,  closeHour: 17, closeMin: 30, tradingDays: [1,2,3,4,5] },
-  { city: 'Mumbai',     country: 'IN',  flag: '🇮🇳', tz: 'Asia/Kolkata',        exchange: 'NSE / BSE',     openHour: 9,  openMin: 15, closeHour: 15, closeMin: 30, tradingDays: [1,2,3,4,5] },
-  { city: 'Singapore',  country: 'SG',  flag: '🇸🇬', tz: 'Asia/Singapore',      exchange: 'SGX',           openHour: 9,  openMin: 0,  closeHour: 17, closeMin: 0,  tradingDays: [1,2,3,4,5] },
-  { city: 'Tokyo',      country: 'JP',  flag: '🇯🇵', tz: 'Asia/Tokyo',          exchange: 'TSE',           openHour: 9,  openMin: 0,  closeHour: 15, closeMin: 30, tradingDays: [1,2,3,4,5] },
-  { city: 'Hong Kong',  country: 'HK',  flag: '🇭🇰', tz: 'Asia/Hong_Kong',      exchange: 'HKEX',          openHour: 9,  openMin: 30, closeHour: 16, closeMin: 0,  tradingDays: [1,2,3,4,5] },
-  { city: 'Sydney',     country: 'AU',  flag: '🇦🇺', tz: 'Australia/Sydney',    exchange: 'ASX',           openHour: 10, openMin: 0,  closeHour: 16, closeMin: 0,  tradingDays: [1,2,3,4,5] },
+  { city: 'New York',   country: 'US',  flag: 'US', tz: 'America/New_York',    exchange: 'NYSE / NASDAQ', openHour: 9,  openMin: 30, closeHour: 16, closeMin: 0,  tradingDays: [1,2,3,4,5] },
+  { city: 'Chicago',    country: 'US',  flag: 'US', tz: 'America/Chicago',     exchange: 'CME / CBOT',    openHour: 8,  openMin: 30, closeHour: 15, closeMin: 15, tradingDays: [1,2,3,4,5] },
+  { city: 'London',     country: 'UK',  flag: 'GB', tz: 'Europe/London',       exchange: 'LSE',           openHour: 8,  openMin: 0,  closeHour: 16, closeMin: 30, tradingDays: [1,2,3,4,5] },
+  { city: 'Frankfurt',  country: 'DE',  flag: 'DE', tz: 'Europe/Berlin',       exchange: 'Xetra / FSE',   openHour: 9,  openMin: 0,  closeHour: 17, closeMin: 30, tradingDays: [1,2,3,4,5] },
+  { city: 'Mumbai',     country: 'IN',  flag: 'IN', tz: 'Asia/Kolkata',        exchange: 'NSE / BSE',     openHour: 9,  openMin: 15, closeHour: 15, closeMin: 30, tradingDays: [1,2,3,4,5] },
+  { city: 'Singapore',  country: 'SG',  flag: 'SG', tz: 'Asia/Singapore',      exchange: 'SGX',           openHour: 9,  openMin: 0,  closeHour: 17, closeMin: 0,  tradingDays: [1,2,3,4,5] },
+  { city: 'Tokyo',      country: 'JP',  flag: 'JP', tz: 'Asia/Tokyo',          exchange: 'TSE',           openHour: 9,  openMin: 0,  closeHour: 15, closeMin: 30, tradingDays: [1,2,3,4,5] },
+  { city: 'Hong Kong',  country: 'HK',  flag: 'HK', tz: 'Asia/Hong_Kong',      exchange: 'HKEX',          openHour: 9,  openMin: 30, closeHour: 16, closeMin: 0,  tradingDays: [1,2,3,4,5] },
+  { city: 'Sydney',     country: 'AU',  flag: 'AU', tz: 'Australia/Sydney',    exchange: 'ASX',           openHour: 10, openMin: 0,  closeHour: 16, closeMin: 0,  tradingDays: [1,2,3,4,5] },
 ]
 
 interface ClockState {
@@ -125,7 +125,7 @@ export default function MarketClockPanel() {
           {guide.button}
         </div>
         <span style={{
-          fontSize: '10px', fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '10px', fontFamily: 'var(--font-data)',
           color: openCount > 0 ? '#00c97a' : 'var(--text-muted)',
         }}>
           {openCount} OPEN
@@ -148,15 +148,15 @@ export default function MarketClockPanel() {
               {/* Row 1 — city + time */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '14px' }}>{m.flag}</span>
+                  <span style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--text-muted)', border: '1px solid var(--border-br)', borderRadius: '3px', padding: '1px 4px', minWidth: '26px', textAlign: 'center', display: 'inline-block', lineHeight: 1.5 }}>{m.flag}</span>
                   <div>
                     <div style={{
-                      fontFamily: 'Syne, sans-serif', fontWeight: isTop ? 800 : 700,
+                      fontFamily: 'var(--font-ui)', fontWeight: isTop ? 800 : 700,
                       fontSize:   isTop ? '13px' : '12px', color: '#fff',
                     }}>
                       {m.city}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.06em' }}>
                       {m.exchange}
                     </div>
                   </div>
@@ -164,7 +164,7 @@ export default function MarketClockPanel() {
 
                 <div style={{ textAlign: 'right' }}>
                   <div style={{
-                    fontFamily:    'JetBrains Mono, monospace',
+                    fontFamily:    'var(--font-data)',
                     fontSize:      isTop ? '18px' : '15px',
                     fontWeight:    700,
                     color:         st.status === 'open' ? '#fff' : 'var(--text-2)',
@@ -172,7 +172,7 @@ export default function MarketClockPanel() {
                   }}>
                     {st.timeStr}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                     {st.dateStr}
                   </div>
                 </div>
@@ -191,14 +191,14 @@ export default function MarketClockPanel() {
                     animation: st.status === 'open' ? 'pulseDot 2s ease-in-out infinite' : 'none',
                   }} />
                   <span style={{
-                    fontSize: '11px', fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '11px', fontFamily: 'var(--font-data)',
                     color:    sty.text, fontWeight: 700, letterSpacing: '0.08em',
                   }}>
                     {sty.label}
                   </span>
                 </div>
 
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                   {st.countdown}
                 </span>
 
@@ -231,7 +231,7 @@ export default function MarketClockPanel() {
         ].map(({ label, color }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: color }} />
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
               {label}
             </span>
           </div>

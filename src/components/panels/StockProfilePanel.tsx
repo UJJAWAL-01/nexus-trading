@@ -112,13 +112,13 @@ function Stat({ label, value, color }: { label: string; value: string; color?: s
     }}>
       <div style={{
         fontSize: 9, color: 'var(--text-muted)',
-        fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em',
+        fontFamily: 'var(--font-data)', letterSpacing: '0.08em',
       }}>
         {label}
       </div>
       <div style={{
         fontSize: 13, color: color ?? '#fff',
-        fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+        fontFamily: 'var(--font-data)', fontWeight: 700,
         marginTop: 2, fontVariantNumeric: 'tabular-nums',
       }}>
         {value}
@@ -222,7 +222,7 @@ export default function StockProfilePanel() {
           <span style={{
             marginLeft: 'auto', fontSize: 10,
             color: 'var(--text-muted)',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
           }}>
             {effSym}
           </span>
@@ -237,10 +237,10 @@ export default function StockProfilePanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11, fontFamily: 'var(--font-data)',
             lineHeight: 1.7,
           }}>
-            <div style={{ fontSize: 28, marginBottom: 12, opacity: 0.4 }}>🔍</div>
+            
             Click any ticker anywhere in the app<br/>
             to see its profile here.
           </div>
@@ -259,7 +259,7 @@ export default function StockProfilePanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11, fontFamily: 'var(--font-data)',
             lineHeight: 1.7,
           }}>
             <div style={{ color: 'var(--amber)', marginBottom: 8 }}>INDEX</div>
@@ -275,7 +275,7 @@ export default function StockProfilePanel() {
           <div style={{
             textAlign: 'center', padding: '36px 16px',
             color: 'var(--text-muted)',
-            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11, fontFamily: 'var(--font-data)',
           }}>
             Loading <b style={{ color: '#fff' }}>{effSym}</b> profile…
           </div>
@@ -286,7 +286,7 @@ export default function StockProfilePanel() {
           <div style={{
             textAlign: 'center', padding: '24px 16px',
             color: 'var(--negative)', fontSize: 11,
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
           }}>
             ⚠ {error}
           </div>
@@ -307,7 +307,7 @@ export default function StockProfilePanel() {
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
-                  fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                  fontFamily: 'var(--font-ui)', fontWeight: 800,
                   fontSize: 16, color: '#fff', lineHeight: 1.2,
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>
@@ -315,7 +315,7 @@ export default function StockProfilePanel() {
                 </div>
                 <div style={{
                   fontSize: 10, color: 'var(--text-muted)',
-                  fontFamily: 'JetBrains Mono, monospace', marginTop: 3,
+                  fontFamily: 'var(--font-data)', marginTop: 3,
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>
                   {profile.ticker} · {profile.exchange?.split(' ')[0] ?? '—'}
@@ -324,14 +324,14 @@ export default function StockProfilePanel() {
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{
-                  fontFamily: 'JetBrains Mono, monospace',
+                  fontFamily: 'var(--font-data)',
                   fontSize: 14, fontWeight: 700, color: '#fff',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
                   {fmtPrice(quote?.c)}
                 </div>
                 <div style={{
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+                  fontFamily: 'var(--font-data)', fontSize: 10,
                   color: (quote?.dp ?? 0) >= 0 ? 'var(--positive)' : 'var(--negative)',
                   marginTop: 2, fontVariantNumeric: 'tabular-nums',
                 }}>
@@ -345,7 +345,7 @@ export default function StockProfilePanel() {
               <div style={{ marginBottom: 14 }}>
                 <div style={{
                   fontSize: 9, color: 'var(--text-muted)',
-                  fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em',
+                  fontFamily: 'var(--font-data)', letterSpacing: '0.08em',
                   marginBottom: 6,
                 }}>
                   52W RANGE
@@ -367,7 +367,7 @@ export default function StockProfilePanel() {
                 <div style={{
                   display: 'flex', justifyContent: 'space-between',
                   marginTop: 4, fontSize: 9,
-                  fontFamily: 'JetBrains Mono, monospace',
+                  fontFamily: 'var(--font-data)',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
                   <span style={{ color: 'var(--negative)' }}>${metrics['52WeekLow']!.toFixed(2)}</span>
@@ -402,7 +402,7 @@ export default function StockProfilePanel() {
             </div>
 
             {keyless && (
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginBottom: 10, lineHeight: 1.5 }}>
                 Source: SEC annual filings{fiscalYear ? ` (fiscal ${fiscalYear})` : ''} and one year of price history. Ratios use the latest fiscal year, not the trailing twelve months. Market cap is the last reported share count × current price.
               </div>
             )}
@@ -410,7 +410,7 @@ export default function StockProfilePanel() {
             {/* Meta footer */}
             <div style={{
               fontSize: 10, color: 'var(--text-muted)',
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'var(--font-data)',
               borderTop: '1px solid var(--border)',
               paddingTop: 10, lineHeight: 1.8,
             }}>

@@ -119,7 +119,7 @@ export default function SecFilingsPanel() {
   })
 
   return (
-    <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', fontFamily: 'JetBrains Mono, monospace' }}>
+    <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-data)' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="panel-header" style={{ flexShrink: 0, justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
@@ -150,13 +150,13 @@ export default function SecFilingsPanel() {
           style={{
             flex: 1, minWidth: '100px', background: 'var(--bg-deep)', color: '#fff',
             border: '1px solid var(--border)', borderRadius: '4px',
-            padding: '5px 8px', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', outline: 'none',
+            padding: '5px 8px', fontSize: '11px', fontFamily: 'var(--font-data)', outline: 'none',
           }}
         />
         <button onClick={submit} style={{
           padding: '5px 12px', borderRadius: '3px', cursor: 'pointer',
           border: '1px solid #f97316', background: 'rgba(249,115,22,0.12)',
-          color: '#f97316', fontSize: '10px', fontFamily: 'JetBrains Mono, monospace',
+          color: '#f97316', fontSize: '10px', fontFamily: 'var(--font-data)',
         }}>SEARCH</button>
         {watchlist.slice(0, 4).map(s => (
           <button key={s} onClick={() => { setInput(s); setTicker(s) }} style={{
@@ -164,7 +164,7 @@ export default function SecFilingsPanel() {
             border: `1px solid ${ticker === s ? '#f97316' : 'var(--border)'}`,
             background: ticker === s ? 'rgba(249,115,22,0.08)' : 'transparent',
             color: ticker === s ? '#f97316' : 'var(--text-muted)',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
           }}>{s}</button>
         ))}
       </div>
@@ -182,7 +182,7 @@ export default function SecFilingsPanel() {
               border: `1px solid ${on ? m.color : 'var(--border)'}`,
               background: on ? m.bg : 'transparent',
               color: on ? m.color : 'var(--text-muted)',
-              fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+              fontFamily: 'var(--font-data)', fontWeight: 700,
             }}>
               {on ? '✓ ' : ''}{t}
               <span style={{ marginLeft: '4px', fontWeight: 400, fontSize: '9px', opacity: 0.7 }}>
@@ -350,7 +350,7 @@ function FilingCard({ filing }: { filing: ParsedFiling }) {
             {tiles.map(t => (
               <div key={t.label} style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>{t.label}</div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: m.color, fontFamily: 'JetBrains Mono, monospace' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: m.color, fontFamily: 'var(--font-data)' }}>
                   {t.value}
                 </div>
               </div>

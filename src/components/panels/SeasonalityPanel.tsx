@@ -11,7 +11,7 @@ import { useEffectiveSymbol } from '@/store/symbol'
 import { seasonality } from '@/lib/risk'
 import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 const GRID_YEARS = 12
 

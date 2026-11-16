@@ -15,7 +15,7 @@ import type { Candle } from '@/lib/patterns/types'
 import { downloadCsv } from '@/lib/export'
 import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 const RANGES = [
   { id: '2y',  label: '2Y'  },
   { id: '5y',  label: '5Y'  },

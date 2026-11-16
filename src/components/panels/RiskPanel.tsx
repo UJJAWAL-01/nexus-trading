@@ -14,7 +14,7 @@ import { portfolioRisk, type RiskInput, type Series } from '@/lib/risk'
 import { loadCloses } from '@/lib/closes'
 import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 
 const currencyOf = (symbol: string) => (symbol.endsWith('.NS') || symbol.endsWith('.BO') ? 'INR' : 'USD')
 const BENCHMARK: Record<string, { symbol: string; label: string }> = {

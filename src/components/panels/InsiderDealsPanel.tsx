@@ -29,9 +29,9 @@ function roleColor(role: string): string {
 }
 
 const TYPE_META = {
-  insider: { label:'Form 4 Insider', color:'#f0a500', bg:'rgba(240,165,0,0.1)',   icon:'📋' },
-  bulk:    { label:'Bulk Deal',       color:'#38bdf8', bg:'rgba(56,189,248,0.1)',  icon:'📦' },
-  block:   { label:'Block Deal',      color:'#a78bfa', bg:'rgba(167,139,250,0.1)', icon:'🧱' },
+  insider: { label:'Form 4 Insider', color:'#f0a500', bg:'rgba(240,165,0,0.1)',   icon:'' },
+  bulk:    { label:'Bulk Deal',       color:'#38bdf8', bg:'rgba(56,189,248,0.1)',  icon:'' },
+  block:   { label:'Block Deal',      color:'#a78bfa', bg:'rgba(167,139,250,0.1)', icon:'' },
 }
 const SIG_META = {
   high:   { color:'#ef4444', bg:'rgba(239,68,68,0.12)',  border:'rgba(239,68,68,0.3)',  label:'HIGH'   },
@@ -78,7 +78,7 @@ function SmartBar({ score }: { score: number }) {
       <div style={{ flex:1, height:'3px', background:'var(--bg-deep)', borderRadius:'2px', overflow:'hidden' }}>
         <div style={{ height:'100%', width:`${score}%`, background: smColor(score), borderRadius:'2px', transition:'width 0.5s' }} />
       </div>
-      <span style={{ fontSize:'10px', color: smColor(score), fontFamily:'JetBrains Mono,monospace', minWidth:'24px' }}>
+      <span style={{ fontSize:'10px', color: smColor(score), fontFamily:'var(--font-data)', minWidth:'24px' }}>
         {score}
       </span>
     </div>
@@ -159,7 +159,7 @@ export default function InsiderDealsPanel() {
   })
 
   return (
-    <div className="panel" style={{ height:'100%', display:'flex', flexDirection:'column', fontFamily:'JetBrains Mono,monospace' }}>
+    <div className="panel" style={{ height:'100%', display:'flex', flexDirection:'column', fontFamily:'var(--font-data)' }}>
       <style>{`
         .idl-row { transition: background 0.1s; }
         .idl-row:hover { background: rgba(255,255,255,0.025) !important; }
@@ -173,7 +173,7 @@ export default function InsiderDealsPanel() {
           <span style={{ fontSize:'10px', letterSpacing:'0.12em', fontWeight:700 }}>INSIDER &amp; BLOCK DEALS</span>
           {stats?.high ? (
             <span style={{ fontSize:'10px', padding:'2px 6px', borderRadius:'2px', fontWeight:700, background:'rgba(239,68,68,0.15)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.3)' }}>
-              🔥 {stats.high} HIGH-VALUE
+              {stats.high} HIGH-VALUE
             </span>
           ) : null}
           {clusters.length > 0 && (
@@ -191,7 +191,7 @@ export default function InsiderDealsPanel() {
                 border:`1px solid ${viewMode===v?'#38bdf8':'var(--border)'}`,
                 background: viewMode===v?'rgba(56,189,248,0.1)':'transparent',
                 color: viewMode===v?'#38bdf8':'var(--text-muted)',
-                fontFamily:'JetBrains Mono,monospace',
+                fontFamily:'var(--font-data)',
               }}>
                 {v === 'deals' ? '≡ DEALS' : '◈ INTEL'}
               </button>
@@ -228,7 +228,7 @@ export default function InsiderDealsPanel() {
             { l:'HIGH',    v:stats.high,      c:'#ef4444' },
           ].map(s => (
             <div key={s.l} style={{ textAlign:'center', paddingLeft:'10px', borderLeft:'1px solid var(--border)' }}>
-              <div style={{ fontSize:'15px', fontWeight:900, fontFamily:'Syne,sans-serif', color: s.c || '#fff', lineHeight:1 }}>{s.v}</div>
+              <div style={{ fontSize:'15px', fontWeight:900, fontFamily:'var(--font-ui)', color: s.c || '#fff', lineHeight:1 }}>{s.v}</div>
               <div style={{ fontSize:'10px', color:'var(--text-muted)', letterSpacing:'0.07em' }}>{s.l}</div>
             </div>
           ))}
@@ -245,9 +245,9 @@ export default function InsiderDealsPanel() {
                 border:`1px solid ${market===m?'#38bdf8':'var(--border)'}`,
                 background: market===m?'rgba(56,189,248,0.12)':'transparent',
                 color: market===m?'#38bdf8':'var(--text-muted)',
-                fontFamily:'JetBrains Mono,monospace',
+                fontFamily:'var(--font-data)',
               }}>
-                {m==='ALL'?'🌐 ALL':m==='US'?'🇺🇸 US':'🇮🇳 INDIA'}
+                {m==='ALL'?'ALL':m==='US'?'US':'INDIA'}
               </button>
             ))}
           </div>
@@ -258,7 +258,7 @@ export default function InsiderDealsPanel() {
                 border:`1px solid ${dtype===t?'var(--teal)':'var(--border)'}`,
                 background: dtype===t?'rgba(0,201,122,0.1)':'transparent',
                 color: dtype===t?'var(--teal)':'var(--text-muted)',
-                fontFamily:'JetBrains Mono,monospace',
+                fontFamily:'var(--font-data)',
               }}>
                 {t==='ALL'?'ALL':TYPE_META[t as Exclude<DealType,'ALL'>].icon+' '+t.toUpperCase()}
               </button>
@@ -271,7 +271,7 @@ export default function InsiderDealsPanel() {
                 border:`1px solid ${sigF===s?'#f0a500':'var(--border)'}`,
                 background: sigF===s?'rgba(240,165,0,0.1)':'transparent',
                 color: sigF===s?'#f0a500':'var(--text-muted)',
-                fontFamily:'JetBrains Mono,monospace',
+                fontFamily:'var(--font-data)',
               }}>
                 {s==='ALL'?'ALL SIG':s.toUpperCase()+' SIG'}
               </button>
@@ -285,7 +285,7 @@ export default function InsiderDealsPanel() {
               flex:1, minWidth:'90px', background:'var(--bg-deep)',
               border:`1px solid ${search?'rgba(56,189,248,0.4)':'var(--border)'}`,
               borderRadius:'4px', padding:'3px 8px', color:'#fff', fontSize:'11px',
-              fontFamily:'JetBrains Mono,monospace', outline:'none',
+              fontFamily:'var(--font-data)', outline:'none',
             }}
           />
           {search && (
@@ -301,17 +301,17 @@ export default function InsiderDealsPanel() {
       {effSym && (
         <div style={{
           padding:'5px 12px', borderBottom:'1px solid var(--border)', flexShrink:0,
-          fontSize:'10px', fontFamily:'JetBrains Mono,monospace',
+          fontSize:'10px', fontFamily:'var(--font-data)',
           background:'rgba(240,165,0,0.08)', color:'var(--amber)',
           display:'flex', justifyContent:'space-between', alignItems:'center',
         }}>
-          <span>🎯 Showing deals for <b>{effSym}</b> only · {filtered.length} match{filtered.length === 1 ? '' : 'es'}</span>
+          <span>Showing deals for <b>{effSym}</b> only · {filtered.length} match{filtered.length === 1 ? '' : 'es'}</span>
           <button
             onClick={() => clearActive(null)}
             style={{
               background:'transparent', border:'1px solid rgba(240,165,0,0.4)',
               color:'var(--amber)', padding:'2px 8px', borderRadius:3,
-              cursor:'pointer', fontSize:'9px', fontFamily:'JetBrains Mono,monospace',
+              cursor:'pointer', fontSize:'9px', fontFamily:'var(--font-data)',
               letterSpacing:'0.08em',
             }}
           >
@@ -361,15 +361,15 @@ export default function InsiderDealsPanel() {
                 </div>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px', marginBottom:'6px' }}>
                   <div style={{ padding:'10px', borderRadius:'5px', background:'rgba(0,201,122,0.06)', border:'1px solid rgba(0,201,122,0.2)' }}>
-                    <div style={{ fontSize:'10px', color:'var(--text-muted)', marginBottom:'4px', letterSpacing:'0.1em' }}>🇺🇸 US BOUGHT</div>
-                    <div style={{ fontSize:'16px', fontWeight:900, color:'#00c97a', fontFamily:'Syne,sans-serif', lineHeight:1 }}>
+                    <div style={{ fontSize:'10px', color:'var(--text-muted)', marginBottom:'4px', letterSpacing:'0.1em' }}>US BOUGHT</div>
+                    <div style={{ fontSize:'16px', fontWeight:900, color:'#00c97a', fontFamily:'var(--font-ui)', lineHeight:1 }}>
                       {fmt(stats.usdValueBought, 'USD')}
                     </div>
                     <div style={{ fontSize:'10px', color:'var(--text-muted)', marginTop:'2px' }}>vs sold {fmt(stats.usdValueSold, 'USD')}</div>
                   </div>
                   <div style={{ padding:'10px', borderRadius:'5px', background:'rgba(0,201,122,0.06)', border:'1px solid rgba(0,201,122,0.2)' }}>
-                    <div style={{ fontSize:'10px', color:'var(--text-muted)', marginBottom:'4px', letterSpacing:'0.1em' }}>🇮🇳 INDIA BOUGHT</div>
-                    <div style={{ fontSize:'16px', fontWeight:900, color:'#00c97a', fontFamily:'Syne,sans-serif', lineHeight:1 }}>
+                    <div style={{ fontSize:'10px', color:'var(--text-muted)', marginBottom:'4px', letterSpacing:'0.1em' }}>INDIA BOUGHT</div>
+                    <div style={{ fontSize:'16px', fontWeight:900, color:'#00c97a', fontFamily:'var(--font-ui)', lineHeight:1 }}>
                       {fmt(stats.inrValueBought, 'INR')}
                     </div>
                     <div style={{ fontSize:'10px', color:'var(--text-muted)', marginTop:'2px' }}>vs sold {fmt(stats.inrValueSold, 'INR')}</div>
@@ -395,8 +395,8 @@ export default function InsiderDealsPanel() {
                     }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'4px' }}>
                         <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
-                          <span style={{ fontSize:'13px', fontWeight:900, color:'#fff', fontFamily:'Syne,sans-serif' }}>{c.symbol}</span>
-                          <span style={{ fontSize:'11px' }}>{c.market==='US'?'🇺🇸':'🇮🇳'}</span>
+                          <span style={{ fontSize:'13px', fontWeight:900, color:'#fff', fontFamily:'var(--font-ui)' }}>{c.symbol}</span>
+                          <span style={{ fontSize:'11px' }}>{c.market==='US'?'US':'IN'}</span>
                           <span style={{
                             fontSize:'10px', padding:'2px 6px', borderRadius:'2px', fontWeight:700, letterSpacing:'0.1em',
                             background: isBuy ? 'rgba(0,201,122,0.18)' : 'rgba(239,68,68,0.18)',
@@ -407,7 +407,7 @@ export default function InsiderDealsPanel() {
                           <span style={{ fontSize:'10px', color:'var(--text-muted)' }}>{c.sector}</span>
                         </div>
                         <div style={{ textAlign:'right' }}>
-                          <div style={{ fontSize:'13px', fontWeight:900, color: isBuy?'#00c97a':'#ef4444', fontFamily:'Syne,sans-serif', lineHeight:1 }}>
+                          <div style={{ fontSize:'13px', fontWeight:900, color: isBuy?'#00c97a':'#ef4444', fontFamily:'var(--font-ui)', lineHeight:1 }}>
                             {fmt(c.totalValue, c.currency)}
                           </div>
                           <div style={{ fontSize:'10px', color:'var(--text-muted)', marginTop:'2px' }}>
@@ -438,7 +438,7 @@ export default function InsiderDealsPanel() {
             {unusualDeals.length > 0 && (
               <div>
                 <div style={{ fontSize:'10px', color:'#ef4444', letterSpacing:'0.12em', marginBottom:'8px', display:'flex', alignItems:'center', gap:'6px' }}>
-                  🔥 UNUSUAL SMART MONEY ACTIVITY
+                  UNUSUAL SMART MONEY ACTIVITY
                   <span style={{ color:'var(--text-muted)', fontSize:'10px' }}>Score ≥ 70 / High significance</span>
                 </div>
                 {unusualDeals.map(d => {
@@ -453,15 +453,15 @@ export default function InsiderDealsPanel() {
                     }}>
                       <div>
                         <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'3px' }}>
-                          <span style={{ fontSize:'13px', fontWeight:900, color:'#fff', fontFamily:'Syne,sans-serif' }}>{d.symbol}</span>
+                          <span style={{ fontSize:'13px', fontWeight:900, color:'#fff', fontFamily:'var(--font-ui)' }}>{d.symbol}</span>
                           <span style={{ fontSize:'10px', padding:'1px 5px', borderRadius:'2px', background: tm.bg, color: tm.color }}>{tm.icon} {d.type.toUpperCase()}</span>
-                          <span style={{ fontSize:'10px' }}>{d.market==='US'?'🇺🇸':'🇮🇳'}</span>
+                          <span style={{ fontSize:'10px' }}>{d.market==='US'?'US':'IN'}</span>
                         </div>
                         <div style={{ fontSize:'11px', color:'var(--text-muted)' }}>{d.person.slice(0,35)} · {d.role}</div>
                         <SmartBar score={d.smartMoneyScore} />
                       </div>
                       <div style={{ textAlign:'right', flexShrink:0 }}>
-                        <div style={{ fontSize:'14px', fontWeight:900, color: isBuy?'#00c97a':'#ef4444', fontFamily:'Syne,sans-serif' }}>
+                        <div style={{ fontSize:'14px', fontWeight:900, color: isBuy?'#00c97a':'#ef4444', fontFamily:'var(--font-ui)' }}>
                           {d.valueFmt}
                         </div>
                         <div style={{ fontSize:'10px', color:'var(--text-muted)' }}>{timeAgo(d.daysAgo)}</div>
@@ -488,17 +488,17 @@ export default function InsiderDealsPanel() {
                     <div key={`${s.sector}-${s.currency}`} style={{ marginBottom:'8px' }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'3px' }}>
                         <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
-                          <span style={{ fontSize:'10px', color:'#fff', fontFamily:'Syne,sans-serif', fontWeight:700 }}>{s.sector}</span>
-                          <span style={{ fontSize:'10px', color:'var(--text-muted)' }}>{s.currency==='USD'?'🇺🇸':'🇮🇳'}</span>
+                          <span style={{ fontSize:'10px', color:'#fff', fontFamily:'var(--font-ui)', fontWeight:700 }}>{s.sector}</span>
+                          <span style={{ fontSize:'10px', color:'var(--text-muted)' }}>{s.currency==='USD'?'US':'IN'}</span>
                           <span style={{
                             fontSize:'10px', padding:'1px 5px', borderRadius:'2px', fontWeight:700,
                             background: sigColor+'18', color: sigColor, border:`1px solid ${sigColor}33`,
-                            fontFamily:'JetBrains Mono,monospace',
+                            fontFamily:'var(--font-data)',
                           }}>
                             {s.signal.toUpperCase()}
                           </span>
                         </div>
-                        <div style={{ display:'flex', gap:'8px', fontSize:'10px', fontFamily:'JetBrains Mono,monospace' }}>
+                        <div style={{ display:'flex', gap:'8px', fontSize:'10px', fontFamily:'var(--font-data)' }}>
                           <span style={{ color:'#00c97a' }}>▲ {fmt(s.netBuys, s.currency)}</span>
                           <span style={{ color:'#ef4444' }}>▼ {fmt(s.netSells, s.currency)}</span>
                         </div>
@@ -584,7 +584,7 @@ function DealRow({ deal, alt }: { deal: InsiderDeal; alt: boolean }) {
         <span style={{ fontSize:'10px', padding:'2px 6px', borderRadius:'2px', background:tm.bg, color:tm.color, border:`1px solid ${tm.color}28` }}>
           {tm.icon} {tm.label}
         </span>
-        <span style={{ fontSize:'10px' }}>{deal.market==='US'?'🇺🇸':'🇮🇳'}</span>
+        <span style={{ fontSize:'10px' }}>{deal.market==='US'?'US':'IN'}</span>
         <span style={{
           fontSize:'10px', padding:'2px 6px', borderRadius:'2px', fontWeight:700,
           background:sm.bg, color:sm.color, border:`1px solid ${sm.border}`,
@@ -600,7 +600,7 @@ function DealRow({ deal, alt }: { deal: InsiderDeal; alt: boolean }) {
             ◈ SMART MONEY
           </span>
         )}
-        {deal.unusualFlag && <span style={{ fontSize:'10px', color:'#ef4444' }}>🔥</span>}
+        {deal.unusualFlag && <span style={{ fontSize:'10px', color:'#ef4444', fontWeight:700 }}>UNUSUAL</span>}
         <span style={{ marginLeft:'auto', fontSize:'10px', color:'var(--text-muted)' }}>
           {timeAgo(deal.daysAgo)} · {deal.dateFmt}
         </span>
@@ -609,7 +609,7 @@ function DealRow({ deal, alt }: { deal: InsiderDeal; alt: boolean }) {
       {/* Row 2: symbol + value */}
       <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'4px', gap:'8px' }}>
         <div style={{ minWidth:0 }}>
-          <span style={{ fontSize:'15px', fontWeight:900, color:'#fff', fontFamily:'Syne,sans-serif' }}>
+          <span style={{ fontSize:'15px', fontWeight:900, color:'#fff', fontFamily:'var(--font-ui)' }}>
             {deal.symbol}
           </span>
           {deal.company !== deal.symbol && (
@@ -621,14 +621,14 @@ function DealRow({ deal, alt }: { deal: InsiderDeal; alt: boolean }) {
             <span style={{
               marginLeft:'6px', fontSize:'10px', padding:'1px 5px', borderRadius:'2px',
               background:'rgba(74,96,112,0.2)', color:'var(--text-muted)',
-              fontFamily:'JetBrains Mono,monospace',
+              fontFamily:'var(--font-data)',
             }}>
               {deal.sector}
             </span>
           )}
         </div>
         <div style={{ textAlign:'right', flexShrink:0 }}>
-          <div style={{ fontSize:'18px', fontWeight:900, color: isBuy?'#00c97a':'#ef4444', fontFamily:'Syne,sans-serif', lineHeight:1 }}>
+          <div style={{ fontSize:'18px', fontWeight:900, color: isBuy?'#00c97a':'#ef4444', fontFamily:'var(--font-ui)', lineHeight:1 }}>
             {deal.valueFmt}
           </div>
           {deal.shares && (
@@ -661,7 +661,7 @@ function DealRow({ deal, alt }: { deal: InsiderDeal; alt: boolean }) {
               background: smColor(deal.smartMoneyScore), borderRadius:'2px',
             }} />
           </div>
-          <span style={{ fontSize:'10px', color: smColor(deal.smartMoneyScore), fontFamily:'JetBrains Mono,monospace' }}>
+          <span style={{ fontSize:'10px', color: smColor(deal.smartMoneyScore), fontFamily:'var(--font-data)' }}>
             {deal.smartMoneyScore}
           </span>
         </div>

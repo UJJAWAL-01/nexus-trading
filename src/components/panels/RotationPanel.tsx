@@ -16,7 +16,7 @@ import { MOMENTUM_DAYS, TREND_DAYS, rankRotation, relativeRotation, type Quadran
 import type { Series } from '@/lib/risk'
 import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 
 interface Universe { label: string; benchmark: string; benchmarkLabel: string; members: Array<{ symbol: string; name: string }> }
 

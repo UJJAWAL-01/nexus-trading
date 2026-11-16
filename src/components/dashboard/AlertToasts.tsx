@@ -14,7 +14,7 @@ const LEVEL_COLOR: Record<AlertLevel, { bg: string; bd: string; fg: string }> = 
 }
 
 const LEVEL_PREFIX: Record<AlertLevel, string> = {
-  info: '◆', warn: '⚠', critical: '⚡', positive: '✓',
+  info: '◆', warn: '⚠', critical: '!', positive: '✓',
 }
 
 export default function AlertToasts() {
@@ -55,7 +55,7 @@ export default function AlertToasts() {
             padding: '8px 10px',
             pointerEvents: 'auto',
             boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
           }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
                           gap: '8px', marginBottom: '3px' }}>

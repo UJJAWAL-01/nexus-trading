@@ -163,7 +163,7 @@ export default function SupplyChainPanel() {
 
   return (
     <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column',
-                                     fontFamily: 'JetBrains Mono, monospace' }}>
+                                     fontFamily: 'var(--font-data)' }}>
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="panel-header" style={{ flexShrink: 0, justifyContent: 'space-between',
                                               flexWrap: 'wrap', gap: '6px' }}>
@@ -182,7 +182,7 @@ export default function SupplyChainPanel() {
           {(['us', 'in'] as Region[]).map(r => (
             <button key={r} onClick={() => switchRegion(r)} style={{
               padding: '3px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '10px',
-              fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', fontWeight: 700,
+              fontFamily: 'var(--font-data)', letterSpacing: '0.08em', fontWeight: 700,
               border: `1px solid ${region === r ? '#a78bfa' : 'var(--border)'}`,
               background: region === r ? 'rgba(167,139,250,0.12)' : 'transparent',
               color:      region === r ? '#a78bfa' : 'var(--text-muted)',
@@ -331,7 +331,7 @@ function NoCoverage({
         {quickPicks.map(t => (
           <button key={t} onClick={() => onPick(t)} style={{
             padding: '4px 10px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
             border: '1px solid var(--border)', background: 'transparent', color: '#fff',
           }}>{tickerLabel(t)}</button>
         ))}
@@ -521,7 +521,7 @@ function MapView({
       {(supMore > 0 || cusMore > 0) && (
         <button onClick={() => setShowAll(!showAll)} style={{
           alignSelf: 'center', padding: '5px 14px', borderRadius: '3px', cursor: 'pointer',
-          fontSize: '10px', fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '10px', fontFamily: 'var(--font-data)',
           border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)',
           letterSpacing: '0.08em',
         }}>
@@ -548,7 +548,7 @@ function CenterNode({ ticker, company }: { ticker: string; company: Company }) {
       boxShadow: '0 0 24px rgba(167,139,250,0.15), inset 0 0 12px rgba(167,139,250,0.05)',
     }}>
       <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff',
-                    fontFamily: 'Syne, sans-serif', lineHeight: 1.1 }}>
+                    fontFamily: 'var(--font-ui)', lineHeight: 1.1 }}>
         {tickerLabel(ticker)}
       </div>
       <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px',
@@ -561,7 +561,7 @@ function CenterNode({ ticker, company }: { ticker: string; company: Company }) {
         <Tag>{company.exchange}</Tag>
       </div>
       <div style={{ fontSize: '10px', color: '#a78bfa', marginTop: '4px',
-                    fontFamily: 'JetBrains Mono, monospace' }}>
+                    fontFamily: 'var(--font-data)' }}>
         {company.sector}
       </div>
     </div>
@@ -573,7 +573,7 @@ function ColumnHeader({ label, count, side }:
   return (
     <div style={{
       fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.12em',
-      marginBottom: '8px', fontFamily: 'JetBrains Mono, monospace',
+      marginBottom: '8px', fontFamily: 'var(--font-data)',
       textAlign: side === 'left' ? 'right' : 'left',
       paddingRight: side === 'left' ? '4px' : 0,
       paddingLeft:  side === 'right' ? '4px' : 0,
@@ -618,7 +618,7 @@ function OwnershipChip({
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
       <span style={{ fontSize: '9px', letterSpacing: '0.1em', color: '#a78bfa',
-                     fontFamily: 'JetBrains Mono, monospace' }}>
+                     fontFamily: 'var(--font-data)' }}>
         {labelTxt} →
       </span>
       <button onClick={() => onRecenter(counterTicker)} title="Recenter map"
@@ -626,7 +626,7 @@ function OwnershipChip({
                        border: '1px solid rgba(167,139,250,0.3)',
                        background: 'rgba(167,139,250,0.06)', color: '#fff',
                        fontSize: '11px', fontWeight: 700,
-                       fontFamily: 'Syne, sans-serif' }}>
+                       fontFamily: 'var(--font-ui)' }}>
         {tickerLabel(counterTicker)}
       </button>
       <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
@@ -634,7 +634,7 @@ function OwnershipChip({
       </span>
       {edge.stakePct != null && (
         <span style={{ fontSize: '10px', color: '#f0a500',
-                       fontFamily: 'JetBrains Mono, monospace' }}>
+                       fontFamily: 'var(--font-data)' }}>
           · {edge.stakePct}% stake
         </span>
       )}
@@ -690,7 +690,7 @@ function PeerCard({
                   cursor: known ? 'pointer' : 'default',
                   textAlign: side === 'left' ? 'right' : 'left',
                   color: known ? '#fff' : 'var(--text-muted)',
-                  fontSize: '12px', fontWeight: 700, fontFamily: 'Syne, sans-serif',
+                  fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-ui)',
                   textDecoration: known ? 'underline' : 'none',
                   textDecorationColor: 'rgba(255,255,255,0.2)',
                   textUnderlineOffset: '3px',
@@ -700,7 +700,7 @@ function PeerCard({
         <span style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '2px',
                        background: `${confColor}15`, color: confColor,
                        border: `1px solid ${confColor}40`, letterSpacing: '0.06em',
-                       fontFamily: 'JetBrains Mono, monospace' }}>
+                       fontFamily: 'var(--font-data)' }}>
           {CONF_LABEL[conf]}
         </span>
       </div>
@@ -722,14 +722,14 @@ function PeerCard({
           <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: '2px',
                          background: 'rgba(240,165,0,0.12)', color: '#f0a500',
                          border: '1px solid rgba(240,165,0,0.3)',
-                         fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>
+                         fontFamily: 'var(--font-data)', fontWeight: 700 }}>
             {edge.revenuePct}% of {tickerLabel(edge.supplier)} rev
           </span>
         )}
         <button onClick={() => onPick(edge)} style={{
           fontSize: '10px', padding: '1px 6px', borderRadius: '2px', cursor: 'pointer',
           border: '1px solid var(--border)', background: 'transparent',
-          color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
+          color: 'var(--text-muted)', fontFamily: 'var(--font-data)',
         }}>
           PROOF →
         </button>
@@ -773,14 +773,14 @@ function EdgeDetail({
           <span style={{ fontSize: '10px', color: confColor,
                          padding: '2px 6px', borderRadius: '2px',
                          background: `${confColor}12`, border: `1px solid ${confColor}40`,
-                         fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em' }}>
+                         fontFamily: 'var(--font-data)', letterSpacing: '0.06em' }}>
             CONFIDENCE · {CONF_LABEL[edge.confidence]}
           </span>
         </div>
         <button onClick={onClose} style={{
           fontSize: '12px', padding: '3px 9px', borderRadius: '3px', cursor: 'pointer',
           border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-muted)',
-          fontFamily: 'JetBrains Mono, monospace',
+          fontFamily: 'var(--font-data)',
         }}>CLOSE ✕</button>
       </div>
 
@@ -808,7 +808,7 @@ function EdgeDetail({
       </div>
 
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center',
-                    fontSize: '10px', fontFamily: 'JetBrains Mono, monospace' }}>
+                    fontSize: '10px', fontFamily: 'var(--font-data)' }}>
         <a href={edge.sourceUrl} target="_blank" rel="noopener noreferrer" style={{
           padding: '4px 10px', borderRadius: '3px', textDecoration: 'none',
           border: '1px solid #a78bfa', background: 'rgba(167,139,250,0.1)', color: '#a78bfa',
@@ -838,7 +838,7 @@ function tickerBtnStyle(isTarget: boolean): React.CSSProperties {
     border: `1px solid ${isTarget ? '#a78bfa' : 'var(--border)'}`,
     background: isTarget ? 'rgba(167,139,250,0.12)' : 'transparent',
     color: isTarget ? '#a78bfa' : '#fff',
-    fontSize: '12px', fontWeight: 700, fontFamily: 'Syne, sans-serif',
+    fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-ui)',
   }
 }
 
@@ -856,7 +856,7 @@ function Mini({ label, body, sub }: { label: string; body: string; sub: string }
 function Label({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em',
-                  marginBottom: '3px', fontFamily: 'JetBrains Mono, monospace' }}>
+                  marginBottom: '3px', fontFamily: 'var(--font-data)' }}>
       {children}
     </div>
   )

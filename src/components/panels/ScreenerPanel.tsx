@@ -14,7 +14,7 @@ import { useActiveSymbol } from '@/store/symbol'
 import { decodeScreener, runScreen, sectorsOf, type Company, type ScreenerFile, type ScreenerFilters } from '@/lib/screener'
 import { downloadCsv } from '@/lib/export'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 const PAGE = 150
 
 const usd = (n: number | null): string => {

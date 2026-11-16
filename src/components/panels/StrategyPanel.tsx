@@ -20,7 +20,7 @@ import {
   type Leg, type LegSide, type LegType, type TemplateId,
 } from '@/lib/payoff'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 const MAX_LEGS = 8
 const VOL_WINDOW = 30
 

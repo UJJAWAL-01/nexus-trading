@@ -64,7 +64,7 @@ export function DataAgeBadge({
       <span style={{
         fontSize:   small ? '9px' : '10px',
         color:      'var(--text-muted)',
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'var(--font-data)',
         letterSpacing: '0.06em',
         ...style,
       }}>
@@ -90,7 +90,7 @@ export function DataAgeBadge({
         gap:            '4px',
         fontSize:       small ? '9px' : '10px',
         color,
-        fontFamily:     'JetBrains Mono, monospace',
+        fontFamily:     'var(--font-data)',
         letterSpacing:  '0.04em',
         cursor:         'help',
         whiteSpace:     'nowrap',

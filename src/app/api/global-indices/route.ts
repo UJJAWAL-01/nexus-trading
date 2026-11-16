@@ -19,19 +19,19 @@ interface QuoteData {
 // Split by source so we hit the right upstream API
 const YAHOO_SYMBOLS = [
   { symbol: 'BTC-USD', label: 'BTC/USD',    flag: '₿',    digits: 0 },
-  { symbol: '^VIX',    label: 'VIX',        flag: '📊',   digits: 2 },
-  { symbol: '^NSEI',   label: 'NIFTY 50',   flag: '🇮🇳', digits: 0 },
-  { symbol: '^BSESN',  label: 'SENSEX',     flag: '🇮🇳', digits: 0 },
-  { symbol: '^NSEBANK',label: 'BANK NIFTY', flag: '🇮🇳', digits: 0 },
-  { symbol: 'USDINR=X',label: 'USD/INR',    flag: '💱',   digits: 4 },
-  { symbol: '^N225',   label: 'Nikkei',     flag: '🇯🇵', digits: 0 },
-  { symbol: '^HSI',    label: 'Hang Seng',  flag: '🇭🇰', digits: 0 },
+  { symbol: '^VIX',    label: 'VIX',        flag: 'VOL',   digits: 2 },
+  { symbol: '^NSEI',   label: 'NIFTY 50',   flag: 'IN', digits: 0 },
+  { symbol: '^BSESN',  label: 'SENSEX',     flag: 'IN', digits: 0 },
+  { symbol: '^NSEBANK',label: 'BANK NIFTY', flag: 'IN', digits: 0 },
+  { symbol: 'USDINR=X',label: 'USD/INR',    flag: 'FX',   digits: 4 },
+  { symbol: '^N225',   label: 'Nikkei',     flag: 'JP', digits: 0 },
+  { symbol: '^HSI',    label: 'Hang Seng',  flag: 'HK', digits: 0 },
 ]
 const FINNHUB_SYMBOLS = [
-  { symbol: 'SPY',     label: 'S&P 500',    flag: '🇺🇸', digits: 2 },
-  { symbol: 'QQQ',     label: 'NASDAQ',     flag: '🇺🇸', digits: 2 },
-  { symbol: 'DIA',     label: 'DOW 30',     flag: '🇺🇸', digits: 2 },
-  { symbol: 'GLD',     label: 'Gold',       flag: '🥇',   digits: 2 },
+  { symbol: 'SPY',     label: 'S&P 500',    flag: 'US', digits: 2 },
+  { symbol: 'QQQ',     label: 'NASDAQ',     flag: 'US', digits: 2 },
+  { symbol: 'DIA',     label: 'DOW 30',     flag: 'US', digits: 2 },
+  { symbol: 'GLD',     label: 'Gold',       flag: 'CMD',   digits: 2 },
 ]
 
 // v8/finance/chart — works without crumb/session auth unlike v7/quote

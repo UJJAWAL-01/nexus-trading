@@ -99,7 +99,7 @@ export function DataQualityBadge({ kind, small = false, tooltip, style }: Props)
         background:     m.bg,
         color:          m.color,
         border:         `1px solid ${m.border}`,
-        fontFamily:     'JetBrains Mono, monospace',
+        fontFamily:     'var(--font-data)',
         fontWeight:     700,
         letterSpacing:  '0.06em',
         cursor:         'help',

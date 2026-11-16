@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,6 +19,14 @@
   --amber:      #f0a500;
   --amber-br:   #ffcc55;
   --teal:       #00e5c0;
+  /* Type: one family for interface and figures. Figures are tabular (set on
+     body), so columns line up without a monospaced face. --font-mono is for
+     code-like text only. Only weights 400 to 700 are loaded, so heavier
+     requests render at 700. */
+  --font-ui:    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-data:  'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, Consolas, monospace;
+
   --danger:     #ff4560;
   --info:       #4da6ff;
   --positive:   #00c97a;
@@ -42,9 +50,13 @@ html {
 html, body {
   background:  var(--bg-base);
   color:       var(--text);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-ui);
   font-size:   16px;
   line-height: 1.7;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   overflow-x:  hidden;
   -webkit-overflow-scrolling: touch;
 }
@@ -72,11 +84,12 @@ html, body {
   display:         flex;
   align-items:     center;
   gap:             10px;
-  font-family:     'Syne', sans-serif;
-  font-size:       13px;
-  font-weight:     700;
+  font-family:     var(--font-ui);
+  font-size:       12px;
+  font-weight:     600;
   text-transform:  uppercase;
-  letter-spacing:  0.1em;
+  letter-spacing:  0.06em;
+  white-space:     nowrap;
   color:           var(--text);        /* bright white — panel titles are primary */
   flex-shrink:     0;
   min-width:       0;
@@ -85,17 +98,17 @@ html, body {
 }
 
 .panel-header .dot {
-  width:      7px;
-  height:     7px;
+  width:      6px;
+  height:     6px;
   border-radius: 50%;
   background: var(--teal);
-  animation:  pulseDot 2s ease-in-out infinite;
+  opacity:    0.85;
   flex-shrink: 0;
 }
 
 /* Subtitle inside panel-header (e.g. "BSM · NEWTON-RAPHSON IV") */
 .panel-header-sub {
-  font-family:    'JetBrains Mono', monospace;
+  font-family:    var(--font-data);
   font-size:      10px;
   font-weight:    400;
   letter-spacing: 0.08em;
@@ -120,7 +133,7 @@ html, body {
   padding:         4px 12px;
   border-radius:   3px;
   cursor:          pointer;
-  font-family:     'JetBrains Mono', monospace;
+  font-family:     var(--font-data);
   font-size:       11px;
   font-weight:     600;
   letter-spacing:  0.07em;
@@ -170,7 +183,7 @@ html, body {
 .nx-section {
   padding:        4px 14px;
   font-size:      10px;
-  font-family:    'JetBrains Mono', monospace;
+  font-family:    var(--font-data);
   font-weight:    500;
   letter-spacing: 0.12em;
   color:          var(--text-muted);
@@ -186,7 +199,7 @@ html, body {
   font-size:     10px;
   padding:       2px 7px;
   border-radius: 3px;
-  font-family:   'JetBrains Mono', monospace;
+  font-family:   var(--font-data);
   font-weight:   600;
   letter-spacing: 0.04em;
   border:        1px solid;
@@ -201,14 +214,14 @@ html, body {
 }
 .nx-stat-label {
   font-size:      9px;
-  font-family:    'JetBrains Mono', monospace;
+  font-family:    var(--font-data);
   letter-spacing: 0.1em;
   color:          var(--text-muted);
   text-transform: uppercase;
 }
 .nx-stat-value {
   font-size:   13px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-data);
   font-weight: 600;
   color:       var(--text);
 }

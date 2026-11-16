@@ -9,7 +9,7 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { focusPanel } from '@/components/dashboard/CommandBar'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 
 /**
  * Renders `children` and flashes green or red for a moment whenever `value`

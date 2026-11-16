@@ -176,7 +176,7 @@ export default function MorningBrief() {
     padding: '5px 10px',
     background: 'linear-gradient(180deg, rgba(167,139,250,0.04), transparent)',
     borderBottom: '1px solid var(--border)',
-    fontFamily:   'JetBrains Mono, monospace',
+    fontFamily:   'var(--font-data)',
     fontSize:     '11px',
     overflow:     'hidden',
     whiteSpace:   'nowrap',

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 
 type Region = 'ALL' | 'US' | 'IN' | 'WW'
 
-const FLAG: Record<string, string> = { US: '🇺🇸', IN: '🇮🇳', WW: '🌐' }
+const FLAG: Record<string, string> = { US: 'US', IN: 'IN', WW: 'INTL' }
 
 interface StreamResult {
   channelId:   string
@@ -32,9 +32,9 @@ interface APIResponse {
 
 const REGION_FILTERS: { key: Region; label: string }[] = [
   { key: 'ALL', label: 'ALL' },
-  { key: 'US',  label: '🇺🇸 US' },
-  { key: 'IN',  label: '🇮🇳 INDIA' },
-  { key: 'WW',  label: '🌐 WORLD' },
+  { key: 'US',  label: 'US' },
+  { key: 'IN',  label: 'INDIA' },
+  { key: 'WW',  label: 'WORLD' },
 ]
 
 export default function LiveFinanceVideoPanel() {
@@ -165,7 +165,7 @@ export default function LiveFinanceVideoPanel() {
             fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
             background: 'rgba(255,69,96,0.12)', color: '#ff4560',
             border: '1px solid rgba(255,69,96,0.25)',
-            fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+            fontFamily: 'var(--font-data)', fontWeight: 700,
             flexShrink: 0,
           }}>
             {loading && !streams.length ? '···' : `${liveCount || streams.filter(c => c.status !== 'offline').length} LIVE`}
@@ -175,7 +175,7 @@ export default function LiveFinanceVideoPanel() {
           {REGION_FILTERS.map(f => (
             <button key={f.key} onClick={() => setRegion(f.key)} style={{
               padding: '2px 7px', borderRadius: '3px', cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+              fontFamily: 'var(--font-data)', fontSize: '11px',
               border: `1px solid ${region === f.key ? '#ff4560' : 'var(--border)'}`,
               background: region === f.key ? 'rgba(255,69,96,0.1)' : 'transparent',
               color: region === f.key ? '#ff4560' : 'var(--text-muted)',
@@ -199,7 +199,7 @@ export default function LiveFinanceVideoPanel() {
         WebkitOverflowScrolling: 'touch',
       }}>
         {loading && !streams.length
-          ? <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', padding: '4px' }}>
+          ? <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', padding: '4px' }}>
               Scanning channels...
             </div>
           : displayed.map(stream => {
@@ -231,8 +231,8 @@ export default function LiveFinanceVideoPanel() {
                   background: stream.status === 'offline' || tier[stream.channelId] === 'failed' ? '#4a6070' : '#00c97a',
                   animation: stream.status === 'live' ? 'pulseDot 2s ease-in-out infinite' : 'none',
                 }} />
-                <span style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>
-                  {FLAG[stream.region] ?? '🌐'} {stream.shortName}
+                <span style={{ fontSize: '10px', fontFamily: 'var(--font-data)', whiteSpace: 'nowrap' }}>
+                  {FLAG[stream.region] ?? ''} {stream.shortName}
                 </span>
               </button>
             )
@@ -264,10 +264,10 @@ export default function LiveFinanceVideoPanel() {
             alignItems:     'center', justifyContent: 'center', gap: '16px',
             background:     '#000', padding: '20px',
           }}>
-            <div style={{ fontSize: '40px' }}>📺</div>
+            
             <div style={{
               fontSize: '13px', color: 'var(--text-muted)',
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'var(--font-data)',
               textAlign: 'center', lineHeight: 1.6, maxWidth: '260px',
             }}>
               {active
@@ -282,7 +282,7 @@ export default function LiveFinanceVideoPanel() {
                 style={{
                   padding: '8px 20px', background: 'transparent', color: '#fff',
                   border: '1px solid rgba(255,255,255,0.25)', borderRadius: '4px', fontSize: '12px',
-                  fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, letterSpacing: '0.06em', cursor: 'pointer',
+                  fontFamily: 'var(--font-data)', fontWeight: 700, letterSpacing: '0.06em', cursor: 'pointer',
                 }}
               >
                 ↺ TRY AGAIN
@@ -304,7 +304,7 @@ export default function LiveFinanceVideoPanel() {
               border: '2px solid #222', borderTop: '2px solid #ff4560',
               borderRadius: '50%', animation: 'spin 0.8s linear infinite',
             }} />
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+            <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
               SCANNING LIVE FEEDS...
             </div>
           </div>
@@ -320,11 +320,11 @@ export default function LiveFinanceVideoPanel() {
               pointerEvents: 'none',
             }}>
               <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ff4560', animation: 'pulseDot 1.5s ease-in-out infinite' }} />
-              <span style={{ fontSize: '11px', color: '#fff', fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
+              <span style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-ui)', fontWeight: 700 }}>
                 {active.channelName}
               </span>
               {active.status === 'live' && (
-                <span style={{ fontSize: '11px', color: '#00c97a', fontFamily: 'JetBrains Mono, monospace' }}>✓ LIVE</span>
+                <span style={{ fontSize: '11px', color: '#00c97a', fontFamily: 'var(--font-data)' }}>✓ LIVE</span>
               )}
             </div>
 
@@ -334,7 +334,7 @@ export default function LiveFinanceVideoPanel() {
                 style={{
                   background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.15)',
                   color: 'var(--text-muted)', padding: '4px 9px', borderRadius: '3px',
-                  fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer',
+                  fontSize: '11px', fontFamily: 'var(--font-data)', cursor: 'pointer',
                 }}
                 title="Reload stream"
                 aria-label="Reload stream"
@@ -349,7 +349,7 @@ export default function LiveFinanceVideoPanel() {
       {notice && (
         <div className="nx-fade" role="status" style={{
           padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
-          fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '11px', color: 'var(--amber)', fontFamily: 'var(--font-data)',
         }}>
           {notice}
         </div>
@@ -358,7 +358,7 @@ export default function LiveFinanceVideoPanel() {
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <div style={{
         padding: '4px 12px', borderTop: '1px solid var(--border)', flexShrink: 0,
-        fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace',
+        fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <span>{streams.length} channels · plays here, muted until you unmute · green dot = on air</span>

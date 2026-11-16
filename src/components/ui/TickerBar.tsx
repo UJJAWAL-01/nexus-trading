@@ -208,12 +208,12 @@ export default function TickerBar() {
               transition: 'background 0.2s',
             }}
           >
-            <span style={{ fontSize: '11px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '11px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: '#fff', letterSpacing: '0.04em' }}>
               {t.display}
             </span>
             <span style={{
               fontSize:   '13px',
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'var(--font-data)',
               color:      t.price != null ? '#fff' : 'var(--text-muted)',
             }}>
               {t.price != null
@@ -225,7 +225,7 @@ export default function TickerBar() {
             {t.change !== null && (
               <span style={{
                 fontSize:   '11px',
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: 'var(--font-data)',
                 color:      t.change >= 0 ? 'var(--positive)' : 'var(--negative)',
               }}>
                 {t.change >= 0 ? '+' : ''}{t.change.toFixed(2)}%

@@ -95,7 +95,7 @@ export default function ActiveSymbolPill() {
           background: rgba(240,165,0,0.10);
           border-radius: 4px;
           overflow: hidden;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-data);
           transition: box-shadow 0.2s, background 0.2s;
           flex-shrink: 0;
         }

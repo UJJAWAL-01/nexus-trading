@@ -15,7 +15,7 @@ import { useAlerts } from '@/store/alerts'
 
 export interface PanelTarget { id: string; label: string; description: string }
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 const RECENT_KEY = 'nexus-recent-commands'
 const MAX_RECENT = 6
 const ACCENT = '#a78bfa'

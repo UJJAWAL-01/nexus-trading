@@ -14,7 +14,7 @@ import { useActiveSymbol, useEffectiveSymbol } from '@/store/symbol'
 import { cotStance, type CotGroup, type CotSummary, type ShortStats } from '@/lib/positioning'
 import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 type Tab = 'futures' | 'short'
 
 interface CotPayload { contracts: CotSummary[]; source: string; asOf: string | null }

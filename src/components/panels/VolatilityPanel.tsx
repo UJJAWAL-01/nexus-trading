@@ -12,7 +12,7 @@ import { useEffectiveSymbol } from '@/store/symbol'
 import type { ExpiryVol, VolSurface } from '@/lib/vol-surface'
 import { PanelSkeleton, usePanelGuide } from '@/components/ui/Motion'
 
-const MONO = 'JetBrains Mono, monospace'
+const MONO = 'var(--font-data)'
 interface Payload { symbol: string; supported: boolean; surface?: VolSurface | null; source?: string; reason?: string }
 
 const tile: CSSProperties = { border: '1px solid var(--border)', borderRadius: 4, padding: '7px 9px', background: 'var(--bg-deep)', minWidth: 0 }

@@ -26,7 +26,7 @@ export function Skeleton({ rows = 6, cols, label, tint = 'rgba(240,165,0,0.10)',
       {label && (
         <div style={{
           padding: '8px 12px 4px',
-          fontFamily: 'JetBrains Mono, monospace',
+          fontFamily: 'var(--font-data)',
           fontSize: 10,
           color: 'var(--text-muted)',
           letterSpacing: '0.08em',
@@ -107,7 +107,7 @@ export function ErrorState({ message, hint, onRetry, retryLabel = 'Retry' }: Err
         flex: 1,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         gap: 8, padding: '20px 16px',
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'var(--font-data)',
         textAlign: 'center',
       }}
     >
@@ -129,7 +129,7 @@ export function ErrorState({ message, hint, onRetry, retryLabel = 'Retry' }: Err
             border: '1px solid var(--border)',
             background: 'transparent',
             color: 'var(--text-2)',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'var(--font-data)',
             fontSize: 11,
             fontWeight: 700,
             letterSpacing: '0.06em',
@@ -167,10 +167,10 @@ export function ComingSoon({ feature = 'India coverage', detail }: ComingSoonPro
         flex: 1,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         gap: 10, padding: '28px 20px', textAlign: 'center',
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'var(--font-data)',
       }}
     >
-      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 14, color: 'var(--amber)', letterSpacing: '0.01em' }}>
+      <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: 14, color: 'var(--amber)', letterSpacing: '0.01em' }}>
         {feature} is on the way
       </div>
       <div style={{ fontSize: 11, color: 'var(--text-2)', maxWidth: 320, lineHeight: 1.6 }}>
@@ -202,7 +202,7 @@ export function EmptyState({ message, hint, action, icon }: EmptyStateProps) {
         flex: 1,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         gap: 8, padding: '24px 16px',
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'var(--font-data)',
         textAlign: 'center',
       }}
     >

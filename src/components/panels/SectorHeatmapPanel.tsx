@@ -235,16 +235,16 @@ export default function SectorHeatmapPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" />
           US SECTOR HEATMAP
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
             HOVER TO SEE MOVERS
           </span>
           {guide.button}
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace' }}>▲ {gainers}</span>
-          <span style={{ fontSize: '10px', color: 'var(--negative)', fontFamily: 'JetBrains Mono, monospace' }}>▼ {losers}</span>
+          <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'var(--font-data)' }}>▲ {gainers}</span>
+          <span style={{ fontSize: '10px', color: 'var(--negative)', fontFamily: 'var(--font-data)' }}>▼ {losers}</span>
           <span style={{
-            fontSize: '10px', fontFamily: 'JetBrains Mono, monospace',
+            fontSize: '10px', fontFamily: 'var(--font-data)',
             color: avgChg >= 0 ? 'var(--positive)' : 'var(--negative)',
           }}>
             avg {avgChg >= 0 ? '+' : ''}{avgChg.toFixed(2)}%
@@ -309,18 +309,18 @@ export default function SectorHeatmapPanel() {
                 }} />
               )}
               <div style={{
-                fontSize: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700,
+                fontSize: '10px', fontFamily: 'var(--font-ui)', fontWeight: 700,
                 color: '#fff', letterSpacing: '0.04em', zIndex: 1,
               }}>
                 {sector.short}
               </div>
               <div style={{
-                fontSize: '13px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+                fontSize: '13px', fontFamily: 'var(--font-data)', fontWeight: 700,
                 color: col.text, marginTop: '2px', zIndex: 1,
               }}>
                 {change !== null ? `${change >= 0 ? '+' : ''}${change.toFixed(2)}%` : '---'}
               </div>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: '1px', zIndex: 1 }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginTop: '1px', zIndex: 1 }}>
                 {sector.symbol}
               </div>
             </div>
@@ -334,14 +334,14 @@ export default function SectorHeatmapPanel() {
           borderRadius: '5px', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', padding: '6px 4px',
         }}>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>BREADTH</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>BREADTH</div>
           <div style={{
-            fontSize: '15px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+            fontSize: '15px', fontFamily: 'var(--font-data)', fontWeight: 700,
             color: gainers >= losers ? 'var(--positive)' : 'var(--negative)', marginTop: '2px',
           }}>
             {gainers}/{gainers + losers}
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>up</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>up</div>
         </div>
       </div>
 
@@ -370,7 +370,7 @@ export default function SectorHeatmapPanel() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '13px', color: '#fff', letterSpacing: '0.08em' }}>
+              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '13px', color: '#fff', letterSpacing: '0.08em' }}>
                 {activeSectorDef.name.toUpperCase()}
               </div>
               {(() => {
@@ -379,7 +379,7 @@ export default function SectorHeatmapPanel() {
                 return (
                   <div style={{
                     fontSize: '11px', padding: '2px 8px', borderRadius: '2px',
-                    fontFamily: 'JetBrains Mono, monospace',
+                    fontFamily: 'var(--font-data)',
                     background: col.bg, color: col.text, border: `1px solid ${col.border}`,
                   }}>
                     {c !== null ? `${c >= 0 ? '+' : ''}${c.toFixed(2)}%` : '---'}
@@ -387,7 +387,7 @@ export default function SectorHeatmapPanel() {
                 )
               })()}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
               {loadingMovers ? 'LOADING…' : 'TOP MOVERS'}
             </div>
           </div>
@@ -409,11 +409,11 @@ export default function SectorHeatmapPanel() {
                 }}>
                   {/* Symbol row */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: '11px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff' }}>
+                    <span style={{ fontSize: '11px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: '#fff' }}>
                       {m.symbol}
                     </span>
                     <span style={{
-                      fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+                      fontSize: '10px', fontFamily: 'var(--font-data)', fontWeight: 700,
                       color: m.change !== null ? col.text : 'var(--text-muted)',
                     }}>
                       {m.change !== null
@@ -424,7 +424,7 @@ export default function SectorHeatmapPanel() {
                   {/* Company name */}
                   <div style={{
                     fontSize: '10px', color: 'var(--text-muted)',
-                    fontFamily: 'JetBrains Mono, monospace', marginTop: '2px',
+                    fontFamily: 'var(--font-data)', marginTop: '2px',
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                   }}>
                     {m.name}
@@ -437,7 +437,7 @@ export default function SectorHeatmapPanel() {
           {/* Dismiss hint */}
           <div style={{
             marginTop: '6px', fontSize: '10px', color: 'var(--text-muted)',
-            fontFamily: 'JetBrains Mono, monospace', textAlign: 'center',
+            fontFamily: 'var(--font-data)', textAlign: 'center',
           }}>
             <span className="nexus-mobile-only">tap sector again to dismiss</span>
             <span className="nexus-desktop-only">move away to dismiss</span>

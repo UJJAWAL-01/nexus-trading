@@ -255,7 +255,7 @@ function renderPnF(canvas: HTMLCanvasElement, columns: PnFColumn[], containerH: 
   ctx.strokeStyle = '#1c1f2555'; ctx.lineWidth = 0.5
   for (let r = 0; r <= numRows; r++) { const y = PAD.t + r * BOX_H; ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(canvas.width - PAD.r, y); ctx.stroke() }
   for (let c = 0; c <= columns.length; c++) { const x = PAD.l + c * BOX_W; ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, canvas.height - PAD.b); ctx.stroke() }
-  ctx.font = '9px JetBrains Mono, monospace'; ctx.textAlign = 'right'
+  ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'right'
   const lI = Math.max(1, Math.round(5 / (BOX_H / 20)))
   for (let r = 0; r <= numRows; r += lI) {
     const price = maxPrice - r * boxSize + boxSize, y = PAD.t + r * BOX_H + BOX_H / 2 + 3
@@ -275,9 +275,9 @@ function renderPnF(canvas: HTMLCanvasElement, columns: PnFColumn[], containerH: 
       }
     })
   })
-  ctx.font = '8px JetBrains Mono, monospace'; ctx.fillStyle = '#4a6070'; ctx.textAlign = 'center'
+  ctx.font = '8px Inter, sans-serif'; ctx.fillStyle = '#4a6070'; ctx.textAlign = 'center'
   columns.forEach((_, ci) => { ctx.fillText(String(ci + 1), PAD.l + ci * BOX_W + BOX_W / 2, canvas.height - PAD.b + 14) })
-  ctx.font = '10px JetBrains Mono, monospace'; ctx.textAlign = 'left'
+  ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'left'
   ctx.fillStyle = '#00c97a'; ctx.fillText('X = Up Column', 4, 14)
   ctx.fillStyle = '#ff4560'; ctx.fillText('O = Down Column', 4, canvas.height - 10)
 }
@@ -876,7 +876,7 @@ export default function ChartPanel() {
       out.width = src.width; out.height = src.height
       const c = out.getContext('2d'); if (!c) return
       c.drawImage(src, 0, 0)
-      c.font = 'bold 15px Syne, sans-serif'
+      c.font = 'bold 15px Inter, sans-serif'
       c.fillStyle = 'rgba(0,229,192,0.55)'
       c.fillText(`NEXUS · ${effectiveSym} · ${tf}`, 12, src.height - 12)
       const a = document.createElement('a')
@@ -903,7 +903,7 @@ export default function ChartPanel() {
   const miniBtn = (active: boolean): React.CSSProperties => ({
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4,
     minWidth: 28, height: 24, padding: '0 7px', borderRadius: '4px', cursor: 'pointer', flexShrink: 0,
-    fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+    fontFamily: 'var(--font-data)', fontSize: '11px',
     border: `1px solid ${active ? 'var(--teal)' : 'var(--border)'}`,
     background: active ? 'rgba(0,229,192,0.12)' : 'transparent',
     color: active ? 'var(--teal)' : 'var(--text-2)', transition: 'all 0.12s',
@@ -911,7 +911,7 @@ export default function ChartPanel() {
   // Dropdown-trigger button (icon + label + caret) for the interval/type pickers.
   const ddBtn = (active: boolean, accent = 'var(--teal)'): React.CSSProperties => ({
     display: 'inline-flex', alignItems: 'center', gap: 6, height: 26, padding: '0 10px', borderRadius: '4px', cursor: 'pointer', flexShrink: 0,
-    fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', fontWeight: 600,
+    fontFamily: 'var(--font-data)', fontSize: '12px', fontWeight: 600,
     border: `1px solid ${active ? accent : 'var(--border)'}`,
     background: active ? 'rgba(0,229,192,0.08)' : 'var(--bg-deep)',
     color: active ? accent : '#dfe8f0', transition: 'all 0.12s',
@@ -1045,7 +1045,7 @@ export default function ChartPanel() {
           autoSize: true,
           width:  containerRef.current.clientWidth,
           height: containerRef.current.clientHeight,
-          layout: { background: { color: 'transparent' }, textColor: '#7a9ab0', fontSize: 10 },
+          layout: { background: { color: 'transparent' }, textColor: '#7a9ab0', fontSize: 10, fontFamily: 'Inter, sans-serif' },
           grid: { vertLines: { color: 'rgba(150,165,185,0.12)', style: 1 }, horzLines: { color: 'rgba(150,165,185,0.12)', style: 1 } },
           crosshair: {
             mode: 1,
@@ -1285,7 +1285,7 @@ export default function ChartPanel() {
                 onClick={() => { setSym(s); clearSearch() }}
                 style={{
                   padding: '2px 7px', borderRadius: '3px', border: 'none', cursor: 'pointer',
-                  fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '11px', flexShrink: 0,
+                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '11px', flexShrink: 0,
                   background: !searchSym && sym === s ? 'var(--amber)' : 'var(--bg-deep)',
                   color:      !searchSym && sym === s ? '#000' : 'var(--text-2)',
                   transition: 'all 0.12s',
@@ -1313,7 +1313,7 @@ export default function ChartPanel() {
               style={{
                 width: '138px', background: 'transparent', border: 'none', outline: 'none',
                 padding: '4px 2px', color: '#fff', fontSize: '11px',
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: 'var(--font-data)',
               }}
             />
             {(searchInput || searchSym) && (
@@ -1329,7 +1329,7 @@ export default function ChartPanel() {
               borderRadius: '5px', width: '290px',
               boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden',
             }}>
-              <div style={{ padding: '4px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ padding: '4px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>
                 RESULTS — click or ↑↓ Enter to select
               </div>
               {searchResults.map((r, i) => (
@@ -1344,9 +1344,9 @@ export default function ChartPanel() {
                     transition: 'background 0.08s',
                   }}
                 >
-                  <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '13px', color: i === searchFocIdx ? 'var(--amber)' : '#fff', minWidth: '64px', flexShrink: 0 }}>{r.symbol}</span>
+                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '13px', color: i === searchFocIdx ? 'var(--amber)' : '#fff', minWidth: '64px', flexShrink: 0 }}>{r.symbol}</span>
                   <span style={{ fontSize: '10px', color: 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
-                  <span style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'var(--bg-deep)', padding: '2px 7px', borderRadius: '2px', border: '1px solid var(--border)', flexShrink: 0, fontFamily: 'JetBrains Mono, monospace' }}>{r.exchange || r.type}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'var(--bg-deep)', padding: '2px 7px', borderRadius: '2px', border: '1px solid var(--border)', flexShrink: 0, fontFamily: 'var(--font-data)' }}>{r.exchange || r.type}</span>
                 </div>
               ))}
             </div>
@@ -1369,13 +1369,13 @@ export default function ChartPanel() {
           </button>
           {typeOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 196, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden' }}>
-              <div style={{ padding: '5px 10px 3px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)' }}>CHART TYPE</div>
+              <div style={{ padding: '5px 10px 3px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'var(--font-data)', borderBottom: '1px solid var(--border)' }}>CHART TYPE</div>
               {CHART_TYPES.map(ct => {
                 return (
                   <div key={ct} onMouseDown={() => { setChartType(ct); setTypeOpen(false) }} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 10px', cursor: 'pointer', background: chartType === ct ? 'rgba(240,165,0,0.08)' : 'transparent' }}>
                     <span style={{ width: 18, display: 'flex', justifyContent: 'center', color: chartType === ct ? 'var(--amber)' : 'var(--text-2)' }}><NexusIcon name={CHART_TYPE_META[ct].icon} size={15} /></span>
                     <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: chartType === ct ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{ct}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: chartType === ct ? '#fff' : 'var(--text-2)', fontFamily: 'var(--font-data)' }}>{ct}</span>
                       <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{CHART_TYPE_META[ct].hint}</span>
                     </div>
                   </div>
@@ -1393,7 +1393,7 @@ export default function ChartPanel() {
             onClick={() => setIndOpen(v => !v)}
             style={{
               padding: '2px 9px', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+              fontFamily: 'var(--font-data)', fontSize: '11px',
               border: `1px solid ${indOpen || activeInds.size > 0 ? 'var(--teal)' : 'var(--border)'}`,
               background: indOpen ? 'rgba(0,229,192,0.1)' : activeInds.size > 0 ? 'rgba(0,229,192,0.06)' : 'transparent',
               color: indOpen || activeInds.size > 0 ? 'var(--teal)' : 'var(--text-2)',
@@ -1415,7 +1415,7 @@ export default function ChartPanel() {
               borderRadius: '5px', width: '200px',
               boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden',
             }}>
-              <div style={{ padding: '5px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>OVERLAYS</div>
+              <div style={{ padding: '5px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', borderBottom: '1px solid var(--border)' }}>OVERLAYS</div>
               {INDICATORS.filter(i => i.group === 'overlay').map(ind => (
                 <div
                   key={ind.id}
@@ -1434,10 +1434,10 @@ export default function ChartPanel() {
                     {activeInds.has(ind.id) && <span style={{ color: '#000', fontSize: '10px', lineHeight: 1, fontWeight: 900 }}>✓</span>}
                   </div>
                   <div style={{ width: '12px', height: '2px', borderRadius: '1px', background: ind.color, flexShrink: 0, opacity: 0.8 }} />
-                  <span style={{ fontSize: '11px', color: activeInds.has(ind.id) ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{ind.label}</span>
+                  <span style={{ fontSize: '11px', color: activeInds.has(ind.id) ? '#fff' : 'var(--text-2)', fontFamily: 'var(--font-data)' }}>{ind.label}</span>
                 </div>
               ))}
-              <div style={{ padding: '5px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>OSCILLATORS</div>
+              <div style={{ padding: '5px 10px 3px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>OSCILLATORS</div>
               {INDICATORS.filter(i => i.group === 'oscillator').map(ind => (
                 <div
                   key={ind.id}
@@ -1456,13 +1456,13 @@ export default function ChartPanel() {
                     {activeInds.has(ind.id) && <span style={{ color: '#000', fontSize: '10px', lineHeight: 1, fontWeight: 900 }}>✓</span>}
                   </div>
                   <div style={{ width: '12px', height: '2px', borderRadius: '1px', background: ind.color, flexShrink: 0, opacity: 0.8 }} />
-                  <span style={{ fontSize: '11px', color: activeInds.has(ind.id) ? '#fff' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>{ind.label}</span>
+                  <span style={{ fontSize: '11px', color: activeInds.has(ind.id) ? '#fff' : 'var(--text-2)', fontFamily: 'var(--font-data)' }}>{ind.label}</span>
                 </div>
               ))}
               {activeInds.size > 0 && (
                 <div
                   onMouseDown={() => setActiveInds(new Set())}
-                  style={{ padding: '5px 10px', cursor: 'pointer', borderTop: '1px solid var(--border)', fontSize: '10px', color: 'var(--negative)', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center', transition: 'background 0.08s' }}
+                  style={{ padding: '5px 10px', cursor: 'pointer', borderTop: '1px solid var(--border)', fontSize: '10px', color: 'var(--negative)', fontFamily: 'var(--font-data)', textAlign: 'center', transition: 'background 0.08s' }}
                 >
                   Clear all
                 </div>
@@ -1479,12 +1479,12 @@ export default function ChartPanel() {
           {compareOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 200, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 5, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', padding: 8 }}>
               <div style={{ display: 'flex', gap: 4 }}>
-                <input value={compareInput} onChange={e => setCompareInput(e.target.value.toUpperCase())} onKeyDown={e => e.key === 'Enter' && addCompare()} placeholder="e.g. MSFT" style={{ flex: 1, background: 'var(--bg-deep)', border: '1px solid var(--border)', borderRadius: 3, color: '#fff', fontSize: 11, padding: '3px 6px', fontFamily: 'JetBrains Mono, monospace', outline: 'none' }} />
+                <input value={compareInput} onChange={e => setCompareInput(e.target.value.toUpperCase())} onKeyDown={e => e.key === 'Enter' && addCompare()} placeholder="e.g. MSFT" style={{ flex: 1, background: 'var(--bg-deep)', border: '1px solid var(--border)', borderRadius: 3, color: '#fff', fontSize: 11, padding: '3px 6px', fontFamily: 'var(--font-data)', outline: 'none' }} />
                 <button onClick={addCompare} disabled={compareSyms.length >= 3} style={{ ...miniBtn(false), opacity: compareSyms.length >= 3 ? 0.5 : 1 }}>Add</button>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                 {compareSyms.map((s, i) => (
-                  <span key={s} style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', padding: '1px 6px', borderRadius: 3, color: COMPARE_COLORS[i % 3], border: `1px solid ${COMPARE_COLORS[i % 3]}55`, cursor: 'pointer' }} onClick={() => removeCompare(s)}>{s} ×</span>
+                  <span key={s} style={{ fontSize: 10, fontFamily: 'var(--font-data)', padding: '1px 6px', borderRadius: 3, color: COMPARE_COLORS[i % 3], border: `1px solid ${COMPARE_COLORS[i % 3]}55`, cursor: 'pointer' }} onClick={() => removeCompare(s)}>{s} ×</span>
                 ))}
                 {compareSyms.length === 0 && <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Up to 3 · rebased to 0% at start</span>}
               </div>
@@ -1499,10 +1499,10 @@ export default function ChartPanel() {
           </button>
           {tplOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 180, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 5, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden' }}>
-              <div onMouseDown={saveTemplate} style={{ padding: '6px 10px', fontSize: 10, color: 'var(--teal)', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', borderBottom: '1px solid var(--border)' }}>＋ Save current layout</div>
-              {templates.length === 0 && <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>No saved layouts</div>}
+              <div onMouseDown={saveTemplate} style={{ padding: '6px 10px', fontSize: 10, color: 'var(--teal)', cursor: 'pointer', fontFamily: 'var(--font-data)', borderBottom: '1px solid var(--border)' }}>＋ Save current layout</div>
+              {templates.length === 0 && <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>No saved layouts</div>}
               {templates.map(t => (
-                <div key={t.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 10px', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}>
+                <div key={t.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 10px', fontSize: 10, fontFamily: 'var(--font-data)' }}>
                   <span onMouseDown={() => applyTemplate(t)} style={{ color: 'var(--text-2)', cursor: 'pointer', flex: 1 }}>{t.name} · {t.tf} · {t.chartType}</span>
                   <span onMouseDown={() => deleteTemplate(t.name)} style={{ color: 'var(--negative)', cursor: 'pointer', paddingLeft: 6 }}>×</span>
                 </div>
@@ -1523,7 +1523,7 @@ export default function ChartPanel() {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '3px',
                     padding: '2px 7px', borderRadius: '3px', fontSize: '11px', flexShrink: 0,
-                    fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', whiteSpace: 'nowrap',
+                    fontFamily: 'var(--font-data)', cursor: 'pointer', whiteSpace: 'nowrap',
                     background: ind.group === 'oscillator' ? 'rgba(240,165,0,0.1)' : 'rgba(0,229,192,0.08)',
                     border: `1px solid ${ind.group === 'oscillator' ? 'rgba(240,165,0,0.3)' : 'rgba(0,229,192,0.25)'}`,
                     color: ind.group === 'oscillator' ? 'var(--amber)' : 'var(--teal)',
@@ -1552,7 +1552,7 @@ export default function ChartPanel() {
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000, width: 168, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', overflow: 'hidden', paddingBottom: 4 }}>
               {TF_GROUPS.map(g => (
                 <div key={g.label}>
-                  <div style={{ padding: '6px 10px 3px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace' }}>{g.label.toUpperCase()}</div>
+                  <div style={{ padding: '6px 10px 3px', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'var(--font-data)' }}>{g.label.toUpperCase()}</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, padding: '0 8px' }}>
                     {g.items.map(t => (
                       <button key={t} onMouseDown={() => { setTf(t); setIntervalOpen(false) }} style={{ ...miniBtn(tf === t), minWidth: 36 }}>{t}</button>
@@ -1563,9 +1563,9 @@ export default function ChartPanel() {
             </div>
           )}
         </div>
-        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', flexShrink: 0 }}>{TF_CFG[tf].label}</span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-data)', whiteSpace: 'nowrap', flexShrink: 0 }}>{TF_CFG[tf].label}</span>
         {chartType === 'P&F' && (
-          <span style={{ fontSize: 10, color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', border: '1px solid rgba(240,165,0,0.3)', padding: '2px 8px', borderRadius: 3, background: 'rgba(240,165,0,0.08)', flexShrink: 0 }}>X up · O down · 3-box</span>
+          <span style={{ fontSize: 10, color: 'var(--amber)', fontFamily: 'var(--font-data)', border: '1px solid rgba(240,165,0,0.3)', padding: '2px 8px', borderRadius: 3, background: 'rgba(240,165,0,0.08)', flexShrink: 0 }}>X up · O down · 3-box</span>
         )}
 
         {/* right-aligned display tools */}
@@ -1575,7 +1575,7 @@ export default function ChartPanel() {
               <div style={{ display: 'inline-flex', border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden', height: 24 }} title="Price-axis scale">
                 {(['normal', 'log', 'pct'] as const).map((m, i) => (
                   <button key={m} onClick={() => applyScale(m)} title={m === 'normal' ? 'Linear scale' : m === 'log' ? 'Logarithmic scale' : 'Percent scale'} style={{
-                    padding: '0 9px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, height: '100%',
+                    padding: '0 9px', cursor: 'pointer', fontFamily: 'var(--font-data)', fontSize: 11, height: '100%',
                     border: 'none', borderLeft: i ? '1px solid var(--border)' : 'none',
                     background: scaleMode === m ? 'rgba(0,229,192,0.16)' : 'transparent',
                     color: scaleMode === m ? 'var(--teal)' : 'var(--text-2)',
@@ -1592,7 +1592,7 @@ export default function ChartPanel() {
           <div style={{ position: 'relative' }} onMouseEnter={() => setAnalysisHover(true)} onMouseLeave={() => setAnalysisHover(false)}>
             <button onClick={() => setAnalysisOpen(o => !o)} title="Pattern recognition & technical analysis" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, height: 26, padding: '0 12px', borderRadius: 4, cursor: 'pointer', flexShrink: 0,
-              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 11, letterSpacing: '0.04em',
+              fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: 11, letterSpacing: '0.04em',
               border: `1px solid ${analysisOpen || analysisHover ? 'var(--teal)' : 'var(--border)'}`,
               background: analysisOpen ? 'rgba(0,229,192,0.16)' : 'rgba(0,229,192,0.04)',
               color: analysisOpen || analysisHover ? 'var(--teal)' : '#dfe8f0', transition: 'all 0.12s',
@@ -1609,29 +1609,29 @@ export default function ChartPanel() {
               const setVis = (v: PatternVisibility) => { setPatternVis(v); visRef.current = v; try { seriesR.current.candle?.setMarkers(buildCandleMarkers(analysis.candlestick, v)) } catch {}; redrawOverlay() }
               return (
                 <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 1001, width: 248, background: 'var(--bg-panel)', border: '1px solid var(--teal)', borderRadius: 6, boxShadow: '0 14px 44px rgba(0,0,0,0.75)', padding: 11 }}>
-                  <div style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>WHAT&apos;S ON THIS CHART</div>
+                  <div style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.12em', fontFamily: 'var(--font-data)', marginBottom: 8 }}>WHAT&apos;S ON THIS CHART</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>Technical rating</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: rd.color }}>{rd.text}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>Technical rating</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'var(--font-ui)', color: rd.color }}>{rd.text}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 9 }}>
-                    <span style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>Structure</span>
-                    <span style={{ fontSize: 10, color: analysis.structure.bias === 'uptrend' ? '#00c97a' : analysis.structure.bias === 'downtrend' ? '#ff4560' : '#a0a0a0', fontFamily: 'JetBrains Mono, monospace', textTransform: 'capitalize' }}>{analysis.structure.bias}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'var(--font-data)' }}>Structure</span>
+                    <span style={{ fontSize: 10, color: analysis.structure.bias === 'uptrend' ? '#00c97a' : analysis.structure.bias === 'downtrend' ? '#ff4560' : '#a0a0a0', fontFamily: 'var(--font-data)', textTransform: 'capitalize' }}>{analysis.structure.bias}</span>
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>{pats.length} pattern{pats.length === 1 ? '' : 's'} detected</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-2)', fontFamily: 'var(--font-data)', marginBottom: 5 }}>{pats.length} pattern{pats.length === 1 ? '' : 's'} detected</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
                     {pats.slice(0, 4).map((d, i) => (
-                      <span key={i} style={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', padding: '1px 6px', borderRadius: 3, color: d.direction === 'bullish' ? '#00c97a' : d.direction === 'bearish' ? '#ff4560' : '#f0a500', border: `1px solid ${(d.direction === 'bullish' ? '#00c97a' : d.direction === 'bearish' ? '#ff4560' : '#f0a500')}55` }}>{d.name} {d.confidence}</span>
+                      <span key={i} style={{ fontSize: 9, fontFamily: 'var(--font-data)', padding: '1px 6px', borderRadius: 3, color: d.direction === 'bullish' ? '#00c97a' : d.direction === 'bearish' ? '#ff4560' : '#f0a500', border: `1px solid ${(d.direction === 'bullish' ? '#00c97a' : d.direction === 'bearish' ? '#ff4560' : '#f0a500')}55` }}>{d.name} {d.confidence}</span>
                     ))}
                     {pats.length === 0 && <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>None on this timeframe</span>}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginRight: 'auto' }}>OVERLAY</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'var(--font-data)', marginRight: 'auto' }}>OVERLAY</span>
                     {(['all', 'confirmed', 'off'] as PatternVisibility[]).map(v => (
                       <button key={v} onClick={() => setVis(v)} style={{ ...miniBtn(patternVis === v), height: 20, minWidth: 0, fontSize: 9, textTransform: 'capitalize' }}>{v}</button>
                     ))}
                   </div>
-                  <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 9, fontFamily: 'JetBrains Mono, monospace' }}>Click for the full analysis panel →</div>
+                  <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 9, fontFamily: 'var(--font-data)' }}>Click for the full analysis panel →</div>
                 </div>
               )
             })()}
@@ -1646,25 +1646,25 @@ export default function ChartPanel() {
           display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap',
           background: 'rgba(0,0,0,0.22)',
         }}>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '20px', color: '#fff', letterSpacing: '-0.02em' }}>
+          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: '20px', color: '#fff', letterSpacing: '-0.02em' }}>
             {quote.c?.toFixed(2)}
           </span>
-          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', color: isUp ? 'var(--positive)' : 'var(--negative)' }}>
+          <span style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: isUp ? 'var(--positive)' : 'var(--negative)' }}>
             {isUp ? '+' : ''}{quote.d?.toFixed(2)}&nbsp;({isUp ? '+' : ''}{quote.dp?.toFixed(2)}%)
           </span>
-          <span style={{ fontSize: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>{effectiveSym}</span>
+          <span style={{ fontSize: '10px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>{effectiveSym}</span>
           {chartType !== 'Candle' && (
-            <span style={{ fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace', padding: '2px 7px', borderRadius: '2px', border: '1px solid rgba(240,165,0,0.3)', background: 'rgba(240,165,0,0.08)' }}>
+            <span style={{ fontSize: '11px', color: 'var(--amber)', fontFamily: 'var(--font-data)', padding: '2px 7px', borderRadius: '2px', border: '1px solid rgba(240,165,0,0.3)', background: 'rgba(240,165,0,0.08)' }}>
               {chartType.toUpperCase()}
             </span>
           )}
           {(hasRsi || hasMacd) && (
-            <span style={{ fontSize: '11px', color: 'var(--teal)', fontFamily: 'JetBrains Mono, monospace', marginLeft: '2px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--teal)', fontFamily: 'var(--font-data)', marginLeft: '2px' }}>
               {[hasRsi && 'RSI', hasMacd && 'MACD'].filter(Boolean).join(' · ')}
             </span>
           )}
           <button onClick={addAlert} title="Set a price alert (fires while this tab is open)" style={{ ...miniBtn(false), marginLeft: 'auto', width: 'auto', padding: '0 9px' }}><NexusIcon name="alert" size={13} /> Alert</button>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>scroll=zoom · drag=pan</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>scroll=zoom · drag=pan</span>
         </div>
       )}
 
@@ -1679,13 +1679,13 @@ export default function ChartPanel() {
         )}
         {/* alert toast */}
         {alertToast && (
-          <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(9,12,16,0.94)', border: '1px solid var(--teal)', borderRadius: 5, padding: '6px 12px', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--teal)', boxShadow: '0 8px 30px rgba(0,0,0,0.6)', maxWidth: '90%' }}>
+          <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(9,12,16,0.94)', border: '1px solid var(--teal)', borderRadius: 5, padding: '6px 12px', fontFamily: 'var(--font-data)', fontSize: 11, color: 'var(--teal)', boxShadow: '0 8px 30px rgba(0,0,0,0.6)', maxWidth: '90%' }}>
             <NexusIcon name="alert" size={13} /> {alertToast}
           </div>
         )}
         {loading && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(9,12,16,0.78)' }}>
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.12em' }}>
+            <span style={{ fontFamily: 'var(--font-data)', fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.12em' }}>
               LOADING {effectiveSym}…
             </span>
           </div>
@@ -1694,7 +1694,7 @@ export default function ChartPanel() {
         {/* OHLCV tooltip */}
         <div ref={tooltipRef} style={{
           position: 'absolute', top: '6px', left: '8px', zIndex: 8,
-          fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+          fontFamily: 'var(--font-data)', fontSize: '11px',
           opacity: 0, pointerEvents: 'none',
           background: 'rgba(9,12,16,0.88)', padding: '3px 10px',
           borderRadius: '3px', border: '1px solid var(--border)',
@@ -1703,13 +1703,13 @@ export default function ChartPanel() {
 
         {/* Volume separator */}
         <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, height: '1px', background: '#1c1f25', zIndex: 5, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', left: '8px', top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, zIndex: 6, fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>VOL</div>
+        <div style={{ position: 'absolute', left: '8px', top: `${hasRsi && hasMacd ? 58 : hasRsi || hasMacd ? 72 : 85}%`, zIndex: 6, fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', pointerEvents: 'none', marginTop: '2px' }}>VOL</div>
 
         {/* RSI separator */}
         {hasRsi && (
           <>
             <div style={{ position: 'absolute', left: 0, right: 0, top: `${hasMacd ? 73 : 84}%`, height: '1px', background: '#1c1f25', zIndex: 5, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', left: '8px', top: `${hasMacd ? 73 : 84}%`, zIndex: 6, fontSize: '11px', color: '#f0a50077', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>RSI 14</div>
+            <div style={{ position: 'absolute', left: '8px', top: `${hasMacd ? 73 : 84}%`, zIndex: 6, fontSize: '11px', color: '#f0a50077', fontFamily: 'var(--font-data)', pointerEvents: 'none', marginTop: '2px' }}>RSI 14</div>
           </>
         )}
 
@@ -1717,7 +1717,7 @@ export default function ChartPanel() {
         {hasMacd && (
           <>
             <div style={{ position: 'absolute', left: 0, right: 0, top: '87%', height: '1px', background: '#1c1f25', zIndex: 5, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', left: '8px', top: '87%', zIndex: 6, fontSize: '11px', color: '#1e90ff77', fontFamily: 'JetBrains Mono, monospace', pointerEvents: 'none', marginTop: '2px' }}>MACD</div>
+            <div style={{ position: 'absolute', left: '8px', top: '87%', zIndex: 6, fontSize: '11px', color: '#1e90ff77', fontFamily: 'var(--font-data)', pointerEvents: 'none', marginTop: '2px' }}>MACD</div>
           </>
         )}
 
@@ -1726,7 +1726,7 @@ export default function ChartPanel() {
           <div style={{ position: 'absolute', inset: 0, zIndex: 7, overflowX: 'auto', overflowY: 'auto', background: '#000000' }}>
             {pfData.length > 0
               ? <canvas ref={pfCanvasRef} style={{ display: 'block', cursor: 'crosshair' }} />
-              : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>
+              : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', fontSize: '11px' }}>
                   {loading ? 'Computing P&F…' : 'Not enough price swings for P&F'}
                 </div>
             }

@@ -123,7 +123,7 @@ function HelpOverlay({ onClose }: { onClose: () => void }) {
       <div role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" className="nx-dialog" onClick={e => e.stopPropagation()} style={{
         width: 'min(440px, 92vw)', background: 'var(--bg-deep)',
         border: '1px solid var(--border)', borderRadius: '8px', padding: '18px 20px',
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'var(--font-data)',
         boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
       }}>
         <div style={{ fontSize: '13px', color: '#fff', fontWeight: 700, letterSpacing: '0.1em',
@@ -158,7 +158,7 @@ function KeyboardHint() {
     <div style={{
       position: 'fixed', left: '10px', bottom: '10px', zIndex: 80,
       fontSize: '10px', color: 'var(--text-muted)',
-      fontFamily: 'JetBrains Mono, monospace',
+      fontFamily: 'var(--font-data)',
       letterSpacing: '0.08em',
       padding: '4px 8px', borderRadius: '3px',
       background: 'rgba(0,0,0,0.4)',

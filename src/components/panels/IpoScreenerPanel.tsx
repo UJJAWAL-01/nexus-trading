@@ -75,7 +75,7 @@ export default function IpoScreenerPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot" style={{ background: '#ff6b6b' }} />
           IPO SCREENER
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
             {ipos.length} listings
           </span>
           {guide.button}
@@ -89,11 +89,11 @@ export default function IpoScreenerPanel() {
         display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center',
         background: 'rgba(0,0,0,0.12)',
       }}>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>STATUS</span>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>STATUS</span>
         {(['all', 'upcoming', 'recent'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
             padding: '4px 10px', borderRadius: '3px', cursor: 'pointer',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+            fontFamily: 'var(--font-data)', fontSize: '11px',
             border: `1px solid ${filter === f ? 'var(--amber)' : 'var(--border)'}`,
             background: filter === f ? 'rgba(240,165,0,0.12)' : 'transparent',
             color: filter === f ? 'var(--amber)' : 'var(--text-muted)',
@@ -106,13 +106,13 @@ export default function IpoScreenerPanel() {
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {loading ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-data)' }}>
             LOADING IPO DATA...
           </div>
         ) : error ? (
           <div style={{
             padding: '32px 20px', textAlign: 'center',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: '11px',
+            fontFamily: 'var(--font-data)', fontSize: '11px',
             lineHeight: 1.6,
           }}>
             <div style={{ color: 'var(--negative)', marginBottom: '6px' }}>⚠ Failed to load IPO data</div>
@@ -123,18 +123,18 @@ export default function IpoScreenerPanel() {
                 padding: '5px 14px', borderRadius: '3px', cursor: 'pointer',
                 border: '1px solid var(--amber)', background: 'rgba(240,165,0,0.10)',
                 color: 'var(--amber)', fontSize: '11px',
-                fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em', fontWeight: 700,
+                fontFamily: 'var(--font-data)', letterSpacing: '0.08em', fontWeight: 700,
               }}
             >↺ RETRY</button>
           </div>
         ) : ipos.length === 0 ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-data)' }}>
             No IPOs match your filters
           </div>
         ) : (
           <table style={{
             width: '100%', borderCollapse: 'collapse',
-            fontSize: '11px', fontFamily: 'JetBrains Mono, monospace',
+            fontSize: '11px', fontFamily: 'var(--font-data)',
           }}>
             <thead style={{ background: 'rgba(0,0,0,0.25)', position: 'sticky', top: 0 }}>
               <tr>

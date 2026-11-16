@@ -317,7 +317,7 @@ function MobilePanelCard({ id, hidden, onToggle }: {
           }} />
           <div>
             <div style={{
-              fontFamily:    'Syne, sans-serif',
+              fontFamily:    'var(--font-ui)',
               fontWeight:    800,
               fontSize:      '13px',
               color:         '#fff',
@@ -328,7 +328,7 @@ function MobilePanelCard({ id, hidden, onToggle }: {
             <div style={{
               fontSize:   '10px',
               color:      'var(--text-muted)',
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'var(--font-data)',
               marginTop:  '1px',
             }}>
               {meta.description}
@@ -529,7 +529,7 @@ export default function GridLayout() {
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100vh', color: 'var(--text-muted)',
-        fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', letterSpacing: '0.12em',
+        fontFamily: 'var(--font-data)', fontSize: '13px', letterSpacing: '0.12em',
         flexDirection: 'column', gap: '12px',
       }}>
         <div style={{
@@ -567,7 +567,7 @@ export default function GridLayout() {
                 padding:    '5px 12px',
                 borderRadius:'3px',
                 cursor:     'pointer',
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: 'var(--font-data)',
                 fontSize:   '10px',
                 letterSpacing: '0.08em',
                 border:     `1px solid ${showWorkspaceMenu ? 'var(--amber)' : 'var(--border)'}`,
@@ -593,7 +593,7 @@ export default function GridLayout() {
                 padding:    '5px 12px',
                 borderRadius:'3px',
                 cursor:     'pointer',
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: 'var(--font-data)',
                 fontSize:   '10px',
                 letterSpacing: '0.08em',
                 border:     `1px solid ${showMenu ? 'var(--teal)' : 'var(--border)'}`,
@@ -622,7 +622,7 @@ export default function GridLayout() {
                     <div style={{
                       fontSize:    '10px',
                       color:       'var(--text-muted)',
-                      fontFamily:  'JetBrains Mono, monospace',
+                      fontFamily:  'var(--font-data)',
                       letterSpacing: '0.12em',
                       marginBottom: '4px',
                       padding:     '0 4px',
@@ -654,7 +654,7 @@ export default function GridLayout() {
                             <span style={{
                               fontSize:   '11px',
                               color:      visible ? '#fff' : 'var(--text-muted)',
-                              fontFamily: 'JetBrains Mono, monospace',
+                              fontFamily: 'var(--font-data)',
                             }}>
                               {meta.label}
                             </span>
@@ -725,7 +725,7 @@ export default function GridLayout() {
               onClick={() => { setShowWorkspaceMenu(v => !v); setShowMenu(false) }}
               style={{
                 padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-                fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+                fontFamily: 'var(--font-data)', fontSize: '10px',
                 border: `1px solid ${showWorkspaceMenu ? 'var(--amber)' : 'var(--border)'}`,
                 background: showWorkspaceMenu ? 'rgba(240,165,0,0.10)' : 'transparent',
                 color: showWorkspaceMenu ? 'var(--amber)' : 'var(--text-muted)',
@@ -746,7 +746,7 @@ export default function GridLayout() {
               onClick={() => { setShowMenu(v => !v); setShowWorkspaceMenu(false) }}
               style={{
                 padding: '4px 12px', borderRadius: '3px', cursor: 'pointer',
-                fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+                fontFamily: 'var(--font-data)', fontSize: '10px',
                 border: `1px solid ${showMenu ? 'var(--teal)' : 'var(--border)'}`,
                 background: showMenu ? 'rgba(0,229,192,0.1)' : 'transparent',
                 color: showMenu ? 'var(--teal)' : 'var(--text-muted)',
@@ -766,7 +766,7 @@ export default function GridLayout() {
 
   const btnBase: React.CSSProperties = {
     padding: '4px 14px', borderRadius: '3px', cursor: 'pointer',
-    fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
+    fontFamily: 'var(--font-data)', fontSize: '10px',
     letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'all 0.15s',
   }
 
@@ -803,14 +803,14 @@ export default function GridLayout() {
         }}>
         {editing && (
           <span style={{
-            fontSize: '11px', color: 'var(--amber)', fontFamily: 'JetBrains Mono, monospace',
+            fontSize: '11px', color: 'var(--amber)', fontFamily: 'var(--font-data)',
             letterSpacing: '0.06em', marginRight: 'auto', marginLeft: '4px',
           }}>
             drag headers to move · corner to resize
           </span>
         )}
         {saved && !editing && (
-          <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
+          <span style={{ fontSize: '10px', color: 'var(--positive)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>
             ✓ layout saved
           </span>
         )}
@@ -928,10 +928,10 @@ export default function GridLayout() {
                     onMouseUp={e   => { e.currentTarget.style.cursor = 'grab' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>⠿ DRAG</span>
-                      <span style={{ fontSize: '11px', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: meta.color, letterSpacing: '0.1em' }}>{meta.label}</span>
+                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.08em' }}>⠿ DRAG</span>
+                      <span style={{ fontSize: '11px', fontFamily: 'var(--font-ui)', fontWeight: 700, color: meta.color, letterSpacing: '0.1em' }}>{meta.label}</span>
                     </div>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>↔ move · ↘ resize</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>↔ move · ↘ resize</span>
                   </div>
                 )}
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, borderRadius: editing ? '0 0 6px 6px' : '6px' }}>
@@ -1058,7 +1058,7 @@ function WorkspaceMenu({ active, onPick, onClose }: {
       }}>
         <span style={{
           fontSize: '10px', color: 'var(--text-muted)',
-          fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.14em',
+          fontFamily: 'var(--font-data)', letterSpacing: '0.14em',
         }}>
           WORKSPACES
         </span>
@@ -1087,7 +1087,7 @@ function WorkspaceMenu({ active, onPick, onClose }: {
               background:     isActive ? 'rgba(240,165,0,0.10)' : 'transparent',
               borderColor:    isActive ? 'rgba(240,165,0,0.4)' : 'transparent',
               cursor:         'pointer',
-              fontFamily:     'JetBrains Mono, monospace',
+              fontFamily:     'var(--font-data)',
               transition:     'background 0.12s',
               marginBottom:   '2px',
             }}
@@ -1167,7 +1167,7 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
         paddingBottom:  '6px',
         borderBottom:   '1px solid var(--border)',
       }}>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', letterSpacing: '0.1em' }}>
           TOGGLE PANELS
         </span>
         <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px' }}>
@@ -1180,7 +1180,7 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
           <div style={{
             fontSize:    '10px',
             color:       'var(--text-muted)',
-            fontFamily:  'JetBrains Mono, monospace',
+            fontFamily:  'var(--font-data)',
             letterSpacing:'0.12em',
             marginBottom:'4px',
             paddingLeft: '4px',
@@ -1213,10 +1213,10 @@ function PanelMenu({ hidden, toggleHide, onClose }: {
                     transition: 'background 0.15s',
                   }} />
                   <div>
-                    <div style={{ fontSize: '11px', color: visible ? '#fff' : 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <div style={{ fontSize: '11px', color: visible ? '#fff' : 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {meta.label}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-data)' }}>
                       {meta.description}
                     </div>
                   </div>

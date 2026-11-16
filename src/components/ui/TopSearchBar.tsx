@@ -256,7 +256,7 @@ export default function TopSearchBar() {
                     {r.type && r.type !== 'RECENT' && r.type !== 'WATCH' && (
                       <span className="row-type">{r.type}</span>
                     )}
-                    {r.type === 'RECENT' && <span className="row-tag">⏱ recent</span>}
+                    {r.type === 'RECENT' && <span className="row-tag">recent</span>}
                     {r.type === 'WATCH' && <span className="row-tag">★ watch</span>}
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function TopSearchBar() {
           border: none;
           outline: none;
           color: #fff;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-data);
           font-size: 12px;
           letter-spacing: 0.04em;
           padding: 0;
@@ -341,7 +341,7 @@ export default function TopSearchBar() {
         .top-search-kbd kbd,
         .top-search-foot kbd,
         .top-search-status kbd {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-data);
           font-size: 9px;
           background: rgba(255,255,255,0.06);
           border: 1px solid var(--border);
@@ -364,7 +364,7 @@ export default function TopSearchBar() {
           max-height: 70vh;
           overflow-y: auto;
           z-index: 1100;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-data);
           animation: top-search-slide 0.12s ease-out;
         }
         @keyframes top-search-slide {
